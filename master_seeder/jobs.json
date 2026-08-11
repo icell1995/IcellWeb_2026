@@ -1,0 +1,567 @@
+[
+    {
+        "IdEMP": 0,
+        "Nama": "Tidak Diketahui",
+        "IdPuskarda": 0
+    },
+    {
+        "IdEMP": 4,
+        "Nama": "PNS",
+        "IdPuskarda": 5
+    },
+    {
+        "IdEMP": 5,
+        "Nama": "Mahasiswa",
+        "IdPuskarda": 3
+    },
+    {
+        "IdEMP": 6,
+        "Nama": "Karyawan Swasta",
+        "IdPuskarda": 15
+    },
+    {
+        "IdEMP": 7,
+        "Nama": "Polri",
+        "IdPuskarda": 7
+    },
+    {
+        "IdEMP": 8,
+        "Nama": "Buruh",
+        "IdPuskarda": 19
+    },
+    {
+        "IdEMP": 9,
+        "Nama": "Pelajar",
+        "IdPuskarda": 3
+    },
+    {
+        "IdEMP": 10,
+        "Nama": "Wiraswasta",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 11,
+        "Nama": "Tuna Karya",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 12,
+        "Nama": "TNI AU",
+        "IdPuskarda": 6
+    },
+    {
+        "IdEMP": 13,
+        "Nama": "Juru Bahasa",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 14,
+        "Nama": "Nelayan",
+        "IdPuskarda": 11
+    },
+    {
+        "IdEMP": 15,
+        "Nama": "Tani",
+        "IdPuskarda": 9
+    },
+    {
+        "IdEMP": 16,
+        "Nama": "Pengacara",
+        "IdPuskarda": 67
+    },
+    {
+        "IdEMP": 17,
+        "Nama": "Dosen",
+        "IdPuskarda": 64
+    },
+    {
+        "IdEMP": 18,
+        "Nama": "Guru",
+        "IdPuskarda": 65
+    },
+    {
+        "IdEMP": 19,
+        "Nama": "Supir",
+        "IdPuskarda": 81
+    },
+    {
+        "IdEMP": 20,
+        "Nama": "Pendeta",
+        "IdPuskarda": 42
+    },
+    {
+        "IdEMP": 21,
+        "Nama": "Wartawan",
+        "IdPuskarda": 44
+    },
+    {
+        "IdEMP": 23,
+        "Nama": "Honorer",
+        "IdPuskarda": 18
+    },
+    {
+        "IdEMP": 24,
+        "Nama": "ABK",
+        "IdPuskarda": 21
+    },
+    {
+        "IdEMP": 25,
+        "Nama": "Hakim",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 26,
+        "Nama": "Jaksa",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 28,
+        "Nama": "Advokat",
+        "IdPuskarda": 67
+    },
+    {
+        "IdEMP": 29,
+        "Nama": "Dukun Beranak",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 30,
+        "Nama": "Akuntan",
+        "IdPuskarda": 70
+    },
+    {
+        "IdEMP": 31,
+        "Nama": "Apoteker",
+        "IdPuskarda": 75
+    },
+    {
+        "IdEMP": 32,
+        "Nama": "Atlet / Olahragawan",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 33,
+        "Nama": "Pelaut",
+        "IdPuskarda": 79
+    },
+    {
+        "IdEMP": 35,
+        "Nama": "Bidan",
+        "IdPuskarda": 73
+    },
+    {
+        "IdEMP": 36,
+        "Nama": "Dokter",
+        "IdPuskarda": 72
+    },
+    {
+        "IdEMP": 37,
+        "Nama": "Mucikari",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 38,
+        "Nama": "Notaris",
+        "IdPuskarda": 68
+    },
+    {
+        "IdEMP": 39,
+        "Nama": "Paramedis",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 40,
+        "Nama": "Paranormal",
+        "IdPuskarda": 83
+    },
+    {
+        "IdEMP": 41,
+        "Nama": "Pilot",
+        "IdPuskarda": 66
+    },
+    {
+        "IdEMP": 42,
+        "Nama": "Seniman",
+        "IdPuskarda": 36
+    },
+    {
+        "IdEMP": 44,
+        "Nama": "Pramugari",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 45,
+        "Nama": "Mengurus Rumah Tangga",
+        "IdPuskarda": 2
+    },
+    {
+        "IdEMP": 46,
+        "Nama": "Pramugara",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 47,
+        "Nama": "Pemulung",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 48,
+        "Nama": "Tukang Bangunan",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 49,
+        "Nama": "Tukang Kayu",
+        "IdPuskarda": 27
+    },
+    {
+        "IdEMP": 50,
+        "Nama": "Direktur Perusahaan",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 51,
+        "Nama": "Satpam / Security Perusahaan",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 52,
+        "Nama": "Cleaning Service",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 53,
+        "Nama": "Pedagang",
+        "IdPuskarda": 84
+    },
+    {
+        "IdEMP": 54,
+        "Nama": "Tukang Ojek",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 55,
+        "Nama": "Pensiunan Pns",
+        "IdPuskarda": 4
+    },
+    {
+        "IdEMP": 56,
+        "Nama": "Debt Collector / Penagih Utang",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 57,
+        "Nama": "Purnawirawan TNI AD",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 58,
+        "Nama": "Pegawai Bumd",
+        "IdPuskarda": 17
+    },
+    {
+        "IdEMP": 59,
+        "Nama": "Pegawai Bumn",
+        "IdPuskarda": 16
+    },
+    {
+        "IdEMP": 60,
+        "Nama": "Kontraktor",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 61,
+        "Nama": "Anggota DPR",
+        "IdPuskarda": 48
+    },
+    {
+        "IdEMP": 62,
+        "Nama": "Gubernur",
+        "IdPuskarda": 56
+    },
+    {
+        "IdEMP": 63,
+        "Nama": "Wakil Gubernur",
+        "IdPuskarda": 57
+    },
+    {
+        "IdEMP": 66,
+        "Nama": "Mekanik",
+        "IdPuskarda": 34
+    },
+    {
+        "IdEMP": 67,
+        "Nama": "Purnawirawan TNI AL",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 68,
+        "Nama": "Purnawirawan TNI AU",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 69,
+        "Nama": "Reporter TV",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 70,
+        "Nama": "Tukang Kebun",
+        "IdPuskarda": 20
+    },
+    {
+        "IdEMP": 71,
+        "Nama": "PNS Polri",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 72,
+        "Nama": "Tukang Ledeng / Pipa",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 74,
+        "Nama": "Purnawirawan Polri",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 75,
+        "Nama": "WTS",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 76,
+        "Nama": "TKI",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 77,
+        "Nama": "TNI AL",
+        "IdPuskarda": 6
+    },
+    {
+        "IdEMP": 78,
+        "Nama": "TNI AD",
+        "IdPuskarda": 6
+    },
+    {
+        "IdEMP": 79,
+        "Nama": "Bupati",
+        "IdPuskarda": 58
+    },
+    {
+        "IdEMP": 80,
+        "Nama": "Wakil Bupati",
+        "IdPuskarda": 59
+    },
+    {
+        "IdEMP": 82,
+        "Nama": "Anggota DPRD Provinsi",
+        "IdPuskarda": 62
+    },
+    {
+        "IdEMP": 83,
+        "Nama": "Anggota DPRD Kab / Kota",
+        "IdPuskarda": 63
+    },
+    {
+        "IdEMP": 84,
+        "Nama": "Perangkat Desa",
+        "IdPuskarda": 85
+    },
+    {
+        "IdEMP": 85,
+        "Nama": "Kepala Desa",
+        "IdPuskarda": 86
+    },
+    {
+        "IdEMP": 86,
+        "Nama": "Kernet Kendaraan Umum",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 87,
+        "Nama": "Porter Pelabuhan",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 88,
+        "Nama": "Porter Bandara",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 89,
+        "Nama": "Tukang Parkir",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 90,
+        "Nama": "Komisaris Perusahaan",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 91,
+        "Nama": "Legal Manager",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 92,
+        "Nama": "Tukang Pangkas Rambut",
+        "IdPuskarda": 24
+    },
+    {
+        "IdEMP": 93,
+        "Nama": "Asisten Rumah Tangga",
+        "IdPuskarda": 23
+    },
+    {
+        "IdEMP": 94,
+        "Nama": "Pegawai Bea dan Cukai",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 97,
+        "Nama": "Montir Kendaraan",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 98,
+        "Nama": "Tukang Pijit",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 99,
+        "Nama": "Ulama / Ustad",
+        "IdPuskarda": 45
+    },
+    {
+        "IdEMP": 100,
+        "Nama": "Teknisi Elektronik",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 101,
+        "Nama": "Penambang",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 102,
+        "Nama": "Buruh Pabrik",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 103,
+        "Nama": "Penjaga Sekolah",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 104,
+        "Nama": "Artis",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 105,
+        "Nama": "Pegawai Lapas / Rutan",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 109,
+        "Nama": "Tidak Bekerja",
+        "IdPuskarda": 1
+    },
+    {
+        "IdEMP": 110,
+        "Nama": "Lain-Lain",
+        "IdPuskarda": 88
+    },
+    {
+        "IdEMP": 111,
+        "Nama": "Nahkoda",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 112,
+        "Nama": "Masinis",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 113,
+        "Nama": "Menteri",
+        "IdPuskarda": 54
+    },
+    {
+        "IdEMP": 114,
+        "Nama": "Walikota",
+        "IdPuskarda": 60
+    },
+    {
+        "IdEMP": 115,
+        "Nama": "Paralegal",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 116,
+        "Nama": "Penjahit",
+        "IdPuskarda": 30
+    },
+    {
+        "IdEMP": 117,
+        "Nama": "Konsultan Hukum",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 118,
+        "Nama": "Wakil Walikota",
+        "IdPuskarda": 61
+    },
+    {
+        "IdEMP": 119,
+        "Nama": "Karyawan Bank",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 120,
+        "Nama": "Kurator",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 121,
+        "Nama": "Komisioner KPU",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 122,
+        "Nama": "Teknisi",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 123,
+        "Nama": "Pegawai OJK",
+        "IdPuskarda": "None"
+    },
+    {
+        "IdEMP": 124,
+        "Nama": "Pastor",
+        "IdPuskarda": 43
+    },
+    {
+        "IdEMP": 125,
+        "Nama": "Ketua KPK",
+        "IdPuskarda": 10
+    },
+    {
+        "IdEMP": 126,
+        "Nama": "KPK",
+        "IdPuskarda": 12
+    },
+    {
+        "IdEMP": 127,
+        "Nama": "Pensiunan",
+        "IdPuskarda": 13
+    },
+    {
+        "IdEMP": 129,
+        "Nama": "Anggota DPD RI",
+        "IdPuskarda": 19
+    }
+]

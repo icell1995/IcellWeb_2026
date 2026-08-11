@@ -1,0 +1,215 @@
+<?php
+
+namespace App\Traits;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+trait HomeQueryTraits
+{
+    protected function getAccidents()
+    {
+        return DB::table('accidents as a')
+            ->leftJoin('polres', 'polres.id', '=', 'a.polres_id')
+            ->leftJoin('polda', 'polda.id', '=', 'polres.polda_id')
+            ->selectRaw('coalesce(count(*),0) as total_laka');
+    }
+
+    protected function getDPO()
+    {
+        return DB::table('dpo')
+            ->leftJoin('accidents', 'accidents.id', '=', 'dpo.accident_id')
+            ->leftJoin('polres', 'polres.id', '=', 'accidents.polres_id')
+            ->selectRaw('coalesce(count(*),0) as total_dpo');
+    }
+
+    protected function getDPB()
+    {
+        return DB::table('dpb')
+            ->leftJoin('accidents', 'accidents.id', '=', 'dpb.accident_id')
+            ->leftJoin('polres', 'polres.id', '=', 'accidents.polres_id')
+            ->selectRaw('coalesce(count(*),0) as total_dpb');
+    }
+
+    protected function caseResolutions($beginDate, $limitDate)
+    {
+        return DB::table('lib.polices as xpolices')
+            ->select(
+                'xpolices.id as polres_id',
+                'xpolices.name as polres_name',
+                'xpolices.category as polres_category',
+                'ypolices.id as polda_id',
+                'ypolices.name as polda_name',
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0101' THEN 1 ELSE 0 END) as p21"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0102' THEN 1 ELSE 0 END) as sp3"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0103' THEN 1 ELSE 0 END) as diversi"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0108' THEN 1 ELSE 0 END) as sp2lid"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0104' THEN 1 ELSE 0 END) as pom_tni")
+            )
+            ->leftJoin('accidents', function ($join) use ($beginDate, $limitDate) {
+                $join->on('xpolices.id', '=', 'accidents.police_id')
+                    ->whereBetween('accidents.accident_date', [$beginDate, $limitDate]);
+            })
+            ->join('lib.polices as ypolices', 'xpolices.parent_id', '=', 'ypolices.id')
+            ->groupBy('xpolices.id', 'xpolices.name', 'xpolices.category', 'ypolices.id', 'ypolices.name');
+    }
+
+    protected function recapLombaCaseResolutions($recapLombaBeginDate, $recapLombaLimitDate, $recapLombaNewCrimeClearanceStartTime, $recapLombaNewCrimeClearanceEndTime)
+    {
+        return DB::table('lib.polices as xpolices')
+            ->select(
+                'xpolices.id as polres_id',
+                'xpolices.name as polres_name',
+                'xpolices.category as polres_category',
+                'ypolices.id as polda_id',
+                'ypolices.name as polda_name',
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0101' THEN 1 ELSE 0 END) as p21"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0102' THEN 1 ELSE 0 END) as sp3"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0103' THEN 1 ELSE 0 END) as diversi"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0108' THEN 1 ELSE 0 END) as sp2lid"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0104' THEN 1 ELSE 0 END) as pom_tni"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag IN ('S0101', 'S0102', 'S0103', 'S0104', 'S0108') AND accidents.special_info = 'TABRAK_LARI' THEN 1 ELSE 0 END) as crime_clearence_tabraklari"),
+                DB::raw("SUM(CASE WHEN accident_resolutions.accident_id IS NOT NULL THEN 1 ELSE 0 END) as new_entry_crime_clearence")
+            )
+            ->leftJoin('accidents', function ($join) use ($recapLombaBeginDate, $recapLombaLimitDate) {
+                $join->on('xpolices.id', '=', 'accidents.police_id')
+                    ->whereBetween('accidents.accident_date', [$recapLombaBeginDate, $recapLombaLimitDate]);
+            })
+            ->leftJoin('accident_resolutions', function ($join) use ($recapLombaNewCrimeClearanceStartTime, $recapLombaNewCrimeClearanceEndTime) {
+                $join->on('accidents.id', '=', 'accident_resolutions.accident_id')
+                    ->whereBetween('accident_resolutions.created_at', [$recapLombaNewCrimeClearanceStartTime, $recapLombaNewCrimeClearanceEndTime]);
+            })
+            ->join('lib.polices as ypolices', 'xpolices.parent_id', '=', 'ypolices.id')
+            ->groupBy('xpolices.id', 'xpolices.name', 'xpolices.category', 'ypolices.id', 'ypolices.name');
+    }
+
+    protected function recapCaseResolutions($recapBeginDate, $recapLimitDate, $recapNewCrimeClearanceStartTime, $recapNewCrimeClearanceEndTime, $recapExceptCrimeClearanceStartTime, $recapExceptCrimeClearanceEndTime)
+    {
+        return DB::table('lib.polices as xpolices')
+            ->select(
+                'xpolices.id as polres_id',
+                'xpolices.name as polres_name',
+                'xpolices.category as polres_category',
+                'ypolices.id as polda_id',
+                'ypolices.name as polda_name',
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0101' THEN 1 ELSE 0 END) as p21"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0102' THEN 1 ELSE 0 END) as sp3"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0103' THEN 1 ELSE 0 END) as diversi"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0108' THEN 1 ELSE 0 END) as sp2lid"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0104' THEN 1 ELSE 0 END) as pomtni"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag IN ('S0101', 'S0102', 'S0103', 'S0104', 'S0108') AND accidents.special_info = 'TABRAK_LARI' THEN 1 ELSE 0 END) as crime_clearance_tabraklari"),
+
+                // SIMPLE - tanpa parameter binding
+                DB::raw("SUM(CASE WHEN accident_resolutions_new.accident_id IS NOT NULL THEN 1 ELSE 0 END) as new_entry_crime_clearance"),
+                DB::raw("SUM(CASE WHEN accident_resolutions_except.accident_id IS NOT NULL AND accident_resolutions_except.type_id = 'S0101' THEN 1 ELSE 0 END) as p21_except_entry"),
+                DB::raw("SUM(CASE WHEN accident_resolutions_except.accident_id IS NOT NULL AND accident_resolutions_except.type_id = 'S0102' THEN 1 ELSE 0 END) as sp3_except_entry"),
+                DB::raw("SUM(CASE WHEN accident_resolutions_except.accident_id IS NOT NULL AND accident_resolutions_except.type_id = 'S0103' THEN 1 ELSE 0 END) as diversi_except_entry"),
+                DB::raw("SUM(CASE WHEN accident_resolutions_except.accident_id IS NOT NULL AND accident_resolutions_except.type_id = 'S0108' THEN 1 ELSE 0 END) as sp2lid_except_entry"),
+                DB::raw("SUM(CASE WHEN accident_resolutions_except.accident_id IS NOT NULL AND accidents.selra_flag <> 'S0104' THEN 1 ELSE 0 END) as except_entry_crime_clearance")
+            )
+            ->leftJoin('accidents', function ($join) use ($recapBeginDate, $recapLimitDate) {
+                $join->on('xpolices.id', '=', 'accidents.police_id')
+                    ->whereBetween('accidents.accident_date', [$recapBeginDate, $recapLimitDate]);
+            })
+            // JOIN TERPISAH untuk masing-masing time range
+            ->leftJoin('accident_resolutions as accident_resolutions_new', function ($join) use ($recapNewCrimeClearanceStartTime, $recapNewCrimeClearanceEndTime) {
+                $join->on('accidents.id', '=', 'accident_resolutions_new.accident_id')
+                    ->whereBetween('accident_resolutions_new.created_at', [$recapNewCrimeClearanceStartTime, $recapNewCrimeClearanceEndTime]);
+            })
+            ->leftJoin('accident_resolutions as accident_resolutions_except', function ($join) use ($recapExceptCrimeClearanceStartTime, $recapExceptCrimeClearanceEndTime) {
+                $join->on('accidents.id', '=', 'accident_resolutions_except.accident_id')
+                    ->whereBetween('accident_resolutions_except.created_at', [$recapExceptCrimeClearanceStartTime, $recapExceptCrimeClearanceEndTime]);
+            })
+            ->join('lib.polices as ypolices', 'xpolices.parent_id', '=', 'ypolices.id')
+            ->groupBy('xpolices.id', 'xpolices.name', 'xpolices.category', 'ypolices.id', 'ypolices.name');
+    }
+
+    protected function recap2025CaseResolutions($recap2025BeginDate, $recap2025LimitDate, $recap2025NewCrimeClearanceStartTime, $recap2025NewCrimeClearanceEndTime, $recap2025ExceptCrimeClearanceStartTime, $recap2025ExceptCrimeClearanceEndTime)
+    {
+        return DB::table('lib.polices as xpolices')
+            ->select(
+                'xpolices.id as polres_id',
+                'xpolices.name as polres_name',
+                'xpolices.category as polres_category',
+                'ypolices.id as polda_id',
+                'ypolices.name as polda_name',
+                // Data accidents
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0101' THEN 1 ELSE 0 END) as p21"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0102' THEN 1 ELSE 0 END) as sp3"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0103' THEN 1 ELSE 0 END) as diversi"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0108' THEN 1 ELSE 0 END) as sp2lid"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0104' THEN 1 ELSE 0 END) as pomtni"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag IN ('S0101', 'S0102', 'S0103', 'S0104', 'S0108') AND accidents.special_info = 'TABRAK_LARI' THEN 1 ELSE 0 END) as crime_clearance_tabraklari"),
+		DB::raw("SUM(CASE WHEN accidents.special_info = 'TABRAK_LARI' THEN 1 ELSE 0 END) as tabrak_lari"),
+
+                // Data accident_resolutions - SIMPLE tanpa binding rumit
+                DB::raw("SUM(CASE WHEN ar_new.accident_id IS NOT NULL THEN 1 ELSE 0 END) as new_entry_crime_clearance"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND ar_except.type_id = 'S0101' THEN 1 ELSE 0 END) as p21_except_entry"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND ar_except.type_id = 'S0102' THEN 1 ELSE 0 END) as sp3_except_entry"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND ar_except.type_id = 'S0103' THEN 1 ELSE 0 END) as diversi_except_entry"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND ar_except.type_id = 'S0108' THEN 1 ELSE 0 END) as sp2lid_except_entry"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND accidents.selra_flag <> 'S0104' THEN 1 ELSE 0 END) as except_entry_crime_clearance")
+            )
+            // Join accidents dengan filter date 2025
+            ->leftJoin('accidents', function ($join) use ($recap2025BeginDate, $recap2025LimitDate) {
+                $join->on('xpolices.id', '=', 'accidents.police_id')
+                    ->whereBetween('accidents.accident_date', [$recap2025BeginDate, $recap2025LimitDate]);
+            })
+            // JOIN TERPISAH untuk new crime clearance 2025
+            ->leftJoin('accident_resolutions as ar_new', function ($join) use ($recap2025NewCrimeClearanceStartTime, $recap2025NewCrimeClearanceEndTime) {
+                $join->on('accidents.id', '=', 'ar_new.accident_id')
+                    ->whereBetween('ar_new.created_at', [$recap2025NewCrimeClearanceStartTime, $recap2025NewCrimeClearanceEndTime]);
+            })
+            // JOIN TERPISAH untuk except crime clearance 2025
+            ->leftJoin('accident_resolutions as ar_except', function ($join) use ($recap2025ExceptCrimeClearanceStartTime, $recap2025ExceptCrimeClearanceEndTime) {
+                $join->on('accidents.id', '=', 'ar_except.accident_id')
+                    ->whereBetween('ar_except.created_at', [$recap2025ExceptCrimeClearanceStartTime, $recap2025ExceptCrimeClearanceEndTime]);
+            })
+            ->join('lib.polices as ypolices', 'xpolices.parent_id', '=', 'ypolices.id')
+            ->groupBy('xpolices.id', 'xpolices.name', 'xpolices.category', 'ypolices.id', 'ypolices.name');
+    }
+
+    protected function recap2026CaseResolutions($recap2026BeginDate, $recap2026LimitDate, $recap2026NewCrimeClearanceStartTime, $recap2026NewCrimeClearanceEndTime, $recap2026ExceptCrimeClearanceStartTime, $recap2026ExceptCrimeClearanceEndTime)
+    {
+        return DB::table('lib.polices as xpolices')
+            ->select(
+                'xpolices.id as polres_id',
+                'xpolices.name as polres_name',
+                'xpolices.category as polres_category',
+                'ypolices.id as polda_id',
+                'ypolices.name as polda_name',
+                // Data accidents
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0101' THEN 1 ELSE 0 END) as p21"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0102' THEN 1 ELSE 0 END) as sp3"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0103' THEN 1 ELSE 0 END) as diversi"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0108' THEN 1 ELSE 0 END) as sp2lid"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0104' THEN 1 ELSE 0 END) as pomtni"),
+                DB::raw("SUM(CASE WHEN accidents.selra_flag IN ('S0101', 'S0102', 'S0103', 'S0104', 'S0108') AND accidents.special_info = 'TABRAK_LARI' THEN 1 ELSE 0 END) as crime_clearance_tabraklari"),
+
+                // Data accident_resolutions - SIMPLE tanpa binding rumit
+                DB::raw("SUM(CASE WHEN ar_new.accident_id IS NOT NULL THEN 1 ELSE 0 END) as new_entry_crime_clearance"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND ar_except.type_id = 'S0101' THEN 1 ELSE 0 END) as p21_except_entry"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND ar_except.type_id = 'S0102' THEN 1 ELSE 0 END) as sp3_except_entry"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND ar_except.type_id = 'S0103' THEN 1 ELSE 0 END) as diversi_except_entry"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND ar_except.type_id = 'S0108' THEN 1 ELSE 0 END) as sp2lid_except_entry"),
+                DB::raw("SUM(CASE WHEN ar_except.accident_id IS NOT NULL AND accidents.selra_flag <> 'S0104' THEN 1 ELSE 0 END) as except_entry_crime_clearance")
+            )
+            // Join accidents dengan filter date 2026
+            ->leftJoin('accidents', function ($join) use ($recap2026BeginDate, $recap2026LimitDate) {
+                $join->on('xpolices.id', '=', 'accidents.police_id')
+                    ->whereBetween('accidents.accident_date', [$recap2026BeginDate, $recap2026LimitDate]);
+            })
+            // JOIN TERPISAH untuk new crime clearance 2026
+            ->leftJoin('accident_resolutions as ar_new', function ($join) use ($recap2026NewCrimeClearanceStartTime, $recap2026NewCrimeClearanceEndTime) {
+                $join->on('accidents.id', '=', 'ar_new.accident_id')
+                    ->whereBetween('ar_new.created_at', [$recap2026NewCrimeClearanceStartTime, $recap2026NewCrimeClearanceEndTime]);
+            })
+            // JOIN TERPISAH untuk except crime clearance 2026
+            ->leftJoin('accident_resolutions as ar_except', function ($join) use ($recap2026ExceptCrimeClearanceStartTime, $recap2026ExceptCrimeClearanceEndTime) {
+                $join->on('accidents.id', '=', 'ar_except.accident_id')
+                    ->whereBetween('ar_except.created_at', [$recap2026ExceptCrimeClearanceStartTime, $recap2026ExceptCrimeClearanceEndTime]);
+            })
+            ->join('lib.polices as ypolices', 'xpolices.parent_id', '=', 'ypolices.id')
+            ->groupBy('xpolices.id', 'xpolices.name', 'xpolices.category', 'ypolices.id', 'ypolices.name');
+    }
+}

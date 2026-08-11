@@ -1,0 +1,282 @@
+<div class="item">
+    <a class="btn-arrow"><span>7. Penyegelan</span><i class="fa fa-angle-right dropdown-sidemenu"></i></a>
+    <div class="sub-menu">
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat permintaan persetujuan Presiden, Mendagri,
+                    Jaksa Agung, Gubernur, Majelis Pengawas Daerah (Notaris) untuk
+                    melakukan pemanggilan/pemeriksaan terhadap pejabat tertentu; (jika
+                    ada, sesuai perkaranya)</a>
+            </div>
+            <div class="col-md-3">
+                @if ($surat_persetujuan_penyegelan == null)
+                    <i class="fa fa-pencil-square-o" id="surat_penyegelan_1" name="surat_penyegelan_1"></i>
+                @else
+                    <a target="_blank" href="/surat-persetujuan-penyegelan/{{ $id }}" id="">Lihat</a></span>
+                    <form action="/surat-persetujuan-penyegelan/{{ $id }}" method="post">
+                        @method('DELETE')
+                        @csrf
+                        <button type="submit">Delete</button>
+                    </form>
+                @endif
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat perintah pembungkusan, penyegelan dan
+                    pelabelan barang bukti; (jika ada)</a>
+            </div>
+            <div class="col-md-3">
+                @if ($surat_penyegelan == null)
+                    <i class="fa fa-pencil-square-o" id="surat_penyegelan_2" name="surat_penyegelan_2"></i>
+                @else
+                    <a href=# class="" id="edit_surat_penyegelan_2" name="edit_surat_penyegelan_2">Edit</a>
+                    <a target="_blank"
+                        href="{{ url('produktivitas/view-surat-penyegelan') }}?accident_id={{ $id }}"
+                        id="lihat_surat_penyegelan">Lihat</a></span>
+                    <form action="/surat-penyegelan/{{ $id }}" method="post">
+                        @method('DELETE')
+                        @csrf
+                        <button type="submit">Delete</button>
+                    </form>
+                @endif
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Berita acara pembungkusan, penyegelan dan
+                    pelabelan barang bukti</a>
+            </div>
+            <div class="col-md-3">
+                @if ($berita_acara_penyegelan == null)
+                    <i class="fa fa-pencil-square-o" id="surat_penyegelan_3" name="surat_penyegelan_3"></i>
+                @else
+                    <a target="_blank" href="/berita-acara-penyegelan/{{ $id }}" id="">Lihat</a></span>
+                    <form action="/berita-acara-penyegelan/{{ $id }}" method="post">
+                        @method('DELETE')
+                        @csrf
+                        <button type="submit">Delete</button>
+                    </form>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div data-backdrop="false" id="myModalPenyegelan1" name="myModalPenyegelan1" class="modal fade bd-example-modal-lg"
+    tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    {{-- <div id="myModal" name="myModalDelete" class="modal hide fade in" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true"> --}}
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="card">
+                <div class="card-body">
+                    <div class="container">
+                        <div class="col-md-8 section offset-md-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h2>Silahkan Upload Surat permintaan persetujuan Presiden, Mendagri,
+                                        Jaksa Agung, Gubernur, Majelis Pengawas Daerah (Notaris) untuk
+                                        melakukan pemanggilan/pemeriksaan terhadap pejabat tertentu; (jika
+                                        ada, sesuai perkaranya)</h2>
+                                </div>
+                                <div class="panel-body">
+                                    <form action="{{ route('file.upload.post') }}" method="POST"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="row">
+                                            <div>
+                                                <input id="form_id" name="form_id" type="text"
+                                                    value="surat_persetujuan_penyegelan" hidden>
+                                            </div>
+                                            <div>
+                                                <input id="accident_id" name="accident_id" type="text"
+                                                    value="{{ $id }}" hidden>
+                                            </div>
+                                            <div class="col-md-10">
+                                                <input type="file" name="file" class="form-control" required>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="submit" class="btn btn-success">Upload</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-backdrop="false" class="btn btn-danger"
+                            data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-primary">delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalPenyegelan2" name="myModalPenyegelan2" class="modal fade bd-example-modal-lg" tabindex="-1"
+    role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    {{-- <div id="myModal" name="myModalDelete" class="modal hide fade in" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true"> --}}
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="card">
+                <div class="card-body">
+                    <div class="container">
+                        <div class="col-md-8 section offset-md-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h5>Silahkan Masukan Petugas Untuk Perintah Penyegelan</h5>
+                                </div>
+                                <div class="panel-body">
+                                    <form action="{{ route('add_surat_perintah_penyegelan') }}" method="POST"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="row">
+                                            <div>
+                                                <input id="accident_id_surat_penyegelan"
+                                                    name="accident_id_surat_penyegelan" type="text"
+                                                    value="{{ $id }}" hidden>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered">
+                                                    <td><button type="button" name="add_officer_penyegelan"
+                                                            id="add_officer_penyegelan" class="btn btn-success">Add
+                                                            More</button></td>
+                                                </table>
+                                                <table class="table table-bordered" id="add_surat_penyegelan">
+
+                                                </table>
+                                            </div>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" data-backdrop="false" class="btn btn-danger"
+                                                data-bs-dismiss="modal">Close</button>
+                                            <button class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div data-backdrop="false" class="modal fade" id="myEditModalPenyegelan2" name="myEditModalPenyegelan2" tabindex="-1"
+    role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit Perintah Surat Penyegelan</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('edit_surat_penyegelan') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="row">
+                        <div>
+                            <input id="accident_id_edit_surat_penyegelan" name="accident_id_edit_surat_penyegelan"
+                                type="text" value="{{ $id }}" hidden>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <td><button type="button" name="add_officer_edit_penyegelan"
+                                        id="add_officer_edit_penyegelan" class="btn btn-success">Add More</button></td>
+                            </table>
+                            <table class="table table-bordered" id="edit_surat_penyegelan">
+                                @foreach ($surat_penyegelan as $penyegelan)
+                                    <tr>
+                                        <td>
+                                            <select id="edit_officer_surat_penyegelan[]"
+                                                name="edit_officer_surat_penyegelan[]" class="form-control">
+                                                <option value="">Pilih Petugas</option>
+                                                @foreach ($officer as $officers)
+
+
+                                                    <option value="{{ $officers->id }}"
+                                                        {{ $officers->id == $penyegelan->id ? 'selected' : '' }}>
+                                                        {{ $officers->id }} - {{ $officers->first_name }}
+                                                        {{ $officers->last_name }}</option>
+
+                                                @endforeach
+                                        </td>
+                                        <td>
+                                            <button type="button" name="remove"
+                                                class="btn btn-danger btn_remove_officer_edit_surat_penyegelan">X</button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div data-backdrop="false" id="myModalPenyegelan3" name="myModalPenyegelan3" class="modal fade bd-example-modal-lg"
+    tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    {{-- <div id="myModal" name="myModalDelete" class="modal hide fade in" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true"> --}}
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="card">
+                <div class="card-body">
+                    <div class="container">
+                        <div class="col-md-8 section offset-md-2">
+                            <div class="panel panel-primary">
+                                <div class="panel-heading">
+                                    <h2>Silahkan Upload Berita Acara Pembungkusan, Penyegelan, dan Pelabelan Barang
+                                        Bukti</h2>
+                                </div>
+                                <div class="panel-body">
+                                    <form action="{{ route('file.upload.post') }}" method="POST"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="row">
+                                            <div>
+                                                <input id="form_id" name="form_id" type="text"
+                                                    value="berita_acara_penyegelan" hidden>
+                                            </div>
+                                            <div>
+                                                <input id="accident_id" name="accident_id" type="text"
+                                                    value="{{ $id }}" hidden>
+                                            </div>
+                                            <div class="col-md-10">
+                                                <input type="file" name="file" class="form-control" required>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="submit" class="btn btn-success">Upload</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-backdrop="false" class="btn btn-danger"
+                            data-bs-dismiss="modal">Close</button>
+                        <button class="btn btn-primary">delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+[
+    {
+        "Id": 1,
+        "Emp_Id": "WNI",
+        "code" : "N-WNI",
+        "Nama": "WNI"
+    },
+    {
+        "Id": 2,
+        "Emp_Id": "WNA",
+        "code" : "N-WNA",
+        "Nama": "WNA"
+    },
+    {
+        "Id": 3,
+        "Emp_Id": "",
+        "code" : "N-UNKNOWN",
+        "Nama": "TIDAK DIKETAHUI"
+    }
+]

@@ -1,0 +1,33 @@
+/* Styling untuk Modal Cara Login */
+#loginInstructionModal .modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+#loginInstructionModal .modal-header {
+    padding: 15px 20px;
+}
+
+#loginInstructionModal .bi {
+    line-height: 1;
+}
+
+#loginInstructionModal .modal-body {
+    padding: 25px;
+}
+
+/* Animasi untuk ikon */
+#loginInstructionModal .text-center .bi {
+    transition: transform 0.3s ease;
+}
+
+#loginInstructionModal .text-center:hover .bi {
+    transform: scale(1.1);
+}
+
+/* Responsif untuk layar kecil */
+@media (max-width: 576px) {
+    #loginInstructionModal .modal-dialog {
+        margin: 0.5rem;
+    }
+}

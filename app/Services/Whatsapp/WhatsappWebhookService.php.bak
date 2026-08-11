@@ -1,0 +1,36 @@
+<?php
+namespace App\Services\Whatsapp;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+
+class WhatsappWebhookService
+{ 
+    public function sendMessageTemplate($destinationPhoneNumber, $templateId, $props = [], $sandbox = 'false')
+    {
+        if (is_numeric($destinationPhoneNumber) && Str::startsWith($destinationPhoneNumber, '62')) {
+            try{
+                $appKey = env('WHATSAPP_BOT_APP_KEY');
+                $authKey = env('WHATSAPP_BOT_AUTH_KEY');
+                $to = $destinationPhoneNumber;
+                $templateId = $templateId;
+                $props = $props;
+                $sandbox = $sandbox;
+                
+                $response = Http::post(env('WHATSAPP_BOT_API_URL') . 'create-message', [
+                    'appkey' => $appKey,
+                    'authkey' => $authKey,
+                    'to' => $to,
+                    'sandbox' => $sandbox,
+                    'template_id' => $templateId,
+                    'variables' => $props,
+                ]);
+        
+                return $response->json();
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+        return false;
+    }
+}

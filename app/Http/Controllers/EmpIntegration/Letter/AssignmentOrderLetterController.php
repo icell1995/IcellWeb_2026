@@ -1,0 +1,265 @@
+<?php
+
+namespace App\Http\Controllers\EmpIntegration\Letter;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
+use Faker\Factory as Faker;
+use Illuminate\Support\Facades\DB;
+
+use App\Models\Letters\AssignmentOrderLetter\AssignmentOrderLetter;
+
+// SURAT PERINTAH TUGAS (SPRINGAS)
+class AssignmentOrderLetterController extends Controller
+{
+    public function index(Request $request){
+        // Get request data
+        $startDocumentDate = $request->input('start_doc_date');
+        $endDocumentDate = $request->input('end_doc_date');
+        $perPage = $request->query('perPage', 100); // Jumlah item per halaman
+        $page = $request->query('page', 1); // Nomor halaman saat ini, default 1
+
+        // Initialize variable
+        $responseData = [];
+
+        if (!is_numeric($page)) {
+            // Jika $page bukan angka, berikan nilai default 1
+            $page = 1;
+        }
+        if (!is_numeric($perPage)) {
+            // Jika $page bukan angka, berikan nilai default 1
+            $perPage = 100;
+        }
+
+        $page = intval($page);
+
+        // Validate request data
+        if (!empty($startDocumentDate) && date('Y-m-d', strtotime($startDocumentDate)) !== $startDocumentDate) {
+            return response()->json([
+                "code" => "400",
+                "status" => "BAD_REQUEST",
+                "message" => "Invalid Start document date or format. Date format should be YYYY-MM-DD.",
+                "pagination" => [
+                    "Page" => intval($page),
+                    "TotalData" => 0,
+                    "TotalPage" => 0,
+                    "TotalDataSent" => 0
+                ],
+                "data" => []
+            ], 400);
+        }
+
+        if (!empty($endDocumentDate) && date('Y-m-d', strtotime($endDocumentDate)) !== $endDocumentDate) {
+            return response()->json([
+                "code" => "400",
+                "status" => "BAD_REQUEST",
+                "message" => "Invalid End document date or format. Date format should be YYYY-MM-DD.",
+                "pagination" => [
+                    "Page" => intval($page),
+                    "TotalData" => 0,
+                    "TotalPage" => 0,
+                    "TotalDataSent" => 0
+                ],
+                "data" => []
+            ], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Get data from database
+            $assignmentOrderLetters = AssignmentOrderLetter::with(['accident', 'accident.polres', 'officer', 'authorizedSignatory', 'leaderOfficer'])
+                ->orderBy('legacy.springas.tanggal_springas', 'ASC');
+
+            // Filter data
+            if (!empty($startDocumentDate) && !empty($endDocumentDate)) {
+                $assignmentOrderLetters = $assignmentOrderLetters->whereBetween('tanggal_springas', [date('Y-m-d H:i:s', strtotime($startDocumentDate)), date('Y-m-d H:i:s', strtotime($endDocumentDate))]);
+            } else if (!empty($startDocumentDate)) {
+                $assignmentOrderLetters = $assignmentOrderLetters->where('tanggal_springas', '>=', date('Y-m-d H:i:s', strtotime($startDocumentDate)));
+            } else if (!empty($endDocumentDate)) {
+                $assignmentOrderLetters = $assignmentOrderLetters->where('tanggal_springas', '<=', date('Y-m-d H:i:s', strtotime($endDocumentDate)));
+            }
+            $assignmentOrderLetters = $assignmentOrderLetters->paginate($perPage, ['*'], 'page', $page);
+
+            $assignmentOrderLettersTotal = $assignmentOrderLetters->total();
+            $assignmentOrderLettersTotalPage = $assignmentOrderLetters->lastPage();
+
+            // Packing data
+            $arrayKey = 0;
+            foreach($assignmentOrderLetters as $assignmentOrderLetter){
+                
+                $assignmentOrderLetterArray = $assignmentOrderLetter->toArray();
+                
+                $leaderOfficer = (!empty($assignmentOrderLetterArray['leader_officer'])) ? $assignmentOrderLetterArray['leader_officer'] : null;
+                $officers = $assignmentOrderLetter->officer;
+                $authorizedSignatory = (!empty($assignmentOrderLetterArray['authorized_signatory'])) ? $assignmentOrderLetterArray['authorized_signatory'] : null;
+                $resortPolice = (!empty($assignmentOrderLetterArray['accident'])) ? ((!empty($assignmentOrderLetterArray['accident']['polres'])) ? $assignmentOrderLetterArray['accident']['polres'] : null) : null;
+                
+                $documentOfficer = [];
+
+                $documentOfficer[] = [
+                    "Nama" => ($leaderOfficer) ? $leaderOfficer['first_name'] . " " . $leaderOfficer['last_name'] : null,
+                    "Pangkat" => ($leaderOfficer) ? strtoupper($leaderOfficer['rank_short_name']) : null,
+                    "NRP" => ($leaderOfficer) ? strval($leaderOfficer['id']) : null,
+                    "Jabatan" => ($leaderOfficer) ? strtoupper($leaderOfficer['sebagai_kepala']) : null,
+                ];
+
+                foreach($officers as $officer){
+                    $documentOfficer[] = [
+                        "Nama" => $officer->first_name . " "  . $officer->last_name,
+                        "Pangkat" => strtoupper($officer->rank_short_name),
+                        "NRP" => strval($officer->id), 
+                        "Jabatan" => strtoupper($officer->position_short_name),
+                    ];
+                }
+
+                $documentSignatory[0] = [
+                    "Nama" => ($authorizedSignatory) ? $authorizedSignatory['first_title'] . " " . strtoupper($authorizedSignatory['first_name'] . " " . $authorizedSignatory['last_name']) . ", " . $authorizedSignatory['last_title'] : null,
+                    "Pangkat" => ($authorizedSignatory) ? strtoupper($authorizedSignatory['rank_id']) : null,
+                    "NRP" => ($authorizedSignatory) ? strval($authorizedSignatory['register_number']) : null, 
+                    "Jabatan" => ($authorizedSignatory) ? strtoupper($authorizedSignatory['position_id']) : null,
+                ];
+
+                $responseData[$arrayKey]  = [
+                    "Id" => $assignmentOrderLetter->id,
+                    "NoSurat" => $assignmentOrderLetter->no_surat,
+                    "TanggalSpringas" => ($assignmentOrderLetter->tanggal_springas) ? date('Y-m-d H:i:s', strtotime($assignmentOrderLetter->tanggal_springas)) : null,
+                    "LaporanPolisiID" => ($assignmentOrderLetter->accident) ? $assignmentOrderLetter->accident->id : null,
+                    "DorsID" => ($assignmentOrderLetter->accident) ? strval($assignmentOrderLetter->accident->dors_id) : null,
+                    "LokasiDibuat" => ($resortPolice) ? strval($resortPolice['spptti_id']) : null,
+                    "TanggalMulai" => ($assignmentOrderLetter->tanggal_dimulai) ? date('Y-m-d H:i:s', strtotime($assignmentOrderLetter->tanggal_dimulai)) : null,
+                    "TanggalBerakhir" => ($assignmentOrderLetter->tanggal_berakhir) ? date('Y-m-d H:i:s', strtotime($assignmentOrderLetter->tanggal_berakhir)) : null,
+                    "PejabatPenandatanganDokumen" => $documentSignatory,
+                    "Personel_Springas" => $documentOfficer,
+                    "Attachment" => null,
+                    "AttachmentMimeType" => null,
+                    "AttachmentExtension" => null,
+                    "CreatedDate" => ($assignmentOrderLetter->created_at) ? date('Y-m-d H:i:s', strtotime($assignmentOrderLetter->created_at)) : null,
+                    "CreatedBy" => ($assignmentOrderLetter->created_at) ? $assignmentOrderLetter->created_by : null,
+                    "UpdatedDate" => ($assignmentOrderLetter->updated_at) ? date('Y-m-d H:i:s', strtotime($assignmentOrderLetter->updated_at)) : null,
+                    "UpdatedBy" => ($assignmentOrderLetter->updated_by) ? $assignmentOrderLetter->updated_by : null,
+                ];
+
+                // Update is_itegrated and integrated_at
+                $assignmentOrderLetterId = $assignmentOrderLetter->id;
+                DB::table('legacy.springas')
+                    ->where('id', $assignmentOrderLetterId)
+                    ->update([
+                        'integrated_at' => date('Y-m-d H:i:s'),
+                ]);
+
+                $arrayKey++;
+            }
+
+            // Check if data array is empty result
+            if ($assignmentOrderLetters->isEmpty()) {
+                return response()->json([
+                    "code" => "404",
+                    "status" => "NOT_FOUND",
+                    "message" => "Data not found.",
+                    "pagination" => [
+                        "Page" => intval($page),
+                        "TotalData" => 0,
+                        "TotalPage" => 0,
+                        "TotalDataSent" => 0
+                    ],
+                    "data" => []
+                ], 404);
+            }
+
+            // Commit transaction
+            DB::commit();
+
+            // Return Result JSON
+            return response()->json([
+                "code" => "200",
+                "status" => "OK",
+                "message" => "Success",
+                "pagination" => [
+                    "Page" => intval($page),
+                    "TotalData" => $assignmentOrderLettersTotal,
+                    "TotalPage" => $assignmentOrderLettersTotalPage,
+                    "TotalDataSent" => count($responseData)
+                ],
+                "data" => $responseData
+            ], 200);
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            // If an exception occurs, return an error response
+            return response()->json([
+                "code" => "500",
+                "status" => "INTERNAL_SERVER_ERROR",
+                "message" => "An error occurred while processing your request.",
+                "pagination" => [
+                    "Page" => intval($page),
+                    "TotalData" => 0,
+                    "TotalPage" => 0,
+                    "TotalDataSent" => 0
+                ],
+                "data" => []
+            ], 500);
+        }
+    }
+
+    private function collectionData(){
+        $start_date = Carbon::create(2022, 1, 1);
+        $end_date = Carbon::create(2022, 12, 31);
+        $data = [];
+
+        $no = 1;
+        for ($date = $start_date; $date <= $end_date; $date->modify('+1 day')) {
+            $data[] = [
+                "Id" => Str::uuid(),
+                "NoSurat" => "SURAT/SPRINGAS/" . $no . "/2022",
+                "TanggalSpringas" => $date->format('Y-m-d H:i:s'),
+                "LaporanPolisiID" => Str::uuid(),
+                "DorsID" => strval(rand(1000000,9999999)),
+                "LokasiDibuat" => 11,
+                "TanggalMulai" => $date->format('Y-m-d H:i:s'),
+                "TanggalBerakhir" => $date->modify('+1 day')->format('Y-m-d H:i:s'),
+                "PejabatPenandatanganDokumen" => [
+                    [
+                        "Nama" => "SUGADRI S.I.K", 
+                        "Pangkat" => "KOMPOL",
+                        "NRP" => "77061000", 
+                        "Jabatan" => "KASAT LANTAS",
+                    ]
+                ],
+                "Personel_Springas" => [
+                    [
+                        "Nama" => "ISKANDAR, S.I.K", 
+                        "Pangkat" => "AKP",
+                        "NRP" => "73060000", 
+                        "Jabatan" => "PENYIDIK",
+                    ],
+                    [
+                        "Nama" => "SUKANDAR, S.I.K", 
+                        "Pangkat" => "IPTU",
+                        "NRP" => "73060111", 
+                        "Jabatan" => "PENYIDIK PEMBANTU",
+                    ],
+                    [
+                        "Nama" => "SOFYAN, M.H", 
+                        "Pangkat" => "BRIGPOL",
+                        "NRP" => "73060112", 
+                        "Jabatan" => "PENYIDIK PEMBANTU",
+                    ]
+                ],
+                "Attachment" => "",
+                "AttachmentMimeType" => "",
+                "AttachmentExtension" => "",
+                "CreatedDate" => $date->modify('-1 day')->format('Y-m-d H:i:s'),
+                "CreatedBy" => "FIRMAN SANUSI",
+                "UpdatedDate" => null,
+                "UpdatedBy" => null,
+            ];
+
+            $no++;
+        }
+
+        return collect($data);
+    }
+}

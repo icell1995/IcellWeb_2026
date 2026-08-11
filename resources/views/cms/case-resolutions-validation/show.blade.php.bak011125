@@ -1,0 +1,574 @@
+@extends('cms.layouts.app')
+
+@section('_title', 'Detail Selra')
+
+@section('content')
+    @php
+        $isApproved = !empty($resolution->approved_at);
+        $statusClass = $isApproved ? 'success' : 'warning text-dark';
+        $statusText = $isApproved ? 'Disetujui' : 'Belum Divalidasi';
+
+        try {
+            $docUrl = route('upload-surat-ketetapan.show', [
+                'upload_surat_ketetapan' => $resolution->accident_id,
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            $docUrl = url('/upload-surat-ketetapan/' . $resolution->accident_id);
+        }
+
+        $fileName = $resolution->file_name ?? null;
+
+        $tryIframe = !empty($docUrl);
+        $accident = $resolution->accident ?? null;
+    @endphp
+
+    <div class="container-fluid px-3 px-md-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ route('cms.case-resolutions-validations.index') }}"
+                    class="btn btn-outline-primary back-btn d-inline-flex align-items-center gap-2 rounded-pill shadow-sm"
+                    role="button" aria-label="Kembali ke daftar">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span class="fw-semibold">Kembali</span>
+                </a>
+
+                <h3 class="m-0 fw-bold text-primary">
+                    <i class="bi bi-patch-check-fill me-2"></i> Detail Selra
+                </h3>
+            </div>
+        </div>
+
+        {{-- Info LP & Jenis --}}
+        <div class="card border-0 shadow-sm mb-2">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="p-3 rounded-3 border bg-light">
+                            <div class="h5 mb-1">Nomor LP :</div>
+                            @if ($accident && $accident->id)
+                                <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accident->id]) }}"
+                                    target="_blank" rel="noopener" class="h5 m-0 fw-bold text-decoration-none link-primary">
+                                    {{ $accident->no_lp ?? '-' }}
+                                    <i class="bi bi-arrow-up-right-square ms-1"></i>
+                                </a>
+                            @else
+                                <div class="h5 m-0 fw-bold">-</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Detail --}}
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-8 order-lg-1">
+                <div class="card border-0 shadow-sm h-100 pdf-preview" id="pdfPreview">
+                    <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between">
+                        <h6 class="m-0 text-secondary"><i class="bi bi-file-earmark-text me-2"></i>Pratinjau Dokumen</h6>
+                        <div class="btn-group btn-group-sm">
+                            <a class="btn btn-outline-secondary" target="_blank" rel="noopener" href="{{ $docUrl }}">
+                                <i class="bi bi-box-arrow-up-right"></i> Buka di Tab
+                            </a>
+                            <button type="button" class="btn btn-outline-primary js-toggle-full">
+                                <i class="bi bi-arrows-fullscreen"></i> Perbesar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @if ($docUrl)
+                            <iframe src="{{ $docUrl }}" class="pdf-embed" title="Pratinjau Dokumen"
+                                referrerpolicy="no-referrer"></iframe>
+                        @else
+                            <div class="p-4 text-center text-muted">Tidak ada file yang diunggah.</div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- INFORMASI DOKUMEN --}}
+            <div class="col-lg-4 order-lg-2">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-0">
+                        <h6 class="m-0 text-secondary"><i class="bi bi-info-circle me-2"></i>Informasi Dokumen</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="small text-muted">Jenis Selra</div>
+                                <div class="h5 m-0 fw-bold">{{ $resolution->type_name ?? '-' }}</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="small text-muted">Tanggal Upload</div>
+                                <div class="fw-semibold">
+                                    {{ optional($resolution->uploaded_at)->format('d-m-Y H:i') ?? '-' }}</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="small text-muted">Tanggal Ketetapan</div>
+                                <div class="fw-semibold">{{ optional($resolution->date)->format('d-m-Y') ?? '-' }}</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="small text-muted">Nomor Dokumen</div>
+                                <div class="fw-semibold">{{ $resolution->number ?? '-' }}</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="small text-muted">Tersangka / Terlapor</div>
+                                <div class="fw-semibold">{{ $personLine ?: '-' }}</div>
+                            </div>
+                            <div class="col-12" style="font-size: 1.2rem;">
+                                <div class="small text-muted"><i class="bi bi-shield-check me-1"></i>Status Saat Ini</div>
+                                <span class="badge bg-{{ $statusClass }}">{{ $statusText }}</span>
+                                <br>
+                                <span>
+                                    @if ($isApproved)
+                                        <span class="badge bg-light text-secondary border">
+                                            Tanggal: {{ optional($resolution->approved_at)->format('d-m-Y H:i') }}
+                                        </span>
+                                    @endif
+                                </span>
+                                </br>
+                            </div>
+                            <div class="col-12" style="font-size: 1.2rem;">
+                                @if ($resolution->was_rejected_before)
+                                    <span class="badge rounded-pill text-bg-danger" data-bs-toggle="tooltip"
+                                        data-bs-title="{{ $resolution->last_reject_info }}">
+                                        Pernah Dikembalikan
+                                    </span>
+                                    <div class="mrt-2 mt-1 medium text-muted">
+                                        <span>{{ $resolution->last_reject_info }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        @if ($docUrl)
+                            <hr>
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <a class="btn btn-outline-secondary" target="_blank" rel="noopener"
+                                    href="{{ $docUrl }}">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i> Buka Dokumen
+                                </a>
+                                @if ($fileName)
+                                    <span class="small text-muted">Nama berkas: <code>{{ $fileName }}</code></span>
+                                @endif
+                            </div>
+                            <div class="small text-muted mt-2">
+                                * Jika pratinjau tidak tampil, klik "Buka Dokumen" untuk membuka di tab baru.
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="card-body d-flex flex-wrap justify-content-end align-items-center gap-2">
+                        @unless ($isApproved)
+                            <form action="{{ route('cms.case-resolutions-validations.approve', $resolution->id) }}"
+                                method="POST" class="js-approve">
+                                @csrf @method('PUT')
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check2-circle me-1"></i> Setujui
+                                </button>
+                            </form>
+                        @endunless
+
+                        <form action="{{ route('cms.case-resolutions-validations.reject', $resolution->id) }}"
+                            method="POST" class="js-reject">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="reject_reason" value="">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-arrow-counterclockwise me-1"></i> Kembalikan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+@endsection
+
+@push('style')
+    <style>
+        /* ========================================
+       * Back Button Styles
+       * ======================================== */
+        .back-btn {
+            border-width: 2px;
+            padding: .6rem 1rem;
+            transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-2px);
+            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .08);
+        }
+
+        .back-btn:active {
+            transform: translateX(-1px) translateY(1px);
+        }
+
+        /* ========================================
+       * PDF Preview Styles
+       * ======================================== */
+        .pdf-preview .pdf-embed {
+            width: 100%;
+            height: 78vh;
+            border: 0;
+        }
+
+        @media (max-width: 991.98px) {
+            .pdf-preview .pdf-embed {
+                height: 62vh;
+            }
+        }
+
+        /* ========================================
+       * Fullscreen Mode
+       * ======================================== */
+        .pdf-preview.fullscreen {
+            position: fixed;
+            inset: 12px;
+            z-index: 1080;
+            width: auto;
+            height: auto;
+            box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .2);
+        }
+
+        .pdf-preview.fullscreen .pdf-embed {
+            height: calc(100vh - 96px);
+        }
+
+        body.no-scroll {
+            overflow: hidden;
+        }
+    </style>
+@endpush
+
+@push('script')
+    <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
+    <script>
+        /**
+         * ========================================
+         * GLOBAL CONFIGURATION
+         * ========================================
+         */
+        const APP_CONFIG = {
+            routes: {
+                index: "{{ route('cms.case-resolutions-validations.index') }}"
+            },
+            timing: {
+                successDelay: 1000,
+            }
+        };
+
+        /**
+         * ========================================
+         * PDF Preview Fullscreen Toggle
+         * ========================================
+         */
+        (function initFullscreenToggle() {
+            const preview = document.getElementById('pdfPreview');
+            const toggleBtn = document.querySelector('.js-toggle-full');
+
+            if (!preview || !toggleBtn) return;
+
+            function toggleFullscreen() {
+                const isFullscreen = preview.classList.toggle('fullscreen');
+                document.body.classList.toggle('no-scroll', isFullscreen);
+                toggleBtn.innerHTML = isFullscreen ?
+                    '<i class="bi bi-fullscreen-exit"></i> Kecilkan' :
+                    '<i class="bi bi-arrows-fullscreen"></i> Perbesar';
+            }
+
+            toggleBtn.addEventListener('click', toggleFullscreen);
+
+            // ESC key to exit fullscreen
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && preview.classList.contains('fullscreen')) {
+                    toggleFullscreen();
+                }
+            });
+        })();
+
+        /**
+         * ========================================
+         * Helper: Close Current Browser Tab
+         * ========================================
+         */
+        function closeCurrentTab() {
+            setTimeout(() => {
+                // Method 1: Standard close
+                window.close();
+
+                // Method 2: Force close dengan open blank
+                setTimeout(() => {
+                    window.open('about:blank', '_self');
+                    window.close();
+                }, 100);
+            }, APP_CONFIG.timing.successDelay);
+        }
+
+        /**
+         * ========================================
+         * Helper: Submit Form via AJAX
+         * ========================================
+         */
+        function submitFormAjax(form, loadingMessage = 'Memproses...') {
+            const formData = new FormData(form);
+            const url = form.action;
+            const method = form.method || 'POST';
+
+            // Show loading
+            Swal.fire({
+                title: loadingMessage,
+                html: 'Mohon tunggu sebentar...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Submit via fetch
+            fetch(url, {
+                    method: method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: APP_CONFIG.timing.successDelay,
+                            timerProgressBar: true,
+                            allowOutsideClick: false
+                        }).then(() => {
+                            // Check action
+                            if (data.action === 'close_tab') {
+                                closeCurrentTab();
+                            } else if (data.action === 'redirect' && data.url) {
+                                window.location.href = data.url;
+                            }
+                        });
+                    } else {
+                        // Show error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: data.message || 'Terjadi kesalahan',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#d33'
+                        }).then(() => {
+                            if (data.action === 'redirect' && data.url) {
+                                window.location.href = data.url;
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Terjadi Kesalahan',
+                        text: 'Tidak dapat memproses permintaan',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#d33'
+                    });
+                });
+        }
+
+        /**
+         * ========================================
+         * Approve Form Handler
+         * ========================================
+         */
+        (function initApproveForm() {
+            document.querySelectorAll('form.js-approve').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        icon: 'question',
+                        title: 'Setujui Selra ini?',
+                        text: 'Pastikan data sudah benar.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Setujui',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#198754',
+                        cancelButtonColor: '#6c757d'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            submitFormAjax(form, 'Menyetujui dokumen...');
+                        }
+                    });
+                });
+            });
+        })();
+
+        /**
+         * ========================================
+         * Reject Form Handler
+         * ========================================
+         */
+        // (function initRejectForm() {
+        //   document.querySelectorAll('form.js-reject').forEach(form => {
+        //     form.addEventListener('submit', function(e) {
+        //       e.preventDefault();
+
+        //       Swal.fire({
+        //         icon: 'warning',
+        //         title: 'Kembalikan Selra ini?',
+        //         html: 'LP akan di-set menjadi Dalam Proses dan data Selra akan <b>dihapus</b>.<br><br>Masukkan alasan (opsional):',
+        //         input: 'textarea',
+        //         inputPlaceholder: 'Tulis alasan dikembalikan…',
+        //         inputAttributes: {
+        //           'aria-label': 'Alasan dikembalikan'
+        //         },
+        //         showCancelButton: true,
+        //         confirmButtonText: 'Ya, Kembalikan',
+        //         cancelButtonText: 'Batal',
+        //         confirmButtonColor: '#f39c12',
+        //         cancelButtonColor: '#6c757d'
+        //       }).then(result => {
+        //         if (result.isConfirmed) {
+        //           const hiddenInput = form.querySelector('input[name="reject_reason"]');
+        //           if (hiddenInput) {
+        //             hiddenInput.value = result.value || '';
+        //           }
+        //           submitFormAjax(form, 'Mengembalikan dokumen...');
+        //         }
+        //       });
+        //     });
+        //   });
+        // })();
+
+        (function initRejectForm() {
+            // Pastikan rejectReasons tersedia dari backend
+            const rejectReasons = @json($rejectReasons ?? []);
+
+            document.querySelectorAll('form.js-reject').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    // Bangun daftar checkbox
+                    const checkboxList = rejectReasons.map((reason, idx) => `
+                <div class="form-check mb-2">
+                    <input class="form-check-input my-auto" type="checkbox" value="${reason}" id="reject-reason-${idx}">
+                    <label class="form-check-label" for="reject-reason-${idx}">
+                        ${reason}
+                    </label>
+                </div>
+            `).join('');
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Kembalikan Selra ini?',
+                        html: `
+                    <div class="text-start mb-3">
+                        <small class="text-muted">
+                            LP akan di-set menjadi <strong>Dalam Proses</strong> dan data Selra akan <strong>dihapus</strong>.
+                        </small>
+                    </div>
+                    <hr class="my-3">
+                    <div class="text-start mb-2">
+                        <strong class="text-danger">Pilih alasan penolakan:</strong>
+                    </div>
+                    <div class="border rounded p-3 mb-3 small text-start" style="max-height: 250px; background:#fdfdfd;">
+                        ${checkboxList || '<em class="text-muted">Tidak ada alasan tersedia.</em>'}
+                    </div>
+                    <div class="mb-3">
+                        <label for="custom-reject-reason" class="form-label small text-muted">
+                            Alasan lain (opsional):
+                        </label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               id="custom-reject-reason"
+                               placeholder="Tuliskan jika alasan tidak ada di daftar...">
+                    </div>
+                `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, Kembalikan',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#f39c12',
+                        cancelButtonColor: '#6c757d',
+                        width: '620px',
+                        preConfirm: () => {
+                            const selected = Array.from(document.querySelectorAll(
+                                    'input[type="checkbox"]:checked'))
+                                .map(cb => cb.value);
+                            const custom = document.getElementById('custom-reject-reason')
+                                ?.value.trim() || '';
+
+                            if (selected.length === 0 && !custom) {
+                                Swal.showValidationMessage(`
+                            <div class="text-danger small">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                Harap pilih <strong>setidaknya satu alasan</strong> atau tulis alasan lain.
+                            </div>
+                        `);
+                                return false;
+                            }
+
+                            return {
+                                reasons: selected,
+                                custom
+                            };
+                        }
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            const {
+                                reasons,
+                                custom
+                            } = result.value;
+
+                            // Hapus input lama
+                            form.querySelectorAll(
+                                'input[name^="reject_reasons"], input[name="custom_reason"]'
+                                ).forEach(el => el.remove());
+
+                            // Tambahkan alasan terpilih
+                            reasons.forEach(reason => {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'reject_reasons[]';
+                                input.value = reason;
+                                form.appendChild(input);
+                            });
+
+                            if (custom) {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'custom_reason';
+                                input.value = custom;
+                                form.appendChild(input);
+                            }
+
+                            // Gunakan fungsi submitFormAjax yang sudah ada
+                            submitFormAjax(form, 'Mengembalikan dokumen...');
+                        }
+                    });
+                });
+            });
+        })();
+
+        /**
+         * ========================================
+         * Initialize Bootstrap Tooltips
+         * ========================================
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(element) {
+                new bootstrap.Tooltip(element);
+            });
+        });
+    </script>
+@endpush

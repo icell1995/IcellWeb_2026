@@ -1,0 +1,679 @@
+@extends('layouts.app')
+
+@push('style')
+    <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
+    <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
+    <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+@endpush
+
+@section('content')
+<div class="content col-xs-12 col-md-12 col-lg-12 col-sm-12">
+    <div class="back-button">
+        <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId]) }}"><i class="bi bi-arrow-left"></i> Kembali ke Produktivitas</a>
+    </div>
+    <div class="box">
+        <div class="box-header">
+            <h5 class="fw-bold text-blue-dark">Edit Surat Ketetapan Tentang Penetapan Tersangka</h5>
+        </div>
+
+        <hr/>
+
+        <div class="alert alert-danger" id="attentionBox">
+            <div class="text-center">
+                <b>
+                    PERHATIAN !<br/>
+                    <br/>
+                    DATA INI WAJIB DIISI DENGAN DETAIL DAN LENGKAP KARENA AKAN DIPERTUKARKAN DENGAN APARAT PENEGAK HUKUM LAINNYA DALAM KERANGKA SISTEM PENANGANAN PERKARA TERPADU BERBASIS TEKNOLOGI INFORMASI (SPPT-TI).
+                </b>
+            </div>
+        </div>
+
+        <hr/>
+        <br/>
+
+         <!-- error alert -->
+        @if ($errors->any())
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+        @endif
+
+        @if (session('error'))
+        <div class="card-body">
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        </div>
+        @endif
+
+        <form action="{{ route('doc.surat-ketetapan-tentang-penetapan-tersangka-document.update', ['accident_id' => $accidentId, 'id'=> $suratKetetapanTentangPenetapanTersangkaDocumentId]) }}" method="POST" enctype="multipart/form-data" id="suratKetetapanTentangPenetapanTersangkaForm">
+            @csrf
+            <input type="hidden" name="accidentId" id="accidentId" value="{{$accidentId}}">
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-3 col-form-label" for="accidentNumber">Nomor LP :</label>
+                <div class="col-sm-9">
+                    <input id="accidentNumber" type="text"
+                        class="form-control @error('accidentNumber') is-invalid @enderror font-weight-bold" name="accidentNumber"
+                        value="{{ $accident->no_lp }}" required placeholder="" readonly>
+                    @error('accidentNumber')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-3 col-form-label" for="documentNumber">Nomor Surat : </label>
+                <div class="col-sm-9">
+                    <input id="documentNumber" type="text"
+                        class="form-control @error('documentNumber') is-invalid @enderror font-weight-bold" name="documentNumber"
+                        value="{{ $suratKetetapanTentangPenetapanTersangkaDocument->document_number }}" required placeholder="Masukkan Nomor Surat">
+
+                    @error('documentNumber')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-3 col-form-label" for="suratPerintahPenyidikanDocument">No Sprindik : </label>
+                <div class="col-sm-9">
+                    <select class="form-control select2" name="suratPerintahPenyidikanDocument" id="suratPerintahPenyidikanDocument">
+                        <option value="">--Pilih No Surat Perintah Penyidikan--</option>
+                        @foreach($suratPerintahPenyidikanDocuments as $suratPerintahPenyidikanDocument)
+                            <option value="{{ $suratPerintahPenyidikanDocument->id }}" @if($suratKetetapanTentangPenetapanTersangkaDocument->surat_perintah_penyidikan_document_id == $suratPerintahPenyidikanDocument->id){{'selected'}}@endif>{{ $suratPerintahPenyidikanDocument->document_number }}</option>
+                        @endforeach
+                    </select>
+
+                    @error('suratPerintahPenyidikanDocument')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-3 col-form-label" for="prosecutor">Kejaksaan : </label>
+                <div class="col-sm-9">
+                    <select class="form-control select2" name="prosecutor" id="prosecutor">
+                        <option value="">--Pilih Kejaksaan--</option>
+                        @foreach($prosecutors as $prosecutor)
+                            <option value="{{ $prosecutor->id }}" @if($suratKetetapanTentangPenetapanTersangkaDocument->prosecutor_id == $prosecutor->id){{'selected'}}@endif>{{ $prosecutor->name }}</option>
+                        @endforeach
+                    </select>
+
+                    @error('prosecutor')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-3 col-form-label">Tanggal Ditandatangani Dokumen : </label>
+                <div class="col-sm-9">
+                    <input class="form-control datepicker" id="documentDate" name="documentDate"
+                        placeholder="YYYY-MM-DD" autocomplete="off" value="{{$suratKetetapanTentangPenetapanTersangkaDocument->document_date}}" data-provide="datepicker">
+
+                    @error('documentDate')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-3 col-form-label">Yang Menandatangani : </label>
+                <div class="col-sm-9">
+                    <select class="form-control select2" name="signatory" id="signatory">
+                        <option value="">--Pilih Yang Menandatangani--</option>
+                        @foreach($authorizedSignatories as $data)
+                            <option value="{{$data->id}}" data-register-number="{{$data->register_number}}" @if($suratKetetapanTentangPenetapanTersangkaDocumentOfficers->where('class', 'SIGNATORY')->where('register_number', $data->register_number)->count() != 0){{'selected'}}@endif>{{$data->register_number . ' - ' . $data->full_name . ' | ' . $data->position_id}}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">(*Apabila daftar yang menandatangani kosong silahkan hubungi Helpdesk untuk mendapat bantuan)</small>
+
+                    @error('signatory')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-3 col-form-label" for="suspectSource">Sumber Yang Menyebutkan Tersangka : </label>
+                <div class="col-sm-9">
+                    <select class="form-control select2" name="suspectSource" id="suspectSource">
+                        @foreach($suspectSources as $suspectSource)
+                            <option value="{{ $suspectSource->id }}" data-code="{{ $suspectSource->code }}" @if($suratKetetapanTentangPenetapanTersangkaDocument->suspect_source_id == $suspectSource->id){{'selected'}}@endif>{{ $suspectSource->name }}</option>
+                        @endforeach
+                    </select>
+
+                    @error('suspectSource')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0" id="resumeSuspectDeterminationDateSection" @if($suratKetetapanTentangPenetapanTersangkaDocument->suspect_source_id != 4)style="display: none;"@endif>
+                <label class="fw-bold col-sm-3 col-form-label">Tanggal Resume Penetapan Tersangka : </label>
+                <div class="col-sm-9">
+                    <input class="form-control datepicker" id="resumeSuspectDeterminationDate" name="resumeSuspectDeterminationDate"
+                        placeholder="YYYY-MM-DD" autocomplete="off" value="{{old('resumeSuspectDeterminationDate')}}" data-provide="datepicker">
+
+                    @error('resumeSuspectDeterminationDate')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0" id="laporanHasilGelarPerkaraDocumentSuspectDeterminationSection" @if($suratKetetapanTentangPenetapanTersangkaDocument->suspect_source_id != 5)style="display: none;"@endif>
+                <label class="fw-bold col-sm-3 col-form-label" for="laporanHasilGelarPerkaraDocumentSuspectDetermination">Tanggal Gelar Perkara Penetapan Tersangka : </label>
+                <div class="col-sm-9">
+                    <select class="form-control select2" name="laporanHasilGelarPerkaraDocumentSuspectDetermination" id="laporanHasilGelarPerkaraDocumentSuspectDetermination">
+                        <option value="">--Pilih Tanggal LHGP Penetapan Tersangka--</option>
+                        @foreach($laporanHasilGelarPerkaraDocumentSuspectDeterminations as $laporanHasilGelarPerkaraDocumentSuspectDetermination)
+                            <option value="{{ $laporanHasilGelarPerkaraDocumentSuspectDetermination->id }}" @if($suratKetetapanTentangPenetapanTersangkaDocument->laporan_hasil_gelar_perkara_document_id == $laporanHasilGelarPerkaraDocumentSuspectDetermination->id){{'selected'}}@endif>{{Carbon\Carbon::parse($laporanHasilGelarPerkaraDocumentSuspectDetermination->document_date)->locale('id')->translatedFormat('l') . ', ' . Carbon\Carbon::parse($laporanHasilGelarPerkaraDocumentSuspectDetermination->document_date)->locale('id')->translatedFormat('d F Y')}}</option>
+                        @endforeach
+                    </select>
+
+                    @error('laporanHasilGelarPerkaraDocumentSuspectDetermination')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0" id="suspectSection" @if($suratKetetapanTentangPenetapanTersangkaDocument->suspect_source_id == null)style="display: none;"@endif>
+                <label class="fw-bold col-sm-3 col-form-label" for="suspect">Tersangka yang Ditetapkan : </label>
+                <div class="col-sm-9">
+                    <select class="form-control select2" name="suspect" id="suspect">
+                        <option value="">--Pilih Tersangka--</option>
+                        {{-- @foreach($suspects as $suspect)
+                            <option value="{{ $suspect->id }}">{{ $suspect->document_number }}</option>
+                        @endforeach --}}
+                    </select>
+
+                    @error('suspect')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                </div>
+            </div>
+
+            <br/>
+            <hr/>
+
+            <div class="box-header mb-4">
+                <h5 class="fw-bold text-blue-dark">LENGKAPI DATA TERSANGKA</h5>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="identityTypeFieldSuspect">Jenis Identitas : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control select2" id="identityTypeFieldSuspect">
+                                <option value="">--Pilih Jenis Identitas--</option>
+                                @foreach($identityTypes as $identityType)
+                                    <option value="{{ $identityType->id }}" data-identity-type-name="{{$identityType->name}}">{{ $identityType->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="identityNumberFieldSuspect">Nomor Identitas : </label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="identityNumberFieldSuspect" placeholder="Nomor Identitas">
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="nameFieldSuspect">Nama : </label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="nameFieldSuspect" placeholder="Nama Lengkap">
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="genderFieldSuspect">Jenis Kelamin : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control select2" id="genderFieldSuspect">
+                                <option value="">--Pilih Jenis Kelamin--</option>
+                                @foreach($genders as $gender)
+                                    <option value="{{ $gender->id }}" data-gender-name="{{$gender->name}}">{{ $gender->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isUnknownGenderFieldSuspect" value="true" aria-label="...">
+                                <label for="isUnknownGenderFieldSuspect">
+                                Tidak Tahu
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="birthPlaceFieldSuspect">Tempat Lahir : </label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="birthPlaceFieldSuspect" placeholder="Tempat Lahir">
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isUnknownBirthPlaceFieldSuspect" value="true" aria-label="...">
+                                <label for="isUnknownBirthPlaceFieldSuspect">
+                                Tidak Tahu
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="birthDateFieldSuspect">Tanggal Lahir : </label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control datepicker" id="birthDateFieldSuspect" placeholder="YYYY-MM-DD" data-provide="datepicker">
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isUnknownBirthDateFieldSuspect" value="true" aria-label="...">
+                                <label for="isUnknownBirthDateFieldSuspect">
+                                Tidak Tahu
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="fatherFieldSuspect">Ayah Kandung : </label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="fatherFieldSuspect" placeholder="Nama Ayah Kandung">
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isUnknownFatherFieldSuspect" value="true" aria-label="...">
+                                <label for="isUnknownFatherFieldSuspect">
+                                Tidak Tahu
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="motherFieldSuspect">Ibu Kandung : </label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="motherFieldSuspect" placeholder="Nama Ibu Kandung">
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isUnknownMotherFieldSuspect" value="true" aria-label="...">
+                                <label for="isUnknownMotherFieldSuspect">
+                                Tidak Tahu
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="ethnicFieldSuspect">Suku : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control select2" id="ethnicFieldSuspect">
+                                <option value="">--Pilih Suku--</option>
+                                @foreach($ethnics as $ethnic)
+                                    <option value="{{ $ethnic->id }}" data-ethnic-name="{{$ethnic->name}}">{{ $ethnic->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="jobFieldSuspect">Pekerjaan : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control select2" id="jobFieldSuspect">
+                                <option value="">--Pilih Pekerjaan--</option>
+                                @foreach($jobs as $job)
+                                    <option value="{{ $job->id }}" data-job-name="{{$job->name}}">{{ $job->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="religionFieldSuspect">Agama : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control select2" id="religionFieldSuspect">
+                                <option value="">--Pilih Agama--</option>
+                                @foreach($religions as $religion)
+                                    <option value="{{ $religion->id }}" data-religion-name="{{$religion->name}}">{{ $religion->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="educationFieldSuspect">Pendidikan : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control select2" id="educationFieldSuspect">
+                                <option value="">--Pilih Pendidikan--</option>
+                                @foreach($educations as $education)
+                                    <option value="{{ $education->id }}" data-education-name="{{$education->name}}">{{ $education->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="maritalStatusFieldSuspect">Status Kawin : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control select2" id="maritalStatusFieldSuspect">
+                                <option value="">--Pilih Status Kawin--</option>
+                                @foreach($maritalStatuses as $maritalStatus)
+                                    <option value="{{ $maritalStatus->id }}" data-marital-status-name="{{$maritalStatus->name}}">{{ $maritalStatus->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isUnknownMaritalStatusFieldSuspect" value="true" aria-label="...">
+                                <label for="isUnknownMaritalStatusFieldSuspect">
+                                Tidak Tahu
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="phoneFieldSuspect">Nomor Telepon : </label>
+                        <div class="col-sm-6">
+                            <div class="mb-3">
+                                <div class="icheck-primary d-inline">
+                                    <input type="radio" id="existsPhoneNumberFieldSuspect" name="isExistsPhoneNumberFieldSuspect" value="true">
+                                    <label for="existsPhoneNumberFieldSuspect">
+                                        Ada No Telp
+                                    </label>
+                                </div>
+
+                                <div class="icheck-primary d-inline mx-2">
+                                    <input type="radio" id="notExistsPhoneNumberFieldSuspect" name="isExistsPhoneNumberFieldSuspect" value="false">
+                                    <label for="notExistsPhoneNumberFieldSuspect">
+                                        Tidak ada No Telp
+                                    </label>
+                                </div>
+                            </div>
+
+                            <input type="text" class="form-control mb-3" id="phoneFieldSuspect" placeholder="Nomor Telepon">
+
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isAvailablePhoneNumberFieldSuspect" value="true" aria-label="...">
+                                <label for="isAvailablePhoneNumberFieldSuspect">
+                                Bersedia memberikan nomor telepon?
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="emailFieldSuspect">Email : </label>
+                        <div class="col-sm-6">
+                            <div class="mb-3">
+                                <div class="icheck-primary d-inline">
+                                    <input type="radio" id="existsEmailNumberFieldSuspect" name="isExistsEmailNumberFieldSuspect" value="true">
+                                    <label for="existsEmailNumberFieldSuspect">
+                                        Ada Email
+                                    </label>
+                                </div>
+
+                                <div class="icheck-primary d-inline mx-2">
+                                    <input type="radio" id="notExistsEmailNumberFieldSuspect" name="isExistsEmailNumberFieldSuspect" value="false">
+                                    <label for="notExistsEmailNumberFieldSuspect">
+                                        Tidak ada Email
+                                    </label>
+                                </div>
+                            </div>
+
+                            <input type="text" class="form-control mb-3" id="emailFieldSuspect" placeholder="Email">
+
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isAvailableEmailNumberFieldSuspect" value="true" aria-label="...">
+                                <label for="isAvailableEmailNumberFieldSuspect">
+                                Bersedia memberikan email?
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="countryFieldSuspect">Negara : </label>
+                        <div class="col-sm-6">
+                            <select class="form-control select2" id="countryFieldSuspect">
+                                <option value="">--Pilih Negara--</option>
+                                @foreach($countries as $country)
+                                    <option value="{{ $country->id }}" data-country-name="{{$country->name}}">{{ $country->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="countryChildrenLocationSectionSuspect">
+                        <div class="input-group row mb-3 ms-0">
+                            <label class="fw-bold col-sm-3 col-form-label" for="provinceFieldSuspect">Provinsi : </label>
+                            <div class="col-sm-6">
+                                <select class="form-control select2" id="provinceFieldSuspect">
+                                    <option value="">--Pilih Provinsi--</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group row mb-3 ms-0">
+                            <label class="fw-bold col-sm-3 col-form-label" for="regencyFieldSuspect">Kabupaten/Kota : </label>
+                            <div class="col-sm-6">
+                                <select class="form-control select2" id="regencyFieldSuspect">
+                                    <option value="">--Pilih Kabupaten/Kota--</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group row mb-3 ms-0">
+                            <label class="fw-bold col-sm-3 col-form-label" for="districtFieldSuspect">Kecamatan : </label>
+                            <div class="col-sm-6">
+                                <select class="form-control select2" id="districtFieldSuspect">
+                                    <option value="">--Pilih Kecamatan--</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="input-group row mb-3 ms-0">
+                            <label class="fw-bold col-sm-3 col-form-label" for="villageFieldSuspect">Kelurahan/Desa : </label>
+                            <div class="col-sm-6">
+                                <select class="form-control select2" id="villageFieldSuspect">
+                                    <option value="">--Pilih Kelurahan/Desa--</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-3 col-form-label" for="addressFieldSuspect">Alamat : </label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="addressFieldSuspect" placeholder="Alamat">
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="icheck-primary d-inline">
+                                <input type="checkbox" id="isUnknownAddressFieldSuspect" value="true" aria-label="...">
+                                <label for="isUnknownAddressFieldSuspect">
+                                Tidak Tahu
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <hr/>
+            <br/>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg" id="suratKetetapanTentangPenetapanTersangkaFormSubmit">
+                    <i class="bi bi-save"></i> {{ __('Simpan')}}
+                </button>
+                <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId]) }}" class="btn btn-danger btn-lg">
+                    <i class="bi bi-x-circle"></i> {{ __('Batal') }}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
+
+@push('script')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js" defer></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js" defer></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" defer></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js" defer></script>
+<script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
+<script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        setInterval(function() {
+            $('#attentionBox').toggleClass('alert-danger alert-warning');
+        }, 1000);
+
+        $('#documentDate').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: "true",
+            orientation: 'auto bottom',
+            endDate: new Date()
+        });
+        $('#documentDate').keydown(function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        $('#startDate').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: "true",
+            orientation: 'auto bottom',
+        }).on('changeDate', function(selected) {
+            var startDate = new Date(selected.date.valueOf());
+            $('#endDate').datepicker('setStartDate', startDate);
+        });
+        $('#startDate').keydown(function(e) {
+            e.preventDefault();
+            return false;
+        })
+
+        $('#endDate').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: "true",
+            orientation: 'auto bottom',
+        }).on('changeDate', function(selected) {
+            var endDate = new Date(selected.date.valueOf());
+            $('#startDate').datepicker('setEndDate', endDate);
+        });
+        $('#endDate').keydown(function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        $('#isFinished').on('change', function() {
+            if (this.checked) {
+                $('#endDate').prop('readonly', true);
+                $('#endDate').val('');
+            } else {
+                $('#endDate').prop('readonly', false);
+            }
+        });
+    });
+
+    // Select2 with Bootstrap4 theme
+    $(document).ready(function() {
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+    });
+
+    $(document).ready(function() {
+        $('#suspectSource').on('change', function() {
+            var suspectSourceCode = $(this).find(':selected').data('code');
+
+            if(suspectSourceCode == 'SS-SKTPT-TDDDLP'){
+                $('#resumeSuspectDeterminationDateSection').show();
+                $('#suspectSection').show();
+                $('#laporanHasilGelarPerkaraDocumentSuspectDeterminationSection').hide();
+                $("#suspectSource option[value='']").remove();
+            }else if(suspectSourceCode == 'SS-SKTPT-TDMGPPT'){
+                $('#laporanHasilGelarPerkaraDocumentSuspectDeterminationSection').show();
+                $('#suspectSection').show();
+                $('#resumeSuspectDeterminationDateSection').hide();
+                $("#suspectSource option[value='']").remove();
+            }
+        });
+    });
+
+    // Validasi Submit Form
+    $(document).ready(function() {
+        $('#suratKetetapanTentangPenetapanTersangkaFormSubmit').on('click', function(e) {
+            e.preventDefault();
+
+            // Lakukan validasi di sisi server menggunakan Ajax
+            $.ajax({
+                url: "{{ route('doc.surat-ketetapan-tentang-penetapan-tersangka-document.api.validate-request-form', ['accident_id' => $accidentId]) }}",
+                type: 'POST',
+                dataType: 'json',
+                data: $('#suratKetetapanTentangPenetapanTersangkaForm').serialize(),
+                success: function(response) {
+                    // Cek jika validasi berhasil di sisi server
+                    if (response.success) {
+                        // sweetalert2 berhasil sebelum submit form
+                        Swal.fire({
+                            title: 'Berhasil',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'Ok'
+                        }).then((result) => {
+                            // Submit form
+                            $('#suratKetetapanTentangPenetapanTersangkaForm').submit();
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    // Tangani error jika terjadi kesalahan saat melakukan validasi
+                    response = JSON.parse(xhr.responseText);
+
+                    if(response.code == '422'){
+                        var errorMessages = '';
+
+                        $.each(response.errors, function(key, value) {
+                            errorMessages += '- ' + value + '<br>';
+                        });
+
+                        return Swal.fire({
+                            icon: 'error',
+                            title: 'Mohon Periksa Kembali Isian Anda',
+                            html: errorMessages,
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
+@endpush

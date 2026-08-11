@@ -1,0 +1,44 @@
+<?php
+
+// use App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\PositionController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
+|
+*/
+
+Route::get('dashboard', [App\Http\Controllers\DashboardApiController::class, 'dashboard']);
+
+Route::middleware('auth:api')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+Route::post('/forms/regency', [App\Http\Controllers\FormsController::class, 'getRegency']);
+Route::post('/forms/district', [App\Http\Controllers\FormsController::class, 'getDistrict']);
+Route::post('/forms/village', [App\Http\Controllers\FormsController::class, 'getVillage']);
+Route::post('/forms/getPolres', [App\Http\Controllers\FormsController::class, 'getPolres']);
+
+Route::post('/sddl/regency', [App\Http\Controllers\SuratTugasController::class, 'getRegency']);
+Route::post('/sddl/district', [App\Http\Controllers\SuratTugasController::class, 'getDistrict']);
+Route::post('/sddl/village', [App\Http\Controllers\SuratTugasController::class, 'getVillage']);
+
+Route::post('/lhgp/regency', [App\Http\Controllers\SuratTugasController::class, 'getRegency']);
+Route::post('/lhgp/district', [App\Http\Controllers\SuratTugasController::class, 'getDistrict']);
+Route::post('/lhgp/village', [App\Http\Controllers\SuratTugasController::class, 'getVillage']);
+
+
+// Route::get('/index', [PositionController::class, 'index'])
+Route::get('/positions', [App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\PositionController::class, 'getPosition']);
+
+// Route::post('/regist/irsms/user' [App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\RegistUserController]);
+
+// Public API untuk masyarakat cek SP2HP (Surat Pemberitahuan Perkembangan Hasil Penyidikan)
+Route::post('/public/cek-sp2hp', [App\Http\Controllers\api\CekSP2HPController::class, 'getCekSP2HP'])->middleware('api-auth');

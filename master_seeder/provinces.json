@@ -1,0 +1,247 @@
+[
+    {
+        "PropinsiId": 0,
+        "EmpId": 0,
+        "CountryId": 101,
+        "Nama": "TIDAK DIKETAHUI",
+        "KodePuskarda": 0
+    },
+    {
+        "PropinsiId": 11,
+        "EmpId": 11,
+        "CountryId": 101,
+        "Nama": "ACEH",
+        "KodePuskarda": 11
+    },
+    {
+        "PropinsiId": 12,
+        "EmpId": 12,
+        "CountryId": 101,
+        "Nama": "SUMATERA UTARA",
+        "KodePuskarda": 12
+    },
+    {
+        "PropinsiId": 13,
+        "EmpId": 13,
+        "CountryId": 101,
+        "Nama": "SUMATERA BARAT",
+        "KodePuskarda": 13
+    },
+    {
+        "PropinsiId": 14,
+        "EmpId": 14,
+        "CountryId": 101,
+        "Nama": "RIAU",
+        "KodePuskarda": 14
+    },
+    {
+        "PropinsiId": 15,
+        "EmpId": 15,
+        "CountryId": 101,
+        "Nama": "JAMBI",
+        "KodePuskarda": 15
+    },
+    {
+        "PropinsiId": 16,
+        "EmpId": 16,
+        "CountryId": 101,
+        "Nama": "SUMATERA SELATAN",
+        "KodePuskarda": 16
+    },
+    {
+        "PropinsiId": 17,
+        "EmpId": 17,
+        "CountryId": 101,
+        "Nama": "BENGKULU",
+        "KodePuskarda": 17
+    },
+    {
+        "PropinsiId": 18,
+        "EmpId": 18,
+        "CountryId": 101,
+        "Nama": "LAMPUNG",
+        "KodePuskarda": 18
+    },
+    {
+        "PropinsiId": 19,
+        "EmpId": 19,
+        "CountryId": 101,
+        "Nama": "KEPULAUAN BANGKA BELITUNG",
+        "KodePuskarda": 19
+    },
+    {
+        "PropinsiId": 21,
+        "EmpId": 21,
+        "CountryId": 101,
+        "Nama": "KEPULAUAN RIAU",
+        "KodePuskarda": 21
+    },
+    {
+        "PropinsiId": 31,
+        "EmpId": 31,
+        "CountryId": 101,
+        "Nama": "DKI JAKARTA",
+        "KodePuskarda": 31
+    },
+    {
+        "PropinsiId": 32,
+        "EmpId": 32,
+        "CountryId": 101,
+        "Nama": "JAWA BARAT",
+        "KodePuskarda": 32
+    },
+    {
+        "PropinsiId": 33,
+        "EmpId": 33,
+        "CountryId": 101,
+        "Nama": "JAWA TENGAH",
+        "KodePuskarda": 33
+    },
+    {
+        "PropinsiId": 34,
+        "EmpId": 34,
+        "CountryId": 101,
+        "Nama": "DI YOGYAKARTA",
+        "KodePuskarda": 34
+    },
+    {
+        "PropinsiId": 35,
+        "EmpId": 35,
+        "CountryId": 101,
+        "Nama": "JAWA TIMUR",
+        "KodePuskarda": 35
+    },
+    {
+        "PropinsiId": 36,
+        "EmpId": 36,
+        "CountryId": 101,
+        "Nama": "BANTEN",
+        "KodePuskarda": 36
+    },
+    {
+        "PropinsiId": 51,
+        "EmpId": 51,
+        "CountryId": 101,
+        "Nama": "BALI",
+        "KodePuskarda": 51
+    },
+    {
+        "PropinsiId": 52,
+        "EmpId": 52,
+        "CountryId": 101,
+        "Nama": "NUSA TENGGARA BARAT",
+        "KodePuskarda": 52
+    },
+    {
+        "PropinsiId": 53,
+        "EmpId": 53,
+        "CountryId": 101,
+        "Nama": "NUSA TENGGARA TIMUR",
+        "KodePuskarda": 53
+    },
+    {
+        "PropinsiId": 61,
+        "EmpId": 61,
+        "CountryId": 101,
+        "Nama": "KALIMANTAN BARAT",
+        "KodePuskarda": 61
+    },
+    {
+        "PropinsiId": 62,
+        "EmpId": 62,
+        "CountryId": 101,
+        "Nama": "KALIMANTAN TENGAH",
+        "KodePuskarda": 62
+    },
+    {
+        "PropinsiId": 63,
+        "EmpId": 63,
+        "CountryId": 101,
+        "Nama": "KALIMANTAN SELATAN",
+        "KodePuskarda": 63
+    },
+    {
+        "PropinsiId": 64,
+        "EmpId": 64,
+        "CountryId": 101,
+        "Nama": "KALIMANTAN TIMUR",
+        "KodePuskarda": 64
+    },
+    {
+        "PropinsiId": 65,
+        "EmpId": 65,
+        "CountryId": 101,
+        "Nama": "KALIMANTAN UTARA",
+        "KodePuskarda": 65
+    },
+    {
+        "PropinsiId": 71,
+        "EmpId": 71,
+        "CountryId": 101,
+        "Nama": "SULAWESI UTARA",
+        "KodePuskarda": 71
+    },
+    {
+        "PropinsiId": 72,
+        "EmpId": 72,
+        "CountryId": 101,
+        "Nama": "SULAWESI TENGAH",
+        "KodePuskarda": 72
+    },
+    {
+        "PropinsiId": 73,
+        "EmpId": 73,
+        "CountryId": 101,
+        "Nama": "SULAWESI SELATAN",
+        "KodePuskarda": 73
+    },
+    {
+        "PropinsiId": 74,
+        "EmpId": 74,
+        "CountryId": 101,
+        "Nama": "SULAWESI TENGGARA",
+        "KodePuskarda": 74
+    },
+    {
+        "PropinsiId": 75,
+        "EmpId": 75,
+        "CountryId": 101,
+        "Nama": "GORONTALO",
+        "KodePuskarda": 75
+    },
+    {
+        "PropinsiId": 76,
+        "EmpId": 76,
+        "CountryId": 101,
+        "Nama": "SULAWESI BARAT",
+        "KodePuskarda": 76
+    },
+    {
+        "PropinsiId": 81,
+        "EmpId": 81,
+        "CountryId": 101,
+        "Nama": "MALUKU",
+        "KodePuskarda": 81
+    },
+    {
+        "PropinsiId": 82,
+        "EmpId": 82,
+        "CountryId": 101,
+        "Nama": "MALUKU UTARA",
+        "KodePuskarda": 82
+    },
+    {
+        "PropinsiId": 91,
+        "EmpId": 91,
+        "CountryId": 101,
+        "Nama": "PAPUA BARAT",
+        "KodePuskarda": 91
+    },
+    {
+        "PropinsiId": 94,
+        "EmpId": 94,
+        "CountryId": 101,
+        "Nama": "PAPUA",
+        "KodePuskarda": 94
+    }
+]

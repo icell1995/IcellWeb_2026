@@ -1,0 +1,145 @@
+<?php
+
+namespace App\Http\Controllers\IcellServices\ApiDivtikPolri;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Log\ApiDivtikPolri;
+
+class DivtikAnevController extends Controller
+{
+    // GET /icell-services/api-divtik-polri/get-divtik?year=YYYY&date=YYYY-MM-DD
+    public function getDivtik(Request $request)
+    {
+        try {
+            // --- CATAT LOG AKSES (letakkan di awal agar semua request tercatat) ---
+            $this->logAccess($request);
+
+            // Utamakan query string; fallback ke body jika ada (untuk fleksibilitas)
+            $year = $request->query('year', $request->input('year'));
+            $date = $request->query('date', $request->input('date'));
+
+            // 1) Validasi kombinasi input
+            if (empty($year) && empty($date)) {
+                return response()->json([
+                    'status'  => 'failed',
+                    'message' => 'harap isi tahun atau tanggal'
+                ], 422);
+            }
+
+            if (!empty($year) && !preg_match('/^\d{4}$/', (string)$year)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Format year tidak valid. Gunakan 4 digit (contoh: 2024)'
+                ], 422);
+            }
+
+            if (!empty($date)) {
+                $dObj = \DateTime::createFromFormat('Y-m-d', $date);
+                if (!$dObj || $dObj->format('Y-m-d') !== $date) {
+                    return response()->json([
+                        'status'  => 'error',
+                        'message' => 'Format date tidak valid. Gunakan Y-m-d (contoh: 2025-09-15)'
+                    ], 422);
+                }
+            }
+
+            // 2) Kondisi tanggal (accident_date)
+            $conds = [];
+            if ($year) { $conds[] = "EXTRACT(YEAR FROM accidents.accident_date) = '{$year}'"; }
+            if ($date) { $conds[] = "DATE(accidents.accident_date) = '{$date}'"; }
+            $dateCondition = implode(' AND ', $conds);
+
+            // 3) Flag SELRA
+            $flags = [
+                'p21'     => 'S0101',
+                'sp3'     => 'S0102',
+                'diversi' => 'S0103',
+                'sp2lid'  => 'S0108',
+            ];
+
+            $joinFor = function (string $alias, string $flag) use ($dateCondition) {
+                return "
+                    LEFT JOIN (
+                        SELECT polda.id AS polda_id, COUNT(accidents.id) AS total
+                        FROM polda
+                        JOIN polres    ON polres.polda_id = polda.id
+                        JOIN accidents ON accidents.polres_id = polres.id
+                        WHERE accidents.selra_flag = '$flag'
+                          AND {$dateCondition}
+                          AND polda.state     <> 0
+                          AND polres.state    <> 0
+                          AND accidents.state <> 0
+                        GROUP BY polda.id
+                    ) $alias ON $alias.polda_id = polda.id
+                ";
+            };
+
+            $joins = '';
+            foreach ($flags as $alias => $code) {
+                $joins .= $joinFor("total_$alias", $code);
+            }
+
+            // 4) Query per-POLDA
+            $sql = "
+                SELECT
+		    polda.satker_code as polda_id,
+                    polda.name AS polda,
+                    COALESCE(total_p21.total, 0)     AS p21,
+                    COALESCE(total_sp3.total, 0)     AS sp3,
+                    COALESCE(total_diversi.total, 0) AS diversi,
+                    COALESCE(total_sp2lid.total, 0)  AS sp2lid
+                FROM polda
+                $joins
+                WHERE polda.state <> 0
+                  AND polda.id NOT IN ('90','99', '80')
+                ORDER BY polda.satker_code ASC
+            ";
+
+            $rows = DB::select($sql);
+
+            $result = array_map(function ($r) {
+                return [
+		    'SatkerCode'=> $r->polda_id,
+                    'polda'   => $r->polda,
+                    'p21'     => (int)$r->p21,
+                    'sp3'     => (int)$r->sp3,
+                    'diversi' => (int)$r->diversi,
+                    'sp2lid'  => (int)$r->sp2lid,
+                ];
+            }, $rows);
+
+            return response()->json([
+                'status' => 'success',
+                'data'   => [
+                    'laporan_berdasarkan' => 'TANGGAL KEJADIAN',
+                    'periode'             => $date ?: $year,
+                    'summary_per_polda'   => $result,
+                ]
+            ]);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+                'trace'   => config('app.debug') ? $e->getTrace() : null,
+            ], 500);
+        }
+    }
+
+    private function logAccess(Request $request): void
+    {
+        try {
+            $ip = $request->header('X-Forwarded-For')
+                ?: $request->header('X-Real-IP')
+                ?: $request->ip();
+
+            ApiDivtikPolri::create([
+                'class_model' => self::class,
+                'ip_address'  => is_array($ip) ? implode(',', $ip) : (string)$ip,
+            ]);
+        } catch (\Throwable $e) {
+        }
+    }
+}

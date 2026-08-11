@@ -1,0 +1,2216 @@
+[
+    {
+      "id": "0",
+      "emp_id": "0",
+      "name": "TIDAK DIKETAHUI",
+      "code": "",
+      "code_alpha_3": "",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "01",
+      "emp_id": "1",
+      "name": "AFGHANISTAN",
+      "code": "AF",
+      "code_alpha_3": "AFG",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "02",
+      "emp_id": "2",
+      "name": "ALBANIA",
+      "code": "AL",
+      "code_alpha_3": "ALB",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "03",
+      "emp_id": "3",
+      "name": "ALGERIA",
+      "code": "DZ",
+      "code_alpha_3": "DZA",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "04",
+      "emp_id": "4",
+      "name": "AMERICAN SAMOA",
+      "code": "AS",
+      "code_alpha_3": "ASM",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "05",
+      "emp_id": "5",
+      "name": "ANDORRA",
+      "code": "AD",
+      "code_alpha_3": "AND",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "06",
+      "emp_id": "6",
+      "name": "ANGOLA",
+      "code": "AO",
+      "code_alpha_3": "AGO",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "07",
+      "emp_id": "7",
+      "name": "ANGUILLA",
+      "code": "AI",
+      "code_alpha_3": "AIA",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "08",
+      "emp_id": "8",
+      "name": "ANTARCTICA",
+      "code": "AQ",
+      "code_alpha_3": "ATA",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "09",
+      "emp_id": "9",
+      "name": "ANTIGUA AND BARBUDA",
+      "code": "AG",
+      "code_alpha_3": "ATG",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "010",
+      "emp_id": "10",
+      "name": "ARGENTINA",
+      "code": "AR",
+      "code_alpha_3": "ARG",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "011",
+      "emp_id": "11",
+      "name": "ARMENIA",
+      "code": "AM",
+      "code_alpha_3": "ARM",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "012",
+      "emp_id": "12",
+      "name": "ARUBA",
+      "code": "AW",
+      "code_alpha_3": "ABW",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "013",
+      "emp_id": "13",
+      "name": "AUSTRALIA",
+      "code": "AU",
+      "code_alpha_3": "AUS",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "014",
+      "emp_id": "14",
+      "name": "AUSTRIA",
+      "code": "AT",
+      "code_alpha_3": "AUT",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "015",
+      "emp_id": "15",
+      "name": "AZERBAIJAN",
+      "code": "AZ",
+      "code_alpha_3": "AZE",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "016",
+      "emp_id": "16",
+      "name": "BAHAMAS",
+      "code": "BS",
+      "code_alpha_3": "BHS",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "017",
+      "emp_id": "17",
+      "name": "BAHRAIN",
+      "code": "BH",
+      "code_alpha_3": "BHR",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "018",
+      "emp_id": "18",
+      "name": "BANGLADESH",
+      "code": "BD",
+      "code_alpha_3": "BGD",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "019",
+      "emp_id": "19",
+      "name": "BARBADOS",
+      "code": "BB",
+      "code_alpha_3": "BRB",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "020",
+      "emp_id": "20",
+      "name": "BELARUS",
+      "code": "BY",
+      "code_alpha_3": "BLR",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "021",
+      "emp_id": "21",
+      "name": "BELGIUM",
+      "code": "BE",
+      "code_alpha_3": "BEL",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "022",
+      "emp_id": "22",
+      "name": "BELIZE",
+      "code": "BZ",
+      "code_alpha_3": "BLZ",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "023",
+      "emp_id": "23",
+      "name": "BENIN",
+      "code": "BJ",
+      "code_alpha_3": "BEN",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "024",
+      "emp_id": "24",
+      "name": "BERMUDA",
+      "code": "BM",
+      "code_alpha_3": "BMU",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "025",
+      "emp_id": "25",
+      "name": "BHUTAN",
+      "code": "BT",
+      "code_alpha_3": "BTN",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "026",
+      "emp_id": "26",
+      "name": "BOLIVIA",
+      "code": "BO",
+      "code_alpha_3": "BOL",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "027",
+      "emp_id": "27",
+      "name": "BOSNIA AND HERZEGOVINA",
+      "code": "BA",
+      "code_alpha_3": "BIH",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "028",
+      "emp_id": "28",
+      "name": "BOTSWANA",
+      "code": "BW",
+      "code_alpha_3": "BWA",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "029",
+      "emp_id": "29",
+      "name": "BOUVET ISLAND",
+      "code": "BV",
+      "code_alpha_3": "BVT",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "030",
+      "emp_id": "30",
+      "name": "BRAZIL",
+      "code": "BR",
+      "code_alpha_3": "BRA",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "031",
+      "emp_id": "31",
+      "name": "BRITISH INDIAN OCEAN TERRITORY",
+      "code": "IO",
+      "code_alpha_3": "IOT",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "032",
+      "emp_id": "32",
+      "name": "BRUNEI DARUSSALAM",
+      "code": "BN",
+      "code_alpha_3": "BRN",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "033",
+      "emp_id": "33",
+      "name": "BULGARIA",
+      "code": "BG",
+      "code_alpha_3": "BGR",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "034",
+      "emp_id": "34",
+      "name": "BURKINA FASO",
+      "code": "BF",
+      "code_alpha_3": "BFA",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "035",
+      "emp_id": "35",
+      "name": "BURUNDI",
+      "code": "BI",
+      "code_alpha_3": "BDI",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "036",
+      "emp_id": "36",
+      "name": "CAMBODIA",
+      "code": "KH",
+      "code_alpha_3": "KHM",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "037",
+      "emp_id": "37",
+      "name": "CAMEROON",
+      "code": "CM",
+      "code_alpha_3": "CMR",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "038",
+      "emp_id": "38",
+      "name": "CANADA",
+      "code": "CA",
+      "code_alpha_3": "CAN",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "039",
+      "emp_id": "39",
+      "name": "CAPE VERDE",
+      "code": "CV",
+      "code_alpha_3": "CPV",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "040",
+      "emp_id": "40",
+      "name": "CAYMAN ISLANDS",
+      "code": "KY",
+      "code_alpha_3": "CYM",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "041",
+      "emp_id": "41",
+      "name": "CENTRAL AFRICAN REPUBLIC",
+      "code": "CF",
+      "code_alpha_3": "CAF",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "042",
+      "emp_id": "42",
+      "name": "CHAD",
+      "code": "TD",
+      "code_alpha_3": "TCD",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "043",
+      "emp_id": "43",
+      "name": "CHILE",
+      "code": "CL",
+      "code_alpha_3": "CHL",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "044",
+      "emp_id": "44",
+      "name": "CHINA",
+      "code": "CN",
+      "code_alpha_3": "CHN",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "045",
+      "emp_id": "45",
+      "name": "CHRISTMAS ISLAND",
+      "code": "CX",
+      "code_alpha_3": "CXR",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "046",
+      "emp_id": "46",
+      "name": "COCOS (KEELING) ISLANDS",
+      "code": "CC",
+      "code_alpha_3": "CCK",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "047",
+      "emp_id": "47",
+      "name": "COLOMBIA",
+      "code": "CO",
+      "code_alpha_3": "COL",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "048",
+      "emp_id": "48",
+      "name": "COMOROS",
+      "code": "KM",
+      "code_alpha_3": "COM",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "049",
+      "emp_id": "49",
+      "name": "CONGO",
+      "code": "CG",
+      "code_alpha_3": "COG",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "050",
+      "emp_id": "50",
+      "name": "COOK ISLANDS",
+      "code": "CK",
+      "code_alpha_3": "COK",
+      "created_at": "2023-05-11T15:07:48",
+      "updated_at": "2023-05-11T15:07:48"
+    },
+    {
+      "id": "051",
+      "emp_id": "51",
+      "name": "COSTA RICA",
+      "code": "CR",
+      "code_alpha_3": "CRI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "052",
+      "emp_id": "52",
+      "name": "CROATIA (HRVATSKA)",
+      "code": "HR",
+      "code_alpha_3": "HRV",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "053",
+      "emp_id": "53",
+      "name": "CUBA",
+      "code": "CU",
+      "code_alpha_3": "CUB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "054",
+      "emp_id": "54",
+      "name": "CYPRUS",
+      "code": "CY",
+      "code_alpha_3": "CYP",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "055",
+      "emp_id": "55",
+      "name": "CZECH REPUBLIC",
+      "code": "CZ",
+      "code_alpha_3": "CZE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "056",
+      "emp_id": "56",
+      "name": "DENMARK",
+      "code": "DK",
+      "code_alpha_3": "DNK",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "057",
+      "emp_id": "57",
+      "name": "DJIBOUTI",
+      "code": "DJ",
+      "code_alpha_3": "DJI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "058",
+      "emp_id": "58",
+      "name": "DOMINICA",
+      "code": "DM",
+      "code_alpha_3": "DMA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "059",
+      "emp_id": "59",
+      "name": "DOMINICAN REPUBLIC",
+      "code": "DO",
+      "code_alpha_3": "DOM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "060",
+      "emp_id": "60",
+      "name": "EAST TIMOR",
+      "code": "TL",
+      "code_alpha_3": "TLS",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "061",
+      "emp_id": "61",
+      "name": "ECUADOR",
+      "code": "EC",
+      "code_alpha_3": "ECU",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "062",
+      "emp_id": "62",
+      "name": "EGYPT",
+      "code": "EG",
+      "code_alpha_3": "EGY",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "063",
+      "emp_id": "63",
+      "name": "EL SALVADOR",
+      "code": "SV",
+      "code_alpha_3": "SLV",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "064",
+      "emp_id": "64",
+      "name": "EQUATORIAL GUINEA",
+      "code": "GQ",
+      "code_alpha_3": "GNQ",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "065",
+      "emp_id": "65",
+      "name": "ERITREA",
+      "code": "ER",
+      "code_alpha_3": "ERI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "066",
+      "emp_id": "66",
+      "name": "ESTONIA",
+      "code": "EE",
+      "code_alpha_3": "EST",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "067",
+      "emp_id": "67",
+      "name": "ETHIOPIA",
+      "code": "ET",
+      "code_alpha_3": "ETH",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "068",
+      "emp_id": "68",
+      "name": "FALKLAND ISLANDS (MALVINAS)",
+      "code": "FK",
+      "code_alpha_3": "FLK",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "069",
+      "emp_id": "69",
+      "name": "FAROE ISLANDS",
+      "code": "FO",
+      "code_alpha_3": "FRO",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "070",
+      "emp_id": "70",
+      "name": "FIJI",
+      "code": "FJ",
+      "code_alpha_3": "FJI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "071",
+      "emp_id": "71",
+      "name": "FINLAND",
+      "code": "FI",
+      "code_alpha_3": "FIN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "072",
+      "emp_id": "72",
+      "name": "FRANCE",
+      "code": "FR",
+      "code_alpha_3": "FRA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "073",
+      "emp_id": "73",
+      "name": "FRANCE, METROPOLITAN",
+      "code": "FX",
+      "code_alpha_3": "FXX",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "074",
+      "emp_id": "74",
+      "name": "FRENCH GUIANA",
+      "code": "GF",
+      "code_alpha_3": "GUF",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "075",
+      "emp_id": "75",
+      "name": "FRENCH POLYNESIA",
+      "code": "PF",
+      "code_alpha_3": "PYF",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "076",
+      "emp_id": "76",
+      "name": "FRENCH SOUTHERN TERRITORIES",
+      "code": "TF",
+      "code_alpha_3": "ATF",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "077",
+      "emp_id": "77",
+      "name": "GABON",
+      "code": "GA",
+      "code_alpha_3": "GAB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "078",
+      "emp_id": "78",
+      "name": "GAMBIA",
+      "code": "GM",
+      "code_alpha_3": "GMB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "079",
+      "emp_id": "79",
+      "name": "GEORGIA",
+      "code": "GE",
+      "code_alpha_3": "GEO",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "080",
+      "emp_id": "80",
+      "name": "GERMANY",
+      "code": "DE",
+      "code_alpha_3": "DEU",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "081",
+      "emp_id": "81",
+      "name": "GHANA",
+      "code": "GH",
+      "code_alpha_3": "GHA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "082",
+      "emp_id": "82",
+      "name": "GIBRALTAR",
+      "code": "GI",
+      "code_alpha_3": "GIB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "083",
+      "emp_id": "83",
+      "name": "GUERNSEY",
+      "code": "GG",
+      "code_alpha_3": "GGY",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "084",
+      "emp_id": "84",
+      "name": "GREECE",
+      "code": "GR",
+      "code_alpha_3": "GRC",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "085",
+      "emp_id": "85",
+      "name": "GREENLAND",
+      "code": "GL",
+      "code_alpha_3": "GRL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "086",
+      "emp_id": "86",
+      "name": "GRENADA",
+      "code": "GD",
+      "code_alpha_3": "GRD",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "087",
+      "emp_id": "87",
+      "name": "GUADELOUPE",
+      "code": "GP",
+      "code_alpha_3": "GLP",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "088",
+      "emp_id": "88",
+      "name": "GUAM",
+      "code": "GU",
+      "code_alpha_3": "GUM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "089",
+      "emp_id": "89",
+      "name": "GUATEMALA",
+      "code": "GT",
+      "code_alpha_3": "GTM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "090",
+      "emp_id": "90",
+      "name": "GUINEA",
+      "code": "GN",
+      "code_alpha_3": "GIN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "091",
+      "emp_id": "91",
+      "name": "GUINEA-BISSAU",
+      "code": "GW",
+      "code_alpha_3": "GNB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "092",
+      "emp_id": "92",
+      "name": "GUYANA",
+      "code": "GY",
+      "code_alpha_3": "GUY",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "093",
+      "emp_id": "93",
+      "name": "HAITI",
+      "code": "HT",
+      "code_alpha_3": "HTI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "094",
+      "emp_id": "94",
+      "name": "HEARD AND MC DONALD ISLANDS",
+      "code": "HM",
+      "code_alpha_3": "HMD",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "095",
+      "emp_id": "95",
+      "name": "HONDURAS",
+      "code": "HN",
+      "code_alpha_3": "HND",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "096",
+      "emp_id": "96",
+      "name": "HONG KONG",
+      "code": "HK",
+      "code_alpha_3": "HKG",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "097",
+      "emp_id": "97",
+      "name": "HUNGARY",
+      "code": "HU",
+      "code_alpha_3": "HUN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "098",
+      "emp_id": "98",
+      "name": "ICELAND",
+      "code": "IS",
+      "code_alpha_3": "ISL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "099",
+      "emp_id": "99",
+      "name": "INDIA",
+      "code": "IN",
+      "code_alpha_3": "IND",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0100",
+      "emp_id": "100",
+      "name": "ISLE OF MAN",
+      "code": "IM",
+      "code_alpha_3": "IMN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0101",
+      "emp_id": "101",
+      "name": "INDONESIA",
+      "code": "ID",
+      "code_alpha_3": "IDN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0102",
+      "emp_id": "102",
+      "name": "IRAN (ISLAMIC REPUBLIC OF)",
+      "code": "IR",
+      "code_alpha_3": "IRN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0103",
+      "emp_id": "103",
+      "name": "IRAQ",
+      "code": "IQ",
+      "code_alpha_3": "IRQ",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0104",
+      "emp_id": "104",
+      "name": "IRELAND",
+      "code": "IE",
+      "code_alpha_3": "IRL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0105",
+      "emp_id": "105",
+      "name": "ISRAEL",
+      "code": "IL",
+      "code_alpha_3": "ISR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0106",
+      "emp_id": "106",
+      "name": "ITALY",
+      "code": "IT",
+      "code_alpha_3": "ITA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0107",
+      "emp_id": "107",
+      "name": "IVORY COAST",
+      "code": "CI",
+      "code_alpha_3": "CIV",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0108",
+      "emp_id": "108",
+      "name": "JERSEY",
+      "code": "JE",
+      "code_alpha_3": "JEY",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0109",
+      "emp_id": "109",
+      "name": "JAMAICA",
+      "code": "JM",
+      "code_alpha_3": "JAM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0110",
+      "emp_id": "110",
+      "name": "JAPAN",
+      "code": "JP",
+      "code_alpha_3": "JPN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0111",
+      "emp_id": "111",
+      "name": "JORDAN",
+      "code": "JO",
+      "code_alpha_3": "JOR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0112",
+      "emp_id": "112",
+      "name": "KAZAKHSTAN",
+      "code": "KZ",
+      "code_alpha_3": "KAZ",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0113",
+      "emp_id": "113",
+      "name": "KENYA",
+      "code": "KE",
+      "code_alpha_3": "KEN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0114",
+      "emp_id": "114",
+      "name": "KIRIBATI",
+      "code": "KI",
+      "code_alpha_3": "KIR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0115",
+      "emp_id": "115",
+      "name": "KOREA, DEMOCRATIC PEOPLE\\'S REPUBLIC OF",
+      "code": "KP",
+      "code_alpha_3": "PRK",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0116",
+      "emp_id": "116",
+      "name": "KOREA, REPUBLIC OF",
+      "code": "KR",
+      "code_alpha_3": "KOR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0117",
+      "emp_id": "117",
+      "name": "KOSOVO",
+      "code": "XK",
+      "code_alpha_3": "XKX",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0118",
+      "emp_id": "118",
+      "name": "KUWAIT",
+      "code": "KW",
+      "code_alpha_3": "KWT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0119",
+      "emp_id": "119",
+      "name": "KYRGYZSTAN",
+      "code": "KG",
+      "code_alpha_3": "KGZ",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0120",
+      "emp_id": "120",
+      "name": "LAO PEOPLE\\'S DEMOCRATIC REPUBLIC",
+      "code": "LA",
+      "code_alpha_3": "LAO",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0121",
+      "emp_id": "121",
+      "name": "LATVIA",
+      "code": "LV",
+      "code_alpha_3": "LVA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0122",
+      "emp_id": "122",
+      "name": "LEBANON",
+      "code": "LB",
+      "code_alpha_3": "LBN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0123",
+      "emp_id": "123",
+      "name": "LESOTHO",
+      "code": "LS",
+      "code_alpha_3": "LSO",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0124",
+      "emp_id": "124",
+      "name": "LIBERIA",
+      "code": "LR",
+      "code_alpha_3": "LBR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0125",
+      "emp_id": "125",
+      "name": "LIBYAN ARAB JAMAHIRIYA",
+      "code": "LY",
+      "code_alpha_3": "LBY",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0126",
+      "emp_id": "126",
+      "name": "LIECHTENSTEIN",
+      "code": "LI",
+      "code_alpha_3": "LIE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0127",
+      "emp_id": "127",
+      "name": "LITHUANIA",
+      "code": "LT",
+      "code_alpha_3": "LTU",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0128",
+      "emp_id": "128",
+      "name": "LUXEMBOURG",
+      "code": "LU",
+      "code_alpha_3": "LUX",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0129",
+      "emp_id": "129",
+      "name": "MACAU",
+      "code": "MO",
+      "code_alpha_3": "MAC",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0130",
+      "emp_id": "130",
+      "name": "MACEDONIA",
+      "code": "MK",
+      "code_alpha_3": "MKD",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0131",
+      "emp_id": "131",
+      "name": "MADAGASCAR",
+      "code": "MG",
+      "code_alpha_3": "MDG",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0132",
+      "emp_id": "132",
+      "name": "MALAWI",
+      "code": "MW",
+      "code_alpha_3": "MWI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0133",
+      "emp_id": "133",
+      "name": "MALAYSIA",
+      "code": "MY",
+      "code_alpha_3": "MYS",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0134",
+      "emp_id": "134",
+      "name": "MALDIVES",
+      "code": "MV",
+      "code_alpha_3": "MDV",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0135",
+      "emp_id": "135",
+      "name": "MALI",
+      "code": "ML",
+      "code_alpha_3": "MLI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0136",
+      "emp_id": "136",
+      "name": "MALTA",
+      "code": "MT",
+      "code_alpha_3": "MLT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0137",
+      "emp_id": "137",
+      "name": "MARSHALL ISLANDS",
+      "code": "MH",
+      "code_alpha_3": "MHL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0138",
+      "emp_id": "138",
+      "name": "MARTINIQUE",
+      "code": "MQ",
+      "code_alpha_3": "MTQ",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0139",
+      "emp_id": "139",
+      "name": "MAURITANIA",
+      "code": "MR",
+      "code_alpha_3": "MRT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0140",
+      "emp_id": "140",
+      "name": "MAURITIUS",
+      "code": "MU",
+      "code_alpha_3": "MUS",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0141",
+      "emp_id": "141",
+      "name": "MAYOTTE",
+      "code": "YT",
+      "code_alpha_3": "MYT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0142",
+      "emp_id": "142",
+      "name": "MEXICO",
+      "code": "MX",
+      "code_alpha_3": "MEX",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0143",
+      "emp_id": "143",
+      "name": "MICRONESIA, FEDERATED STATES OF",
+      "code": "FM",
+      "code_alpha_3": "FSM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0144",
+      "emp_id": "144",
+      "name": "MOLDOVA, REPUBLIC OF",
+      "code": "MD",
+      "code_alpha_3": "MDA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0145",
+      "emp_id": "145",
+      "name": "MONACO",
+      "code": "MC",
+      "code_alpha_3": "MCO",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0146",
+      "emp_id": "146",
+      "name": "MONGOLIA",
+      "code": "MN",
+      "code_alpha_3": "MNG",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0147",
+      "emp_id": "147",
+      "name": "MONTENEGRO",
+      "code": "ME",
+      "code_alpha_3": "MNE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0148",
+      "emp_id": "148",
+      "name": "MONTSERRAT",
+      "code": "MS",
+      "code_alpha_3": "MSR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0149",
+      "emp_id": "149",
+      "name": "MOROCCO",
+      "code": "MA",
+      "code_alpha_3": "MAR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0150",
+      "emp_id": "150",
+      "name": "MOZAMBIQUE",
+      "code": "MZ",
+      "code_alpha_3": "MOZ",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0151",
+      "emp_id": "151",
+      "name": "MYANMAR",
+      "code": "MM",
+      "code_alpha_3": "MMR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0152",
+      "emp_id": "152",
+      "name": "NAMIBIA",
+      "code": "NA",
+      "code_alpha_3": "NAM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0153",
+      "emp_id": "153",
+      "name": "NAURU",
+      "code": "NR",
+      "code_alpha_3": "NRU",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0154",
+      "emp_id": "154",
+      "name": "NEPAL",
+      "code": "NP",
+      "code_alpha_3": "NPL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0155",
+      "emp_id": "155",
+      "name": "NETHERLANDS",
+      "code": "NL",
+      "code_alpha_3": "NLD",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0156",
+      "emp_id": "156",
+      "name": "NETHERLANDS ANTILLES",
+      "code": "AN",
+      "code_alpha_3": "ANT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0157",
+      "emp_id": "157",
+      "name": "NEW CALEDONIA",
+      "code": "NC",
+      "code_alpha_3": "NCL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0158",
+      "emp_id": "158",
+      "name": "NEW ZEALAND",
+      "code": "NZ",
+      "code_alpha_3": "NZL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0159",
+      "emp_id": "159",
+      "name": "NICARAGUA",
+      "code": "NI",
+      "code_alpha_3": "NIC",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0160",
+      "emp_id": "160",
+      "name": "NIGER",
+      "code": "NE",
+      "code_alpha_3": "NER",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0161",
+      "emp_id": "161",
+      "name": "NIGERIA",
+      "code": "NG",
+      "code_alpha_3": "NGA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0162",
+      "emp_id": "162",
+      "name": "NIUE",
+      "code": "NU",
+      "code_alpha_3": "NIU",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0163",
+      "emp_id": "163",
+      "name": "NORFOLK ISLAND",
+      "code": "NF",
+      "code_alpha_3": "NFK",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0164",
+      "emp_id": "164",
+      "name": "NORTHERN MARIANA ISLANDS",
+      "code": "MP",
+      "code_alpha_3": "MNP",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0165",
+      "emp_id": "165",
+      "name": "NORWAY",
+      "code": "NO",
+      "code_alpha_3": "NOR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0166",
+      "emp_id": "166",
+      "name": "OMAN",
+      "code": "OM",
+      "code_alpha_3": "OMN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0167",
+      "emp_id": "167",
+      "name": "PAKISTAN",
+      "code": "PK",
+      "code_alpha_3": "PAK",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0168",
+      "emp_id": "168",
+      "name": "PALAU",
+      "code": "PW",
+      "code_alpha_3": "PLW",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0169",
+      "emp_id": "169",
+      "name": "PALESTINE",
+      "code": "PS",
+      "code_alpha_3": "PSE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0170",
+      "emp_id": "170",
+      "name": "PANAMA",
+      "code": "PA",
+      "code_alpha_3": "PAN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0171",
+      "emp_id": "171",
+      "name": "PAPUA NEW GUINEA",
+      "code": "PG",
+      "code_alpha_3": "PNG",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0172",
+      "emp_id": "172",
+      "name": "PARAGUAY",
+      "code": "PY",
+      "code_alpha_3": "PRY",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0173",
+      "emp_id": "173",
+      "name": "PERU",
+      "code": "PE",
+      "code_alpha_3": "PER",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0174",
+      "emp_id": "174",
+      "name": "PHILIPPINES",
+      "code": "PH",
+      "code_alpha_3": "PHL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0175",
+      "emp_id": "175",
+      "name": "PITCAIRN",
+      "code": "PN",
+      "code_alpha_3": "PCN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0176",
+      "emp_id": "176",
+      "name": "POLAND",
+      "code": "PL",
+      "code_alpha_3": "POL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0177",
+      "emp_id": "177",
+      "name": "PORTUGAL",
+      "code": "PT",
+      "code_alpha_3": "PRT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0178",
+      "emp_id": "178",
+      "name": "PUERTO RICO",
+      "code": "PR",
+      "code_alpha_3": "PRI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0179",
+      "emp_id": "179",
+      "name": "QATAR",
+      "code": "QA",
+      "code_alpha_3": "QAT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0180",
+      "emp_id": "180",
+      "name": "REUNION",
+      "code": "RE",
+      "code_alpha_3": "REU",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0181",
+      "emp_id": "181",
+      "name": "ROMANIA",
+      "code": "RO",
+      "code_alpha_3": "ROU",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0182",
+      "emp_id": "182",
+      "name": "RUSSIAN FEDERATION",
+      "code": "RU",
+      "code_alpha_3": "RUS",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0183",
+      "emp_id": "183",
+      "name": "RWANDA",
+      "code": "RW",
+      "code_alpha_3": "RWA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0184",
+      "emp_id": "184",
+      "name": "SAINT KITTS AND NEVIS",
+      "code": "KN",
+      "code_alpha_3": "KNA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0185",
+      "emp_id": "185",
+      "name": "SAINT LUCIA",
+      "code": "LC",
+      "code_alpha_3": "LCA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0186",
+      "emp_id": "186",
+      "name": "SAINT VINCENT AND THE GRENADINES",
+      "code": "VC",
+      "code_alpha_3": "VCT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0187",
+      "emp_id": "187",
+      "name": "SAMOA",
+      "code": "WS",
+      "code_alpha_3": "WSM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0188",
+      "emp_id": "188",
+      "name": "SAN MARINO",
+      "code": "SM",
+      "code_alpha_3": "SMR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0189",
+      "emp_id": "189",
+      "name": "SAO TOME AND PRINCIPE",
+      "code": "ST",
+      "code_alpha_3": "STP",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0190",
+      "emp_id": "190",
+      "name": "SAUDI ARABIA",
+      "code": "SA",
+      "code_alpha_3": "SAU",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0191",
+      "emp_id": "191",
+      "name": "SENEGAL",
+      "code": "SN",
+      "code_alpha_3": "SEN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0192",
+      "emp_id": "192",
+      "name": "SERBIA",
+      "code": "RS",
+      "code_alpha_3": "SRB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0193",
+      "emp_id": "193",
+      "name": "SEYCHELLES",
+      "code": "SC",
+      "code_alpha_3": "SYC",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0194",
+      "emp_id": "194",
+      "name": "SIERRA LEONE",
+      "code": "SL",
+      "code_alpha_3": "SLE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0195",
+      "emp_id": "195",
+      "name": "SINGAPORE",
+      "code": "SG",
+      "code_alpha_3": "SGP",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0196",
+      "emp_id": "196",
+      "name": "SLOVAKIA",
+      "code": "SK",
+      "code_alpha_3": "SVK",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0197",
+      "emp_id": "197",
+      "name": "SLOVENIA",
+      "code": "SI",
+      "code_alpha_3": "SVN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0198",
+      "emp_id": "198",
+      "name": "SOLOMON ISLANDS",
+      "code": "SB",
+      "code_alpha_3": "SLB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0199",
+      "emp_id": "199",
+      "name": "SOMALIA",
+      "code": "SO",
+      "code_alpha_3": "SOM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0200",
+      "emp_id": "200",
+      "name": "SOUTH AFRICA",
+      "code": "ZA",
+      "code_alpha_3": "ZAF",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0201",
+      "emp_id": "201",
+      "name": "SOUTH GEORGIA SOUTH SANDWICH ISLANDS",
+      "code": "GS",
+      "code_alpha_3": "SGS",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0202",
+      "emp_id": "202",
+      "name": "SPAIN",
+      "code": "ES",
+      "code_alpha_3": "ESP",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0203",
+      "emp_id": "203",
+      "name": "SRI LANKA",
+      "code": "LK",
+      "code_alpha_3": "LKA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0204",
+      "emp_id": "204",
+      "name": "ST. HELENA",
+      "code": "SH",
+      "code_alpha_3": "SHN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0205",
+      "emp_id": "205",
+      "name": "ST. PIERRE AND MIQUELON",
+      "code": "PM",
+      "code_alpha_3": "SPM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0206",
+      "emp_id": "206",
+      "name": "SUDAN",
+      "code": "SD",
+      "code_alpha_3": "SDN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0207",
+      "emp_id": "207",
+      "name": "SURINAME",
+      "code": "SR",
+      "code_alpha_3": "SUR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0208",
+      "emp_id": "208",
+      "name": "SVALBARD AND JAN MAYEN ISLANDS",
+      "code": "SJ",
+      "code_alpha_3": "SJM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0209",
+      "emp_id": "209",
+      "name": "SWAZILAND",
+      "code": "SZ",
+      "code_alpha_3": "SWZ",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0210",
+      "emp_id": "210",
+      "name": "SWEDEN",
+      "code": "SE",
+      "code_alpha_3": "SWE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0211",
+      "emp_id": "211",
+      "name": "SWITZERLAND",
+      "code": "CH",
+      "code_alpha_3": "CHE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0212",
+      "emp_id": "212",
+      "name": "SYRIAN ARAB REPUBLIC",
+      "code": "SY",
+      "code_alpha_3": "SYR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0213",
+      "emp_id": "213",
+      "name": "TAIWAN",
+      "code": "TW",
+      "code_alpha_3": "TWN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0214",
+      "emp_id": "214",
+      "name": "TAJIKISTAN",
+      "code": "TJ",
+      "code_alpha_3": "TJK",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0215",
+      "emp_id": "215",
+      "name": "TANZANIA, UNITED REPUBLIC OF",
+      "code": "TZ",
+      "code_alpha_3": "TZA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0216",
+      "emp_id": "216",
+      "name": "THAILAND",
+      "code": "TH",
+      "code_alpha_3": "THA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0217",
+      "emp_id": "217",
+      "name": "TOGO",
+      "code": "TG",
+      "code_alpha_3": "TGO",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0218",
+      "emp_id": "218",
+      "name": "TOKELAU",
+      "code": "TK",
+      "code_alpha_3": "TKL",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0219",
+      "emp_id": "219",
+      "name": "TONGA",
+      "code": "TO",
+      "code_alpha_3": "TON",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0220",
+      "emp_id": "220",
+      "name": "TRINIDAD AND TOBAGO",
+      "code": "TT",
+      "code_alpha_3": "TTO",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0221",
+      "emp_id": "221",
+      "name": "TUNISIA",
+      "code": "TN",
+      "code_alpha_3": "TUN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0222",
+      "emp_id": "222",
+      "name": "TURKEY",
+      "code": "TR",
+      "code_alpha_3": "TUR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0223",
+      "emp_id": "223",
+      "name": "TURKMENISTAN",
+      "code": "TM",
+      "code_alpha_3": "TKM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0224",
+      "emp_id": "224",
+      "name": "TURKS AND CAICOS ISLANDS",
+      "code": "TC",
+      "code_alpha_3": "TCA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0225",
+      "emp_id": "225",
+      "name": "TUVALU",
+      "code": "TV",
+      "code_alpha_3": "TUV",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0226",
+      "emp_id": "226",
+      "name": "UGANDA",
+      "code": "UG",
+      "code_alpha_3": "UGA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0227",
+      "emp_id": "227",
+      "name": "UKRAINE",
+      "code": "UA",
+      "code_alpha_3": "UKR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0228",
+      "emp_id": "228",
+      "name": "UNITED ARAB EMIRATES",
+      "code": "AE",
+      "code_alpha_3": "ARE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0229",
+      "emp_id": "229",
+      "name": "UNITED KINGDOM",
+      "code": "GB",
+      "code_alpha_3": "GBR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0230",
+      "emp_id": "230",
+      "name": "UNITED STATES",
+      "code": "US",
+      "code_alpha_3": "USA",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0231",
+      "emp_id": "231",
+      "name": "UNITED STATES MINOR OUTLYING ISLANDS",
+      "code": "UM",
+      "code_alpha_3": "UMI",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0232",
+      "emp_id": "232",
+      "name": "URUGUAY",
+      "code": "UY",
+      "code_alpha_3": "URY",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0233",
+      "emp_id": "233",
+      "name": "UZBEKISTAN",
+      "code": "UZ",
+      "code_alpha_3": "UZB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0234",
+      "emp_id": "234",
+      "name": "VANUATU",
+      "code": "VU",
+      "code_alpha_3": "VUT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0235",
+      "emp_id": "235",
+      "name": "VATICAN CITY STATE",
+      "code": "VA",
+      "code_alpha_3": "VAT",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0236",
+      "emp_id": "236",
+      "name": "VENEZUELA",
+      "code": "VE",
+      "code_alpha_3": "VEN",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0237",
+      "emp_id": "237",
+      "name": "VIETNAM",
+      "code": "VN",
+      "code_alpha_3": "VNM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0238",
+      "emp_id": "238",
+      "name": "VIRGIN ISLANDS (BRITISH)",
+      "code": "VG",
+      "code_alpha_3": "VGB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0239",
+      "emp_id": "239",
+      "name": "VIRGIN ISLANDS (U.S.)",
+      "code": "VI",
+      "code_alpha_3": "VIR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0240",
+      "emp_id": "240",
+      "name": "WALLIS AND FUTUNA ISLANDS",
+      "code": "WF",
+      "code_alpha_3": "WLF",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0241",
+      "emp_id": "241",
+      "name": "WESTERN SAHARA",
+      "code": "EH",
+      "code_alpha_3": "ESH",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0242",
+      "emp_id": "242",
+      "name": "YEMEN",
+      "code": "YE",
+      "code_alpha_3": "YEM",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0243",
+      "emp_id": "243",
+      "name": "ZAIRE",
+      "code": "ZR",
+      "code_alpha_3": "ZAR",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0244",
+      "emp_id": "244",
+      "name": "ZAMBIA",
+      "code": "ZM",
+      "code_alpha_3": "ZMB",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    },
+    {
+      "id": "0245",
+      "emp_id": "245",
+      "name": "ZIMBABWE",
+      "code": "ZW",
+      "code_alpha_3": "ZWE",
+      "created_at": "2023-05-11T15:07:49",
+      "updated_at": "2023-05-11T15:07:49"
+    }
+  ]

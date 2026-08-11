@@ -1,0 +1,344 @@
+<div class="item">
+    <a class="btn-arrow"><span>11. DPO atau DPB</span><i class="fa fa-angle-right dropdown-sidemenu"></i></a>
+    <div class="sub-menu">
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat permintaan penangkapan tersangka yang masuk
+                    Daftar Pencarian Orang (DPO); (jika ada)</a>
+            </div>
+            <div class="col-md-3">
+                @if ($dpo==null)
+                <i class="fa fa-pencil-square-o" id="dpo_1" name="dpo_1"></i>
+                @else
+                <a href=# class="" id="dpo_1" name="dpo_1">Edit</a>
+                <a target="_blank" href="#" id="">Lihat</a></span>
+                <a href=# class="" id="delete" name="delete">Delete</a>
+                @endif
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat pencabutan permintaan penangkapan tersangka
+                    yang masuk Daftar Pencarian Orang (DPO); (jika ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat permintaan pencarian barang sesuai Daftar
+                    Pencarian Barang (DPB); (jika ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="dpb_1" name="dpb_1"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat pencabutan permintaan pencarian barang
+                    sesuai Daftar Pencarian Barang (DPB); (jika ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat permintaan cegah dan tangkal (cekal); (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat pencabutan cekal; (jika ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat penitipan barang bukti; (jika ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat perintah penyisihan barang bukti; (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Berita acara penyisihan barang bukti; (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat perintah pelelangan barang bukti; (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Berita acara pelelangan barang bukti; (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat perintah pemusnahan barang bukti; (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Berita acara pemusnahan barang bukti; (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Surat perintah penitipan barang bukti; dan (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                <a class="sub-item">- Berita acara penitipan barang bukti. (jika
+                    ada)</a>
+            </div>
+            <div class="col-md-3">
+                <i class="fa fa-pencil-square-o" id="test" name="test"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- modal --}}
+<div data-backdrop="false" id="myModalDpo1" name="myModalDpo1" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title fw-bold">Tambah DPO</h5>
+
+            </div>
+            <div class="modal-body ">
+                <div class="modal-dpo">
+                    <form id="dpo-form">
+                        @csrf
+                        <div class=col-md-12>
+                            <div>
+                                <input type="hidden" name="dpo_id" id="dpo_id">
+                                <input id="accident_id_dpo" name="accident_id_dpo" type="text" value="{{ $id }}"
+                                    hidden>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group row">
+                                        <label for="name_dpo"
+                                            class="col-sm-3 fw-bold col-form-label">{{ __('Nama') }}</label>
+
+                                        <div class="col-md-9">
+                                            <input id="name_dpo" type="text"
+                                                class="form-control @error('name_dpo') is-invalid @enderror"
+                                                name="name_dpo" value="{{ old('name_dpo') }}" autocomplete="name_dpo">
+                                            <span class="text-danger error-text name_err"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="gender_dpo"
+                                            class="col-sm-3 fw-bold col-form-label">{{ __('Jenis Kelamin') }}</label>
+
+                                        <div class="col-md-9">
+                                            <input id="gender_dpo" type="text"
+                                                class="form-control @error('gender_dpo') is-invalid @enderror"
+                                                name="gender_dpo" value="{{ old('gender_dpo') }}"
+                                                autocomplete="gender_dpo">
+                                            <span class="text-danger error-text gender_err"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="form-group row">
+                                        <label for="deskripsi_dpo"
+                                            class="col-sm-3 fw-bold col-form-label">{{ __('Ciri Khusus') }}</label>
+
+                                        <div class="col-md-9">
+                                            {{-- <input id="address" type="text" class="form-control @error('address') is-invalid @enderror" name="address" value="{{ old('address')}}" required autocomplete="address"> --}}
+                                            <textarea class="form-control" name="deskripsi_dpo" id="deskripsi_dpo"
+                                                placeholder="Ciri-ciri DPO"></textarea>
+                                            <span class="text-danger error-text address_err"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="centered">
+                            <button type="submit" class="btn btn-primary btn-dpo">Tambah DPO</button>
+                        </div>
+                    </form>
+                    <table class="table table-bordered dpo-datatable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Name</th>
+                                <th>Gender</th>
+                                <th>Ciri Khusus</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                {{-- <div class="alert alert-success alert-block" style="display: none;">
+                  <button type="button" class="close" data-dismiss="test">×</button>
+                  <strong class="success-msg"></strong>
+          </div> --}}
+
+            </div>
+            <div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{{-- modal dpb --}}
+
+<div data-backdrop="false" id="myModalDpb1" name="myModalDpb1" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+
+                <h5 class="modal-title fw-bold">Tambah DPB</h5>
+
+            </div>
+            <div class="modal-body ">
+                <div class="modal-dpb">
+                    <form id="dpb-form">
+                        @csrf
+                        <div class=col-md-12>
+                            <div>
+                                <input type="hidden" name="dpb_id" id="dpb_id">
+                                <input id="accident_id_dpb" name="accident_id_dpb" type="text" value="{{ $id }}"
+                                    hidden>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+
+                                    <div class="form-group row">
+                                        <label for="jenis_dpb"
+                                            class="col-sm-3 fw-bold col-form-label">{{ __('Jenis') }}</label>
+
+                                        <div class="col-md-9">
+                                            <input id="jenis_dpb" type="text"
+                                                class="form-control @error('jenis_dpb') is-invalid @enderror"
+                                                name="jenis_dpb" value="{{ old('jenis_dpb') }}" autocomplete="jenis_dpb">
+                                            <span class="text-danger error-text jenis_err"></span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="no_tnkb"
+                                            class="col-sm-3 fw-bold col-form-label">{{ __('Nomor Kendaraan') }}</label>
+
+                                        <div class="col-md-9">
+                                            <input id="no_tnkb" type="text"
+                                                class="form-control @error('no_tnkb') is-invalid @enderror"
+                                                name="no_tnkb" value="{{ old('no_tnkb') }}"
+                                                autocomplete="no_tnkb">
+                                            <span class="text-danger error-text tnkb_err"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <div class="form-group row">
+                                        <label for="deskripsi_dpb"
+                                            class="col-sm-3 fw-bold col-form-label">{{ __('Ciri Khusus') }}</label>
+
+                                        <div class="col-md-9">
+                                            {{-- <input id="address" type="text" class="form-control @error('address') is-invalid @enderror" name="address" value="{{ old('address')}}" required autocomplete="address"> --}}
+                                            <textarea class="form-control" name="deskripsi_dpb" id="deskripsi_dpb"
+                                                placeholder="Ciri-ciri kendaraan"></textarea>
+                                            <span class="text-danger error-text address_err"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="centered">
+                            <button type="submit" class="btn btn-primary btn-dpb">Tambah DPB</button>
+                        </div>
+                    </form>
+                    <table class="table table-bordered dpb-datatable">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Jenis</th>
+                                <th>Nomor Kendaraan</th>
+                                <th>Deskripsi Kendaraan</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                {{-- <div class="alert alert-success alert-block" style="display: none;">
+                  <button type="button" class="close" data-dismiss="test">×</button>
+                  <strong class="success-msg"></strong>
+          </div> --}}
+
+            </div>
+            <div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

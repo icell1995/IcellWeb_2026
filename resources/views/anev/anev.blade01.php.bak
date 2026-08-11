@@ -1,0 +1,454 @@
+@php
+    $_title = 'Anev';
+@endphp
+
+@extends('layouts.app')
+
+@section('content')
+    <div class="box box-info">
+        <div class="box-header">
+            <h3 class="fw-bold text-blue-dark">ANEV</h3>
+        </div>
+
+        <div class="box-body">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form class="form_anev" action="{{ route('export_report_anev') }}" method="GET">
+                        @csrf
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+                                <fieldset class="border p-2">
+                                    <legend class="fw-bold text-blue-dark">Periode Lalu</legend>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Dari Tanggal <span class="text-danger">*</span></span>
+                                        <input class="form-control" type="text" id="date_from" name="date_from"
+                                            placeholder="DD - MM - YYYY" autocomplete="off" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Hingga Tanggal <span class="text-danger">*</span></span>
+                                        <input class="form-control" type="text" id="date_to" name="date_to"
+                                            placeholder="DD - MM - YYYY" autocomplete="off" readonly>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+                                <fieldset class="border p-2">
+                                    <legend class="fw-bold text-blue-dark">Periode Ini</legend>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Dari Tanggal <span class="text-danger">*</span></span>
+                                        <input class="form-control" type="text" id="date_from_now" name="date_from_now"
+                                            placeholder="DD - MM - YYYY" autocomplete="off" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <span class="fw-bold">Hingga Tanggal <span class="text-danger">*</span></span>
+                                        <input class="form-control" type="text" id="date_to_now" name="date_to_now"
+                                            placeholder="DD - MM - YYYY" autocomplete="off" readonly>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-12 pt-2">
+                                <div class="mb-3">
+                                    <span class="fw-bold">Polda</span>
+                                    <select id="polda_id" name="polda_id"
+                                        class="form-control @error('polda_id') is-invalid @enderror">
+                                        @if (Auth::user()->role_id == 1)
+                                            <option value="-" }}>Semua Polda</option>
+                                        @endif
+                                        @foreach ($polda as $poldas)
+                                            <option value="{{ $poldas->id }}"
+                                                {{ old('polda_id') == $poldas->id ? 'selected' : '' }}>
+                                                {{ $poldas->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-md-6 col-sm-12 col-12 pt-2">
+                                <div class="mb-3">
+                                    <span class="fw-bold">Polres</span>
+                                    <select id="polres_id" name="polres_id"
+                                        class="form-control @error('polres_id') is-invalid @enderror">
+                                        @if (in_array(Auth::user()->role_id, [3, 4, 5]) && in_array(Auth::user()->polres_id, [null, '-', '0']) || Auth::user()->role_id == 1)
+                                            <option value="">Pilih Polres</option>
+                                        @endif
+                                        @foreach ($polres as $polress)
+                                            <option value="{{ $polress->id }}"
+                                                {{ old('polres_id') == $polress->id ? 'selected' : '' }}>
+                                                {{ $polress->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-12 text-center">
+                                <button type="submit" id="button_anev" class="btn btn-primary">Cari</button>
+                                <div class="text-end">
+                                    {{-- <a href="{{route('export_report_anev')}}"></a> --}}
+                                    <button id="btn-export" class="btn btn-short rounded-pill btn-export" type="submit"
+                                        style="display: none;"><span><i class="fas fa-download"></i></span> Export
+                                        data</button>
+                                    {{-- <a class="btn btn-warning" href="{{ route('export_report_anev') }}">Export User
+                                            Data</a> --}}
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive table-anev anev light-blue" id="table-anev">
+                        <table class="display table table-bordered" cellspacing="0" width="100%" id="dataTable" name="dataTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" colspan="9" id="thn_lalu">Periode Lalu</th>
+                                    <th class="text-center text-white" colspan="8" id="thn_ini" style="background-color: #222577">Periode Ini</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center align-middle" rowspan="2">NO</th>
+                                    <th class="text-center align-middle" rowspan="2">POLDA / POLRES</th>
+                                    <th class="text-center align-middle" rowspan="2">LP TINDAK <br>LANJUT</th>
+                                    <th class="text-center align-middle" rowspan="2">DALAM <br>PROSES</th>
+                                    <th class="text-center" colspan="4">SELRA</th>
+                                    <th class="text-center align-middle" rowspan="2">POM / TNI</th>
+                                    <th class="text-center text-white align-middle" rowspan="2" style="background-color: #222577">LP TINDAK <br>LANJUT</th>
+                                    <th class="text-center text-white align-middle" rowspan="2" style="background-color: #222577">DALAM <br>PROSES</th>
+                                    <th class="text-center text-white" colspan="4" style="background-color: #222577">SELRA</th>
+                                    <th class="text-center text-white align-middle" rowspan="2" style="background-color: #222577">POM / TNI</th>
+                                </tr>
+                                <tr>
+                                    <th class="text-center">P21</th>
+                                    <th class="text-center">SP3</th>
+                                    <th class="text-center">DIVERSI</th>
+                                    {{-- <th class="text-center">POM/TNI</th> --}}
+                                    {{-- <th class="text-center">RJ</th> --}}
+                                    {{-- <th class="text-center">DLM PROSES</th> --}}
+                                    <th class="text-center">SP2LID</th>
+                                    <th class="text-center text-white" style="background-color: #222577">P21</th>
+                                    <th class="text-center text-white" style="background-color: #222577">SP3</th>
+                                    <th class="text-center text-white" style="background-color: #222577">DIVERSI</th>
+                                    {{-- <th class="text-center text-white" style="background-color: #222577">POM/TNI</th> --}}
+                                    {{-- <th class="text-center text-white" style="background-color: #222577">RJ</th> --}}
+                                    {{-- <th class="text-center">DLM PROSES</th> --}}
+                                    <th class="text-center text-white" style="background-color: #222577">SP2LID</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('script')
+    <script type="text/javascript">
+        $('#date_from').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: "true",
+            orientation: 'auto bottom'
+        });
+        $('#date_to').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: "true",
+            orientation: 'auto bottom'
+        });
+        $('#date_from_now').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: "true",
+            orientation: 'auto bottom'
+        });
+        $('#date_to_now').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: "true",
+            orientation: 'auto bottom'
+        });
+
+
+        // function clearAnev(){
+
+        // 	$('#no').html("");
+        // 	$('#polda').html("");
+
+        //     //periode lalu
+        // 	$('#total_sidik_lalu').html("");
+        // 	$('#p21_lalu').html("");
+        // 	$('#sp3_lalu').html("");
+        // 	$('#diversi_lalu').html("");
+        // 	$('#pom_tni_lalu').html("");
+        //     $('#rj_lalu').html("");
+        //     $('#dlm_proses_lalu').html("");
+        //     $('#sp2lid_lalu').html("");
+
+        //     //total periode lalu
+        // 	$('#tot_sidik_lalu').html("");
+        // 	$('#tot_p21_lalu').html("");
+        // 	$('#tot_sp3_lalu').html("");
+        // 	$('#tot_diversi_lalu').html("");
+        // 	$('#tot_pom_tni_lalu').html("");
+        //     $('#tot_rj_lalu').html("");
+        //     $('#tot_dlm_proses_lalu').html("");
+        //     $('#tot_sp2lid_lalu').html("");
+
+        //     //periode ini
+        // 	$('#total_sidik_ini').html("");
+        // 	$('#p21_ini').html("");
+        // 	$('#sp3_ini').html("");
+        // 	$('#diversi_ini').html("");
+        // 	$('#pom_tni_ini').html("");
+        //     $('#rj_ini').html("");
+        //     $('#dlm_proses_ini').html("");
+        //     $('#sp2lid_ini').html("");
+
+        //     //total periode ini
+        // 	$('#tot_sidik_ini').html("");
+        // 	$('#tot_p21_ini').html("");
+        // 	$('#tot_sp3_ini').html("");
+        // 	$('#tot_diversi_ini').html("");
+        // 	$('#tot_pom_tni_ini').html("");
+        // 	$('#tot_rj_ini').html("");
+        // 	$('#tot_dlm_proses_ini').html("");
+        //     $('#tot_sp2lid_ini').html("");
+        // }
+
+        $(document).ready(function() {
+            var get_pol = $('#polda_id').val();
+            if (get_pol == null || get_pol == '-') {
+                $('#polres_id').prop('disabled', true);
+            } else {
+                $('#polres_id').prop('disabled', false);
+            }
+            $("#hasil_days").hide()
+            $("#btn-export").hide()
+        });
+
+        function clearAnev() {
+            $('#dataTable').remove();
+        }
+
+        $("#button_anev").click(function(e) {
+            e.preventDefault();
+
+            var _token = $("input[name='_token']").val();
+            var date_from = $('#date_from').val();
+            var date_to = $('#date_to').val();
+            var date_from_now = $('#date_from_now').val();
+            var date_to_now = $('#date_to_now').val();
+            var polda = $('#polda_id').val();
+            var polres = $('#polres_id').val();
+
+            clearAnev();
+            $.ajax({
+                url: "{{ route('get_report_anev') }}",
+                type: "GET",
+                data: {
+                    _token: _token,
+                    date_from: date_from,
+                    date_to: date_to,
+                    date_from_now: date_from_now,
+                    date_to_now: date_to_now,
+                    polda: polda,
+                    polres: polres,
+                },
+
+                success: function(response) {
+                    alert('success');
+                    var data = response.data
+                    console.log(response.data);
+                    // console.log(data);
+                    $("#btn-export").show();
+                    $('#thn_lalu').html("Periode Lalu")
+                    $('#thn_ini').html("Periode Ini")
+
+                    data = data.summary;
+                    var tr =
+                        '<table class="display table table-bordered" cellspacing="0" width="100%" id="dataTable" name="dataTable">' +
+                        '<thead>' +
+                        '<tr>' +
+                        '<th class="text-center" colspan="9" id="thn_lalu">Periode Lalu</th>' +
+                        '<th class="text-center text-white" colspan="8" id="thn_ini" style="background-color: #222577">Periode Ini</th>' +
+                        '</tr>' +
+                        '<tr>' +
+                        '<th class="text-center align-middle" rowspan="2">NO</th>' +
+                        '<th class="text-center align-middle" rowspan="2">POLDA / POLRES</th>' +
+                        '<th class="text-center align-middle" rowspan="2">TINDAK <br>LANJUT</th>' +
+                        '<th class="text-center align-middle" rowspan="2">DALAM <br>PROSES</th>' +
+                        '<th class="text-center" colspan="4">SELRA</th>' +
+                        '<th class="text-center align-middle" rowspan="2">POM / TNI</th>' +
+                        '<th class="text-center text-white align-middle" rowspan="2" style="background-color: #222577">TINDAK <br>LANJUT</th>' +
+                        '<th class="text-center text-white align-middle" rowspan="2" style="background-color: #222577">DALAM <br>PROSES</th>' +
+                        '<th class="text-center text-white" colspan="4" style="background-color: #222577">SELRA</th>' +
+                        '<th class="text-center text-white align-middle" rowspan="2" style="background-color: #222577">POM / TNI</th>' +
+                        '</tr>' +
+                        '<tr>' +
+                        '<th class="text-center">P21</th>' +
+                        '<th class="text-center">SP3</th>' +
+                        '<th class="text-center">DIVERSI</th>' +
+                        // '<th class="text-center">RJ</th>' +
+                        // '<th class="text-center">DLM PROSES</th>'+
+                        '<th class="text-center">SP2LID</th>' +
+                        // '<th class="text-center">POM/TNI</th>' +
+                        '<th class="text-center text-white" style="background-color: #222577">P21</th>' +
+                        '<th class="text-center text-white" style="background-color: #222577">SP3</th>' +
+                        '<th class="text-center text-white" style="background-color: #222577">DIVERSI</th>' +
+                        // '<th class="text-center text-white" style="background-color: #222577">RJ</th>' +
+                        // '<th class="text-center">DLM PROSES</th>'+
+                        '<th class="text-center text-white" style="background-color: #222577">SP2LID</th>' +
+                        // '<th class="text-center text-white" style="background-color: #222577">POM/TNI</th>' +
+                        '</tr>' +
+                        '</thead>' +
+
+                        '<tbody class="table-body">' +
+
+                        '</tbody>' +
+                        '<tbody class="total-table-body">' +
+                        '<td class="text-center desc" style="font-weight: bold" colspan="2">TOTAL</td>' +
+                        '<td class="text-center number" id="tot_sidik_lalu"></td>' +
+                        '<td class="text-center number" id="tot_dlm_proses_lalu"></td>' +
+                        '<td class="text-center number" id="tot_p21_lalu"></td>' +
+                        '<td class="text-center number" id="tot_sp3_lalu"></td>' +
+                        '<td class="text-center number" id="tot_diversi_lalu"></td>' +
+                        // '<td class="text-center number" id="tot_rj_lalu"></td>' +
+                        '<td class="text-center number" id="tot_sp2lid_lalu"></td>' +
+                        '<td class="text-center number" id="tot_pom_tni_lalu"></td>' +
+                        '<td class="text-center text-white number2" id="tot_sidik_ini" style="background-color: #222577"></td>' +
+                        '<td class="text-center text-white number2" id="tot_dlm_proses_ini" style="background-color: #222577"></td>' +
+                        '<td class="text-center text-white number2" id="tot_p21_ini" style="background-color: #222577"></td>' +
+                        '<td class="text-center text-white number2" id="tot_sp3_ini" style="background-color: #222577"></td>' +
+                        '<td class="text-center text-white number2" id="tot_diversi_ini" style="background-color: #222577"></td>' +
+                        // '<td class="text-center text-white number2" id="tot_rj_ini" style="background-color: #222577"></td>' +
+                        '<td class="text-center text-white number2" id="tot_sp2lid_ini" style="background-color: #222577"></td>' +
+                        '<td class="text-center text-white number2" id="tot_pom_tni_ini" style="background-color: #222577"></td>' +
+                        '</tbody>' +
+                        '</table>'
+
+                    $('#table-anev').append(tr);
+
+                    for (i = 0; i < data.tahun_lalu.length; i++) {
+                        $('.table-body').append(
+                            '<tr>' +
+                            '<td class="text-center align-middle desc">' + [i + 1] + '</td>' +
+                            '<td class="text-center align-middle desc">' + [data.tahun_lalu[i]
+                                .polda
+                            ] + '</td>' +
+                            '<td class="text-center align-middle number">' + [data.tahun_lalu[i]
+                                .total_laka_lalu
+                            ] + '</td>' +
+                            '<td class="text-center align-middle number">' + [data.tahun_lalu[i]
+                                .dalam_proses_lalu
+                            ] + '</td>' +
+                            '<td class="text-center align-middle number">' + [data.tahun_lalu[i]
+                                .p21_lalu
+                            ] + '</td>' +
+                            '<td class="text-center align-middle number">' + [data.tahun_lalu[i]
+                                .sp3_lalu
+                            ] + '</td>' +
+                            '<td class="text-center align-middle number">' + [data.tahun_lalu[i]
+                                .diversi_lalu
+                            ] + '</td>' +
+                            // '<td class="text-center align-middle number">' + [data.tahun_lalu[i]
+                            //     .rj_lalu
+                            // ] + '</td>' +
+                            '<td class="text-center align-middle number">' + [data.tahun_lalu[i]
+                                .sp2lid_lalu
+                            ] + '</td>' +
+                            '<td class="text-center align-middle number">' + [data.tahun_lalu[i]
+                                .pom_tni_lalu
+                            ] + '</td>' +
+                            
+                            '<td class="text-center text-white align-middle number2" style="background-color: #222577">' + [data.tahun_lalu[i]
+                                .total_laka_ini
+                            ] + '</td>' +
+                            '<td class="text-center text-white align-middle number2" style="background-color: #222577">' + [data.tahun_lalu[i]
+                                .dalam_proses_tahun_ini
+                            ] + '</td>' +
+                            '<td class="text-center text-white align-middle number2" style="background-color: #222577">' + [data.tahun_lalu[i]
+                                .p21_tahun_ini
+                            ] + '</td>' +
+                            '<td class="text-center text-white align-middle number2" style="background-color: #222577">' + [data.tahun_lalu[i]
+                                .sp3_tahun_ini
+                            ] + '</td>' +
+                            '<td class="text-center text-white align-middle number2" style="background-color: #222577">' + [data.tahun_lalu[i]
+                                .diversi_tahun_ini
+                            ] + '</td>' +
+                            // '<td class="text-center text-white align-middle number2" style="background-color: #222577">' + [data.tahun_lalu[i]
+                            //     .rj_tahun_ini
+                            // ] + '</td>' +
+                            '<td class="text-center text-white align-middle number2" style="background-color: #222577">' + [data.tahun_lalu[i]
+                                .sp2lid_tahun_ini
+                            ] + '</td>' +
+                            '<td class="text-center text-white align-middle number2" style="background-color: #222577">' + [data.tahun_lalu[i]
+                                .pom_tni_tahun_ini
+                            ] + '</td>' +
+                            '</tr>'
+                        )
+
+                    }
+                    $('#tot_sidik_lalu').html(response.data.total_sidik_lalu);
+                    $('#tot_dlm_proses_lalu').html(response.data.total_dalam_proses_lalu);
+                    $('#tot_p21_lalu').html(response.data.total_p21_lalu);
+                    $('#tot_sp3_lalu').html(response.data.total_sp3_lalu);
+                    $('#tot_diversi_lalu').html(response.data.total_diversi_lalu);
+                    // $('#tot_rj_lalu').html(response.data.total_rj_lalu);
+                    $('#tot_sp2lid_lalu').html(response.data.total_sp2lid_lalu);
+                    $('#tot_pom_tni_lalu').html(response.data.total_pom_tni_lalu);
+
+                    $('#tot_sidik_ini').html(response.data.total_sidik_ini);
+                    $('#tot_dlm_proses_ini').html(response.data.total_dalam_proses_ini);
+                    $('#tot_p21_ini').html(response.data.total_p21_ini);
+                    $('#tot_sp3_ini').html(response.data.total_sp3_ini);
+                    $('#tot_diversi_ini').html(response.data.total_diversi_ini);
+                    // $('#tot_rj_ini').html(response.data.total_rj_ini);
+                    $('#tot_sp2lid_ini').html(response.data.total_sp2lid_ini);
+                    $('#tot_pom_tni_ini').html(response.data.total_pom_tni_ini);
+                }
+            });
+        });
+
+        $('#polda_id').on('change', function(event) {
+            event.preventDefault();
+            var poldaId = $(this).val();
+            $('#polres_id').prop('disabled', true);
+            $('#polres_id').empty();
+            $('#polres_id').append('<option value="">Pilih Polres</option>');
+            if (!poldaId) {
+                return;
+            }
+
+            $.get('{{ url('pengguna/polres_list') }}/' + poldaId, function(data) {
+
+                $('#polres_id').empty()
+                var option = '<option value="">Pilih Polres</option>';
+                $('#polres_id').append(option);
+
+                $.each(data, function(key, polres) {
+                    var id = polres.id;
+                    var name = polres.name;
+                    var option = '<option value="' + id + '">' + name + '</option>';
+
+                    $('#polres_id').append(option);
+                });
+
+                $('#polres_id').prop('disabled', false);
+            });
+        });
+
+        $("#btn-export").click(function(e) {
+            e.preventDefault();
+            var polda = $("#polda_id").val();
+            var polres = $('#polres_id').val();
+            var start_date_then = $('#date_from').val();
+            var end_date_then = $('#date_to').val();
+            var start_date_now = $('#date_from_now').val();
+            var end_date_now = $('#date_to_now').val();
+            window.location = "{{ route('export_report_anev') }}" + '?polda=' + polda + '&polres=' + polres +
+                '&start_date_then=' + start_date_then + '&end_date_then=' + end_date_then + '&start_date_now=' +
+                start_date_now + '&end_date_now=' + end_date_now;
+
+        });
+    </script>
+@endpush

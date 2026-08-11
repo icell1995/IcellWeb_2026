@@ -1,0 +1,325 @@
+<?php
+
+namespace App\Http\Controllers\EmpIntegration\Report;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
+use Faker\Factory as Faker;
+use Illuminate\Support\Facades\DB;
+
+use App\Models\Reports\SuspectInvestigationDeterminationReport\SuspectInvestigationDeterminationReport;
+
+// LAPORAN HASIL GELAR PERKARA
+class SuspectInvestigationDeterminationReportController extends Controller
+{
+    public function index(Request $request){
+        // Get request data
+        $startDocumentDate = $request->input('start_doc_date');
+        $endDocumentDate = $request->input('end_doc_date');
+        $perPage = $request->query('perPage', 100); // Jumlah item per halaman
+        $page = $request->query('page', 1); // Nomor halaman saat ini, default 1
+
+        // Initialize variable
+        $responseData = [];
+
+        if (!is_numeric($page)) {
+            // Jika $page bukan angka, berikan nilai default 1
+            $page = 1;
+        }
+
+        if (!is_numeric($perPage)) {
+            // Jika $page bukan angka, berikan nilai default 1
+            $perPage = 100;
+        }
+
+        $page = intval($page);
+
+        // Validate request data
+        if (!empty($startDocumentDate) && date('Y-m-d', strtotime($startDocumentDate)) !== $startDocumentDate) {
+            return response()->json([
+                "code" => "400",
+                "status" => "BAD_REQUEST",
+                "message" => "Invalid Start document date or format. Date format should be YYYY-MM-DD.",
+                "pagination" => [
+                    "Page" => $page,
+                    "TotalData" => 0,
+                    "TotalPage" => 0,
+                    "TotalDataSent" => 0
+                ],
+                "data" => []
+            ], 400);
+        }
+
+        if (!empty($endDocumentDate) && date('Y-m-d', strtotime($endDocumentDate)) !== $endDocumentDate) {
+            return response()->json([
+                "code" => "400",
+                "status" => "BAD_REQUEST",
+                "message" => "Invalid End document date or format. Date format should be YYYY-MM-DD.",
+                "pagination" => [
+                    "Page" => $page,
+                    "TotalData" => 0,
+                    "TotalPage" => 0,
+                    "TotalDataSent" => 0
+                ],
+                "data" => []
+            ], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Get data from database
+            $suspectInvestigationDeterminationReports = SuspectInvestigationDeterminationReport::with(['accident', 'accident.suspect', 'authorizedSignatory'])
+                                                                                    ->orderBy('tanggal_pelaksanaan', 'ASC');
+
+            // Filter data
+            if (!empty($startDocumentDate) && !empty($endDocumentDate)) {
+                $suspectInvestigationDeterminationReports = $suspectInvestigationDeterminationReports->whereBetween('tanggal_pelaksanaan', [date('Y-m-d 00:00:00', strtotime($startDocumentDate)), date('Y-m-d 23:59:59', strtotime($endDocumentDate))]);
+            } else if (!empty($startDocumentDate)) {
+                $suspectInvestigationDeterminationReports = $suspectInvestigationDeterminationReports->where('tanggal_pelaksanaan', '>=', date('Y-m-d 00:00:00', strtotime($startDocumentDate)));
+            } else if (!empty($endDocumentDate)) {
+                $suspectInvestigationDeterminationReports = $suspectInvestigationDeterminationReports->where('tanggal_pelaksanaan', '<=', date('Y-m-d 23:59:59', strtotime($endDocumentDate)));
+            }
+            $suspectInvestigationDeterminationReports = $suspectInvestigationDeterminationReports->paginate($perPage, ['*'], 'page', $page);
+
+            $suspectInvestigationDeterminationReportsTotal = $suspectInvestigationDeterminationReports->total();
+            $suspectInvestigationDeterminationReportsTotalPage = $suspectInvestigationDeterminationReports->lastPage();
+
+            // Packing data
+            $arrayKey = 0;
+            foreach($suspectInvestigationDeterminationReports as $suspectInvestigationDeterminationReport){
+
+                $suspectInvestigationDeterminationReportArray = $suspectInvestigationDeterminationReport->toArray();
+
+                $authorizedSignatory = (!empty($suspectInvestigationDeterminationReportArray['authorized_signatory'])) ? $suspectInvestigationDeterminationReportArray['authorized_signatory'] : null;
+                $accident = (!empty($suspectInvestigationDeterminationReportArray['accident'])) ? $suspectInvestigationDeterminationReportArray['accident'] : null;
+                $suspects = (!empty($accident)) ? ((!empty($accident['suspect'])) ? $accident['suspect'] : []) : [];
+
+                $documentSuspect = [];
+
+                foreach($suspects as $suspect){
+                    $documentSuspect[] = [
+                        "Nama" => $suspect['name'], 
+                        "TempatLahir" => $suspect['birth_place'], 
+                        "TanggalLahir" => ($suspect['birth_date']) ? date('Y-m-d H:i:s', strtotime($suspect['birth_date'])) : null, 
+                        "IdJenisKelamin" => $suspect['gender'], 
+                        "Alamat" => $suspect['address'], 
+                        "IdPendidikan" => $suspect['education'], 
+                        "IdPekerjaan" => $suspect['occupation'], 
+                        "GelarDepan" => null, 
+                        "GelarBelakang" => null, 
+                        "NamaBapak" => $suspect['father_name'], 
+                        "NamaIbu" => $suspect['mother_name'], 
+                        "IdAgama" => $suspect['religion'], 
+                        "IdStatusPerkawinan" => $suspect['marital_status'], 
+                        "IdKewarganegaraan" => null, 
+                        "IdJenisIdentitas" => $suspect['identity_type'], 
+                        "NomorIdentitas" => strval($suspect['identity_number']), 
+                        "UmurSaatLK" => ($suspect['birth_date']) ? Carbon::parse($suspect['birth_date'])->diffInYears(Carbon::now()) : null, 
+                        "NamaAlias" => null, 
+                        "Status" => "2",
+                    ];
+                }
+                
+                $documentSignatory[0] = [
+                    "Nama" => ($authorizedSignatory) ? $authorizedSignatory['first_title'] . " " . strtoupper($authorizedSignatory['first_name'] . " " . $authorizedSignatory['last_name']) . ", " . $authorizedSignatory['last_title'] : null,
+                    "Pangkat" => ($authorizedSignatory) ? strtoupper($authorizedSignatory['rank_id']) : null,
+                    "NRP" => ($authorizedSignatory) ? strval($authorizedSignatory['register_number']) : null, 
+                    "Jabatan" => ($authorizedSignatory) ? strtoupper($authorizedSignatory['position_id']) : null,
+                ];
+
+                $responseData[$arrayKey]  = [
+                    "Id" => $suspectInvestigationDeterminationReportArray['id'],
+                    "NoLaporan" => ($accident) ? $accident['no_lp'] : null,
+                    "TanggalPelaksanaan" => ($suspectInvestigationDeterminationReportArray['tanggal_pelaksanaan']) ? date('Y-m-d H:i:s', strtotime($suspectInvestigationDeterminationReportArray['tanggal_pelaksanaan'])) : null,
+                    "LaporanPolisiID" => ($accident) ? $accident['id'] : null,
+                    "DorsID" => ($accident) ? strval($accident['dors_id'] ) : null,
+                    "Waktu" => ($suspectInvestigationDeterminationReportArray['waktu_pelaksanaan']) ? date('H:i:s', strtotime($suspectInvestigationDeterminationReportArray['waktu_pelaksanaan'])) : null,
+                    "ZonaWaktu" => $suspectInvestigationDeterminationReportArray['zona_waktu'],
+                    "Tempat Pelaksanaan" => $suspectInvestigationDeterminationReportArray['tempat_pelaksanaan'],
+                    "PimpinanGelarPerkara" => $suspectInvestigationDeterminationReportArray['pimpinan_gelar_perkara'],
+                    "JumlahPeserta" => null,
+                    "Pembahasan" => $suspectInvestigationDeterminationReportArray['Pembahasan'],
+                    "Penutupan" => $suspectInvestigationDeterminationReportArray['Penutup'],
+                    "Kesimpulan" => $suspectInvestigationDeterminationReportArray['Kesimpulan'],
+                    "SumberDataTersangka" => "Tersangka Baru",
+                    "Data_Tersangka" => $documentSuspect,
+                    "IdListPermasalahan" => "1",
+                    "JenisLhgp" => $suspectInvestigationDeterminationReportArray['jenis_lhgp'],
+                    "TingkatSatuanAtas" => "0",
+                    "NamaPejabatSatuanAtas" => null,
+                    "NRPPejabatSatuanAtas" => null,
+                    "PangkatIdPejabatSatuanAtas" => null,
+                    "JabatanPejabatSatuanAtas" => null,
+                    "AtasanPejabatSatuanAtas" => null,
+                    "PejabatPenandatanganDokumen" => $documentSignatory,
+                    "Attachment" => null,
+                    "AttachmentMimeType" => null,
+                    "AttachmentExtension" => null,
+                    "CreatedDate" => ($suspectInvestigationDeterminationReportArray['created_at']) ? date('Y-m-d', strtotime($suspectInvestigationDeterminationReportArray['created_at'])) : null,
+                    "CreatedBy" => null,
+                    "UpdatedDate" => ($suspectInvestigationDeterminationReportArray['updated_at']) ? date('Y-m-d', strtotime($suspectInvestigationDeterminationReportArray['updated_at'])) : null,
+                    "UpdatedBy" => null,
+                ];
+
+                $suspectInvestigationDeterminationReportId = $suspectInvestigationDeterminationReport->id;
+                DB::table('lhgp')
+                    ->where('id', $suspectInvestigationDeterminationReportId)
+                    ->update([
+                        'integrated_at' => date('Y-m-d H:i:s'),
+                ]);
+
+                $arrayKey++;
+            }
+
+     
+            // Check if data array is empty result
+            if ($suspectInvestigationDeterminationReports->isEmpty()) {
+                return response()->json([
+                    "code" => "404",
+                    "status" => "NOT_FOUND",
+                    "message" => "Data not found.",
+                    "pagination" => [
+                        "Page" => $page,
+                        "TotalData" => 0,
+                        "TotalPage" => 0,
+                        "TotalDataSent" => 0
+                    ],
+                    "data" => []
+                ], 404);
+            }
+
+            // Commit transaction
+            DB::commit();
+
+            // Return Result JSON
+            return response()->json([
+                "code" => "200",
+                "status" => "OK",
+                "message" => "Success",
+                "pagination" => [
+                    "Page" => $page,
+                    "TotalData" => $suspectInvestigationDeterminationReportsTotal,
+                    "TotalPage" => $suspectInvestigationDeterminationReportsTotalPage,
+                    "TotalDataSent" => count($responseData)
+                ],
+                "data" => $responseData
+            ], 200);
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            // If an exception occurs, return an error response
+            return response()->json([
+                "code" => "500",
+                "status" => "INTERNAL_SERVER_ERROR",
+                "message" => "An error occurred while processing your request.",
+                "pagination" => [
+                    "Page" => $page,
+                    "TotalData" => 0,
+                    "TotalPage" => 0,
+                    "TotalDataSent" => 0
+                ],
+                "data" => []
+            ], 500);
+        }
+    }
+
+    private function collectionData(){
+        $start_date = Carbon::create(2022, 1, 1);
+        $end_date = Carbon::create(2022, 12, 31);
+        $data = [];
+
+        $no = 1;
+        for ($date = $start_date; $date <= $end_date; $date->modify('+1 day')) {
+            $data[] = [
+                "Id" => Str::uuid(),
+                "NoLaporan" => "LP/2022/". $no ."/SPKT",
+                "TanggalPelaksaan" => $date->format('Y-m-d 09:00:00'),
+                "LaporanPolisiID" => Str::uuid(),
+                "DorsID" => strval(rand(1000000,9999999)),
+                "Waktu" => "09:00:00",
+                "ZonaWaktu" => "WIB",
+                "Tempat Pelaksanaan" => "Gedung Merdeka",
+                "PimpinanGelarPerkara" => "Budi Santoso",
+                "JumlahPeserta" => 10,
+                "Pembahasan" => "Pembahasan mengenai tindak pidana lakalantas",
+                "Penutupan" => "Penutupan sidang",
+                "Kesimpulan" => "Terdapat cukup bukti untuk menetapkan tersangka",
+                "SumberDataTersangka" => "Tersangka Baru",
+                "Data_Tersangka" => [
+                    [
+                        "Nama" => "Andi Santoso Candra",
+                        "TempatLahir" => "Jakarta",
+                        "TanggalLahir" => "1990-01-01",
+                        "IdJenisKelamin" => 1,
+                        "Alamat" => "Jl. Merdeka No. 1",
+                        "IdPendidikan" => 3,
+                        "IdPekerjaan" => 5,
+                        "GelarDepan" => "",
+                        "GelarBelakang" => "",
+                        "NamaBapak" => "Budi Santoso",
+                        "NamaIbu" => "Siti Vivi",
+                        "IdAgama" => 2,
+                        "IdStatusPerkawinan" => 2,
+                        "IdKewarganegaraan" => 1,
+                        "IdJenisIdentitas" => 1,
+                        "NomorIdentitas" => "9283741234567890",
+                        "UmurSaatLK" => 32,
+                        "NamaAlias" => "ASC",
+                        "Status" => 2,
+                    ],
+                    [
+                        "Nama" => "Budi Raharjo",
+                        "TempatLahir" => "Bandung",
+                        "TanggalLahir" => "1985-05-15",
+                        "IdJenisKelamin" => 1,
+                        "Alamat" => "Jl. Kemuning No. 10",
+                        "IdPendidikan" => 2,
+                        "IdPekerjaan" => 3,
+                        "GelarDepan" => "",
+                        "GelarBelakang" => "",
+                        "NamaBapak" => "Joko Tjandra",
+                        "NamaIbu" => "Tuti Yulianti",
+                        "IdAgama" => 1,
+                        "IdStatusPerkawinan" => 1,
+                        "IdKewarganegaraan" => 1,
+                        "IdJenisIdentitas" => 1,
+                        "NomorIdentitas" => "234567890",
+                        "UmurSaatLK" => 36,
+                        "NamaAlias" => "BR",
+                        "Status" => 2,
+                    ],
+                ],
+                "IdListPermasalahan" => 1,
+                "JenisLhgp" => "Biasa",
+                "TingkatSatuanAtas" => 0,
+                "NamaPejabatSatuanAtas" => "Komjen Pol Bambang Sutopo",
+                "NRPPejabatSatuanAtas" => "990898989",
+                "PangkatIdPejabatSatuanAtas" => 2,
+                "JabatanPejabatSatuanAtas" => 3,
+                "AtasanPejabatSatuanAtas" => 4,
+                "PejabatPenandatanganDokumen" => [
+                    [
+                        "Nama" => "SUGADRI S.I.K", 
+                        "Pangkat" => "KOMPOL",
+                        "NRP" => "77061000", 
+                        "Jabatan" => "KASAT LANTAS",
+                    ]
+                ],
+                "Attachment" => "",
+                "AttachmentMimeType" => "",
+                "AttachmentExtension" => "",
+                "CreatedDate" => $date->format('Y-m-d'),
+                "CreatedBy" => "ADMIN POLRES",
+                "UpdatedDate" => null,
+                "UpdatedBy" => null,
+            ];
+
+            $no++;
+        }
+
+        return collect($data);
+    }
+}
