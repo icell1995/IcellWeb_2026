@@ -211,7 +211,7 @@
             </ul>
         </li>
         <li class="nav-item mb-2 bg-danger">
-            <a href="{{ asset('pdf-manual-book/Tutorial_ICELL_PDF.pdf') }}" target="_blank"
+            <a href="{{ route('tutorial.index') }}"
                     class="nav-link parents-menu d-flex align-items-center">
                     <i class="bi bi-journal-album text-white fs-4"></i>
                     <span class="ms-3 text-white fw-semibold">Tutorial ICELL</span>

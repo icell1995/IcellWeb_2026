@@ -108,6 +108,14 @@
         </li>
 
         <li class="nav-item mb-2">
+            <a href="{{ route('cms.faq.index') }}"
+                class="nav-link parents-menu d-flex align-items-center {{ request()->routeIs('cms.faq.index') ? 'active' : '' }}">
+                <i class="bi bi-question-circle text-white fs-4"></i>
+                <span class="ms-3 text-white fw-semibold">FAQ & Tutorial</span>
+            </a>
+        </li>
+
+        <li class="nav-item mb-2">
             <a href="#officer" class="nav-link parents-menu d-flex align-items-center" data-bs-toggle="collapse"
                 aria-current="page">
                 <i class="bi bi-people text-white text-white fs-4"></i>

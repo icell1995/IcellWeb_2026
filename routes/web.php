@@ -506,6 +506,9 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
                 Route::put('/view', [App\Http\Controllers\DocumentApprovalController::class, 'uploadSave'])->name('document-approval.upload.save');
             });
         });
+
+        Route::get('/tutorial', [App\Http\Controllers\TutorialController::class, 'index'])
+            ->name('tutorial.index');
     });
 });
 
