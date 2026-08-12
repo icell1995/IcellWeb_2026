@@ -95,7 +95,7 @@ class AuthorizedSigantoriesAttachOfficersMigrationSeeder extends Seeder
                             'class' => ($positionClusters[$authorizedSigantory->position_id] != '04') ? 'SIGNATORY' : 'MEMBER',
 
                             'rank_short_name' => $authorizedSigantory->rank_id,
-                            'position_short_name' => '-',
+                            'position' => '-',
                             'sebagai_kepala' => '-',
                         ]
                     );

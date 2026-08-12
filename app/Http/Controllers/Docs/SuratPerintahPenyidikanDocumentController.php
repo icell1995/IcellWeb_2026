@@ -1170,7 +1170,17 @@ class SuratPerintahPenyidikanDocumentController extends Controller
             'NO_DIRLANTAS' => $signatory->position->positionCluster->alias_name ?? '',
         ];
         
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/surat_perintah_penyidikan.docx');
+        // $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/surat_perintah_penyidikan.docx');
+
+        // Tentukan template file berdasarkan tanggal kecelakaan
+        $cutoffDate = Carbon::parse('2026-01-02');
+        $accidentDate = Carbon::parse($accident->accident_date);
+
+        $templateFile = $accidentDate->lt($cutoffDate) 
+            ? 'word-template/surat_perintah_penyidikan_2025.docx'
+            : 'word-template/surat_perintah_penyidikan.docx';
+
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templateFile);
 
         if(isset($signatory->position)){
             if($signatory->position->position_cluster_id == '1'){

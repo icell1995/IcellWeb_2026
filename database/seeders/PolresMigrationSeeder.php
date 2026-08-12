@@ -18,24 +18,47 @@ class PolresMigrationSeeder extends Seeder
         $polresMigration =
             [
                 [
-                    "old_police_id" => "3310",
-                    "new_police_id" => "3502",
-                    "old_polda_id" => "33",
-                    "new_polda_id" => "35",
+                    "old_police_id" => "3108",
+                    "new_police_id" => "3608",
+                    "old_polda_id" => "31",
+                    "new_polda_id" => "36",
                 ],
-		[
-                    "old_police_id" => "3311",
-                    "new_police_id" => "3504",
-                    "old_polda_id" => "33",
-                    "new_polda_id" => "35",
+                [
+                    "old_police_id" => "3110",
+                    "new_police_id" => "3603",
+                    "old_polda_id" => "31",
+                    "new_polda_id" => "36",
                 ],
-		[
-                    "old_police_id" => "3318",
-                    "new_police_id" => "3501",
-                    "old_polda_id" => "33",
-                    "new_polda_id" => "35",
+                [
+                    "old_police_id" => "3125",
+                    "new_police_id" => "3601",
+                    "old_polda_id" => "31",
+                    "new_polda_id" => "36",
                 ],
-                
+                [
+                    "old_police_id" => "3129",
+                    "new_police_id" => "3607",
+                    "old_polda_id" => "31",
+                    "new_polda_id" => "36",
+                ],
+                [
+                    "old_police_id" => "3135",
+                    "new_police_id" => "3602",
+                    "old_polda_id" => "31",
+                    "new_polda_id" => "36",
+                ],
+                [
+                    "old_police_id" => "3136",
+                    "new_police_id" => "3605",
+                    "old_polda_id" => "31",
+                    "new_polda_id" => "36",
+                ],
+                [
+                    "old_police_id" => "3137",
+                    "new_police_id" => "3606",
+                    "old_polda_id" => "31",
+                    "new_polda_id" => "36",
+                ],
             ];
 
         DB::beginTransaction();

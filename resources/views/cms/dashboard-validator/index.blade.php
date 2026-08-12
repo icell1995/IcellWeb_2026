@@ -119,7 +119,7 @@
                         </div>
                         <div class="d-flex flex-column">
                             <span class="text-uppercase fw-semibold text-secondary fs-7">Validasi</span>
-                            <span class="text-dark fs-6 fw-bold">Hari Ini</span>
+                            <span class="text-dark fs-6 fw-bold">Hari ini</span>
                             <h2 class="stats-number my-3 display-5 fw-bold">{{ number_format($totalValidationToday) }}</h2>
                             <div class="d-flex align-items-center mt-1">
                                 <div
@@ -191,7 +191,7 @@
                         </div>
                         <div class="d-flex flex-column">
                             <span class="text-uppercase fw-semibold text-secondary fs-7">Menunggu Validasi</span>
-                            <span class="text-dark fs-6 fw-bold">Hari Ini</span>
+                            <span class="text-dark fs-6 fw-bold">Sampai hari ini</span>
                             <h2 class="stats-number my-3 display-5 fw-bold">{{ number_format($pendingValidationToday) }}
                             </h2>
                             <div class="mt-1">
@@ -333,76 +333,7 @@
             </div>
         </div>
 
-        <!-- Document Type Stats -->
-        {{-- <div class="row g-4">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="card-header bg-white border-0 p-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="card-title fw-bold m-0">Statistik Jenis Dokumen</h5>
-                            <div class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2">
-                                {{ $rangeDisplay }}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body p-4 pt-0">
-                        <div class="row">
-                            <div class="col-12 col-lg-8">
-                                <div class="chart-container position-relative" style="height: 300px;">
-                                    <canvas id="documentTypeChart"></canvas>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-4">
-                                <div class="table-responsive doc-type-table">
-                                    <table class="table table-hover">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th class="border-0">Jenis Dokumen</th>
-                                                <th class="text-center border-0">Jumlah</th>
-                                                <th class="text-end border-0">Persentase</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @php $colors = ['#0d6efd', '#6f42c1', '#d63384', '#dc3545', '#fd7e14', '#ffc107', '#198754', '#20c997', '#0dcaf0', '#6c757d']; @endphp
 
-                                            @foreach ($documentTypeStats as $index => $docType)
-                                                <tr class="doc-type-row">
-                                                    <td class="align-middle">
-                                                        <div class="d-flex align-items-center">
-                                                            <div class="color-indicator me-2"
-                                                                style="width: 12px; height: 12px; border-radius: 50%; background-color: {{ $colors[$index % count($colors)] }}">
-                                                            </div>
-                                                            <span
-                                                                class="doc-name">{{ $docType->document_category_name }}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center align-middle fw-semibold">
-                                                        {{ number_format($docType->count) }}</td>
-                                                    <td class="text-end align-middle">
-                                                        <div class="d-flex align-items-center justify-content-end">
-                                                            <div class="progress me-2" style="width: 40px; height: 6px;">
-                                                                <div class="progress-bar"
-                                                                    style="width: {{ round(($docType->count / max(1, $totalValidationWeek)) * 100, 1) }}%; background-color: {{ $colors[$index % count($colors)] }}"
-                                                                    role="progressbar" aria-valuemin="0"
-                                                                    aria-valuemax="100">
-                                                                </div>
-                                                            </div>
-                                                            <span class="badge rounded-pill bg-light text-dark">
-                                                                {{ round(($docType->count / max(1, $totalValidationWeek)) * 100, 1) }}%
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div> --}}
     </div>
     </div>
 
@@ -456,7 +387,6 @@
 @push('script')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Variabel yang dibutuhkan oleh file JS eksternal
         var leaderboardUrl = "{{ route('cms.validation-dashboard.leaderboard') }}";
         var validationTrendData = @json($validationTrend);
         var documentTypeData = @json($documentTypeStats);
@@ -465,7 +395,6 @@
         console.log('Validation Trend Data:', validationTrendData);
         console.log('Document Type Data:', documentTypeData);
 
-        // Pastikan struktur data sesuai dengan yang diharapkan
         if (!validationTrendData || !validationTrendData.labels || !validationTrendData.validated || !validationTrendData
             .pending) {
             console.warn('validationTrendData tidak memiliki struktur yang benar');

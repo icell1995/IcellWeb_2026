@@ -129,7 +129,7 @@ class FileUploadController extends Controller
             // 'file' => 'required|file|mimes:jpg,jpeg,bmp,png,doc,docx,csv,rtf,xlsx,xls,txt,pdf',
             'file' => 'required|file|max:30000|mimes:doc,docx,txt,pdf',
         ]);
-        
+
         $selra=$request->update_selra;
         $upload=$request->form_id;
         $accident=$request->accident_id;
@@ -224,7 +224,7 @@ class FileUploadController extends Controller
                     'tipe_update' => 'UPLOAD'
                 ]);
             break;
-            
+
             //end tugas kategori 1
 
             //start saksi kategori 2
@@ -402,17 +402,17 @@ class FileUploadController extends Controller
             //end tersangka
 
             //start penahanan kategori 4
-            case 'surat_perintah_penahanan':
-                $fileName = uniqid($accident). $request->file->getClientOriginalName();
-                $request->file->move(public_path('file/penahanan/surat-perintah-penahanan'), $fileName);
-                SuratPerintahPenahanan::create(['accident_id'=>$accident,'name' => $fileName, 'category' => 'D040101', 'initial'=>'surat-perintah-penahanan', 'created_by'=>$user]);
-                Accident::where('id', $accident)
-                ->update([
-                    'last_update' => Carbon::now(),
-                    'category' =>'D040101',
-                    'tipe_update' => 'UPLOAD'
-                ]);
-                break;
+            // case 'surat_perintah_penahanan':
+            //     $fileName = uniqid($accident). $request->file->getClientOriginalName();
+            //     $request->file->move(public_path('file/penahanan/surat-perintah-penahanan'), $fileName);
+            //     SuratPerintahPenahanan::create(['accident_id'=>$accident,'name' => $fileName, 'category' => 'D040101', 'initial'=>'surat-perintah-penahanan', 'created_by'=>$user]);
+            //     Accident::where('id', $accident)
+            //     ->update([
+            //         'last_update' => Carbon::now(),
+            //         'category' =>'D040101',
+            //         'tipe_update' => 'UPLOAD'
+            //     ]);
+            //     break;
             case 'berita_acara_penahanan':
                 $fileName = uniqid($accident). $request->file->getClientOriginalName();
                 $request->file->move(public_path('file/penahanan/berita-acara-penahanan'), $fileName);

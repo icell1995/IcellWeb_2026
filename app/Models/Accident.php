@@ -151,6 +151,78 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument', 'accident_id', 'id');
     }
 
+    public function suratKetetapanPenghentianPenyelidikanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
+    public function suratKetetapanPenghentianPenyidikanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
+
+    public function tahap1Documents()
+    {
+        return $this->hasMany('App\Models\Doc\Tahap1Document\Tahap1Document', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachments'
+            ]);
+    }
+
+    public function suratPerintahPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
+    public function permintaanPerpanjanganPenahananDocuments()
+    {
+        return $this->hasMany(
+            'App\Models\Doc\PermintaanPerpanjanganPenahananDocument\PermintaanPerpanjanganPenahananDocument',
+            'accident_id',
+            'id'
+        )->with([
+            'documentCategory',
+            'attachment'
+        ]);
+    }
+
+    public function perpanjanganLanjutanDocuments()
+    {
+        return $this->hasMany(
+            'App\Models\Doc\PerpanjanganLanjutanDocument\PerpanjanganLanjutanDocument',
+            'accident_id',
+            'id'
+        )->with([
+            'documentCategory',
+        ]);
+    }
+
+    public function suratPerintahPenangkapanDocuments()
+    {
+        return $this->hasMany(
+            'App\Models\Doc\SuratPerintahPenangkapanDocument\SuratPerintahPenangkapanDocument',
+            'accident_id',
+            'id'
+        )->with([
+            'documentCategory',
+            'attachment',
+        ]);
+    }
+
     public function suspect()
     {
         return $this->hasMany(Suspect::class, 'accident_id', 'id');

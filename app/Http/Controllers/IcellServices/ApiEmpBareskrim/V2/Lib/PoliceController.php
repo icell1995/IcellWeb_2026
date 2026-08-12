@@ -29,7 +29,7 @@ class PoliceController extends Controller
             if ($polices->isEmpty()) {
                 return $this->errorResponse('Not Found', 'Data not found.', 404);
             }
-		
+
             return $this->successResponse(
                 PoliceResource::collection($polices),
                 'Success',
@@ -86,5 +86,22 @@ class PoliceController extends Controller
             'message' => $message,
             'data' => null,
         ]);
+    }
+
+    private function getPublicIpAddress(Request $request){
+        // Check if the request has X-Forwarded-For header
+        $ipAddress = $request->header('X-Forwarded-For');
+
+        // If X-Forwarded-For header is not present, check X-Real-IP header
+        if (empty($ipAddress)) {
+            $ipAddress = $request->header('X-Real-IP');
+        }
+
+        // If both headers are not present, use the remote address
+        if (empty($ipAddress)) {
+            $ipAddress = $request->ip();
+        }
+
+        return $ipAddress;
     }
 }

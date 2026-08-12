@@ -54,7 +54,7 @@
                 <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                     <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name"
                         value="{{ $currentOfficer->full_name }}" required
-                        placeholder="Masukkan Nama Lengkap Dan Gelar Pendidikan" @if(Auth::user()->role_id != 1) readonly @endif>
+                        placeholder="Masukkan Nama Lengkap Dan Gelar Pendidikan" @if(!empty(Auth::user()->police_id)) readonly @endif>
                     @error('name')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -132,7 +132,7 @@
                 <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                     <input id="registerNumber" type="text" class="form-control @error('registerNumber') is-invalid @enderror"
                         name="registerNumber" value="{{ $currentOfficer->register_number }}"
-                        required placeholder="Masukkan NRP" @if(Auth::user()->role_id != 1) readonly @endif>
+                        required placeholder="Masukkan NRP" @if(!empty(Auth::user()->police_id)) readonly @endif>
 
                     @error('registerNumber')
                         <span class="invalid-feedback" role="alert">
@@ -142,22 +142,25 @@
                 </div>
             </div>
 
-        <div class="input-group row mb-3 ms-0">
-            <label class="fw-bold col-sm-2 col-form-label" for="email">Email</label>
-            <div class="col-lg-10 col-md-10 col-sm-12 col-12 align-self-center">
-                <div class="input-group">
-                    <input id="email" type="text" class="form-control @error('email') is-invalid @enderror"
-                        name="email" value="{{ str_replace('@polri.go.id', '', $currentOfficer->email) }}" required
-                        placeholder="Email akan dibuat otomatis" readonly>
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="email">Email</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 align-self-center">
+                    <div class="input-group">
+                        <input id="email" type="text" class="form-control @error('email') is-invalid @enderror"
+                            name="email" value="{{ $currentOfficer->email }}" required
+                            placeholder="Email akan dibuat otomatis" readonly>
+                        <button type="button" class="align-items-center btn btn-outline-primary" id="generateEmail" title="Generate Email dari NRP">
+                            <i class="bi bi-arrow-clockwise me-1"></i><small>Perbarui Email</small>
+                        </button>
+                    </div>
+                    @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                    <small class="text-muted d-block mt-1">(*Email akan diperbarui sesuai NRP setelah menekan tombol "Perbarui Email")</small>
                 </div>
-                @error('email')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                @enderror
-                <small class="text-muted d-block mt-1">(*Email akan dibuat otomatis berdasarkan NRP)</small>
             </div>
-        </div>
 
             <div class="input-group row mb-3 ms-0">
                 <label class="fw-bold col-sm-2 col-form-label" for="phoneNumber">Nomor Telepon</label>
@@ -396,7 +399,7 @@
                 </div>
             </div>
 
-            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 5)
+            @if(empty(Auth::user()->police_id) || Auth::user()->role_id == 5)
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="isRegisterAdmin">Flag</label>
                     <div class="col-lg-10 col-md-10 col-sm-10">
@@ -1682,34 +1685,51 @@
                 return cleanNRP + '@polri.go.id';
             }
             
-            // Event when NRP input changes
-            $('#registerNumber').on('input', function() {
-                let nrp = $(this).val();
-                let generatedEmail = generateEmailFromNRP(nrp);
+            // Event when generate button is clicked
+            $('#generateEmail').on('click', function() {
+                let nrp = $('#registerNumber').val();
+                
+                if (nrp === '') {
+                    // Show error message if NRP is empty
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'NRP Kosong',
+                        text: 'Silakan masukkan NRP terlebih dahulu untuk generate email'
+                    });
+                    return;
+                }
+                
+                // Hapus spasi dan karakter khusus
+                let cleanNRP = nrp.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                
+                // Generate email dengan concat domain langsung
+                let generatedEmail = cleanNRP + '@polri.go.id';
+                
+                // Set nilai email lengkap ke input field
                 $('#email').val(generatedEmail);
+                
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Email Berhasil Dibuat',
+                    text: 'Email ' + generatedEmail + ' telah dibuat berdasarkan NRP',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             });
             
-            // Mengisi email otomatis saat halaman dimuat jika NRP sudah terisi
-            if ($('#registerNumber').val()) {
-                let nrp = $('#registerNumber').val();
-                let generatedEmail = generateEmailFromNRP(nrp);
-                $('#email').val(generatedEmail);
-            }
-            
-            // Jika form disubmit, pastikan email sudah dalam format yang benar
+            // Jika form disubmit, pastikan email memiliki domain @polri.go.id
             $('#officerForm').on('submit', function() {
-                let emailValue = $('#email').val();
                 let nrp = $('#registerNumber').val();
-                
-                // Jika email kosong tapi NRP ada, generate email
-                if ((!emailValue || emailValue === '') && nrp) {
-                    $('#email').val(generateEmailFromNRP(nrp));
-                }
-                
-                // Jika email ada tapi tidak mengandung @polri.go.id, tambahkan
-                if (emailValue && !emailValue.includes('@polri.go.id')) {
-                    $('#email').val(emailValue + '@polri.go.id');
-                }
+                let emailValue = $('#email').val();
+
+                //Hapus spasi dan karakter khusus
+                let cleanNRP = nrp.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+                //Generate email baru dari NRP
+                let generatedEmail = generateEmailFromNRP(cleanNRP);
+                $('#email').val(generatedEmail);
+
             });
         });
     

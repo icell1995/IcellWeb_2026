@@ -216,7 +216,7 @@
             render: function(val, type, row){
               const bg = ({
                 S0101:'#00FF00', S0102:'#00FFFF', S0103:'#0000FF',
-                S0104:'#FF00FF', S0106:'#FFFF00', S0107:'#EE354F', S0108:'#FF9900'
+                S0104:'#FF00FF', S0106:'#FFFF00', S0107:'#EE354F', S0108:'#EE354F'
               })[row.selra] || '#FF9900';
               return `<span class="px-3 rounded font-weight-600 d-inline-block fw-bold" style="background-color:${bg};">${val || '-'}</span>`;
             }

@@ -22,8 +22,8 @@ class UsersTableRankIdAndPositionIdAndPoliceIdAndIsActiveColumnMigrationSeeder e
     {
        //$this->migrateRankId();
        //$this->migratePoliceId();
-       $this->migratePositionId();
-        //$this->migrateIsActive();
+       //$this->migratePositionId();
+        $this->migrateIsActive();
     }
 
     private function migrateRankId()
@@ -77,15 +77,12 @@ class UsersTableRankIdAndPositionIdAndPoliceIdAndIsActiveColumnMigrationSeeder e
     
             foreach ($users as $user) {
                 if(!empty($user->polres_id)){
-			if($user->polres_id != '0000'){
-                    		$user->police_id = $user->polres_id;
-                    		$user->save();
-			}
+                    $user->police_id = $user->polres_id;
+                    $user->save();
+
                 }else if(empty($user->polres_id)){
-			if($user->polda_id != '0000'){
-                    		$user->police_id = $user->polda_id;
-                    		$user->save();
-			}
+                    $user->police_id = $user->polda_id;
+                    $user->save();
                 }
             }
 

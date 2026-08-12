@@ -59,7 +59,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                (class_exists('Pdo\Mysql') ? Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 
@@ -71,21 +71,6 @@ return [
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => 'prefer',
-        ],
-
-	'irsms-pgsql' => [
-            'driver' => 'pgsql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_IRSMS_HOST', '127.0.0.1'),
-            'port' => env('DB_IRSMS_PORT', '5432'),
-            'database' => env('DB_IRSMS_DATABASE', 'forge'),
-            'username' => env('DB_IRSMS_USERNAME', 'forge'),
-            'password' => env('DB_IRSMS_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
@@ -108,6 +93,17 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        /*'mongodb' => [
+            'driver' => 'mongodb',
+            'host' => env('DB_MONGODB_HOST', '127.0.0.1'),
+            'port' => env('DB_MONGODB_PORT', 27017),
+            'database' => env('DB_MONGODB_DATABASE', 'homestead'),
+            'username' => env('DB_MONGODB_USERNAME', 'homestead'),
+            'password' => env('DB_MONGODB_PASSWORD', 'secret'),
+            'options' => [
+                'appname' => 'homestead',
+            ],
+        ],*/
     ],
 
     /*

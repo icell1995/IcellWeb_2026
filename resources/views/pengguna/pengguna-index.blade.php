@@ -145,8 +145,10 @@
             {{ $pengguna->links() }}
 
             <div class="text-end">
+            @if(Auth::user()->hasPermission('user.C'))
                 <button type="button" class="material-icons floating-btn" data-bs-toggle="modal"
                     data-bs-target="#add-data">add</button>
+            @endif
             </div>
         </div>
 

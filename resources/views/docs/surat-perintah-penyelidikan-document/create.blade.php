@@ -458,9 +458,11 @@
             </div>
 
             <hr>
-		@if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-		    @include('docs.components.form.checkbox.is-legacy')
-		@endif
+
+            @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
+		        @include('docs.components.form.checkbox.is-legacy')
+            @endif
+
             <hr>
 
             <div class="text-center">
@@ -577,9 +579,9 @@
     <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
     <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
-@if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-    @include('docs.components.form.checkbox.is-legacy-js')
-@endif
+    @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
+        @include('docs.components.form.checkbox.is-legacy-js')
+    @endif
 
     <script type="text/javascript">
         $(document).ready(function() {

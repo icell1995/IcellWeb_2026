@@ -35,10 +35,10 @@ class CheckUsernaemAndPasswordIsSameCommand extends Command
             $password = $user->password;
             $phone = $user->phone;
 
-            if (Hash::check($username . '-', $password)) {
+            if (Hash::check($username, $password)) {
                 DB::beginTransaction();
                 try {
-                    $user->update(['password' => Hash::make($username . '#_#' . $username)]);
+                    $user->update(['password' => Hash::make($username . '-' . $phone)]);
                     DB::commit();
                     $countSame++;
                     $this->error("Password is same with username: " . $username);

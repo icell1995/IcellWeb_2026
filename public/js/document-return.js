@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <p class="text-muted small mb-0">${escapeHtml(doc.title)}</p>
                                 </div>
                                 <div class="mt-auto pt-2 border-top">
-                                    <small class="text-muted" style="font-size:0.75rem"><i class="bi bi-calendar-event me-1"></i> ${escapeHtml(doc.text_date)} : ${escapeHtml(doc.information_date)}</small>
+                                    <small class="text-muted" style="font-size:0.75rem">📅 ${escapeHtml(doc.text_date)} : ${escapeHtml(doc.information_date)}</small>
                                     ${returnBtn}
                                 </div>
                             </div>

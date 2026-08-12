@@ -175,6 +175,7 @@ return [
         Mews\Captcha\CaptchaServiceProvider::class,
         SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+        //MongoDB\Laravel\MongoDBServiceProvider::class,
     ])->toArray(),
 
     /*

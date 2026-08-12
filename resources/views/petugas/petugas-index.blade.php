@@ -157,8 +157,10 @@
             {{-- {{ $petugas->appends(request()->query())->links('pagination::bootstrap-5') }} --}}
 
             <div class="text-end mt-2">
+                @if(Auth::user()->hasPermission('personnel.C'))
                 <button type="button" class="material-icons floating-btn" data-bs-toggle="modal"
                     data-bs-target="#add-data">add</button>
+                @endif
             </div>
         </div>
 

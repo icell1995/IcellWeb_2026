@@ -87,79 +87,92 @@
     </div>
 </div>
 
-<div data-backdrop="false" id="myModalPenyitaan3" name="myModalPenyitaan3" class="modal fade" role="dialog">
+<div data-backdrop="false" id="myModalPenyitaan3" name="myModalPenyitaan3" class="modal fade" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Tambah Barang Bukti</h5>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
+            <div class="modal-header bg-gradient-primary text-white p-4" style="background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-box-seam me-2"></i> Tambah & Kelola Barang Bukti
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body ">
-                <div class="modal-barang-bukti">
-                    <form id="barang-bukti-form">
-                        @csrf
-                        <div class=col-12>
-                            <div>
-                                <input type="hidden" name="barang_bukti_id" id="barang_bukti_id">
-                                <input id="accident_id_barang_bukti" name="accident_id_barang_bukti" type="text"
-                                    value="{{ $id }}" hidden>
-                            </div>
-                            <div class="row">
+            <div class="modal-body p-4 bg-light">
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-primary mb-3">
+                            <i class="bi bi-plus-circle me-1"></i> Data Barang Bukti Baru
+                        </h6>
+                        <form id="barang-bukti-form">
+                            @csrf
+                            <input type="hidden" name="barang_bukti_id" id="barang_bukti_id">
+                            <input type="hidden" name="accident_id_barang_bukti" id="accident_id_barang_bukti" value="{{ $id ?? '' }}">
+                            
+                            <div class="row g-3">
                                 <div class="col-md-6">
-                                    <div class="mb-3 row">
-                                        <label for="nama_barang"
-                                            class="col-sm-3 fw-bold col-form-label">{{ __('Nama') }}</label>
-
-                                        <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                            <input id="nama_barang" type="text"
-                                                class="form-control @error('nama_barang') is-invalid @enderror"
-                                                name="nama_barang" value="{{ old('nama_barang') }}"
-                                                autocomplete="nama_barang">
-                                            <span class="text-danger error-text name_err"></span>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3 row">
-                                        <label for="jumlah_barang"
-                                            class="col-sm-3 fw-bold col-form-label">{{ __('Jumlah Barang') }}</label>
-
-                                        <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                            <input id="jumlah_barang" type="text"
-                                                class="form-control @error('jumlah_barang') is-invalid @enderror"
-                                                name="jumlah_barang" value="{{ old('jumlah_barang') }}"
-                                                autocomplete="jumlah_barang">
-                                            <span class="text-danger error-text gender_err"></span>
-                                        </div>
+                                    <div class="form-floating mb-3">
+                                        <input id="nama_barang" type="text" class="form-control" name="nama_barang" placeholder="Nama Barang Bukti" required>
+                                        <label for="nama_barang">Nama Barang Bukti</label>
+                                        <span class="text-danger error-text name_err small"></span>
                                     </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <input id="jumlah_barang" type="text" class="form-control" name="jumlah_barang" placeholder="Jumlah (contoh: 1 unit)" required>
+                                        <label for="jumlah_barang">Jumlah / Satuan</label>
+                                        <span class="text-danger error-text gender_err small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-center mb-3">
+                                    <button type="submit" class="btn btn-primary h-100 w-100 py-2 btn-barang-bukti shadow-sm" style="border-radius: 10px; transition: all 0.3s ease;">
+                                        <i class="bi bi-save me-1"></i> Simpan
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="text-start mb-2">
-                            <button type="submit" class="btn btn-dark-blue btn-barang-bukti">Tambah Barang
-                                Bukti</button>
-                        </div>
-                    </form>
-                    <table class="table table-bordered barang-bukti-datatable">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Barang</th>
-                                <th>Jumlah Barang</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                        </form>
+                    </div>
                 </div>
-                {{-- <div class="alert alert-success alert-block" style="display: none;">
-          <button type="button" class="close" data-dismiss="test">×</button>
-          <strong class="success-msg"></strong>
-      </div>   --}}
+
+                <div class="card border-0 shadow-sm" style="border-radius: 12px;">
+                    <div class="card-header bg-white py-3 border-0">
+                        <h6 class="m-0 font-weight-bold text-primary">Daftar Barang Bukti</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 barang-bukti-datatable w-100">
+                                <thead class="bg-light border-bottom">
+                                    <tr>
+                                        <th class="ps-4 py-3 text-secondary text-uppercase small fw-bold">No</th>
+                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Nama Barang</th>
+                                        <th class="py-3 text-secondary text-uppercase small fw-bold">Jumlah</th>
+                                        <th class="pe-4 py-3 text-secondary text-uppercase small fw-bold text-end">Aksi</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            <div class="modal-footer bg-white border-top-0 p-3">
+                <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal" style="border-radius: 8px;">Tutup</button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    #myModalPenyitaan3 .form-control:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+    }
+    #myModalPenyitaan3 .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
+    }
+    #myModalPenyitaan3 .table > :not(caption) > * > * {
+        padding: 1rem 0.75rem;
+    }
+</style>
+
 
 <div id="myModalPenyitaan4" name="myModalPenyitaan4" class="modal fade bd-example-modal-lg" tabindex="-1"
     role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -214,25 +227,29 @@
                         id="add_officer_edit_penyitaan">Tambah Petugas</button>
 
                     <div class="sub-field col-sm-12 col-md-12" id="edit_surat_penyitaan" style="display: table">
-                        @foreach ($surat_penyitaan as $penyitaan)
-                            <div class="add-row mb-3">
-                                <div class="input-group">
-                                    <select id="edit_officer_surat_penyitaan[]" name="edit_officer_surat_penyitaan[]"
-                                        class="form-select" aria-describedby="#btn-remove-edit-penyitaan">
-                                        <option value="">Pilih Petugas</option>
-                                        @foreach ($officer as $officers)
-                                            <option value="{{ $officers->id }}"
-                                                {{ $officers->id == $penyitaan->id ? 'selected' : '' }}>
-                                                {{ $officers->id }} - {{ $officers->first_name }}
-                                                {{ $officers->last_name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <button type="button" name="remove"
-                                        class="btn btn-danger remove btn_remove_edit_penyitaan"><i class="bi bi-x-square"></i></button>
+                        @isset($surat_penyitaan)
+                            @foreach ($surat_penyitaan as $penyitaan)
+                                <div class="add-row mb-3">
+                                    <div class="input-group">
+                                        <select id="edit_officer_surat_penyitaan[]" name="edit_officer_surat_penyitaan[]"
+                                            class="form-select" aria-describedby="#btn-remove-edit-penyitaan">
+                                            <option value="">Pilih Petugas</option>
+                                            @isset($officer)
+                                                @foreach ($officer as $officers)
+                                                    <option value="{{ $officers->id }}"
+                                                        {{ $officers->id == $penyitaan->id ? 'selected' : '' }}>
+                                                        {{ $officers->id }} - {{ $officers->first_name }}
+                                                        {{ $officers->last_name }}
+                                                    </option>
+                                                @endforeach
+                                            @endisset
+                                        </select>
+                                        <button type="button" name="remove"
+                                            class="btn btn-danger remove btn_remove_edit_penyitaan"><i class="bi bi-x-square"></i></button>
+                                    </div>
                                 </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        @endisset
                     </div>
                 </div>
                 <div class="modal-footer">

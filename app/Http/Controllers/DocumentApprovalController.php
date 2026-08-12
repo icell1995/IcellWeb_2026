@@ -13,7 +13,13 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
-
+use App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\Tahap1Document\Tahap1Document;
+use App\Models\Doc\PermintaanPerpanjanganPenahananDocument\PermintaanPerpanjanganPenahananDocument;
+use App\Models\Doc\PerpanjanganLanjutanDocument\PerpanjanganLanjutanDocument;
+use App\Models\Doc\SuratPerintahPenangkapanDocument\SuratPerintahPenangkapanDocument;
 use App\Traits\DocsOfficersTraits;
 
 class DocumentApprovalController extends Controller
@@ -151,7 +157,7 @@ class DocumentApprovalController extends Controller
                 }
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
-                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706'])){
+                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706', '0601', '0603', '0604', '0301'])){
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
@@ -192,14 +198,23 @@ class DocumentApprovalController extends Controller
             LaporanHasilGelarPerkaraDocument::class,
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            SuratPerintahPenahananDocument::class,
+            SuratKetetapanPenghentianPenyidikanDocument::class,
+            Tahap1Document::class,
+            PermintaanPerpanjanganPenahananDocument::class,
+            PerpanjanganLanjutanDocument::class,
+            SuratPerintahPenangkapanDocument::class,
+            // SuratKetetapanPenghentianPenyelidikanDocument::class,
         ];
 
         $documentsCollection = Collection::make();
 
         foreach ($documentTypes as $documentType) {
+
+            // $getOldNewPolresIds = $this->getOldNewPolresIds($user->polres_id);
+
             $documents = $documentType::with(['accident', 'documentCategory'])
                 ->whereHas('accident', function ($query) use ($user) {
-                    // $query->where('polres_id', $user->polres_id);
                     $query->whereIn('polres_id', $this->getOldNewPolresIds($user->polres_id));
                 })
                 ->whereIn('status_id', $statusIds)
@@ -217,11 +232,18 @@ class DocumentApprovalController extends Controller
     {
         $documentModels = [
             '0101' => SuratPerintahPenyelidikanDocument::class,
+            // '0112' => SuratKetetapanPenghentianPenyelidikanDocument::class,
             '0201' => SuratPerintahPenyidikanDocument::class,
             '0204' => SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            '0205' => SuratKetetapanPenghentianPenyidikanDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
+            '0601' => SuratPerintahPenahananDocument::class,
+            '0603' => PermintaanPerpanjanganPenahananDocument::class,
+            '0604' => PerpanjanganLanjutanDocument::class,
+            '0301' => SuratPerintahPenangkapanDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0805' => Tahap1Document::class,
             // Add more document types here
         ];
 

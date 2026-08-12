@@ -51,9 +51,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Schema::table('public.stg_dors_evidences', function (Blueprint $table) {
-        //     $table->dropForeign('fk_stg_dors_evidences_dors_accident_id');
-        // });
+        Schema::table('public.stg_dors_evidences', function (Blueprint $table) {
+            $table->dropForeign('fk_stg_dors_evidences_dors_accident_id');
+        });
         Schema::dropIfExists('public.stg_dors_evidences');
     }
 };

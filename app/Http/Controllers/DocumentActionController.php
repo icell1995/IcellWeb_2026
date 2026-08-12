@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use PDF;
 
@@ -17,6 +18,13 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+// use App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument;
+use App\Models\Doc\Tahap1Document\Tahap1Document;
+use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\PermintaanPerpanjanganPenahananDocument\PermintaanPerpanjanganPenahananDocument;
+use App\Models\Doc\PerpanjanganLanjutanDocument\PerpanjanganLanjutanDocument;
+use App\Models\Doc\SuratPerintahPenangkapanDocument\SuratPerintahPenangkapanDocument;
 
 class DocumentActionController extends Controller
 {
@@ -37,8 +45,12 @@ class DocumentActionController extends Controller
             ->where('is_active', true)
             ->orderBy('first_name')
             ->get();
-   
+
         $document = $this->getDocumentRouter($documentCategoryId, $documentId, $accidentId);
+        if (! $document) {
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])
+                ->with('error', 'Dokumen tidak ditemukan.');
+        }
         $documentSignatory = $document->signatory;
 
         $viewData = [
@@ -53,7 +65,7 @@ class DocumentActionController extends Controller
 
         return view('document-action.request-approval.request', $viewData);
     }
-   
+
     public function requestApprovalRequestSave(Request $request)
     {
         //validation
@@ -91,7 +103,7 @@ class DocumentActionController extends Controller
                 }else{
                     $document->status_id = '3';
                 }
-                
+
                 $document->document_date = $documentDate;
 
                 if($formType == '1'){
@@ -130,7 +142,7 @@ class DocumentActionController extends Controller
 
         return view('document-action.upload-document.upload', $viewData);
     }
-   
+
     public function uploadDocumentUploadSave(Request $request)
     {
         $formType = htmlspecialchars(request()->query('form_type'));
@@ -138,10 +150,10 @@ class DocumentActionController extends Controller
 
         //validate
         $request->validate([
-            'file' => 'required|max:15000'
+            'file' => 'required|max:10000'
         ],[
             'file.required' => 'File wajib diisi',
-            'file.max' => 'File maksimal 15MB'
+            'file.max' => 'File maksimal 10MB'
         ]);
 
         if($requiredFileType == 'PDF'){
@@ -159,7 +171,7 @@ class DocumentActionController extends Controller
         }else{
             return redirect()->back()->with('error', 'Tipe file tidak tersedia');
         }
-        
+
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $documentId = htmlspecialchars(request()->query('document_id'));
         $documentCategoryId = htmlspecialchars(request()->query('document_category_id'));
@@ -171,7 +183,7 @@ class DocumentActionController extends Controller
         try{
             $document = $this->getDocumentRouter($documentCategoryId, $documentId, $accidentId);
             $documentId = $document->id;
-            
+
             if(!empty($document)){
                 if(!in_array($document->status_id, [5, 6])){
                     abort(419);
@@ -183,23 +195,27 @@ class DocumentActionController extends Controller
                 $fileSize = $file->getSize();
                 $fileHashName = $file->hashName();
                 $fileMimeType = $file->getMimeType();
-    
+
                 $documentAttachment = $document->attachment()->first();
-    
-                $document->attachment()->updateOrCreate(
-                    [
-                        'id' => $documentAttachment->id ?? null,
-                    ],
-                    [
-                        'original_name' => $fileOriginalName,
-                        'name' => $fileHashName,
-                        'extension' => $fileExtension,
-                        'size' => $fileSize,
-                        'mimetype' => $fileMimeType,
-                        'type' => 'DOCUMENT',
-                    ]
-                ); 
-                
+
+                $attachmentData = [
+                    'original_name' => $fileOriginalName,
+                    'name'          => $fileHashName,
+                    'extension'     => $fileExtension,
+                    'size'          => $fileSize,
+                    'mimetype'      => $fileMimeType,
+                    'type'          => 'DOCUMENT',
+                    'path'          => 'documents/attachments/' . $fileHashName,
+                ];
+
+                if ($documentAttachment) {
+                    // Update existing attachment record
+                    $documentAttachment->update($attachmentData);
+                } else {
+                    // Create new attachment — foreign key diisi otomatis oleh relasi hasOne
+                    $document->attachment()->create($attachmentData);
+                }
+
                 //move file to public
                 $file->move(public_path('documents/attachments/'), $fileHashName);
 
@@ -210,6 +226,36 @@ class DocumentActionController extends Controller
                         unlink($oldFile);
                     }
                 }
+
+                // Audit Trail
+                $timestamps = $document->timestamps;
+                if (is_string($timestamps)) {
+                    $timestamps = json_decode($timestamps, true) ?: [];
+                }
+                if (!is_array($timestamps)) {
+                    $timestamps = [];
+                }
+
+                $timestamps[] = [
+                    'status_id' => ($document->documentCategory->is_digital_signature == true) ? '8' : '7',
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                    'updated_by' => Auth::id(),
+                    'message' => 'Dokumen fisik diunggah'
+                ];
+                $document->timestamps = $timestamps;
+
+                $ipAddresses = $document->ip_addresses;
+                if (is_string($ipAddresses)) {
+                    $ipAddresses = json_decode($ipAddresses, true) ?: [];
+                }
+                if (!is_array($ipAddresses)) {
+                    $ipAddresses = [];
+                }
+
+                if (!in_array($request->ip(), $ipAddresses)) {
+                    $ipAddresses[] = $request->ip();
+                }
+                $document->ip_addresses = $ipAddresses;
 
                 if($document->documentCategory->is_digital_signature == true){
                     $document->status_id = '8';
@@ -252,20 +298,27 @@ class DocumentActionController extends Controller
     {
         $documentModels = [
             '0101' => SuratPerintahPenyelidikanDocument::class,
+            // '0112' => SuratKetetapanPenghentianPenyelidikanDocument::class,
             '0201' => SuratPerintahPenyidikanDocument::class,
             '0204' => SuratPemberitahuanDimulainyaPenyidikanDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
+            '0601' => SuratPerintahPenahananDocument::class,
+            '0603' => PermintaanPerpanjanganPenahananDocument::class,
+            '0604' => PerpanjanganLanjutanDocument::class,
+            '0301' => SuratPerintahPenangkapanDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0206' => SuratKetetapanPenghentianPenyidikanDocument::class,
+            '0805' => Tahap1Document::class,
             // Add more document types here
         ];
 
         if (array_key_exists($documentCategoryId, $documentModels)) {
-            $document = $documentModels[$documentCategoryId]::with(['accident','documentCategory'])
+            $document = $documentModels[$documentCategoryId]::with(['accident', 'documentCategory', 'signatory'])
                 ->where('id', $documentId)
                 ->first();
         } else {
-            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId]);
+            return null;
         }
 
         return $document;

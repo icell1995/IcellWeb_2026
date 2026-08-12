@@ -20,23 +20,20 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap1x.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/style3x.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style2x.css') }}">
 
     {{-- Chart.js --}}
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.3/chart.min.js"></script> --}}
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
 
     <!-- HighChart -->
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/modules/export-data.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@12.5.0/highcharts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@12.5.0/modules/map.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@12.5.0/modules/accessibility.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@12.5.0/modules/exporting.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highcharts@12.5.0/modules/export-data.js"></script>
 
     {{-- Java Script --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
     </script>
@@ -74,9 +71,8 @@
                         <nav class="navbar navbar-expand light-blue">
                             <div class="container-fluid">
                                 <span class="btn-burger float-end fs-4 rounded-circle"><i class="bi bi-list"></i></span>
-                                {{-- <img class="img-header ms-2" src="{{ asset('images/logo1x.png') }}" alt="profile_image"> --}}
-                                <img class="img-header-icell" src="{{ asset('images/logo-icell-transparent.png') }}" alt="profile_image"> 
-				<img class="img-header" src="{{ asset('images/logo2x.png') }}" alt="profile_image">
+                                <img class="img-header ms-2" src="{{ asset('images/logo1x.png') }}" alt="profile_image">
+                                <img class="img-header" src="{{ asset('images/logo2x.png') }}" alt="profile_image">
                                 <span class="nav-title">INFORMASI CEPAT PENYIDIKAN LALU LINTAS</span>
                                 <span class="nav-title-sm">ICELL <br> <small class="fw-bold">( Informasi Cepat Penyidikan Lalu Lintas )</small></span>
                                 <button class="navbar-toggler" type="button" data-toggle="collapse"

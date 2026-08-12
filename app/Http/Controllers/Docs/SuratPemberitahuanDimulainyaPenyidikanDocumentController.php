@@ -267,9 +267,11 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
 
         $positions = Position::where('is_active', true)->orderBy('sort')->get();
 
+        $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
+
         $authorizedSignatories = Officer::withRelated()
             ->selectFullName()
-            ->where('police_id', $accident->polres_id)
+            ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
             ->hasDataComplete()
             ->signatory()
@@ -601,7 +603,11 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
                 'suspectDistrictName' => (isset($suspect->district->name)) ? ucwords(strtolower($suspect->district->name)) : '',
                 'suspectVillageName' => (isset($suspect->village->name)) ? ucwords(strtolower($suspect->village->name)) : '',
                 'suspectAddress' => $suspect->address ?? '',
-                'suspectFullAddress' => ($suspectProperties['is_unknown_address'] == true) ? 'TIDAK DIKETAHUI' : ucwords(strtolower($suspect->address . ', ' . $suspect->village->name . ', ' . $suspect->district->name . ', ' . $suspect->regency->name . ', ' . $suspect->province->name)),
+                'suspectFullAddress' => ($suspectProperties['is_unknown_address'] == true) 
+                    ? 'TIDAK DIKETAHUI' 
+                    : (($suspect->country_id == 'C101') 
+                        ? ucwords(strtolower($suspect->address . ', ' . ($suspect->village->name ?? '') . ', ' . ($suspect->district->name ?? '') . ', ' . ($suspect->regency->name ?? '') . ', ' . ($suspect->province->name ?? '')))
+                        : ucwords(strtolower($suspect->address . ', ' . ($suspect->country->name ?? '')))),
             ];
         }
 

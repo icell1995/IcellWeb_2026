@@ -783,69 +783,6 @@ class Sp2hpDocumentController extends Controller
                 $sp2hpData['type_specific_data'] = [];
             }
             
-            // --- INHERIT DATA FROM PREVIOUS DOCUMENTS ---
-            // For A2-A7, copy all data from previous document to maintain history
-            if (in_array($request->tipe_sp2hp, ['A2', 'A3', 'A4', 'A5', 'A6', 'A7'])) {
-                $previousTipe = null;
-                
-                // Determine which previous document to fetch
-                switch ($request->tipe_sp2hp) {
-                    case 'A2': $previousTipe = 'A1'; break;
-                    case 'A3': $previousTipe = 'A2'; break;
-                    case 'A4': $previousTipe = 'A3'; break;
-                    case 'A5': $previousTipe = 'A4'; break;
-                    case 'A6': $previousTipe = 'A5'; break;
-                    case 'A7': $previousTipe = 'A6'; break;
-                }
-                
-                if ($previousTipe && $accident = Accident::find($request->accident_id)) {
-                    // Find the most recent previous document
-                    $previousDoc = SuratPemberitahuanPerkembanganHasilPenyidikanDocument::where('accident_id', $accident->id)
-                        ->where('tipe_sp2hp', $previousTipe)
-                        ->whereNull('deleted_at')
-                        ->latest('created_at')
-                        ->first();
-                    
-                    if ($previousDoc) {
-                        // Copy all type_specific_data from previous document
-                        $previousData = is_string($previousDoc->type_specific_data) 
-                            ? json_decode($previousDoc->type_specific_data, true) 
-                            : $previousDoc->type_specific_data;
-                        
-                        if (is_array($previousData)) {
-                            // Merge previous data into current document
-                            $sp2hpData['type_specific_data'] = array_merge($previousData, $sp2hpData['type_specific_data']);
-                            
-                            Log::info('Inherited data from previous document', [
-                                'current_type' => $request->tipe_sp2hp,
-                                'previous_type' => $previousTipe,
-                                'previous_doc_id' => $previousDoc->id,
-                                'inherited_keys' => array_keys($previousData)
-                            ]);
-                        }
-                        
-                        // For A5-A7: Copy a4_tindakan_list from A4 document
-                        if (in_array($request->tipe_sp2hp, ['A5', 'A6', 'A7'])) {
-                            // Find A4 document to get tindakan list
-                            $a4Doc = SuratPemberitahuanPerkembanganHasilPenyidikanDocument::where('accident_id', $accident->id)
-                                ->where('tipe_sp2hp', 'A4')
-                                ->whereNull('deleted_at')
-                                ->latest('created_at')
-                                ->first();
-                            
-                            if ($a4Doc && !empty($a4Doc->a4_tindakan_list)) {
-                                $sp2hpData['a4_tindakan_list'] = $a4Doc->a4_tindakan_list;
-                                Log::info('Inherited a4_tindakan_list from A4', [
-                                    'current_type' => $request->tipe_sp2hp,
-                                    'a4_doc_id' => $a4Doc->id,
-                                    'tindakan_count' => count($a4Doc->a4_tindakan_list)
-                                ]);
-                            }
-                        }
-                    }
-                }
-            }
-            
             // Process Tembusan (Carbon Copies)
             if ($request->has('carbonCopies') && is_array($request->carbonCopies)) {
                 // Filter empty values
@@ -859,15 +796,14 @@ class Sp2hpDocumentController extends Controller
                 Log::info('Carbon copies saved', ['carbon_copies' => $sp2hpData['type_specific_data']['carbon_copies']]);
             }
             
-            // Process A2 data - save ONLY to type_specific_data (data will be inherited by A3+)
+            // Process A2 data into type_specific_data
             if ($request->tipe_sp2hp == 'A2') {
                 $sp2hpData['type_specific_data']['a2_rujukan_a1'] = $request->a2_rujukan_a1;
-                $sp2hpData['type_specific_data']['a2_tanggal_a1'] = $request->a2_tanggal_a1;
                 $sp2hpData['type_specific_data']['a2_fakta_lidik'] = $request->a2_fakta_lidik;
                 $sp2hpData['type_specific_data']['a2_alasan'] = $request->a2_alasan;
             }
             
-            // Process A3 data - save ONLY to type_specific_data (will inherit A1+A2 data)
+            // Process A3 data into type_specific_data
             if ($request->tipe_sp2hp == 'A3') {
                 $sp2hpData['type_specific_data']['a3_rujukan_a1'] = $request->a3_rujukan_a1;
                 $sp2hpData['type_specific_data']['a3_tanggal_a1'] = $request->a3_tanggal_a1;
@@ -878,10 +814,8 @@ class Sp2hpDocumentController extends Controller
                 $sp2hpData['type_specific_data']['a3_pasal_diduga'] = $request->a3_pasal_diduga;
             }
             
-            // Process A4 data - save ONLY to type_specific_data (will inherit A1+A2+A3 data)
+            // Process A4 data into type_specific_data (hambatan & rencana)
             if ($request->tipe_sp2hp == 'A4') {
-                $sp2hpData['type_specific_data']['a4_rujukan_a1'] = $request->a4_rujukan_a1;
-                $sp2hpData['type_specific_data']['a4_tanggal_a1'] = $request->a4_tanggal_a1;
                 $sp2hpData['type_specific_data']['a4_hambatan'] = $request->a4_hambatan;
                 $sp2hpData['type_specific_data']['a4_rencana'] = $request->a4_rencana;
                 
@@ -898,7 +832,7 @@ class Sp2hpDocumentController extends Controller
                 }
             }
             
-            // Process A5 data - save ONLY to type_specific_data (will inherit A1-A4 data)
+            // Process A5 data into type_specific_data
             if ($request->tipe_sp2hp == 'A5') {
                 $sp2hpData['type_specific_data']['a5_sprin_sidik'] = $request->a5_sprin_sidik;
                 $sp2hpData['type_specific_data']['a5_sp2hp_terakhir'] = $request->a5_sp2hp_terakhir;
@@ -906,7 +840,7 @@ class Sp2hpDocumentController extends Controller
                 $sp2hpData['type_specific_data']['a5_keterangan_sp3'] = $request->a5_keterangan_sp3;
             }
             
-            // Process A6 data - save ONLY to type_specific_data (will inherit A1-A5 data)
+            // Process A6 data into type_specific_data
             if ($request->tipe_sp2hp == 'A6') {
                 $sp2hpData['type_specific_data']['a6_sp2hp_terakhir'] = $request->a6_sp2hp_terakhir;
                 $sp2hpData['type_specific_data']['a6_nama_tersangka'] = $request->a6_nama_tersangka;
@@ -921,7 +855,7 @@ class Sp2hpDocumentController extends Controller
                 }
             }
             
-            // Process A7 data - save ONLY to type_specific_data (will inherit A1-A6 data)
+            // Process A7 data into type_specific_data
             if ($request->tipe_sp2hp == 'A7') {
                 $sp2hpData['type_specific_data']['a7_nama_tersangka'] = $request->a7_nama_tersangka;
                 $sp2hpData['type_specific_data']['a7_rujukan_tahap1'] = $request->a7_rujukan_tahap1;

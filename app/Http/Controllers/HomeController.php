@@ -141,8 +141,6 @@ class HomeController extends Controller
         $dpo = $get_dpo[0]->total_dpo;
         $dpb = $get_dpb[0]->total_dpb;
 
-	// dd($dpo);
-
         $totalService = new IrsmsServices();
 
         $beginDate = "2024-01-01";
@@ -522,7 +520,7 @@ class HomeController extends Controller
                 $polda_name = $match->polda_name;
                 $polres_name = $match->polres_name;
                 $crime_cleareance_tabraklari = $match->crime_clearance_tabraklari ?? 0;
-		$tabrak_lari = $match->tabrak_lari ?? 0;
+                $tabrak_lari = $match->tabrak_lari ?? 0;
                 $new_entry_crime_clearance = $match->new_entry_crime_clearance ?? 0;
                 $p21_except_entry = $match->p21_except_entry ?? 0;
                 $sp3_except_entry = $match->sp3_except_entry ?? 0;
@@ -531,8 +529,8 @@ class HomeController extends Controller
                 $except_entry_crime_clearance = $match->except_entry_crime_clearance ?? 0;
 
                 $jumlah_laka = $item['jumlah_laka'] - $pomtni;
-                //$hit_and_run = $item['tabrak_lari'] - $crime_cleareance_tabraklari;
-		$hit_and_run = $tabrak_lari - $crime_cleareance_tabraklari;
+                // $hit_and_run = $item['tabrak_lari'] - $crime_cleareance_tabraklari;
+                $hit_and_run = $tabrak_lari - $crime_cleareance_tabraklari;
                 $total = $p21 + $sp3 + $sp2lid + $diversi;
                 $in_the_process = $jumlah_laka - $total - $hit_and_run;
                 $on_progress = $in_the_process + $hit_and_run;
@@ -930,6 +928,8 @@ class HomeController extends Controller
                         })
                     ];
                 });
+
+        // dd($recap2025CaseResolutions);
 
         return view('home', compact(
             'user',

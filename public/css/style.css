@@ -434,7 +434,7 @@ body {
     width: 100%;
     max-width: 240px;
     padding: 0;
-    transition: margin .25s ease-out;
+    transition: all .25s ease-out;
     font-size: 14px;
     overflow: auto;
     background: rgb(34, 37, 119);

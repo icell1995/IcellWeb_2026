@@ -14,7 +14,7 @@ class UpdateSpecialInfoCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'update:special_info';
+    protected $signature = 'update:specialinfo';
 
     /**
      * The console command description.
@@ -28,27 +28,24 @@ class UpdateSpecialInfoCommand extends Command
      */
     public function handle()
     {
-        $accidentWithoutSpecialInfos = DB::table('public.accidents')->select('accidents.id')->whereNull('special_info')->limit(100)->get();
+        $accidentWithoutSpecialInfos = DB::table('public.accidents')->select('accidents.id')->whereNull('special_info')->limit(100000)->get();
         $accidentWithoutSpecialInfosCount = $accidentWithoutSpecialInfos->count();
 
         $client = new client();
 
         $countSpecialInfo = 0;
 
-	$response = $client->request('GET', 'https://irsms.korlantas.polri.go.id/irsmsapi/api/view?accident_id=05dd7184-a042-4c62-b536-80ac48335105',
-                            [
-                                'headers' => [
-                                        'Content-Type' => 'application/json',
-                                        'Key' => '09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL'
-                                    ]
-                            ]);
-            
-            $result = json_decode($response->getBody()->getContents(), true);	
-	dd($result['result'][0]);
-
         foreach($accidentWithoutSpecialInfos as $accidentWithoutSpecialInfo){
-			
-            $response = $client->request('GET', 'https://irsms.korlantas.polri.go.id/irsmsapi/api/search?accident_id='.$accidentWithoutSpecialInfo->id,
+            $response = Http::get('https://irsms.korlantas.polri.go.id/irsmsapi/api/search?accident_id=' . $accidentWithoutSpecialInfo->id,  [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Key' => '09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL'
+                ]
+            ])->json();
+
+
+
+            $response = $client->request('GET', 'https://irsms.korlantas.polri.go.id/irsmsapi/api/search?accident_id=' . $accidentWithoutSpecialInfo->id,
                             [
                                 'headers' => [
                                         'Content-Type' => 'application/json',

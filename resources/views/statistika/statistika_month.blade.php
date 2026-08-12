@@ -32,7 +32,7 @@
                         <label for="polres" class="fw-semibold mb-1">Polres</label>
                         <select id="polres_id" name="polres_id"
                             class="form-select @error('polres_id') is-invalid @enderror">
-                            @if (Auth::user()->role_id == 1 || Auth::user()->role_id == 3)
+                            @if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
                                 <option value="-">Pilih Polres</option>
                             @endif
                             @foreach ($polres as $polress)

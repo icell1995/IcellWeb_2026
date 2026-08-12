@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Opcodes\LogViewer\Facades\LogViewer;
 use Illuminate\Pagination\Paginator;
+use Opcodes\LogViewer\Facades\LogViewer;
 use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,8 +29,8 @@ class AppServiceProvider extends ServiceProvider
         LogViewer::auth(function ($request) {
             $user = Auth::user();
 
-            if($user) {
-                if($user->role_id == 1) {
+            if ($user) {
+                if ($user->role_id == 1) {
                     return true;
                 }
             }

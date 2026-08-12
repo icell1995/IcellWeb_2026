@@ -258,7 +258,8 @@
                         data: null,
                         render: function (data, type, row, meta) {
                             // Calculate the iteration number
-                            var iteration = meta.row + 1;
+                            var pageInfo = $('#checkofficerDataHistories').DataTable().page.info();
+                            var iteration = meta.row + 1 + pageInfo.start;
                             return iteration;
                         }
                     },

@@ -504,7 +504,7 @@
                                     <span class="fw-bold">No SPDP</span>
                                     <input id="no_spdp" type="text"
                                     class="form-control"
-                                    value="{{ null }}" required autocomplete="no_spdp" autofocus readonly
+                                    value="{{ $no_spdp }}" required autocomplete="no_spdp" autofocus readonly
                                     placeholder="Silahkan Upload SPDP">
                                 </div>
                             </div>

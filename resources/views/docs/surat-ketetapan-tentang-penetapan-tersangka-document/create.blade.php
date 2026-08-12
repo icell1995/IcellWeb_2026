@@ -555,7 +555,7 @@
                                 </div>
                             </div>
 
-                            <div class="countryChildrenLocationSectionSuspect">
+                            <div class="countryChildrenLocationSectionSuspect" style="display:none;">
                                 <div class="input-group row mb-3 ms-0">
                                     <label class="fw-bold col-sm-3 col-form-label" for="provinceFieldSuspect">Provinsi<span class="text-danger fs-5">*</span>
                                     </label>
@@ -1291,7 +1291,33 @@
             $(document).on('change', '#countryFieldSuspect', function() {
                 var parentId = $(this).find(':selected').val();
                 var provinceId = $('#suspect').find(':selected').data('province-id');
-                getProvince(parentId, provinceId);
+                
+                // Jika Indonesia (C101), tampilkan section lokasi dan load provinsi
+                if (parentId == 'C101') {
+                    $('.countryChildrenLocationSectionSuspect').show();
+                    getProvince(parentId, provinceId);
+                } else {
+                    // Jika negara selain Indonesia, sembunyikan section lokasi dan reset nilai dropdown
+                    $('.countryChildrenLocationSectionSuspect').hide();
+                    
+                    // Reset nilai dropdown
+                    $('#provinceFieldSuspect').empty().append($('<option>', {
+                        value: '',
+                        text: '--Pilih Provinsi--'
+                    }));
+                    $('#regencyFieldSuspect').empty().append($('<option>', {
+                        value: '',
+                        text: '--Pilih Kabupaten/Kota--'
+                    }));
+                    $('#districtFieldSuspect').empty().append($('<option>', {
+                        value: '',
+                        text: '--Pilih Kecamatan--'
+                    }));
+                    $('#villageFieldSuspect').empty().append($('<option>', {
+                        value: '',
+                        text: '--Pilih Kelurahan/Desa--'
+                    }));
+                }
             });
 
             function getProvince(parentId, provinceId = null) {

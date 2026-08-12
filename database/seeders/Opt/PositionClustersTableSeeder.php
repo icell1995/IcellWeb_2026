@@ -21,6 +21,11 @@ class PositionClustersTableSeeder extends Seeder
         DB::beginTransaction();
         try{
             foreach ($positionClusters as $positionCluster) {
+                $properties = null;
+                if(isset($positionCluster['properties'])){
+                    $properties = $positionCluster['properties'];
+                }
+
                 PositionCluster::updateOrCreate(
                     [
                         'id' => $positionCluster['id'],
@@ -29,6 +34,7 @@ class PositionClustersTableSeeder extends Seeder
                         'id' => $positionCluster['id'],
                         'name' => $positionCluster['name'],
                         'is_can_signatory' => $positionCluster['is_can_signatory'],
+                        'properties' => $properties,
                     ]
                 );
             }
@@ -73,6 +79,9 @@ class PositionClustersTableSeeder extends Seeder
                 'id' => '6',
                 'name' => 'ADMIN SAT LANTAS POLRES',
                 'is_can_signatory' => false,
+                'properties' => [
+                    'is_can_entry_document' => true,
+                ],
             ],
             [
                 'id' => '7',
@@ -103,6 +112,9 @@ class PositionClustersTableSeeder extends Seeder
                 'id' => '12',
                 'name' => 'ADMIN DIT LANTAS POLDA',
                 'is_can_signatory' => false,
+                'properties' => [
+                    'is_can_entry_document' => true,
+                ],
             ],
             [
                 'id' => '13',

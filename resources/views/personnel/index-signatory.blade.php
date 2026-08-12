@@ -14,7 +14,7 @@
     @php
         $userRoleId = Auth::user()->role_id;
     @endphp
-    
+
     <div class="loaderbg" style="display:none"></div>
 
     <div class="box">
@@ -26,7 +26,7 @@
             <div class="d-flex justify-content-between">
                 <div class="col-3">
                     <select class="form-control select2" id="policeSearch" name="policeSearch">
-                            @if ($userRoleId == 1)
+                            @if (empty(Auth::user()->police_id))
                                 <option value="">Pilih Satker</option>
                                 @foreach ($polices as $police)
                                     @if ($police->class == 'DAERAH')
@@ -73,11 +73,11 @@
                             <th class="text-center">Username</th>
                             <th class="text-center">Pangkat</th>
                             <th class="text-center">Jabatan</th>
-                            @if($userRoleId == 1)
+                            @if(empty(Auth::user()->police_id))
                                 <th class="text-center">Role</th>
                             @endif
 
-                            @if($userRoleId == 1)
+                            @if(empty(Auth::user()->police_id))
                                 <th class="text-center">Satker</th>
                             @endif
 
@@ -118,13 +118,13 @@
                                                 {{'(PENANDATANGAN)'}}
                                             @endif
                                         </td>
-                                        @if($userRoleId == 1)
+                                        @if(empty(Auth::user()->police_id))
                                             <td class="text-center align-middle">
                                                 {{ $user->role->name ?? '-' }} {{ '(' . $user->role_id . ')'}}
                                             </td>
                                         @endif
 
-                                        @if($userRoleId == 1)
+                                        @if(empty(Auth::user()->police_id))
                                             <td class="text-center align-middle">
                                                 {{ $user->officer->police()->first()->full_name ?? '-' }}
 						 <br>
@@ -145,7 +145,7 @@
                                                     $lastLogin = ($lastLogin) ? date('d M Y H:i:s', strtotime($lastLogin)) : null;
 
                                                     $isPasswordChanged = $user->is_password_changed ?? false;
-                                                  
+
                                                     $lastUpdate = (!empty($user->updated_at)) ? $user->updated_at : null;
                                                     $lastUpdate = ($lastUpdate) ? date('d M Y H:i:s', strtotime($lastUpdate)) : null;
                                                     $lastUpdateBy = $user->updatedByUser ?? null;
@@ -167,7 +167,7 @@
                                                 $positionClusterId = $user->officer->position->position_cluster_id ?? '';
                                             @endphp
 
-                                            @if (($positionClusterId != '6' && $positionClusterId != '12') || $userRoleId == 1)
+                                            @if (($positionClusterId != '6' && $positionClusterId != '12') || empty(Auth::user()->police_id))
                                                 <a href="{{ route('personnel.show', ['id' => $user->id, 'policeId' => $user->police_id]) }}" class="btn btn-warning m-1">
                                                     <i class="bi bi-binoculars"></i> Lihat
                                                 </a>
@@ -328,7 +328,7 @@
 
                                 iteration++;
                             });
-                            
+
                             //close modal
                             $('#checkOfficerModal').modal('hide');
                             $('.modal-backdrop').remove();

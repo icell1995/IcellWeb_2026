@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>DASHBOARD ICELL</title>
-    <link rel="shortcut icon" href="{{ asset('images/logo2x.png') }}" />
+    <link rel="shortcut icon" href="{{ asset('images/logo1x.png') }}" />
 
     {{-- Bootsrap Icons --}}
     <link rel="stylesheet" href="{{ asset('css/bootstrap-icons.css') }}">
@@ -52,7 +52,7 @@
                     <h3 class="fw-9 m-0">DASHBOARD SYSTEM ICELL</h3>
                     <h5 class="fw-7 m-0">Informasi Cepat Penyidikan Lalu Lintas</h5>
                 </div>
-                <img class="w-5" src="{{ asset('images/logo2x.png') }}">
+                <img class="w-5" src="{{ asset('images/logo2.png') }}">
             </nav>
         </header>
 

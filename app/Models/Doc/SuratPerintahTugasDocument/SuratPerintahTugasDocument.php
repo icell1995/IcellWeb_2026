@@ -6,21 +6,24 @@ use App\Observers\UserActionObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
+
+use App\Models\ReturnDocuments;
 
 class SuratPerintahTugasDocument extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table='doc.surat_perintah_tugas_documents';
+    protected $table = 'doc.surat_perintah_tugas_documents';
 
     protected $primaryKey = 'id';
     protected $keyType = 'uuid';
 
     protected $guarded = [];
 
-     // cast
+    // cast
     protected $casts = [
         'id' => 'string',
         'related_property' => 'json',
@@ -69,7 +72,8 @@ class SuratPerintahTugasDocument extends Model
         });
     }
 
-    public function scopeWithRelated($query){
+    public function scopeWithRelated($query)
+    {
         return $query->with([
             'accident',
             'documentCategory',
@@ -81,7 +85,8 @@ class SuratPerintahTugasDocument extends Model
         ]);
     }
 
-    public function documentCategory(){
+    public function documentCategory()
+    {
         return $this->belongsTo('App\Models\Lib\DocumentCategory', 'document_category_id', 'id');
     }
 
@@ -104,7 +109,7 @@ class SuratPerintahTugasDocument extends Model
     {
         return $this->hasOne('App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocumentAttachment', 'surat_perintah_tugas_document_id', 'id');
     }
-  
+
     public function attachment()
     {
         return $this->hasOne('App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocumentAttachment', 'surat_perintah_tugas_document_id', 'id');

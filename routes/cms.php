@@ -4,25 +4,24 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\CMS\HomeController;
+use App\Http\Controllers\CMS\MaintenanceModeController;
 use App\Http\Controllers\CMS\DB\PostgresqlController;
 use App\Http\Controllers\CMS\Libs\PositionController;
 use App\Http\Controllers\CMS\CheckOfficerDataController;
 use App\Http\Controllers\CMS\DashboardValidatorController;
 use App\Http\Controllers\CMS\DashboardValidatorIrsmsIcellController;
 use App\Http\Controllers\CMS\Libs\PositionClusterController;
-// use App\Http\Controllers\CMS\EventGallery\EventGalleryController;
+use App\Http\Controllers\CMS\EventGallery\EventGalleryController;
 use App\Http\Controllers\CMS\CaseDocumentValidationReportController;
 use App\Http\Controllers\CMS\CheckOfficerDigitalSignatureController;
 use App\Http\Controllers\CMS\CaseDocumentValidation\CaseDocumentValidationController;
 use App\Http\Controllers\CMS\CaseResolutionsValidation\CaseResolutionsAprrovalController as SelraCtrl;
 use App\Http\Controllers\CMS\CaseResolutionValidationReportController;
-use App\Http\Controllers\CMS\TicketingController;
 use App\Http\Controllers\CMS\ReturnedDocuments\DocumentReturnController;
+use App\Http\Controllers\CMS\TicketingController;
+use PhpOffice\PhpWord\Writer\Word2007\Part\Document;
 use App\Http\Controllers\CMS\RequestDataController;
 use App\Http\Controllers\CMS\IntegrationMonitorController;
-use App\Http\Controllers\CMS\MaintenanceModeController;
-use App\Http\Controllers\CMS\IndeksGakkumController;
-
 
 // Upload Surat Ketetapan - Hanya show (GET)
 Route::get('/upload-surat-ketetapan/{id}', [PdfController::class, 'show']);
@@ -68,19 +67,19 @@ Route::get('/validation-dashboard-irsms-icell/irsms-validator-stats', [Dashboard
 Route::get('/validation-dashboard-irsms-icell/icell-validator-stats', [DashboardValidatorIrsmsIcellController::class, 'getIcellValidatorStats'])
     ->name('cms.validation-dashboard-irsms-icell.icell-validator-stats');
 
-Route::prefix('/check-officer-data')->group(function(){
+Route::prefix('/check-officer-data')->group(function () {
     Route::get('/', [CheckOfficerDataController::class, 'index'])->name('cms.check-officer-data.index');
     Route::post('/api/officer-data', [CheckOfficerDataController::class, 'getOfficerData'])->name('cms.check-officer-data.api.officer-data');
 });
 
-Route::prefix('/check-officer-digital-signature')->group(function(){
+Route::prefix('/check-officer-digital-signature')->group(function () {
     Route::get('/', [CheckOfficerDigitalSignatureController::class, 'index'])->name('cms.check-officer-digital-signature.index');
     Route::post('/api/test', [CheckOfficerDigitalSignatureController::class, 'test'])->name('cms.check-officer-digital-signature.api.test');
 });
 
-Route::prefix('/db')->group(function(){
-    Route::prefix('/postgresql')->group(function(){
-        Route::prefix('/query')->group(function(){
+Route::prefix('/db')->group(function () {
+    Route::prefix('/postgresql')->group(function () {
+        Route::prefix('/query')->group(function () {
             Route::get('/', [PostgresqlController::class, 'queryIndex'])->name('cms.db.postgresql.query.index');
             Route::post('/', [PostgresqlController::class, 'queryExecute'])->name('cms.db.postgresql.query.execute');
 
@@ -90,21 +89,21 @@ Route::prefix('/db')->group(function(){
     });
 });
 
-Route::prefix('/case-document-validation-report')->group(function(){
+Route::prefix('/case-document-validation-report')->group(function () {
     Route::get('/', [CaseDocumentValidationReportController::class, 'index'])->name('cms.case-document-validation-report.index');
 });
 
-Route::prefix('/case-resolution-validation-report')->group(function(){
+Route::prefix('/case-resolution-validation-report')->group(function () {
     Route::get('/', [CaseResolutionValidationReportController::class, 'index'])->name('cms.case-resolution-validation-report.index');
 });
 
-Route::prefix('/case-document-validation')->group(function(){
+Route::prefix('/case-document-validation')->group(function () {
     Route::get('/', [CaseDocumentValidationController::class, 'index'])->name('cms.case-document-validation.index');
 
     Route::get('api/documents', [CaseDocumentValidationController::class, 'getDocuments'])->name('cms.case-document-validation.api.documents');
-    
-    Route::prefix('/module')->group(function(){
-        Route::prefix('/surat-perintah-penyelidikan-document')->group(function(){
+
+    Route::prefix('/module')->group(function () {
+        Route::prefix('/surat-perintah-penyelidikan-document')->group(function () {
             Route::get('/{id}/validation', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahPenyelidikanDocumentValidationController::class, 'validation'])
                 ->name('cms.case-document-validation.module.surat-perintah-penyelidikan-document.validation');
             Route::post('/{id}/validation/approve', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahPenyelidikanDocumentValidationController::class, 'approveValidation'])
@@ -112,7 +111,7 @@ Route::prefix('/case-document-validation')->group(function(){
             Route::post('/{id}/validation/reject', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahPenyelidikanDocumentValidationController::class, 'rejectValidation'])
                 ->name('cms.case-document-validation.module.surat-perintah-penyelidikan-document.validation.reject');
         });
-        Route::prefix('/surat-perintah-penyidikan-document')->group(function(){
+        Route::prefix('/surat-perintah-penyidikan-document')->group(function () {
             Route::get('/{id}/validation', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahPenyidikanDocumentValidationController::class, 'validation'])
                 ->name('cms.case-document-validation.module.surat-perintah-penyidikan-document.validation');
             Route::post('/{id}/validation/approve', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahPenyidikanDocumentValidationController::class, 'approveValidation'])
@@ -120,7 +119,7 @@ Route::prefix('/case-document-validation')->group(function(){
             Route::post('/{id}/validation/reject', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahPenyidikanDocumentValidationController::class, 'rejectValidation'])
                 ->name('cms.case-document-validation.module.surat-perintah-penyidikan-document.validation.reject');
         });
-        Route::prefix('/surat-perintah-tugas-document')->group(function(){
+        Route::prefix('/surat-perintah-tugas-document')->group(function () {
             Route::get('/{id}/validation', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahTugasDocumentValidationController::class, 'validation'])
                 ->name('cms.case-document-validation.module.surat-perintah-tugas-document.validation');
             Route::post('/{id}/validation/approve', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahTugasDocumentValidationController::class, 'approveValidation'])
@@ -128,7 +127,7 @@ Route::prefix('/case-document-validation')->group(function(){
             Route::post('/{id}/validation/reject', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPerintahTugasDocumentValidationController::class, 'rejectValidation'])
                 ->name('cms.case-document-validation.module.surat-perintah-tugas-document.validation.reject');
         });
-        Route::prefix('/laporan-hasil-gelar-perkara-document')->group(function(){
+        Route::prefix('/laporan-hasil-gelar-perkara-document')->group(function () {
             Route::get('/{id}/validation', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\LaporanHasilGelarPerkaraDocumentValidationController::class, 'validation'])
                 ->name('cms.case-document-validation.module.laporan-hasil-gelar-perkara-document.validation');
             Route::post('/{id}/validation/approve', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\LaporanHasilGelarPerkaraDocumentValidationController::class, 'approveValidation'])
@@ -136,7 +135,7 @@ Route::prefix('/case-document-validation')->group(function(){
             Route::post('/{id}/validation/reject', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\LaporanHasilGelarPerkaraDocumentValidationController::class, 'rejectValidation'])
                 ->name('cms.case-document-validation.module.laporan-hasil-gelar-perkara-document.validation.reject');
         });
-        Route::prefix('/surat-ketetapan-tentang-penetapan-tersangka-document')->group(function(){
+        Route::prefix('/surat-ketetapan-tentang-penetapan-tersangka-document')->group(function () {
             Route::get('/{id}/validation', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratKetetapanTentangPenetapanTersangkaDocumentValidationController::class, 'validation'])
                 ->name('cms.case-document-validation.module.surat-ketetapan-tentang-penetapan-tersangka-document.validation');
             Route::post('/{id}/validation/approve', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratKetetapanTentangPenetapanTersangkaDocumentValidationController::class, 'approveValidation'])
@@ -144,7 +143,7 @@ Route::prefix('/case-document-validation')->group(function(){
             Route::post('/{id}/validation/reject', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratKetetapanTentangPenetapanTersangkaDocumentValidationController::class, 'rejectValidation'])
                 ->name('cms.case-document-validation.module.surat-ketetapan-tentang-penetapan-tersangka-document.validation.reject');
         });
-        Route::prefix('/surat-pemberitahuan-dimulainya-penyidikan-document')->group(function(){
+        Route::prefix('/surat-pemberitahuan-dimulainya-penyidikan-document')->group(function () {
             Route::get('/{id}/validation', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController::class, 'validation'])
                 ->name('cms.case-document-validation.module.surat-pemberitahuan-dimulainya-penyidikan-document.validation');
             Route::post('/{id}/validation/approve', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController::class, 'approveValidation'])
@@ -161,23 +160,22 @@ Route::prefix('/case-resolutions-validations')
     ->name('cms.case-resolutions-validations.')
     ->group(function () {
 
-    // Index
-    Route::get('/', [SelraCtrl::class, 'index'])->name('index');
+        // Index
+        Route::get('/', [SelraCtrl::class, 'index'])->name('index');
 
-    // API duluan (hindari ketabrak {id})
-    Route::get('api/resolutions', [SelraCtrl::class, 'apiResolutions'])->name('api.resolutions');
-    Route::get('api/table',       [SelraCtrl::class, 'dataTable'])->name('api.table');
+        // API duluan (hindari ketabrak {id})
+        Route::get('api/resolutions', [SelraCtrl::class, 'apiResolutions'])->name('api.resolutions');
+        Route::get('api/table',       [SelraCtrl::class, 'dataTable'])->name('api.table');
 
+        // Show + actions
+        // Jika ID AccidentResolution bertipe BIGINT:
+        Route::get('{id}',          [SelraCtrl::class, 'show'])->whereNumber('id')->name('show');
+        Route::put('{id}/approve',  [SelraCtrl::class, 'approve'])->whereNumber('id')->name('approve');
+        Route::put('{id}/reject',   [SelraCtrl::class, 'reject'])->whereNumber('id')->name('reject');
+    });
 
-    // Show + actions
-    // Jika ID AccidentResolution bertipe BIGINT:
-    Route::get('{id}',          [SelraCtrl::class, 'show'])->whereNumber('id')->name('show');
-    Route::put('{id}/approve',  [SelraCtrl::class, 'approve'])->whereNumber('id')->name('approve');
-    Route::put('{id}/reject',   [SelraCtrl::class, 'reject'])->whereNumber('id')->name('reject');
-});
-
-Route::prefix('/libs')->group(function(){
-    Route::prefix('/position')->group(function(){
+Route::prefix('/libs')->group(function () {
+    Route::prefix('/position')->group(function () {
         Route::get('/', [PositionController::class, 'index'])->name('cms.libs.position.index');
         Route::get('/create', [PositionController::class, 'create'])->name('cms.libs.position.create');
         Route::post('/create', [PositionController::class, 'store'])->name('cms.libs.position.store');
@@ -185,8 +183,8 @@ Route::prefix('/libs')->group(function(){
         Route::put('/{id}/edit', [PositionController::class, 'update'])->name('cms.libs.position.update');
         Route::delete('/{id}/delete', [PositionController::class, 'delete'])->name('cms.libs.position.delete');
     });
-   
-    Route::prefix('/position-cluster')->group(function(){
+
+    Route::prefix('/position-cluster')->group(function () {
         Route::get('/', [PositionClusterController::class, 'index'])->name('cms.libs.position-cluster.index');
         Route::get('/create', [PositionClusterController::class, 'create'])->name('cms.libs.position-cluster.create');
         Route::post('/create', [PositionClusterController::class, 'store'])->name('cms.libs.position-cluster.store');
@@ -196,23 +194,23 @@ Route::prefix('/libs')->group(function(){
     });
 });
 
-// Route::prefix('/event-gallery')->group(function(){
-//     Route::get('/', [EventGalleryController::class, 'index'])->name('cms.event-gallery.index');
-//     Route::get('/{id}/show', [EventGalleryController::class, 'show'])->name('cms.event-gallery.show');
-//     Route::get('/create', [EventGalleryController::class, 'create'])->name('cms.event-gallery.create');
-//     Route::post('/create', [EventGalleryController::class, 'store'])->name('cms.event-gallery.store');
-//     Route::get('/{id}/edit', [EventGalleryController::class, 'edit'])->name('cms.event-gallery.edit');
-//     Route::put('/{id}/edit', [EventGalleryController::class, 'update'])->name('cms.event-gallery.update');
-//     Route::delete('/{id}/delete', [EventGalleryController::class, 'delete'])->name('cms.event-gallery.delete');
-// });
+Route::prefix('/event-gallery')->group(function () {
+    Route::get('/', [EventGalleryController::class, 'index'])->name('cms.event-gallery.index');
+    Route::get('/{id}/show', [EventGalleryController::class, 'show'])->name('cms.event-gallery.show');
+    Route::get('/create', [EventGalleryController::class, 'create'])->name('cms.event-gallery.create');
+    Route::post('/create', [EventGalleryController::class, 'store'])->name('cms.event-gallery.store');
+    Route::get('/{id}/edit', [EventGalleryController::class, 'edit'])->name('cms.event-gallery.edit');
+    Route::put('/{id}/edit', [EventGalleryController::class, 'update'])->name('cms.event-gallery.update');
+    Route::delete('/{id}/delete', [EventGalleryController::class, 'delete'])->name('cms.event-gallery.delete');
+});
 
 // Tambahkan di dalam group validation-dashboard-irsms-icell
 Route::get('/validation-dashboard-irsms-icell/pending-selra', [
-    \App\Http\Controllers\CMS\DashboardValidatorIrsmsIcellController::class, 
+    \App\Http\Controllers\CMS\DashboardValidatorIrsmsIcellController::class,
     'getPendingSelraValidations'
 ])->name('cms.validation-dashboard-irsms-icell.pending-selra');
 
-// Ticketing routes 
+// Ticketing routes
 Route::prefix('ticketing')->name('ticketing.')->group(function () {
     Route::get('/',        [TicketingController::class, 'index'])->name('index');
 
@@ -264,11 +262,6 @@ Route::prefix('/maintenance-mode')->group(function () {
     Route::post('/activate', [MaintenanceModeController::class, 'activate'])->name('cms.maintenance-mode.activate');
     Route::post('/deactivate', [MaintenanceModeController::class, 'deactivate'])->name('cms.maintenance-mode.deactivate');
     Route::get('/status', [MaintenanceModeController::class, 'status'])->name('cms.maintenance-mode.status');
-});
-
-// Indeks Gakkum routes
-Route::prefix('/indeks-gakkum')->group(function () {
-    Route::get('/', [IndeksGakkumController::class, 'index'])->name('cms.indeks-gakkum.index');
 });
 
 Route::prefix('/document-return')

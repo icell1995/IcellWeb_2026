@@ -126,7 +126,7 @@
                         <div class="col-12 mb-2">
                             <div class="form-group row">
                                 <label
-                                    class="col-lg-4 col-md-4 col-sm-12 col-12 fw-semibold d-flex align-items-center">Jenis
+                                    class="col-lg-4 col-md-4 col-sm-12 col-12 fw-semibold d-flex align-items-center">Tipe
                                     Kendaraan</label>
                                 <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                     <input id="vehicle_type_id" name="vehicle_type_id" type="text"
@@ -138,7 +138,7 @@
                         <div class="col-12 mb-2">
                             <div class="form-group row">
                                 <label
-                                    class="col-lg-4 col-md-4 col-sm-12 col-12 fw-semibold d-flex align-items-center">Peruntukan 
+                                    class="col-lg-4 col-md-4 col-sm-12 col-12 fw-semibold d-flex align-items-center">Desain 
                                     Kendaraan</label>
                                 <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                     <input id="vehicle_design_id" name="vehicle_design_id" type="text"

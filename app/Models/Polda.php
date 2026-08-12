@@ -15,11 +15,16 @@ class Polda extends Model
     protected $keyType = 'string';
 
     protected $guarded = [];
-    
-    // cast 
+
+    // cast
     protected $casts = [
         'id' => 'string',
     ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'polda_id', 'id');
+    }
 
     public function polres() {
         return $this->hasMany('App\Models\Polres', 'polda_id')->where('state','<>','0')->orderBy('sort');

@@ -4,18 +4,21 @@ namespace App\Http\Controllers\CMS\ReturnedDocuments;
 
 use App\Http\Controllers\Controller;
 use App\Models\Accident;
+use App\Models\Polda;
 use App\Models\ReturnDocuments;
+use App\Traits\AccidentQueryTraits;
+use App\Traits\DocumentCategoryTraits;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-use App\Traits\DocumentCategoryTraits;
 
 
 class DocumentReturnController extends Controller
 {
     use DocumentCategoryTraits;
+    use AccidentQueryTraits;
 
     public function __construct()
     {
@@ -36,7 +39,7 @@ class DocumentReturnController extends Controller
         $search = $validate['no_lp'];
 
         $query = Accident::from('accidents as a')
-            ->leftJoin('polres', 'a.polres_id', '=', 'polres.id')     
+            ->leftJoin('polres', 'a.polres_id', '=', 'polres.id')     // leftJoin lebih aman kalau polres/polres nullable
             ->leftJoin('polda', 'polres.polda_id', '=', 'polda.id')
             ->leftJoin('ref', 'a.selra_flag', '=', 'ref.id');
 

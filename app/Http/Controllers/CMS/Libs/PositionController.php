@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Yajra\DataTables\Facades\DataTables;
 
 use App\Models\Lib\Position;
 use App\Models\Lib\Police;
@@ -15,12 +16,15 @@ class PositionController extends Controller
 {
     public function index()
     {
-        $positions = Position::withRelated()
-            ->orderBy('police_id')
-            ->get();
+        if (request()->ajax()) {
+            $positions = Position::withRelated()
+                ->orderBy('police_id')
+                ->get();
+   
+            return DataTables::of($positions)->make();
+        }
 
         $viewData = [
-            'positions' => $positions,
         ];
 
         return view('cms.libs.position.index', $viewData);
@@ -241,9 +245,11 @@ class PositionController extends Controller
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();
-            return redirect()->route('cms.libs.position.index')->with('error', 'Data gagal dihapus.');
+            // return redirect()->route('cms.libs.position.index')->with('error', 'Data gagal dihapus.');
+            return response()->json(false, 500);
         }
 
-        return redirect()->route('cms.libs.position.index')->with('success', 'Data berhasil dihapus.');
+        // return redirect()->route('cms.libs.position.index')->with('success', 'Data berhasil dihapus.');
+        return response()->json(true);
     }
 }

@@ -60,7 +60,6 @@ class DashboardValidatorController extends Controller
 
         $pendingValidationToday = DB::table('doc.surat_pemberitahuan_dimulainya_penyidikan_documents')
             ->where('status_id', '12')
-            // ->whereDate('created_at', Carbon::today())
             ->distinct('accident_id') // Count distinct accidents that are pending today
             ->count('accident_id'); // Count distinct accidents that are pending today
 

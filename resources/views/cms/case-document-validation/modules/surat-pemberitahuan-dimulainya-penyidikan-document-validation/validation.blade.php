@@ -49,7 +49,6 @@
                     </div>
                 </div>
             @endif
-
         </div>
 
         <div class="box-body">
@@ -504,8 +503,6 @@
                     @csrf
                     @method('POST')
                     <input type="hidden" name="isApproved" id="isApproved" value="true">
-                    {{-- Status saat halaman dibuka; dipakai controller untuk cek optimistic locking --}}
-                    <input type="hidden" name="currentStatusId" value="{{ $suratPemberitahuanDimulainyaPenyidikanDocument->status_id }}">
                     
                     <div class="form-group">
                         <div class="form-check">
@@ -528,7 +525,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary suratPemberitahuanDimulainyaPenyidikanApproveValidationFormSubmit" id="suratPemberitahuanDimulainyaPenyidikanApproveValidationFormSubmit">Validasi</button>
+                    <button type="submit" class="btn btn-primary" id="suratPemberitahuanDimulainyaPenyidikanApproveValidationFormSubmit">Validasi</button>
                 </div>
             </form>
         </div>
@@ -584,14 +581,6 @@
 <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
 <script type="text/javascript">
-    @if(session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal',
-            text: "{{ session('error') }}"
-        });
-    @endif
-
     $(document).ready(function() {
         setInterval(function() {
             $('#attentionBox').toggleClass('alert-danger alert-warning');
@@ -714,17 +703,24 @@
     $(document).ready(function() {
         $('.suratPemberitahuanDimulainyaPenyidikanApproveValidationFormSubmit').on('click', function(e) {
             e.preventDefault();
-            var $btn = $(this);
             var form = $('#approveValidationForm');
-
-            // Mencegah double klik
-            if ($btn.prop('disabled')) return;
-
             $('#isApproved').val('true');
 
-            // Langsung submit tanpa konfirmasi SweetAlert
-            $btn.prop('disabled', true).text('Memproses...');
-            form.submit();
+            //sweetalert confirm
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda akan menyetujui dokumen ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Setuju',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                console.log(result);
+                if (result.value) {
+                    form.submit();
+                }
+            });
         });
 
         $('#rejectStatusOption').on('change', function(e) {    

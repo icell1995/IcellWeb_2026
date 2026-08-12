@@ -56,14 +56,14 @@ class Suspect extends Model
                 'IMPORT' => 'IMPORT'
             ],
         ];
-    
+
         if ($columnKey !== null && $enumPropKey !== null) {
             if (isset($enumOptions[$columnKey]) && isset($enumOptions[$columnKey][$enumPropKey])) {
                 return $enumOptions[$columnKey][$enumPropKey];
             }
             return null;
         }
-    
+
         return null;
     }
 
@@ -86,7 +86,7 @@ class Suspect extends Model
             'village',
             'suratKetetapanTentangPenetapanTersangkaDocument',
         ]);
-    } 
+    }
 
     public function laporanHasilGelarPerkaraDocuments()
     {
@@ -96,6 +96,16 @@ class Suspect extends Model
     public function suratKetetapanTentangPenetapanTersangkaDocument()
     {
         return $this->belongsToMany('App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument', 'pivot.surat_ketetapan_tentang_penetapan_tersangka_document_suspect', 'suspect_id', 'surat_ketetapan_tentang_penetapan_tersangka_document_id');
+    }
+
+    public function suratKetetapanPenghentianPenyidikanDocuments()
+    {
+        return $this->belongsToMany('App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument', 'pivot.surat_ketetapan_penghentian_penyidikan_document_suspect', 'suspect_id', 'surat_ketetapan_penghentian_penyidikan_document_id');
+    }
+
+    public function suratPerintahPenahananDocuments()
+    {
+        return $this->belongsToMany('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument', 'pivot.surat_perintah_penahanan_document_suspect', 'suspect_id', 'surat_perintah_penahanan_document_id');
     }
 
     public function vehicleAssociatedSuspect()
@@ -125,15 +135,15 @@ class Suspect extends Model
     public function ethnic(){
         return $this->belongsTo('App\Models\Lib\Ethnic', 'ethnic_id', 'id');
     }
-   
+
     public function job(){
         return $this->belongsTo('App\Models\Lib\Job', 'job_id', 'id');
     }
-    
+
     public function religion(){
         return $this->belongsTo('App\Models\Lib\Religion', 'religion_id', 'id');
     }
- 
+
     public function education(){
         return $this->belongsTo('App\Models\Lib\Education', 'education_id', 'id');
     }

@@ -2,12 +2,14 @@
 
 namespace App\Services\DivtikService;
 
-use App\Mail\OTPMail;
+use App\Mail\OtpMail;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+
+use function Laravel\Prompts\error;
 
 class DivtikOTPService
 {
@@ -39,7 +41,7 @@ class DivtikOTPService
 
     public function sendOtpToEmail(User $user, $customSubject = null)
     {
-	if(empty($user->email)){
+        if (empty($user->email)) {
             throw new \Exception('Email Pengguna Tidak Terdaftar');
         }
 
@@ -64,7 +66,6 @@ class DivtikOTPService
                 'error' => $e->getMessage(),
                 'request' => request()->all() // Opsional: log data request
             ]);
-
 
             if($statusCode === 0){
                 return 'email_error';

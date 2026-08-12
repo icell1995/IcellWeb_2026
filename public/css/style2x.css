@@ -279,7 +279,7 @@ body {
 .profile-card {
     display: grid;
     align-items: center !important;
-    height: 535px;
+    height: 550px;
 }
 
 .profile-card img{
@@ -297,7 +297,7 @@ body {
     width: 50px;
     height: 50px;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    background: radial-gradient(circle, rgba(255,255,255,1) 20%, rgba(209,209,224,1) 95%);
+    background: radial-gradient(circle, rgba(209,209,224,1) 20%, rgba(34,37,119,0.46) 100%);
     /* border: 2px solid rgba(20, 25, 152, 0.662); */
     border-radius: 50%;
     align-content: space-around;
@@ -421,13 +421,6 @@ body {
     height: 40px;
     padding: 0 5px
 }
-
-.img-header-icell {
-    width: 85px;
-    height: 40px;
-    padding: 0 5px
-}
-
 
 .img-profile {
     width: 50px;
@@ -839,14 +832,14 @@ input.input-form:selected {
 }
 
 .individu-column {
-    /* display: flex !important; */
-    /* flex-wrap: wrap !important; */
+    display: flex !important;
+    flex-direction: column !important;
     padding: 1rem 0 !important;
-    /* border-bottom: 4px solid rgb(34, 37, 119) !important; */
+    border-bottom: 4px solid rgb(34, 37, 119) !important;
 }
 
 .label-table {
-    background-color: rgb(56 58 132);
+    background-color: rgb(89, 92, 153);
     font-weight: bold !important;
     padding: 7px 0 !important;
     color: rgb(255, 255, 255) !important;
@@ -860,14 +853,14 @@ input.input-form:selected {
 }
 
 .box-item {
-    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(209,209,224,1) 100%);
+    background-color: rgb(172, 173, 204);
     font-weight: bold !important;
-    padding: 5px 10px !important;
+    padding: 10px 15px !important;
     border-radius: 10px !important;
     display: flex !important;
     justify-content: center !important;
-    margin: 5px 10px !important;
-    width: 60px !important;
+    margin: 10px 15px !important;
+    width: 67px !important;
 }
 
 .box-label {
@@ -875,10 +868,6 @@ input.input-form:selected {
 }
 
 @media (max-width: 1024px) {
-    .box-item {
-        width: 45px !important;
-    }
-
     .main-content {
         /* height: calc(100vh - 94px); */
         left: 0;

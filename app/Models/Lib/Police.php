@@ -70,4 +70,9 @@ class Police extends Model
     {
         return $this->belongsToMany(Prosecutor::class, 'pivot.police_prosecutor', 'police_id', 'prosecutor_id')->withTimestamps();
     }
+
+    public function accidents()
+    {
+        return $this->hasMany('App\Models\Accident', 'police_id', 'id');
+    }
 }

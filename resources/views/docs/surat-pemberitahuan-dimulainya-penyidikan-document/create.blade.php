@@ -2,7 +2,6 @@
     $_title = 'Surat Pemberitahuan Dimulainya Penyidikan (SPDP)';
 @endphp
 
-
 @extends('layouts.app')
 
 @push('style')
@@ -59,7 +58,7 @@
                 method="POST" enctype="multipart/form-data" id="suratPemberitahuanDimulainyaPenyidikanForm">
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
-		<input type="hidden" name="specialInfo" id="specialInfo" value="{{ $accident->special_info }}">
+                <input type="hidden" name="specialInfo" id="specialInfo" value="{{ $accident->special_info }}">
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="accidentNumber">Nomor LP</label>
@@ -187,7 +186,7 @@
                 </div>
 
                 <div id="suspectExistsSection">
-                     <div class="alert alert-success">
+                    <div class="alert alert-success">
                         <div class="text-center">
                             <b>
                                 PASTIKAN 
@@ -230,7 +229,7 @@
                 </div>
 
                 <div id="suspectNotExistsSection" style="display:none;">
-		    @if($accident->special_info != 'TABRAK_LARI')
+                    @if($accident->special_info != 'TABRAK_LARI')
                         <div class="alert alert-success">
                             <div class="text-center">
                                 <b>
@@ -243,7 +242,6 @@
                             </div>
                         </div>
                     @endif
-
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="informant">Pelapor</label>
                         <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
@@ -389,9 +387,9 @@
 
                 <hr>
 
-		@if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-		        @include('docs.components.form.checkbox.is-legacy')
-		@endif
+                @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
+		            @include('docs.components.form.checkbox.is-legacy')
+                @endif
 
                 <div class="text-center">
                     <button type="submit" class="btn btn-dark-blue"
@@ -418,9 +416,9 @@
     <script src="{{ asset('libs/bootstrap-duallistbox/jquery.bootstrap-duallistbox.js') }}"></script>
     <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
-@if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-    @include('docs.components.form.checkbox.is-legacy-js')
-@endif
+    @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
+        @include('docs.components.form.checkbox.is-legacy-js')
+    @endif
 
     <script type="text/javascript">
         $(document).ready(function() {
@@ -491,7 +489,7 @@
                         $('#carbonCopyCourt').val('Ketua ' + modifiedCourtName);
                     } else {
                         var inputGroup = '<div class="input-group mb-2">' +
-                            '<input type="text" class="form-control" id="carbonCopyCourt" readonly name="carbonCopies[]" value="Ketua ' +
+                            '<input type="text" class="form-control" id="carbonCopyCourt" name="carbonCopies[]" readonly value="Ketua ' +
                             modifiedCourtName + '">' +
                             '<div class="input-group-append">' +
                             '</div>' +

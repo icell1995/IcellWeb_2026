@@ -4,6 +4,7 @@ namespace App\Console\Commands\Production;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Event\Runtime\PHP;
 
 class RenewESignatureAPIToken extends Command
 {
@@ -44,7 +45,7 @@ class RenewESignatureAPIToken extends Command
 
             if(!empty($result)){
                 $data = $result['data'];
-		echo $data . PHP_EOL;
+                echo $data . PHP_EOL;
 
                 //put to env
                 $key = 'ESIGNATURE_API_TOKEN';

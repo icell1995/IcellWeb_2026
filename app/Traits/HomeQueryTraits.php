@@ -140,7 +140,7 @@ trait HomeQueryTraits
                 DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0108' THEN 1 ELSE 0 END) as sp2lid"),
                 DB::raw("SUM(CASE WHEN accidents.selra_flag = 'S0104' THEN 1 ELSE 0 END) as pomtni"),
                 DB::raw("SUM(CASE WHEN accidents.selra_flag IN ('S0101', 'S0102', 'S0103', 'S0104', 'S0108') AND accidents.special_info = 'TABRAK_LARI' THEN 1 ELSE 0 END) as crime_clearance_tabraklari"),
-		DB::raw("SUM(CASE WHEN accidents.special_info = 'TABRAK_LARI' THEN 1 ELSE 0 END) as tabrak_lari"),
+                DB::raw("SUM(CASE WHEN accidents.special_info = 'TABRAK_LARI' THEN 1 ELSE 0 END) as tabrak_lari"),
 
                 // Data accident_resolutions - SIMPLE tanpa binding rumit
                 DB::raw("SUM(CASE WHEN ar_new.accident_id IS NOT NULL THEN 1 ELSE 0 END) as new_entry_crime_clearance"),

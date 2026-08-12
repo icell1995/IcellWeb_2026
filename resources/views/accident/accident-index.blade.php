@@ -35,10 +35,10 @@
                     <span id="get_polda" style="">{{ Auth::user()->polda_id }}</span> --}}
                         <select id="polda_id" name="polda_id" class="form-select @error('polda_id') is-invalid @enderror">
                             @if (Auth::user()->role_id == 1)
-                                <option value="-" selected>Semua Polda</option>
+                                <option value="-" {{ request('polda_id') == '-' ? 'selected' : '' }}>Semua Polda</option>
                             @endif
                             @foreach ($poldas as $polda)
-                                <option value="{{ $polda->id }}" {{ old('polda_id') == $polda->id ? 'selected' : '' }}>
+                                <option value="{{ $polda->id }}" {{ request('polda_id', Auth::user()->polda_id) == $polda->id ? 'selected' : '' }}>
                                     {{ $polda->name }}
                                 </option>
                             @endforeach
@@ -49,36 +49,32 @@
                         <select id="polres_id" name="polres_id"
                             class="form-select @error('polres_id') is-invalid @enderror">
                             @if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
-                                <option value="-">Pilih Polres</option>
+                                <option value="-" {{ request('polres_id') == '-' ? 'selected' : '' }}>Pilih Polres</option>
                             @endif
                             @foreach ($polress as $polres)
-                                <option value="{{ $polres->id }}" {{ old('polres_id') == $polres->id ? 'selected' : '' }}>
+                                <option value="{{ $polres->id }}" {{ request('polres_id', Auth::user()->polres_id) == $polres->id ? 'selected' : '' }}>
                                     {{ $polres->name }}
                                 </option>
-                                {{-- <option value="{{ str_pad((string) $polres->id, 4, '0', STR_PAD_LEFT) }}"
-                                    {{ old('polres_id') == str_pad((string) $polres->id, 4, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
-                                    {{ $polres->name }}
-                                </option> --}}
                             @endforeach
                         </select>
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-12 col-12 mb-3">
                         <label for="" class="fw-semibold fs-6 mb-1">Tanggal Kejadian</label>
                         <input class="form-select datepicker" type="text" id="accident_date" name="accident_date"
-                            placeholder="DD - MM - YYYY" autocomplete="off">
+                            placeholder="YYYY-MM-DD" autocomplete="off" value="{{ request('accident_date') }}">
                         <span class="text-danger error-text birth_date_err"></span>
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-12 col-12 mb-3">
                         <label for="" class="fw-semibold fs-6 mb-1">Tipe laka</label>
                         <select name="tipe_laka" id="tipe_laka" class="form-select">
-                            <option value="0">Pilih Jenis Laka</option>
-                            <option value="1">TUNGGAL</option>
-                            <option value="2">KONTRA</option>
+                            <option value="0" {{ request('tipe_laka') == '0' ? 'selected' : '' }}>Pilih Jenis Laka</option>
+                            <option value="1" {{ request('tipe_laka') == '1' ? 'selected' : '' }}>TUNGGAL</option>
+                            <option value="2" {{ request('tipe_laka') == '2' ? 'selected' : '' }}>KONTRA</option>
                         </select>
                     </div>
                     <div class="col-12 mb-3">
                         <input type="text" id="no_lp" placeholder="Cari berdasarkan nomor LP"
-                            class="search-accident form-control" name="no_lp" value="{{ old('no_lp') }}">
+                            class="search-accident form-control" name="no_lp" value="{{ request('no_lp') }}">
                     </div>
                     <div class="text-start">
                         <button type="submit" class="btn btn-dark-blue" id="btn-search-accident">

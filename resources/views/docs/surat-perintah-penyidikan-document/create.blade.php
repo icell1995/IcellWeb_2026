@@ -653,23 +653,6 @@
 
                             <select class="form-control" id="constitutionChapterLawForm" name="constitutionChapterLawForm">
                                 <option value="">--Pilih Pasal-Ayat--</option>
-                                {{-- <option value="Pasal 273 Ayat (1)">Pasal 273 Ayat (1)</option>
-                                <option value="Pasal 273 Ayat (2)">Pasal 273 Ayat (2)</option>
-                                <option value="Pasal 273 Ayat (3)">Pasal 273 Ayat (3)</option>
-                                <option value="Pasal 273 Ayat (4)">Pasal 273 Ayat (4)</option> --}}
-                                {{-- <option value="Pasal 275 Ayat (1)">Pasal 275 Ayat (1)</option> --}}
-                                {{-- <option value="Pasal 275 Ayat (2)">Pasal 275 Ayat (2)</option>
-                                <option value="Pasal 277">Pasal 277</option>
-                                <option value="Pasal 310 Ayat (1)">Pasal 310 Ayat (1)</option>
-                                <option value="Pasal 310 Ayat (2)">Pasal 310 Ayat (2)</option>
-                                <option value="Pasal 310 Ayat (3)">Pasal 310 Ayat (3)</option>
-                                <option value="Pasal 310 Ayat (4)">Pasal 310 Ayat (4)</option>
-                                <option value="Pasal 311 Ayat (1)">Pasal 311 Ayat (1)</option>
-                                <option value="Pasal 311 Ayat (2)">Pasal 311 Ayat (2)</option> 
-                                <option value="Pasal 311 Ayat (3)">Pasal 311 Ayat (3)</option>
-                                <option value="Pasal 311 Ayat (4)">Pasal 311 Ayat (4)</option>
-                                <option value="Pasal 311 Ayat (5)">Pasal 311 Ayat (5)</option>
-                                <option value="Pasal 312">Pasal 312</option> --}}
                             </select>
                         </div>
                     </form>
@@ -976,6 +959,26 @@
             });
 
             $('#addMovedOfficerLeaderModal #movedOfficerLeaderRankForm').select2({
+                dropdownParent: $('#movedOfficerLeaderRankForm').parent(),
+                theme: 'bootstrap4',
+                width: '100%'
+            });
+            $('#addMovedOfficerLeaderModal #movedOfficerLeaderPositionForm').select2({
+                dropdownParent: $('#movedOfficerLeaderPositionForm').parent(),
+                theme: 'bootstrap4',
+                width: '100%'
+            });
+
+            $('#addManualMovedOfficerModal #rank').select2({
+                dropdownParent: $('#rank').parent(),
+                theme: 'bootstrap4',
+                width: '100%'
+            });
+            $('#addManualMovedOfficerModal #position').select2({
+                dropdownParent: $('#position').parent(),
+                theme: 'bootstrap4',
+                width: '100%'
+            });$('#addMovedOfficerLeaderModal #movedOfficerLeaderRankForm').select2({
                 dropdownParent: $('#movedOfficerLeaderRankForm').parent(),
                 theme: 'bootstrap4',
                 width: '100%'

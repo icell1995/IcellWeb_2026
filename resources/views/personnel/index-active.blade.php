@@ -14,58 +14,62 @@
     @php
         $userRoleId = Auth::user()->role_id;
         $userPoliceId = Auth::user()->police_id;
+        $isNationalLevel = empty(Auth::user()->police_id);
     @endphp
     
     <div class="loaderbg" style="display:none"></div>
 
-    @if(!empty($currentPoliceId))
-        <div class="box">
-            <div class="box-header">
-                <h3 class="fw-bold text-blue-dark"> Daftar Anggota - SAT LANTAS
-                    {{ ($userRoleId == 3) ? $currentPolice->full_name : '' }} (ADMIN)</h3>
-            </div>
-            <div class="boxy-body mt-4">
-                <div class="d-flex justify-content-between">
-                    <div class="col-3">
-                        <select class="form-control select2" id="policeSearch" name="policeSearch">
-                            @if ($userRoleId == 1)
-                                <option value="">Pilih Satker</option>
-                                @foreach ($polices as $police)
-                                    @if ($police->class == 'DAERAH')
-                                        <option value="{{ $police->id }}"
-                                            @if ($currentPoliceId == $police->id) {{ 'selected' }} @endif>{{ $police->name }}
-                                        </option>
-                                    @endif
-                                    @foreach ($police->children->where('is_active', true) as $child)
-                                        <option value="{{ $child->id }}"
-                                            @if ($currentPoliceId == $child->id) {{ 'selected' }} @endif>- {{ $child->name }} ({{$police->name}})
-                                        </option>
-                                    @endforeach
-                                @endforeach
-                            @elseif($userRoleId == 3 || $userRoleId == 5)
-                                @foreach ($polices as $police)
+    <div class="box">
+        <div class="box-header">
+            <h3 class="fw-bold text-blue-dark"> Daftar Anggota - SAT LANTAS
+                {{ ($userRoleId == 3) ? ($currentPolice->full_name ?? '') : '' }} (ADMIN)</h3>
+        </div>
+        <div class="boxy-body mt-4">
+            <div class="d-flex justify-content-between">
+                <div class="col-3">
+                    <select class="form-control select2" id="policeSearch" name="policeSearch">
+                        @if ($isNationalLevel)
+                            <option value="">Pilih Satker</option>
+                            @foreach ($polices as $police)
+                                @if ($police->class == 'DAERAH')
                                     <option value="{{ $police->id }}"
-                                        @if ($currentPoliceId == $police->id) {{ 'selected' }} @endif>{{ $police->full_name }}
+                                        @if ($currentPoliceId == $police->id) {{ 'selected' }} @endif>{{ $police->name }}
                                     </option>
-                                    @foreach ($police->children->where('is_active', true) as $child)
-                                        <option value="{{ $child->id }}"
-                                            @if ($currentPoliceId == $child->id) {{ 'selected' }} @endif>- {{ $child->name }} ({{$police->name}})
-                                        </option>
-                                    @endforeach
+                                @endif
+                                @foreach ($police->children->where('is_active', true) as $child)
+                                    <option value="{{ $child->id }}"
+                                        @if ($currentPoliceId == $child->id) {{ 'selected' }} @endif>- {{ $child->name }} ({{$police->name}})
+                                    </option>
                                 @endforeach
-                            @endif
-                        </select>
-                    </div>
-                    @if(!empty($policeId))
+                            @endforeach
+                        @elseif($userRoleId == 3 || $userRoleId == 5)
+                            @foreach ($polices as $police)
+                                <option value="{{ $police->id }}"
+                                    @if ($currentPoliceId == $police->id) {{ 'selected' }} @endif>{{ $police->full_name }}
+                                </option>
+                                @foreach ($police->children->where('is_active', true) as $child)
+                                    <option value="{{ $child->id }}"
+                                        @if ($currentPoliceId == $child->id) {{ 'selected' }} @endif>- {{ $child->name }} ({{$police->name}})
+                                    </option>
+                                @endforeach
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+                @if(!empty($policeId))
+                    @if(Auth::user()->hasPermission('personnel.C'))
                         <div class="col-3 text-end">
                             <a href="#" data-bs-toggle="modal" data-bs-target="#checkOfficerModal" class="btn btn-primary">
                                 <i class="bi bi-plus-circle"></i> Tambah Anggota
                             </a>
                         </div>
                     @endif
-                </div>
+                @endif
+            </div>
 
-                @include('personnel.components.index-navigation')
+            @include('personnel.components.index-navigation')
+
+            @if(!empty($currentPoliceId))
 
                 <div class="mt-3 table-responsive">
                     <table class="table table-striped table-bordered table-users dataTable" name="dataTable" width="100%">
@@ -77,11 +81,11 @@
                                 <th class="text-center">Username</th>
                                 <th class="text-center">Pangkat</th>
                                 <th class="text-center">Jabatan</th>
-                                @if($userRoleId == 1)
+                                @if($isNationalLevel)
                                     <th class="text-center">Role</th>
                                 @endif
 
-                                @if($userRoleId == 1)
+                                @if($isNationalLevel)
                                     <th class="text-center">Satker</th>
                                 @endif
 
@@ -136,13 +140,13 @@
                                                 {{'(PENANDATANGAN)'}}
                                             @endif
                                         </td>
-                                        @if($userRoleId == 1)
+                                        @if($isNationalLevel)
                                             <td class="text-center align-middle">
                                                 {{ $user->role->name ?? '-' }} {{ '(' . $user->role_id . ')'}}
                                             </td>
                                         @endif
 
-                                        @if($userRoleId == 1)
+                                        @if($isNationalLevel)
                                             <td class="text-center align-middle">
                                                 {{ $user->officer->police()->first()->full_name ?? '-' }}
                                             </td>
@@ -180,12 +184,14 @@
                                             @endif
                                         </td>
                                         <td class="text-center align-middle">
-                                            @if (( $userRoleId == 1) || 
-                                                ( $userRoleId != 1 && $user->role_id != 3) || ($userRoleId != 1 && $user->police_id != $userPoliceId))
-                                                <a href="{{ route('personnel.edit', ['id' => $user->id, 'policeId' => $user->police_id]) }}"
-                                                    class="btn btn-primary m-1">
-                                                    <i class="bi bi-pencil-square"></i> Edit
-                                                </a>
+                                            @if (Auth::user()->hasPermission('personnel.U'))
+                                                @if (( empty(Auth::user()->police_id)) || 
+                                                    ( !empty(Auth::user()->police_id) && $user->role_id != 3) || (!empty(Auth::user()->police_id) && $user->police_id != $userPoliceId))
+                                                    <a href="{{ route('personnel.edit', ['id' => $user->id, 'policeId' => $user->police_id]) }}"
+                                                        class="btn btn-primary m-1">
+                                                        <i class="bi bi-pencil-square"></i> Edit
+                                                    </a>
+                                                @endif
                                             @endif
 
                                             <a href="{{ route('personnel.show', ['id' => $user->id, 'policeId' => $user->police_id]) }}" class="btn btn-warning m-1">
@@ -193,22 +199,24 @@
                                             </a>
 
                                             @if (!empty($user))
-                                                @if (( $userRoleId == 1) || 
-                                                ( $userRoleId != 1 && $user->role_id != 3) || ($userRoleId != 1 && $user->police_id != $userPoliceId))
-                                                    <a href="{{ route('personnel.move', ['id' => $user->id, 'policeId' => $user->police_id]) }}"
-                                                        class="btn btn-success m-1">
-                                                        <i class="bi bi-person-dash"></i> Mutasi
+                                                @if (Auth::user()->hasPermission('personnel.U'))
+                                                    @if (( empty(Auth::user()->police_id)) || 
+                                                    ( !empty(Auth::user()->police_id) && $user->role_id != 3) || (!empty(Auth::user()->police_id) && $user->police_id != $userPoliceId))
+                                                        <a href="{{ route('personnel.move', ['id' => $user->id, 'policeId' => $user->police_id]) }}"
+                                                            class="btn btn-success m-1">
+                                                            <i class="bi bi-person-dash"></i> Mutasi
+                                                        </a>
+                                                    @endif
+
+                                                    <a href="{{ route('personnel.change-password', ['id' => $user->id, 'policeId' => $user->police_id]) }}"
+                                                        class="btn btn-danger m-1">
+                                                        <i class="bi bi-key"></i> Ubah Password
                                                     </a>
                                                 @endif
-
-                                                <a href="{{ route('personnel.change-password', ['id' => $user->id, 'policeId' => $user->police_id]) }}"
-                                                    class="btn btn-danger m-1">
-                                                    <i class="bi bi-key"></i> Ubah Password
-                                                </a>
                                             @endif
 
 
-                                            {{-- @if ($userRoleId == 1)
+                                            {{-- @if (empty(Auth::user()->police_id))
                                                 @if ($user->officer->first()->is_valid == false)
                                                     <a href="{{ '' }}" class="btn btn-secondary m-1">
                                                         <i class="bi bi-check-circle"></i> Validasi
@@ -227,31 +235,10 @@
                     </table>
                 </div>
 
-            </div>
+            @endif {{-- @if(!empty($currentPoliceId)) --}}
+
         </div>
-    @else
-        <!-- Form Polda -->
-        <div class="card">
-            <div class="card-body">
-                <label class="fw-bold" for="" class="mb-3">Satuan Kerja</label>
-                <br>
-                <br>
-                <select class="form-control select2 mt-4" id="policeSearch" name="policeSearch">
-                    <option value="">Pilih Satker</option>
-                    @foreach ($polices as $police)
-                        <option value="{{ $police->id }}"
-                            @if ($currentPoliceId == $police->id) {{ 'selected' }} @endif>{{ $police->name }}
-                        </option>
-                        @foreach ($police->children->where('is_active', true) as $child)
-                            <option value="{{ $child->id }}"
-                                @if ($currentPoliceId == $child->id) {{ 'selected' }} @endif>- {{ $child->name }} - ({{$police->name}})
-                            </option>
-                        @endforeach
-                    @endforeach
-                </select>
-            </div>
-        </div>
-    @endif
+    </div>
 
 
     <!-- Check Officer-->

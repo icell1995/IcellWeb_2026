@@ -17,10 +17,10 @@ class OfficersTableRankIdAndPositionIdAndPoliceIdAndIsActiveColumnMigrationSeede
      */
     public function run()
     {
-        //$this->migrateRankId();
-        //$this->migratePoliceId();
-        //$this->migratePositionId();
-        //$this->migrateIsActive();
+    //    $this->migrateRankId();
+    //    $this->migratePoliceId();
+    //    $this->migratePositionId();
+    //    $this->migrateIsActive();
     }
 
     private function migrateRankId()
@@ -43,7 +43,6 @@ class OfficersTableRankIdAndPositionIdAndPoliceIdAndIsActiveColumnMigrationSeede
             "BRIGPOL" => "20",
             "NULL" => null,
             "PNS" => null,
-	    "-" => null,
         ];
 
         DB::beginTransaction();
@@ -72,16 +71,12 @@ class OfficersTableRankIdAndPositionIdAndPoliceIdAndIsActiveColumnMigrationSeede
 
             foreach ($officers as $officer) {
                 if(!empty($officer->polres_id)){
-		    if($officer->polres_id != 0){
-                    	$officer->police_id = $officer->polres_id;
-                    	$officer->save();
-		    }
+                    $officer->police_id = $officer->polres_id;
+                    $officer->save();
 
                 }else if(empty($officer->polres_id)){
-		    if($officer->polres_id != 0){
-                   	 $officer->police_id = $officer->polda_id;
-                    	$officer->save();
-		    }
+                    $officer->police_id = $officer->polda_id;
+                    $officer->save();
                 }
             }
 

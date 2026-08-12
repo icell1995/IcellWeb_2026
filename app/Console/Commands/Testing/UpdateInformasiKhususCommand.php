@@ -51,7 +51,9 @@ class UpdateInformasiKhususCommand extends Command
                 'Key' => '09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL'
             ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/search?accident_id=' . $accidentWithoutSpecialInfo->id);
 
-            echo "Total Info Khusus : " . $countSpecialInfo . PHP_EOL;
+            dd($result->json());
+
+            echo $countSpecialInfo . PHP_EOL;
 
             if($result['status'] == 'success'){
                 $resultInformasiKhusus = (isset($result['result'][0]['informasi_khusus'])) ? $result['result'][0]['informasi_khusus'] : NULL;

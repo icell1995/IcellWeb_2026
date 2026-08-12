@@ -87,12 +87,12 @@ class PositionClusterController extends Controller
             ]);
 
             DB::commit();
-
-	    return redirect()->route('cms.libs.position-cluster.index')->with('success', 'Data berhasil ditambahkan.');
         } catch (\Throwable $th) {
             DB::rollback();
             return redirect()->route('cms.libs.position-cluster.index')->with('error', 'Data gagal ditambahkan.');
         }
+
+        return redirect()->route('cms.libs.position-cluster.index')->with('success', 'Data berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -151,12 +151,12 @@ class PositionClusterController extends Controller
                 ]);
 
             DB::commit();
-
-	    return redirect()->route('cms.libs.position-cluster.index')->with('success', 'Data berhasil diubah.');
         } catch (\Throwable $th) {
             DB::rollback();
             return redirect()->route('cms.libs.position-cluster.index')->with('error', 'Data gagal diubah.');
         }
+
+        return redirect()->route('cms.libs.position-cluster.index')->with('success', 'Data berhasil diubah.');
     }
 
     public function delete($id)

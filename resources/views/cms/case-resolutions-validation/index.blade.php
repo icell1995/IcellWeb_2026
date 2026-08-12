@@ -223,7 +223,6 @@
                     <table class="table table-striped table-bordered" width="100%">
                         <thead class="table-light">
                             <tr>
-
                                 <th class="text-center" style="width:70%">Laporan Polisi</th>
                                 <th class="text-center" style="width:20%">Ringkasan SELRA</th>
                                 <th class="text-center" style="width:10%">Opsi</th>
@@ -238,7 +237,6 @@
                                 <tr data-resolution-id="{{ $r?->id }}"
                                     data-is-approved="{{ $isApproved ? 'true' : 'false' }}"
                                     data-detail-url="{{ $r ? route('cms.case-resolutions-validations.show', $r->id) : '' }}">
-
                                     {{-- LP --}}
                                     <td class="align-middle text-center">
                                         {{-- Nomor LP --}}
@@ -356,7 +354,6 @@
 @endsection
 
 @push('script')
-<script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 {{-- Datepicker Initialization --}}
 <script>
     function initDatepickersSimple() {
@@ -371,8 +368,8 @@
 
         $('#filter_from, #filter_to').datepicker(opts);
 
-        $('#filter_from, #filter_to').prev('.input-group-text').on('click', function() {
-            const $target = $(this).next('input.form-control');
+        $('.input-group-text').on('click', function() {
+            const $target = $(this).nextAll('input.form-control').first();
             if ($target.length) $target.datepicker('show');
         });
 

@@ -305,7 +305,7 @@
                                     Jumlah Selra Per-Polda
                                 </h5>
                                 <small class="d-block" style="margin-left: 2rem">
-                                    Berdasarkan input selra sampai dengan hari ini
+                                    Berdasarkan data hingga saat ini
                                 </small>
                             </div>
                             <div class="table-responsive flex-grow-1">
@@ -316,7 +316,7 @@
                                             <th class="text-center">P21</th>
                                             <th class="text-center">SP3</th>
                                             <th class="text-center">DIV</th>
-                                            <th class="text-center">SP2LID</th>
+                                            <th class="text-center">SP2</th>
                                             <th class="text-center">POM</th>
                                         </tr>
                                     </thead>
@@ -336,8 +336,8 @@
                                             <td class="text-center">{{ number_format($total_p21, 0, '.', '.') }}</td>
                                             <td class="text-center">{{ number_format($total_sp3, 0, '.', '.') }}</td>
                                             <td class="text-center">{{ number_format($total_diversi, 0, '.', '.') }}</td>
-					    <td class="text-center">{{ number_format($total_sp2lid, 0, '.', '.') }}</td>
                                             <td class="text-center">{{ number_format($total_pom_tni, 0, '.', '.') }}</td>
+                                            <td class="text-center">{{ number_format($total_sp2lid, 0, '.', '.') }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -402,7 +402,7 @@
     </style>
 
     <!-- Dashboard Scripts -->
-    <script src="{{ asset('js/modern-dashboard01.js') }}"></script>
+    <script src="{{ asset('js/modern-dashboard.js') }}"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -565,7 +565,7 @@
                         tooltip: {
                             headerFormat: '<div style="text-align:center; margin-bottom:8px;"><span style="font-size:14px; font-weight:700; color:#1f2937;">{point.key}</span></div>',
                             pointFormat: '<div style="display:flex; align-items:center; justify-content:space-between; min-width:150px;">' +
-                                '<span style="color:{point.color}; font-size:16px;">?</span>' +
+                                '<span style="color:{point.color}; font-size:16px;">●</span>' +
                                 '<span style="font-weight:500; color:#374151;">{series.name}</span>' +
                                 '<span style="font-weight:700; color:#1f2937; font-size:16px;">{point.y:,.0f}</span>' +
                                 '</div>',

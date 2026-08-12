@@ -13,8 +13,7 @@
             <?php $no = 0; ?>
             <form method="GET" class="row mt-2 search" action="{{ route('produktivitas-search') }}">
                 <div class="col-lg-2 col-md-2 col-sm-12 col-12 mb-3">
-                    <input type="text" id="no_LP" class="form-control" name="no_lp" placeholder="Nomor lp"
-                        value="{{ old('no_LP') }}">
+                    <input type="text" id="no_LP" class="form-control" name="no_lp" placeholder="Nomor lp" value="{{ old('no_LP') }}">
                 </div>
                 <div class="col-lg-2 col-md-2 col-sm-12 col-12 mb-3">
                     <input class="form-select" type="text" id="tgl_kejadian" name="tgl_kejadian"

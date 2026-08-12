@@ -127,8 +127,20 @@ class User extends Authenticatable
         return $this->belongsTo('App\Models\Lib\Police', 'police_id', 'id');
     }
 
+    protected $permissionCache = null; // Caching permissions for the current request to prevent N+1 Queries
+
     public function hasPermission($permission) {
-        return $this->role->permissions()->where('name', $permission)->first() ?: false;
+        // Cache hasil query pertama ke properti agar request permission ke-2 dsb tidak menyebabkan query berulang
+        if (is_null($this->permissionCache)) {
+            // Ambil semua daftar text permission milik role ini lalu jadikan array biasa
+            $this->permissionCache = \Illuminate\Support\Facades\DB::table('permission_role')
+                ->join('permissions', 'permission_role.permission_id', '=', 'permissions.id')
+                ->where('permission_role.role_id', $this->role_id)
+                ->pluck('permissions.name')
+                ->toArray();
+        }
+
+        return in_array($permission, $this->permissionCache);
     }
 
     // public function roles()

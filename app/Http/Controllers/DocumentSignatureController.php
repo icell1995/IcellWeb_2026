@@ -34,13 +34,9 @@ use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberita
 use App\Models\LaporanHasilGelarPerkara;
 use App\Models\SuratKetetapanPenetapanTersangka;
 
-use App\Traits\DocsOfficersTraits;
-
 class DocumentSignatureController extends Controller
 {
     private $userAuth;
-
-    use DocsOfficersTraits;
 
     public function __construct()
     {
@@ -61,7 +57,7 @@ class DocumentSignatureController extends Controller
     {
         $user = Auth::user();
 
-        $statusIds = ['9', '10', '11', '86'];
+        $statusIds = ['9', '10', '11'];
         $documentsCollection = $this->getDocumentsByStatus($user, $statusIds);
         
         $documents = $documentsCollection->sortByDesc('updated_at');
@@ -207,8 +203,8 @@ class DocumentSignatureController extends Controller
                 $response = Http::withHeaders([
                     'Authorization' => $authorizationToken
                 ])
-                ->timeout(90)
-                ->connectTimeout(30)
+                ->timeout(30)
+                ->connectTimeout(3)
                 ->retry(3, 100)
                 ->post(env('ESIGNATURE_API_HOST') . '/api/values/SignTTEICELL', [
                     'IdDokumen' => $documentId,
@@ -222,11 +218,9 @@ class DocumentSignatureController extends Controller
                 // return $responseBody;
                 $responseBodyJson = json_decode($responseBody, true);
 
-		Log::info('DocumentSignatureController API Response: ', [$responseBodyJson]);
-
                 $responseBodyJsonData = $responseBodyJson['Data'];
 
-                $responseDocument = $responseBodyJson['Data']['FileBase64TTE'] ?? [];
+                $responseDocument = $responseBodyJson['Data']['FileBase64TTE'];
                 $responseMessage = $responseBodyJsonData['message'];
                 $responseStatus = $responseBodyJsonData['Status'];
 
@@ -548,8 +542,7 @@ class DocumentSignatureController extends Controller
         foreach ($documentTypes as $documentType) {
             $documents = $documentType::with(['accident', 'documentCategory'])
                 ->whereHas('accident', function ($query) use ($user) {
-                    // $query->where('polres_id', $user->polres_id);
-                    $query->whereIn('polres_id', $this->getOldNewPolresIds($user->polres_id));
+                    $query->where('polres_id', $user->polres_id);
                 })
                 ->whereIn('status_id', $statusIds)
                 ->get();

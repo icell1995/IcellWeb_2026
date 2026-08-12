@@ -29,6 +29,7 @@
                     </div>
                </div>
                         
+
                 <hr/>
                 
                 <h4 class="fw-bold text-blue-dark mb-4 mt-4">Belum Punya Passphrase Atau Akun BSrE? Silahkan Ikuti Alur Membuat Akun BSrE Untuk TTE Dibawah Ini</h4>
@@ -36,8 +37,8 @@
                 <a href="{{ asset('images/AlurPendaftaranTTE.png') }}">
                     <img src="{{ asset('images/AlurPendaftaranTTE.png') }}" class="img-fluid" alt="Responsive image" >
                 </a>
-
-		<hr/>
+                
+                <hr/>
 
                 <h4 class="fw-bold text-blue-dark mb-4 mt-4">Prosedur Aktivasi Akun BSrE Untuk TTE (Jika Sudah Mendaftarakan Ke Robinops Bareskrim Di Alur No 2)</h4>
 

@@ -206,9 +206,9 @@ class PdfController extends Controller
             //     break;
 
             //kategori 4
-            case "surat-perintah-penahanan":
-                $grp['path']=public_path('file/penahanan/surat-perintah-penahanan');
-                break;
+            // case "surat-perintah-penahanan":
+            //     $grp['path']=public_path('file/penahanan/surat-perintah-penahanan');
+            //     break;
             case "berita-acara-penahanan":
                 $grp['path']=public_path('file/penahanan/berita-acara-penahanan');
                 break;
@@ -584,10 +584,10 @@ class PdfController extends Controller
             //     $data=$grp['path'] .'/'.$find_data->name;
             // break;
 
-             //kategori 4
-            case "surat-perintah-penahanan":
-                $find_data = SuratPerintahPenahanan::where('accident_id',$id)->orderBy('created_at','desc')->first();
-                $data=$grp['path'] .'/'.$find_data->name;
+            // kategori 4
+            // case "surat-perintah-penahanan":
+            //     $find_data = SuratPerintahPenahanan::where('accident_id',$id)->orderBy('created_at','desc')->first();
+            //     $data=$grp['path'] .'/'.$find_data->name;
             break;
             case "berita-acara-penahanan":
                 $find_data = BeritaAcaraPenahanan::where('accident_id',$id)->orderBy('created_at','desc')->first();
@@ -1285,19 +1285,19 @@ class PdfController extends Controller
             // break;
 
             //kategori 4
-            case "surat-perintah-penahanan":
-                $find_data = SuratPerintahPenahanan::where('accident_id',$id)->orderBy('created_at','desc')->first();
-                $name = $find_data->name;
-                $path = public_path().'/file/penahanan/'.$get.'/'.$name;
-                unlink($path);
-                SuratPerintahPenahanan::where('accident_id', $id)->delete();
-                Accident::where('id', $id)
-                ->update([
-                    'last_update' => Carbon::now(),
-                    'category' =>'D040101',
-                    'tipe_update' => 'HAPUS'
-                ]);
-            break;
+            // case "surat-perintah-penahanan":
+            //     $find_data = SuratPerintahPenahanan::where('accident_id',$id)->orderBy('created_at','desc')->first();
+            //     $name = $find_data->name;
+            //     $path = public_path().'/file/penahanan/'.$get.'/'.$name;
+            //     unlink($path);
+            //     SuratPerintahPenahanan::where('accident_id', $id)->delete();
+            //     Accident::where('id', $id)
+            //     ->update([
+            //         'last_update' => Carbon::now(),
+            //         'category' =>'D040101',
+            //         'tipe_update' => 'HAPUS'
+            //     ]);
+            // break;
             case "berita-acara-penahanan":
                 $find_data = BeritaAcaraPenahanan::where('accident_id',$id)->orderBy('created_at','desc')->first();
                 $name = $find_data->name;

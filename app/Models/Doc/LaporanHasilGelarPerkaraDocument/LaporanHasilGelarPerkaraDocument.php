@@ -6,8 +6,11 @@ use App\Observers\UserActionObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
+
+use App\Models\ReturnDocuments;
 
 class LaporanHasilGelarPerkaraDocument extends Model
 {
@@ -33,7 +36,7 @@ class LaporanHasilGelarPerkaraDocument extends Model
         parent::boot();
 
         self::observe(UserActionObserver::class);
-     
+
         self::creating(function ($model) {
             $model->id = (string) Uuid::generate();
             $model->status_id = '2';
@@ -91,7 +94,7 @@ class LaporanHasilGelarPerkaraDocument extends Model
     {
         return $this->belongsTo('App\Models\Accident', 'accident_id')->with(['police']);
     }
-   
+
     public function caseDegreeType()
     {
         return $this->belongsTo('App\Models\Lib\CaseDegreeType', 'case_degree_type_id');
@@ -118,6 +121,10 @@ class LaporanHasilGelarPerkaraDocument extends Model
         return $this->belongsTo('App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument', 'surat_perintah_penyidikan_document_id', 'id');
     }
 
+    public function suratPerintahTugasHukumDocument(){
+        return $this->belongsTo('App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument', 'surat_perintah_tugas_document_id', 'id');
+    }
+
     public function suspects(){
         return $this->belongsToMany('App\Models\Suspect', 'pivot.laporan_hasil_gelar_perkara_document_suspect', 'laporan_hasil_gelar_perkara_document_id', 'suspect_id')
             ->withRelated();
@@ -141,7 +148,7 @@ class LaporanHasilGelarPerkaraDocument extends Model
     {
         return $this->belongsTo('App\Models\User', 'deleted_by_user_id', 'id');
     }
-    
+
     public function status()
     {
         return $this->belongsTo('App\Models\Opt\Status', 'status_id', 'id');
@@ -151,9 +158,4 @@ class LaporanHasilGelarPerkaraDocument extends Model
     {
         return $this->morphMany(ReturnDocuments::class, 'documentable');
     }
-
-    // public function returnDocuments(): MorphMany
-    // {
-    //     return $this->morphMany(ReturnDocuments::class, 'documentable');
-    // }
 }

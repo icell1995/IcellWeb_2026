@@ -24,7 +24,6 @@
                 </div>
                 <div class="card-body">
                     <form action="{{ route('commander-wish.index') }}" method="GET">
-                        @csrf
                         <div class="mb-3 mt-2">
                             <legend class="fw-bold text-blue-dark">Tanggal Kejadian</legend>
                             <div class="row">
@@ -58,13 +57,13 @@
                                     </select>
                                 </div>
 
-                                <div class="col-lg-6 col-md-6 col-sm-12 col-12">
+                                {{-- <div class="col-lg-6 col-md-6 col-sm-12 col-12">
                                     <span class="fw-bold">Polres <span class="text-danger">*</span></span>
                                     <select class="form-control select2" name="resortPolice" id="resortPolice">
                                         <option value="">--Pilih Polres--</option>
                                         
                                     </select>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
 
@@ -73,6 +72,9 @@
                         <div class="text-center">
                             <button type="submit" class="btn btn-dark-blue" id="filterSubmit">
                                 <i class="bi bi-search"></i> {{ "Cari" }}
+                            </button>
+                            <button type="button" class="btn btn-success" id="generatePresentation">
+                                <i class="bi bi-download"></i> {{ "Unduh PPT" }}
                             </button>
                         </div>
                     </form>
@@ -155,7 +157,8 @@
                 buttons: [
                     'copyHtml5',
                     'excelHtml5',
-                    'csvHtml5'                ]
+                    'csvHtml5'
+                ]
             });
         });
 
@@ -196,7 +199,7 @@
             });
         });
 
-        $(document).ready(function() {
+        /*$(document).ready(function() {
             $('#regionalPolice').on('change', function() {
                 var regionalPoliceId = $(this).val();
                 if (regionalPoliceId) {
@@ -220,6 +223,23 @@
                     });
                 } else {
                     $('#resortPolice').empty();
+                }
+            });
+        });*/
+
+        $(document).ready(function() {
+            $('#generatePresentation').on('click', function() {
+                var startAccidentDate = $('#startAccidentDate').val();
+                var endAccidentDate = $('#endAccidentDate').val();
+                var regionalPoliceId = $('#regionalPolice').val();
+                var resortPoliceId = null;
+
+                //check is not empty
+                if (startAccidentDate != '' && endAccidentDate != '') {
+                    var url = "{{ route('commander-wish.generate-presentation') }}" + "?startAccidentDate=" + startAccidentDate + "&endAccidentDate=" + endAccidentDate + "&regionalPolice=" + regionalPoliceId + "&resortPolice=" + resortPoliceId;
+                    window.open(url, '_blank');
+                } else {
+                    alert('Range Tanggal kejadian tidak boleh kosong');
                 }
             });
         });

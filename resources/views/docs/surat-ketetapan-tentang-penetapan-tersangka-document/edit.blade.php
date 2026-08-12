@@ -58,6 +58,7 @@
                 method="POST" enctype="multipart/form-data" id="suratKetetapanTentangPenetapanTersangkaForm">
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
+                <input type="hidden" name="caseFlag" id="caseFlag" value="{{ $accident->case_flag }}">
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-3 col-form-label" for="accidentNumber">Nomor LP</label>
@@ -552,7 +553,7 @@
                                 </div>
                             </div>
 
-                            <div class="countryChildrenLocationSectionSuspect">
+                            <div class="countryChildrenLocationSectionSuspect" style="display:none;">
                                 <div class="input-group row mb-3 ms-0">
                                     <label class="fw-bold col-sm-3 col-form-label" for="provinceFieldSuspect">Provinsi<span class="text-danger fs-5">*</span>
                                     </label>
@@ -616,62 +617,63 @@
 
                     <hr>
 
-                    <div id="suspectVehicle">
-                        <h5 class="fw-bold text-blue-dark">KENDARAAN YANG TERKAIT DENGAN TERSANGKA</h5>
+                    @if($accident->case_flag != 'JATANLIN')
+                        <div id="suspectVehicle">
+                            <h5 class="fw-bold text-blue-dark">KENDARAAN YANG TERKAIT DENGAN TERSANGKA</h5>
 
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <div class="input-group row mb-3 ms-0">
-                                    <label class="fw-bold col-sm-2 col-form-label" for="vehicleFieldSuspect">Kendaraan<span class="text-danger fs-5">*</span></label>
-                                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                                        <select class="form-control select2" id="vehicleFieldSuspect"
-                                            name="vehicleFieldSuspect">
-                                            <option value="">--Pilih Kendaraan--</option>
-                                            @foreach ($vehicleList as $vehicle)
-                                                <option value="{{ $vehicle['nopol'] }}"
-                                                    data-identity-number="{{ $vehicle['nomor_identitas'] ?? '' }}"
-                                                    data-identity-type="{{ $vehicle['tipe_identitas'] ?? '' }}"
-                                                    data-driving-license-type="{{ $vehicle['jenis_sim'] ?? '' }}"
-                                                    data-driver-name="{{ $vehicle['nama_pengemudi'] ?? '' }}"
-                                                    data-accident-number="{{ $vehicle['no_lp'] ?? '' }}"
-                                                    data-vehicle-type="{{ $vehicle['jenis_ranmor'] ?? '' }}"
-                                                    data-vehicle-plate="{{ $vehicle['nopol'] ?? '' }}"
-                                                    data-accident-location="{{ $vehicle['lokasi_kejadian'] ?? '' }}"
-                                                    data-accident-date="{{ $vehicle['tgl_kejadian'] ?? '' }}"
-                                                    data-accident-type="{{ $vehicle['jenis_kecelakaan'] ?? '' }}"
-                                                    data-reason="{{ $vehicle['penyebab'] ?? '' }}"
-                                                    data-victim="{{ $vehicle['total_korban'] ?? '' }}"
-                                                    data-material-loss="{{ $vehicle['total_kermat'] ?? '' }}"
-                                                    data-latitude="{{ $vehicle['latitude'] ?? '' }}"
-                                                    data-longitude="{{ $vehicle['longtitude'] ?? '' }}"
-                                                    data-accident-type-id="{{ $vehicle['accident_type_id'] ?? '' }}"
-                                                    data-accident-type-name="{{ $vehicle['accident_type_name'] ?? '' }}"
-                                                    data-vehicle-type-id="{{ $vehicle['vehicle_type_id'] ?? '' }}"
-                                                    data-vehicle-type-name="{{ $vehicle['vehicle_type_name'] ?? '' }}"
-                                                    data-accident-cause-id="{{ $vehicle['accident_cause_id'] ?? '' }}"
-                                                    data-accident-cause-name="{{ $vehicle['accident_cause_name'] ?? '' }}"
-                                                    data-identity-type-id="{{ $vehicle['identity_type_id'] ?? '' }}"
-                                                    data-identity-type-name="{{ $vehicle['identity_type_name'] ?? '' }}"
-                                                    data-driving-license-type-id="{{ $vehicle['driving_license_type_id'] ?? '' }}"
-                                                    data-driving-license-type-name="{{ $vehicle['driving_license_type_name'] ?? '' }}"
-                                                    >
-                                                    Nopol : {{ $vehicle['nopol'] }} || {{ $vehicle['vehicle_type_name'] ?? '-' }}</option>
-                                            @endforeach
-                                        </select>
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="input-group row mb-3 ms-0">
+                                        <label class="fw-bold col-sm-2 col-form-label" for="vehicleFieldSuspect">Kendaraan<span class="text-danger fs-5">*</span></label>
+                                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                                            <select class="form-control select2" id="vehicleFieldSuspect"
+                                                name="vehicleFieldSuspect">
+                                                <option value="">--Pilih Kendaraan--</option>
+                                                @foreach ($vehicleList as $vehicle)
+                                                    <option value="{{ $vehicle['nopol'] }}"
+                                                        data-identity-number="{{ $vehicle['nomor_identitas'] ?? '' }}"
+                                                        data-identity-type="{{ $vehicle['tipe_identitas'] ?? '' }}"
+                                                        data-driving-license-type="{{ $vehicle['jenis_sim'] ?? '' }}"
+                                                        data-driver-name="{{ $vehicle['nama_pengemudi'] ?? '' }}"
+                                                        data-accident-number="{{ $vehicle['no_lp'] ?? '' }}"
+                                                        data-vehicle-type="{{ $vehicle['jenis_ranmor'] ?? '' }}"
+                                                        data-vehicle-plate="{{ $vehicle['nopol'] ?? '' }}"
+                                                        data-accident-location="{{ $vehicle['lokasi_kejadian'] ?? '' }}"
+                                                        data-accident-date="{{ $vehicle['tgl_kejadian'] ?? '' }}"
+                                                        data-accident-type="{{ $vehicle['jenis_kecelakaan'] ?? '' }}"
+                                                        data-reason="{{ $vehicle['penyebab'] ?? '' }}"
+                                                        data-victim="{{ $vehicle['total_korban'] ?? '' }}"
+                                                        data-material-loss="{{ $vehicle['total_kermat'] ?? '' }}"
+                                                        data-latitude="{{ $vehicle['latitude'] ?? '' }}"
+                                                        data-longitude="{{ $vehicle['longtitude'] ?? '' }}"
+                                                        data-accident-type-id="{{ $vehicle['accident_type_id'] ?? '' }}"
+                                                        data-accident-type-name="{{ $vehicle['accident_type_name'] ?? '' }}"
+                                                        data-vehicle-type-id="{{ $vehicle['vehicle_type_id'] ?? '' }}"
+                                                        data-vehicle-type-name="{{ $vehicle['vehicle_type_name'] ?? '' }}"
+                                                        data-accident-cause-id="{{ $vehicle['accident_cause_id'] ?? '' }}"
+                                                        data-accident-cause-name="{{ $vehicle['accident_cause_name'] ?? '' }}"
+                                                        data-identity-type-id="{{ $vehicle['identity_type_id'] ?? '' }}"
+                                                        data-identity-type-name="{{ $vehicle['identity_type_name'] ?? '' }}"
+                                                        data-driving-license-type-id="{{ $vehicle['driving_license_type_id'] ?? '' }}"
+                                                        data-driving-license-type-name="{{ $vehicle['driving_license_type_name'] ?? '' }}"
+                                                        >
+                                                        Nopol : {{ $vehicle['nopol'] }} || {{ $vehicle['vehicle_type_name'] ?? '-' }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
-
-                    </div>
-
+                    @endif
                 </div>
 
                 <hr>
 
-		@if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratKetetapanTentangPenetapanTersangkaDocument->is_legacy == true || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-                	@include('docs.components.form.checkbox.is-legacy', ['document' => $suratKetetapanTentangPenetapanTersangkaDocument])
-		@endif
+                @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratKetetapanTentangPenetapanTersangkaDocument->is_legacy == true || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
+                    @include('docs.components.form.checkbox.is-legacy', ['document' => $suratKetetapanTentangPenetapanTersangkaDocument])
+                @endif
 
                 <div class="text-center">
                     <button type="submit" class="btn btn-dark-blue"
@@ -703,7 +705,7 @@
 <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
 @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratKetetapanTentangPenetapanTersangkaDocument->is_legacy == true || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-	@include('docs.components.form.checkbox.is-legacy-js')
+    @include('docs.components.form.checkbox.is-legacy-js')
 @endif
 
 <script type="text/javascript">
@@ -1197,7 +1199,33 @@
         $(document).on('change', '#countryFieldSuspect', function(){
             var parentId = $(this).find(':selected').val();
             var provinceId = $('#suspect').find(':selected').data('province-id');
-            getProvince(parentId, provinceId);
+            
+            // Jika Indonesia (C101), tampilkan section lokasi dan load provinsi
+            if (parentId == 'C101') {
+                $('.countryChildrenLocationSectionSuspect').show();
+                getProvince(parentId, provinceId);
+            } else {
+                // Jika negara selain Indonesia, sembunyikan section lokasi dan reset nilai dropdown
+                $('.countryChildrenLocationSectionSuspect').hide();
+                
+                // Reset nilai dropdown
+                $('#provinceFieldSuspect').empty().append($('<option>', {
+                    value: '',
+                    text: '--Pilih Provinsi--'
+                }));
+                $('#regencyFieldSuspect').empty().append($('<option>', {
+                    value: '',
+                    text: '--Pilih Kabupaten/Kota--'
+                }));
+                $('#districtFieldSuspect').empty().append($('<option>', {
+                    value: '',
+                    text: '--Pilih Kecamatan--'
+                }));
+                $('#villageFieldSuspect').empty().append($('<option>', {
+                    value: '',
+                    text: '--Pilih Kelurahan/Desa--'
+                }));
+            }
         });
 
         function getProvince(parentId, provinceId = null){

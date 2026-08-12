@@ -20,16 +20,21 @@ class IsSignatoryMiddleware
     {
         $active = true;
 
-        if($active == true){
+        if ($active == true) {
             $officer = Officer::with(['position.positionCluster'])->where('user_id', Auth::id())->first();
-            
-            if(isset($officer->position->positionCluster)){
-              $positionCluster = $officer->position->positionCluster;
-              if($positionCluster->is_can_signatory == true && isset($officers->position->is_can_signatory) && $officers->positon->is_can_signatory == true){
-                if(empty($officer->passphrase)){
-                    return redirect()->route('esignature-confirmation.index');
+
+
+            if (isset($officer->position->positionCluster)) {
+                $positionCluster = $officer->position->positionCluster;
+
+                if (
+                    $positionCluster->is_can_signatory == true && isset($officer->position->is_can_signatory) &&
+                    $officer->position->is_can_signatory == true
+                ) {
+                    if (empty($officer->passphrase)) {
+                        return redirect()->route('esignature-confirmation.index');
+                    }
                 }
-              }
             }
         }
 

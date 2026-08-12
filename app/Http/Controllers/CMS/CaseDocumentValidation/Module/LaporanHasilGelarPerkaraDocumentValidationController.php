@@ -229,7 +229,6 @@ class LaporanHasilGelarPerkaraDocumentValidationController extends Controller
             return redirect()->route('cms.case-document-validation.index')->with('success', 'Laporan Hasil Gelar Perkara berhasil disetujui.');
         } catch (\Exception $e) {
             DB::rollback();
-		dd($e);
             return redirect()->back()->with('error', 'Terjadi kesalahan. Laporan Hasil Gelar Perkara gagal disetujui.');
         }
     }

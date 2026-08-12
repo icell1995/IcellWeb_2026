@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
 use Webpatser\Uuid\Uuid;
 use Illuminate\Support\Str;
@@ -75,6 +76,16 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             ->whereHasUserActive()
             ->hasDataComplete()
             ->signatory()
+            ->active()
+            ->valid()
+            ->orderBy('first_name')
+            ->get();
+
+        // Internal officers for notulen dropdown (all officers from police unit)
+        $internalOfficers = Officer::withRelated()
+            ->selectFullName()
+            ->whereIn('police_id', $getOldNewPolresIds)
+            ->whereNotIn('class', ['SIGNATORY'])
             ->active()
             ->valid()
             ->orderBy('first_name')
@@ -171,7 +182,8 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             'suspects' => $suspects,
             'arrerstedSuspects' => $suspects->where('flag', Suspect::getEnumOption('flag', 'TERSANGKA')),
             'revocationSuspects' => $suspects->where('flag', Suspect::getEnumOption('flag', 'TERSANGKA')),
-            'witnesses' => $witnesses
+            'witnesses' => $witnesses,
+            'internalOfficers' => $internalOfficers
         ];
 
         return view('docs.laporan-hasil-gelar-perkara-document.create', $viewData);
@@ -203,6 +215,12 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $place = htmlspecialchars($request->place);
         $caseDegreeLeader = htmlspecialchars($request->caseDegreeLeader);
         $attendees = htmlspecialchars($request->attendees);
+
+        // New fields
+        $implementer = htmlspecialchars($request->implementer);
+        $litigated = htmlspecialchars($request->litigated);
+        $attendanceList = htmlspecialchars($request->attendanceList);
+        $notulenId = htmlspecialchars($request->notulen);
 
         $discussion = htmlspecialchars($request->discussion);
         $conclusion = htmlspecialchars($request->conclusion);
@@ -240,6 +258,11 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
                 'place' => $place,
                 'case_degree_leader' => $caseDegreeLeader,
                 'attendees' => $attendees,
+
+                // New fields
+                'implementer' => $implementer,
+                'litigated' => $litigated,
+                'attendance_list' => $attendanceList,
 
                 'discussion' => $discussion,
                 'conclusion' => $conclusion,
@@ -326,6 +349,33 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
                 ];
             }
             $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers()->create($signatoryCreateData);
+
+            // NOTULEN - using internal officers pattern
+            if (!empty($notulenId)) {
+                $notulenOfficer = Officer::where('register_number', $notulenId)->first();
+                if ($notulenOfficer) {
+                    $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers()->create([
+                        'laporan_hasil_gelar_perkara_document_id' => $laporanHasilGelarPerkaraDocumentId,
+                        'register_number' => $notulenOfficer->register_number,
+
+                        'first_title' => $notulenOfficer->first_title,
+                        'first_name' => $notulenOfficer->first_name,
+                        'last_name' => $notulenOfficer->last_name,
+                        'last_title' => $notulenOfficer->last_title,
+
+                        'rank_id' => $notulenOfficer->rank_id,
+                        'position_id' => $notulenOfficer->position_id,
+                        'phone_number' => $notulenOfficer->phone_number,
+                        'email' => $notulenOfficer->email,
+
+                        'police_id' => $notulenOfficer->police_id,
+                        'status' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('status', 'PRESENT'),
+                        'class' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('class', 'NOTULEN'),
+                        'flag' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('flag', 'INTERNAL'),
+                        'insert_method' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('insert_method', 'IMPORT'),
+                    ]);
+                }
+            }
 
             $suspectIds = [];
 
@@ -681,7 +731,8 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             DB::commit();
         }catch(\Exception $e){
             DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan pada saat menyimpan data.');
+            Log::error('LHGP Update Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            return redirect()->back()->with('error', 'Terjadi kesalahan pada saat menyimpan data: ' . $e->getMessage());
         }
 
         // Redirect
@@ -1415,7 +1466,8 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data');
+            Log::error('LHGP Store Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
         }
  
         // Redirect with param accident_id
@@ -1461,7 +1513,16 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . $accident->polres->polda->full_name . '</w:t><w:p/><w:t>' . $signatory->position->name ?? '',
         ];
 
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/laporan_hasil_gelar_perkara.docx');
+        //$templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/laporan_hasil_gelar_perkara.docx');
+        // Tentukan template file berdasarkan tanggal kecelakaan
+        $cutoffDate = Carbon::parse('2026-01-02');
+        $accidentDate = Carbon::parse($accident->accident_date);
+
+        $templateFile = $accidentDate->lt($cutoffDate)
+            ? 'word-template/laporan_hasil_gelar_perkara_old.docx'
+            : 'word-template/laporan_hasil_gelar_perkara.docx';
+
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templateFile);
 
         if(isset($signatory->position)){
             if($signatory->position->position_cluster_id == '1'){
@@ -1476,6 +1537,8 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $documentDate = Carbon::parse($laporanHasilGelarPerkaraDocument->document_date)->locale('id')->translatedFormat('d F Y');
         $accidentNumber = $accident->no_lp;
         $suratPerintahPenyidikanDocumentNumber = $laporanHasilGelarPerkaraDocument->suratPerintahPenyidikanDocument->document_number;
+        $suratPerintahTugas = $laporanHasilGelarPerkaraDocument->suratPerintahTugasHukumDocument;
+        $suratPerintahDocumentNumber = $suratPerintahTugas?->document_number ?? '';
         $caseDegreeInviteReference = $laporanHasilGelarPerkaraDocument->case_degree_invite_reference;
         $dayDate = Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('l') . ', ' . Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('d F Y');
         $time = $laporanHasilGelarPerkaraDocument->time . ' ' . $laporanHasilGelarPerkaraDocument->timezone->name;
@@ -1499,6 +1562,7 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $templateProcessor->setValue('documentDate', $documentDate);
         $templateProcessor->setValue('accidentNumber', $accidentNumber);
         $templateProcessor->setValue('suratPerintahPenyidikanDocumentNumber', $suratPerintahPenyidikanDocumentNumber);
+        $templateProcessor->setValue('suratPerintahTugasPenyidikanNumber', $suratPerintahDocumentNumber);
         $templateProcessor->setValue('caseDegreeInviteReference', $caseDegreeInviteReference);
         $templateProcessor->setValue('dayDate', $dayDate);
         $templateProcessor->setValue('time', $time);
@@ -1513,6 +1577,54 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $templateProcessor->setValue('signatoryName', $signatoryName);
         $templateProcessor->setValue('signatoryRankName', strtoupper($signatoryRankName));
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);
+
+        // New template variables
+        $accidentDate = Carbon::parse($accident->accident_date)->locale('id')->translatedFormat('d F Y');
+        $locationCreated = ucwords(strtolower($police->polres_district ?? ''));
+
+        $templateProcessor->setValue('accident_date', $accidentDate);
+        $templateProcessor->setValue('location_created', $locationCreated);
+        $templateProcessor->setValue('issued_date', $documentDate);
+
+        // Variables without database support yet - set to empty
+        $templateProcessor->setValue('implementer', $laporanHasilGelarPerkaraDocument->implementer ?? '');
+        $templateProcessor->setValue('litigated', $laporanHasilGelarPerkaraDocument->litigated ?? '');
+
+        // Notulen info - get from officer records
+        $notulenOfficer = $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers
+            ->where('class', '=', LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('class', 'NOTULEN'))
+            ->first();
+        $notulenName = '';
+        $notulenRankName = '';
+        $notulenRegisterNumber = '';
+        if ($notulenOfficer) {
+            $notulenName = PeopleNameHelper::getFullName($notulenOfficer->first_title, $notulenOfficer->first_name, $notulenOfficer->last_name, $notulenOfficer->last_title);
+            $notulenRankName = $notulenOfficer->rank->name ?? '';
+            $notulenRegisterNumber = $notulenOfficer->register_number;
+        }
+
+        $templateProcessor->setValue('notulenName', $notulenName);
+        $templateProcessor->setValue('notulenRankName', strtoupper($notulenRankName));
+        $templateProcessor->setValue('notulenRegisterNumber', $notulenRegisterNumber);
+
+        $attendanceListRaw = $laporanHasilGelarPerkaraDocument->attendance_list ?? '';
+        $attendanceListArray = array_filter(explode("\n", $attendanceListRaw));
+
+        if (count($attendanceListArray) > 0) {
+            $blockAttendances = [];
+            $no = 'a';
+            foreach ($attendanceListArray as $attendance) {
+                $blockAttendances[] = [
+                    'numbers' => $no,
+                    'attendance' => trim($attendance),
+                ];
+                $no++;
+            }
+            $templateProcessor->cloneBlock('block_attendances', 0, true, false, $blockAttendances);
+        } else {
+            // No attendance data, remove the block
+            $templateProcessor->cloneBlock('block_attendances', 0, true, true);
+        }
 
         $filename = 'generate/' . Str::uuid() . ' - Laporan Hasil Gelar Perkara - Resor ' . $accident->polres->full_name;
         $templateProcessor->saveAs($filename.'.docx');
@@ -1634,6 +1746,11 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             'caseDegreeLeader' => 'required | max:255',
             'attendees' => 'required | numeric | max:999 | min:1',
 
+            'implementer' => 'required | max:255',
+            'litigated' => 'required | max:255',
+            'attendanceList' => 'required',
+            'notulen' => 'required',
+
             'discussion' => 'required | max:65535',
             'conclusion' => 'required | max:65535',
             'closing' => 'required | max:65535',
@@ -1691,6 +1808,13 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             'attendees.numeric' => 'Jumlah Peserta harus berupa angka',
             'attendees.min' => 'Jumlah Peserta minimal 1',
             'attendees.max' => 'Jumlah Peserta maksimal 999',
+
+            'implementer.required' => 'Pelaksana harus diisi',
+            'implementer.max' => 'Pelaksana maksimal 255 karakter',
+            'litigated.required' => 'Perkara harus diisi',
+            'litigated.max' => 'Perkara maksimal 255 karakter',
+            'attendanceList.required' => 'Daftar Peserta Gelar harus diisi',
+            'notulen.required' => 'Notulen harus diisi',
 
             'discussion.required' => 'Pembahasan harus diisi',
             'discussion.max' => 'Pembahasan maksimal 65535 karakter',

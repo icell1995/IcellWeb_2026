@@ -21,9 +21,9 @@ class ModifyOfficerIdColumnToLegacyPivotTables extends Migration
             $table->string('officer_id', 255)->nullable()->change();
         });
         
-        /*Schema::table('legacy.investigation_order_letter_signatory_officer', function (Blueprint $table) {
+        Schema::table('legacy.investigation_order_letter_signatory_officer', function (Blueprint $table) {
             $table->string('officer_id', 255)->nullable()->change();
-        });*/
+        });
        
         Schema::table('legacy.investigation_warrant_leader_officer', function (Blueprint $table) {
             $table->string('officer_id', 255)->nullable()->change();
@@ -33,9 +33,9 @@ class ModifyOfficerIdColumnToLegacyPivotTables extends Migration
             $table->string('officer_id', 255)->nullable()->change();
         });
         
-        /*Schema::table('legacy.investigation_warrant_signatory_officer', function (Blueprint $table) {
+        Schema::table('legacy.investigation_warrant_signatory_officer', function (Blueprint $table) {
             $table->string('officer_id', 255)->nullable()->change();
-        });*/
+        });
        
         Schema::table('legacy.officer_springas', function (Blueprint $table) {
             $table->string('officer_id', 255)->nullable()->change();
@@ -61,9 +61,9 @@ class ModifyOfficerIdColumnToLegacyPivotTables extends Migration
             $table->string('officer_id', 16)->nullable()->change();
         });
         
-        /*Schema::table('legacy.investigation_order_letter_signatory_officer', function (Blueprint $table) {
+        Schema::table('legacy.investigation_order_letter_signatory_officer', function (Blueprint $table) {
             $table->string('officer_id', 16)->nullable()->change();
-        });*/
+        });
        
         Schema::table('legacy.investigation_warrant_leader_officer', function (Blueprint $table) {
             $table->string('officer_id', 16)->nullable()->change();
@@ -73,9 +73,9 @@ class ModifyOfficerIdColumnToLegacyPivotTables extends Migration
             $table->string('officer_id', 16)->nullable()->change();
         });
         
-        /*Schema::table('legacy.investigation_warrant_signatory_officer', function (Blueprint $table) {
+        Schema::table('legacy.investigation_warrant_signatory_officer', function (Blueprint $table) {
             $table->string('officer_id', 16)->nullable()->change();
-        });*/
+        });
        
         Schema::table('legacy.officer_springas', function (Blueprint $table) {
             $table->string('officer_id', 16)->nullable()->change();

@@ -23,7 +23,7 @@
                             </a>
                         </div>
                         <div class="mt-3 table-responsive">
-                            <table class="table table-striped table-bordered table-users dataTable" name="dataTable" width="100%">
+                            <table class="table table-striped table-bordered table-users dataTable" name="dataTable" width="100%" id="positionsTable">
                                 <thead>
                                     <tr>
                                         <th class="text-center">#</th>
@@ -42,7 +42,7 @@
                                 </thead>
 
                                 <tbody>
-                                    @foreach ($positions as $position)
+                                    {{-- @foreach ($positions as $position)
                                         <tr class="">
                                             <td class="text-center align-middle">
                                                 {{ $loop->iteration }}
@@ -91,7 +91,7 @@
                                                         class="bi bi-trash"></i></a>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @endforeach --}}
                                 </tbody>
                             </table>
                         </div>
@@ -112,15 +112,133 @@
     <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
     <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
-    <!-- Delete Button -->
-    <script src="{{ asset('js/laravel.js') }}"></script>
-
     <script>
         $(document).ready(function() {
-            $('.dataTable').DataTable({
+            $('#positionsTable').DataTable({
                 responsive: true,
+                processing: true,
+                serverSide: true,
+                ajax: '{{ url()->current() }}',
+                stateSave: true,
+                columns: [
+                    { 
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            // Calculate the iteration number
+                            var pageInfo = $('#positionsTable').DataTable().page.info();
+                            var iteration = meta.row + 1 + pageInfo.start;
+                            return iteration;
+                        }
+                    },
+                    { data: 'id'},
+                    { data: 'name'},
+                    { data: 'emp_id'},
+                    { data: 'code'},
+                    { 
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            return (data.employment_type) ? data.employment_type.name : '';
+                        }
+                    },
+                    { 
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            return (data.position_cluster) ? data.position_cluster.name : '';
+                        }
+                    },
+                    { data: 'sort'},
+                    { 
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            return (data.is_active) ? 'Ya' : 'Tidak';
+                        }
+                    },
+                    { 
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            var position = (data.is_can_signatory) ? 'Ya' : 'Tidak';
+                            var cluster = (data.position_cluster.is_can_signatory) ? 'Ya' : 'Tidak'; 
+
+                            return 'Position : ' + position + '<br/> Cluster : ' + cluster;
+                        }
+                    },
+                    { 
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            var policeName = (data.police) ? data.police.name : '';
+                            var policeId = (data.police) ? data.police.id : '';
+                            return policeName + ' - ' + policeId;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data, type, row, meta) {
+                            // Render multiple buttons
+                            var buttons = '';
+
+                            // Generate the URLs dynamically using the data from the row
+                            var editUrl = '{{ route("cms.libs.position.edit", ":id") }}'.replace(':id', data.id);
+                            var deleteUrl = '{{ route("cms.libs.position.delete", ":id") }}'.replace(':id', data.id);
+
+                            buttons += '<a href="' + editUrl + '" class="btn btn-sm btn-warning m-1">';
+                            buttons += '<i class="bi bi-pencil-square"></i>';
+                            buttons += '</a>';
+
+                            buttons += '<button class="btn btn-danger btn-sm m-1 delete-button" data-id="' + data.id + '" data-url="' + deleteUrl + '" data-token="{{ csrf_token() }}" data-confirm="Apakah Anda yakin ingin menghapus ini?">';
+                            buttons += '<i class="bi bi-trash"></i>';
+                            buttons += '</button>';
+
+                            return buttons;
+                        }
+                    }
+                ]
             });
         });
+
+        $(document).on('click', '.delete-button', function (e) {
+            e.preventDefault();
+
+            var button = $(this);
+            var deleteUrl = button.data('url');
+            var token = button.data('token');
+            var confirmMessage = button.data('confirm');
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: confirmMessage,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: deleteUrl,
+                        type: 'DELETE',
+                        data: {
+                            _token: token
+                        },
+                        success: function (response) {
+                            Swal.fire(
+                                'Deleted!',
+                                'The record has been deleted.',
+                                'success'
+                            );
+                            $('#positionsTable').DataTable().ajax.reload();
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire(
+                                'Failed!',
+                                'There was an error deleting the record.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        });
+
 
         // Select2 with Bootstrap4 theme
         $(document).ready(function() {
@@ -130,4 +248,7 @@
             });
         });
     </script>
+
+        <!-- Delete Button -->
+    <script src="{{ asset('js/laravel.js') }}"></script>
 @endpush

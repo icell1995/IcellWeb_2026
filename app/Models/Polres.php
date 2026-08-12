@@ -12,7 +12,7 @@ class Polres extends Model
     protected $primaryKey = 'id';
     protected $table = 'polres';
     protected $keyType = 'string';
-    
+
     protected $guarded = [];
 
     /// cast
@@ -26,7 +26,7 @@ class Polres extends Model
     {
         return $this->belongsTo('App\Models\Polda', 'polda_id', 'id');
     }
-    
+
     public function prosecutor() {
         return $this->belongsToMany('App\Models\Meta\Institutions\Prosecutor', 'polres_prosecutor', 'polres_id', 'prosecutor_id');
     }
@@ -37,5 +37,10 @@ class Polres extends Model
 
     public function authorized_signatory() {
         return $this->hasMany('App\Models\Peoples\AuthorizedSignatory', 'polres_id', 'id');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'polres_id', 'id');
     }
 }

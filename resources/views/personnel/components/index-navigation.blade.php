@@ -14,13 +14,14 @@
             <a class="nav-link {{($pageParam == 'inactive') ? 'active' : null}}" href="{{ route('personnel.index', ['page' => 'inactive', 'policeId' => $policeId]) }}">Anggota Tidak Aktif</a>
         </li>
 
-        @if(Auth::user()->role_id == 1)
+        @if(Auth::user()->hasPermission('personnel.R'))
             <li class="nav-item">
                 <a class="nav-link {{($pageParam == 'verification') ? 'active' : null}}" href="{{ route('personnel.index', ['page' => 'verification', 'policeId' => $policeId]) }}">Verifikasi Request</a>
             </li>
-            <li class="nav-item">
+            {{-- Tab Pejabat TTE disembunyikan — sudah tersedia sebagai menu terpisah di Sidebar (Anggota → Pejabat TTE) --}}
+            {{-- <li class="nav-item">
                 <a class="nav-link {{($pageParam == 'signatory') ? 'active' : null}}" href="{{ route('personnel.index', ['page' => 'signatory']) }}">Pejabat TTE</a>
-            </li>
+            </li> --}}
         @endif
     </ul>      
 </div>

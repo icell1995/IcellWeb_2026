@@ -99,7 +99,6 @@
             </div>
         </div>
     </div>
-    </div>
 @endsection
 
 @push('script')
@@ -110,7 +109,7 @@
     <script>
         $(document).ready(function() {
             $('#dataTable').DataTable({
-                responsive: true,
+                scrollX: true,
             });
         });
     </script>

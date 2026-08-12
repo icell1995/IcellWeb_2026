@@ -331,7 +331,7 @@
                 @endif
             </div>
 
-            {{-- <div class="item-list">
+            <div class="item-list">
                 <span>Laporan Hasil Gelar Perkara</span>
                 @if ($laporan_gelar_perkara == null)
                     <i class="bi bi-pencil-square" id="surat_penyitaan_20" name="surat_penyitaan_20"></i>
@@ -346,7 +346,7 @@
                         font-weight: bold; padding: 10px;">DELETE</button>
                     </form>
                 @endif
-            </div> --}}
+            </div>
 
             <div class="item-list">
                 <span>Laporan Hasil Gelar Perkara Khusus</span>

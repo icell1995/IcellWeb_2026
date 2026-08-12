@@ -19,15 +19,8 @@ class AddRawBlankRecordsFromUsersToOfficersMigrationSeeder extends Seeder
      */
     public function run(): void
     {
-	/*$users = User::all();
-	foreach($users as $user){
-		if($user->register_number != $user->officer_id){
-			$user->register_number = $user->officer_id;
-			$user->save();
-		}
-	}*/
-        $this->migrateAttachUserToOfficer();
-        //$this->migrateAttachOfficerToUser();
+        // $this->migrateAttachUserToOfficer();
+        $this->migrateAttachOfficerToUser();
     }
 
     private function migrateAttachUserToOfficer(){

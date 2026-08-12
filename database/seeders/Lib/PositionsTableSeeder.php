@@ -19,6 +19,7 @@ class PositionsTableSeeder extends Seeder
     {
         // Insert to table positions
         $positions = $this->getPositions();
+        dump($positions);
 
         DB::beginTransaction();
         try{

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('token', 64)->unique();
             $table->timestamp('expires_at');
             $table->timestamps();
+
         });
     }
 

@@ -18,9 +18,8 @@ class PermissionController extends Controller
 
     public function index()
     {
-
-        $permission = Permission::orderBy('id','asc')->get();
-        return view('permission.permission-index',compact('permission'));
+        // View menampilkan langsung Permission Matrix secara read-only
+        return view('permission.permission-index');
     }
 
     public function add(){

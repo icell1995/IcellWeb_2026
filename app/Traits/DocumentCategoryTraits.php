@@ -94,7 +94,7 @@ trait DocumentCategoryTraits
                 }
 
                 $isSynced = $doc->last_synced_at !== null;
-                $isReturned = $doc->status_id === 4 || $doc->status_id === '4'; 
+                $isReturned = $doc->status_id === 4 || $doc->status_id === '4';
 
                 if ($isSynced) {
                     $statusInfo = 'Sudah Dipertukarkan';
@@ -167,7 +167,6 @@ trait DocumentCategoryTraits
             case 'springas_sidik':
                 $documents = $documents->merge($this->getSpringasSidik($accidentId));
                 $documents = $documents->merge($this->getSprindik($accidentId));
-                $documents = $documents->merge($this->getSpringasSidik($accidentId));
                 $documents = $documents->merge($this->getLHGP($accidentId));
                 $documents = $documents->merge($this->getTapTersangka($accidentId));
                 $documents = $documents->merge($this->getSPDP($accidentId));
@@ -182,7 +181,7 @@ trait DocumentCategoryTraits
                 $documents = $documents->merge($this->getSPDP($accidentId));
                 break;
 
-            case 'springas_sidik':
+            // case 'springas_sidik':
             case 'springas_lidik':
                 break;
         }

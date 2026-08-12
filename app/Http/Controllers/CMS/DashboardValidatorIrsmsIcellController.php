@@ -542,7 +542,7 @@ class DashboardValidatorIrsmsIcellController extends Controller
             $endDate = Carbon::today()->endOfDay();
         } else {
             $tz = config('app.timezone', 'Asia/Jakarta');
-            $startDate = Carbon::createFromFormat('Y-m-d', '2026-01-01', $tz)->startOfDay();
+            $startDate = Carbon::createFromFormat('Y-m-d', '2025-09-15', $tz)->startOfDay();
             $endDate = Carbon::now($tz)->endOfDay();
         }
 
@@ -583,7 +583,7 @@ class DashboardValidatorIrsmsIcellController extends Controller
             $endDate = Carbon::today()->endOfDay();
         } else {
             $tz = config('app.timezone', 'Asia/Jakarta');
-            $startDate = Carbon::createFromFormat('Y-m-d', '2026-01-01', $tz)->startOfDay();
+            $startDate = Carbon::createFromFormat('Y-m-d', '2025-09-15', $tz)->startOfDay();
             $endDate = Carbon::now($tz)->endOfDay();
         }
 

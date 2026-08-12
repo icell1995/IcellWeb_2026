@@ -12,7 +12,7 @@
 
     <div id="collapsePenangkapan" class="accordion-collapse collapse" data-bs-parent="#accordionProduktivitas">
         <div class="accordion-body item-body">
-            {{-- <div class="item-list">
+            <div class="item-list">
                 <span>Surat Ketetapan Tentang Penetapan Tersangka</span>
                 @if ($surat_penetapan_tersangka == null)
                     <i class="bi bi-pencil-square" id="surat_penangkapan_1" name="surat_penangkapan_1"></i>
@@ -27,7 +27,7 @@
                             font-weight: bold; padding: 10px;">DELETE</button>
                     </form>
                 @endif
-            </div> --}}
+            </div>
 
             <div class="item-list">
                 <span>Surat Perintah Penangkapan</span>

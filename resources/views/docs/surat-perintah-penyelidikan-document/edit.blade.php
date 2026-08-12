@@ -456,9 +456,9 @@
 
             <hr>
 
-		@if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratPerintahPenyelidikanDocument->is_legacy || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-            		@include('docs.components.form.checkbox.is-legacy', ['document' => $suratPerintahPenyelidikanDocument])
-		@endif
+            @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratPerintahPenyelidikanDocument->is_legacy || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
+                @include('docs.components.form.checkbox.is-legacy', ['document' => $suratPerintahPenyelidikanDocument])
+            @endif
 
             <hr>
 
@@ -584,7 +584,7 @@
 <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
 @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratPerintahPenyelidikanDocument->is_legacy || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-	@include('docs.components.form.checkbox.is-legacy-js')
+    @include('docs.components.form.checkbox.is-legacy-js')
 @endif
 
 <script type="text/javascript">

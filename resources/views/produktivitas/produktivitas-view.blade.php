@@ -388,6 +388,29 @@
     <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
     <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
+    @if (session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: @json(session('success')),
+                showConfirmButton: false,
+                timer: 2500
+            });
+        </script>
+    @endif
+
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: @json(session('error')),
+                showConfirmButton: true,
+            });
+        </script>
+    @endif
+
     @if (!empty($lastSelraReject) && !empty($shouldShowRejectModal))
         <script>
             (function() {
@@ -472,8 +495,7 @@
             $('#selraDate').datepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: "true",
-                endDate: new Date(),
-                startDate: '{{ $accident_report_date }}'
+                endDate: new Date()
             });
             $('#selraDate').keydown(function(e) {
                 e.preventDefault();
@@ -550,19 +572,6 @@
 
                 // Validasi format nomor selra
                 if (!validateSelraNumber()) {
-                    return;
-                }
-
-                // Validasi tanggal: selraDate tidak boleh sebelum report_date
-                var selraDateVal = $('#selraDate').val();
-                var reportDate   = '{{ $accident_report_date }}';
-                if (selraDateVal && reportDate && selraDateVal < reportDate) {
-                    Swal.fire({
-                        title: 'Tanggal Tidak Valid',
-                        text: 'Tanggal Ketetapan Selra tidak boleh lebih awal dari Tanggal LP (' + reportDate + ').',
-                        icon: 'warning',
-                        confirmButtonText: 'OK'
-                    });
                     return;
                 }
 

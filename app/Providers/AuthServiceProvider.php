@@ -27,20 +27,39 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::before(function($user, $ability) {
-          if ($user->hasPermission($ability)) {
+        Gate::before(function ($user, $ability) {
+            if ($user && $user->hasPermission($ability)) {
                 return true;
-          }
-    	});
+            }
+        });
 
-	Gate::define('viewPulse', function (User $user) {
+        // Menu / route `can:productivity.R`: izin baca modul atau izin LP (matrix terpisah)
+        Gate::define('productivity.R', function (?User $user) {
+            if (!$user) {
+                return false;
+            }
+
+            return $user->hasPermission('productivity.R')
+                || $user->hasPermission('productivity-lp.R');
+        });
+
+        // Struktur organisasi: matrix punya R dan D
+        Gate::define('organization.R', function (?User $user) {
+            if (!$user) {
+                return false;
+            }
+
+            return $user->hasPermission('organization.R')
+                || $user->hasPermission('organization.D');
+        });
+
+        Gate::define('viewPulse', function (User $user) {
             if (!empty($user->role_id) && $user->role_id == 1) {
                 return true;
             }
 
             return false;
         });
-
         //
           /* define a admin user role */
         // Gate::define('manage-users', function($user) {

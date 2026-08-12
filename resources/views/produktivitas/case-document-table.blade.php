@@ -13,7 +13,7 @@
         <h5 class="fw-bold card-title m-0">
             Berkas Perkara
         </h5>
-        @if (Auth::getUser()->role_id == 4 || Auth::getUser()->role_id == 1 || $isCanEntryDocument)
+        @if(Auth::user()->hasPermission('productivity-lp.C'))
             <a href="#" data-bs-toggle="modal" data-bs-target="#addDocument" class="btn btn-dark-blue">
                 <i class="bi bi-plus-circle me-2"></i>Tambah Dokumen
             </a>
@@ -69,7 +69,14 @@
                             
                             // Check if this is SP2HP document
                             $isSp2hpDocument = is_a($accidentDocument, 'App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument');
+
+                            // Check if this is SP3 document
+                            $isSp3Document = is_a($accidentDocument, 'App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument');
+
+                            // Check if this is Tahap I document
+                            $isTahap1Document = is_a($accidentDocument, 'App\Models\Doc\Tahap1Document\Tahap1Document');
                             
+
                             // Skip SP2HP documents if user is not role_id 1
                             if ($isSp2hpDocument && Auth::getUser()->role_id != 1) {
                                 continue;
@@ -83,16 +90,16 @@
                                         - Tipe {{ strtoupper($accidentDocument->tipe_sp2hp) }}
                                     @endif
                                 @elseif ($isExistsDocumentCategory && !empty($accidentDocument->caseDegreeType))
-                                    {{ $accidentDocument->documentCategory->name . ' (' . $accidentDocument->caseDegreeType->name . ')' }}
+                                    {{ mb_strtoupper($accidentDocument->documentCategory->name.' ('.$accidentDocument->caseDegreeType->name.')', 'UTF-8') }}
                                 @elseif($isExistsDocumentCategory)
                                     @if ($accidentDocument->documentCategory->id == '0702')
                                         @if($accidentDocument->related_type == 'App\Models\Doc\SuratPerintahPenyelidikanDocument\SuratPerintahPenyelidikanDocument')
-                                            {{ $accidentDocument->documentCategory->name . ' (PENYELIDIKAN)' }}
+                                            {{ mb_strtoupper($accidentDocument->documentCategory->name.' (PENYELIDIKAN)', 'UTF-8') }}
                                         @elseif($accidentDocument->related_type == 'App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument')
-                                            {{ $accidentDocument->documentCategory->name . ' (PENYIDIKAN)' }}
+                                            {{ mb_strtoupper($accidentDocument->documentCategory->name.' (PENYIDIKAN)', 'UTF-8') }}
                                         @endif
                                     @else
-                                        {{ $accidentDocument->documentCategory->name }}
+                                        {{ mb_strtoupper($accidentDocument->documentCategory->name, 'UTF-8') }}
                                     @endif
                                 @endif
 
@@ -267,7 +274,7 @@
                                             <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
                                                 class="btn btn-warning btn-sm m-1"><i class="fa fa-edit"></i> Revisi</a>
                                             <br>
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->document_category_id]) }} @endif"
                                                 class="btn btn-danger btn-sm m-1" data-method="delete"
                                                 data-token="{{ csrf_token() }}"
                                                 data-confirm="Apakah Anda yakin ingin menghapus ini?"><i
@@ -415,9 +422,29 @@
                                         <option value="">---Pilih Tahapan Dokumen---</option>
                                         @php
                                             $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm = $countAccidentDocuments['suratPerintahPenyelidikanDocumentsRequiredUnlockForm']['count'] ?? 0;
+                                            // SKET approved → stage 03 (Penangkapan) boleh tampil
+                                            $sketApprovedCount = $countAccidentDocuments['suratKetetapanTentangPenetapanTersangkaDocuments']['count'] ?? 0;
+                                            // SPP approved → stage 06 (Penahanan) boleh tampil
+                                            $sppApprovedCount = $countAccidentDocuments['suratPerintahPenangkapanDocuments']['count'] ?? 0;
                                         @endphp
                                         @foreach ($documentStages as $documentStage)
-                                            @if($documentStage->id == '01' || $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm > 0)
+                                            @php
+                                                $showStage = false;
+                                                if ($documentStage->id == '01') {
+                                                    $showStage = true;
+                                                } elseif ($suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm > 0) {
+                                                    if ($documentStage->id == '03') {
+                                                        // Stage Penangkapan: SKET harus approved
+                                                        $showStage = $sketApprovedCount > 0;
+                                                    } elseif ($documentStage->id == '06') {
+                                                        // Stage Penahanan: SPP harus approved
+                                                        $showStage = $sppApprovedCount > 0;
+                                                    } else {
+                                                        $showStage = true;
+                                                    }
+                                                }
+                                            @endphp
+                                            @if($showStage)
                                                 <option value="{{ $documentStage->id }}">
                                                     {{ $documentStage->name }}
                                                 </option>
@@ -449,6 +476,30 @@
 
 @push('case-document-table-script')
     <script>
+        function loadTypeDocumentOptions() {
+            var classDocumentID = $('#classDocument').val();
+            if (!classDocumentID) {
+                $('#typeDocument').empty();
+                $('#typeDocument').append('<option value="">---Pilih Jenis Dokumen---</option>');
+                return;
+            }
+            $.ajax({
+                url: "/document/type-document/" + classDocumentID + "?accident_id={{ $id }}&_=" + Date.now(),
+                type: "GET",
+                dataType: "json",
+                cache: false,
+                success: function(data) {
+                    $('#typeDocument').empty();
+                    $('#typeDocument').append(
+                        '<option value="">---Pilih Jenis Dokumen---</option>');
+                    $.each(data, function(key, value) {
+                        $('#typeDocument').append('<option value="' + value.id + '">' +
+                            value.name + '</option>');
+                    });
+                }
+            });
+        }
+
         $(document).ready(function() {
             $('#dataTable').DataTable({
                 responsive: true,
@@ -458,31 +509,16 @@
             $('#documentSubmit').prop('disabled', true);
         });
 
+        $('#addDocument').on('shown.bs.modal', function() {
+            loadTypeDocumentOptions();
+        });
+
         $('#classDocument').on('change', function() {
-            var classDocumentID = $(this).val();
-            if (classDocumentID) {
-                $.ajax({
-                    url: "/document/type-document/" + classDocumentID,
-                    type: "GET",
-                    dataType: "json",
-                    success: function(data) {
-                        $('#typeDocument').empty();
-                        $('#typeDocument').append(
-                            '<option value="">---Pilih Jenis Dokumen---</option>');
-                        $.each(data, function(key, value) {
-                            $('#typeDocument').append('<option value="' + value.id + '">' +
-                                value.name + '</option>');
-                        });
-                    }
-                });
-            } else {
-                $('#typeDocument').empty();
-                $('#typeDocument').append('<option value="">---Pilih Jenis Dokumen---</option>');
-            }
+            loadTypeDocumentOptions();
         });
 
         $('#typeDocument').on('change', function() {
-            var classDocumentID = $(this).val();
+            var classDocumentID = $('#classDocument').val();
             var typeDocumentID = $('#typeDocument').val();
             if (classDocumentID && typeDocumentID) {
                 $('#documentSubmit').prop('disabled', false);

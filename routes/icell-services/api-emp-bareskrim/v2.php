@@ -39,4 +39,24 @@ Route::prefix('doc')->group(function () {
     Route::prefix('surat-pemberitahuan-dimulainya-penyidikan-documents')->group(function () {
         Route::get('/', [App\Http\Controllers\IcellServices\ApiEmpBareskrim\V2\Doc\SuratPemberitahuanDimulainyaPenyidikanDocumentController::class, 'index'])->name('api.v2.doc.surat-pemberitahuan-dimulainya-penyidikan-documents.index');
     });
+    
+    Route::prefix('daftar-tersangka-documents')->group(function () {
+        Route::get('/', [App\Http\Controllers\IcellServices\ApiEmpBareskrim\V2\Doc\DaftarTersangkaDocumentController::class, 'index'])->name('api.v2.doc.daftar-tersangka-documents.index');
+    });
+    
+    Route::prefix('tahap-1-documents')->group(function () {
+        Route::get('/', [App\Http\Controllers\IcellServices\ApiEmpBareskrim\V2\Doc\Tahap1DocumentController::class, 'index'])->name('api.v2.doc.tahap-1-documents.index');
+    });
+    
+    Route::prefix('tahap-2-documents')->group(function () {
+        Route::get('/', [App\Http\Controllers\IcellServices\ApiEmpBareskrim\V2\Doc\Tahap2DocumentController::class, 'index'])->name('api.v2.doc.tahap-2-documents.index');
+    });
+
+    Route::prefix('p19-documents')->group(function () {
+        Route::get('/', [App\Http\Controllers\IcellServices\ApiEmpBareskrim\V2\Doc\P19DocumentController::class, 'index'])->name('api.v2.doc.p19-documents.index');
+    });
+    
+    Route::prefix('p21-documents')->group(function () {
+        Route::get('/', [App\Http\Controllers\IcellServices\ApiEmpBareskrim\V2\Doc\P21DocumentController::class, 'index'])->name('api.v2.doc.p21-documents.index');
+    });
 });

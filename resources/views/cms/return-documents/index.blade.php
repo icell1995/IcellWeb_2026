@@ -2,25 +2,6 @@
 
 @section('_title', 'Pengembalian Dokumen')
 
-{{-- @section('content')
-    <div class="container-fluid card rounded-4 p-3">
-        <div class="row">
-            <div class="col-12">
-                <h3 class="text-primary fw-bold ">Pengembalian Dokumen</h3>
-                <form id="search-form" class="mb-4">
-                    <div class="input-group input-group-outline">
-                        <input type="text" id="no_lp" class="form-control" placeholder="Masukkan No LP..." autofocus>
-                        <button class="btn btn-primary bg-gradient-primary" type="submit"
-                            id="search-accident">Cari</button>
-                    </div>
-                </form>
-
-                <div id="results-container" class="row mt-4"></div>
-            </div>
-        </div>
-    </div>
-@endsection --}}
-
 @section('content')
     <div class="container-fluid p-0">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">

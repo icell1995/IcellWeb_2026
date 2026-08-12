@@ -138,7 +138,8 @@ Route::group(['middleware' => ['is-evaluation-form-filled', 'is-signatory']], fu
     //kategori 6
     Route::post('/add-barang-bukti', [App\Http\Controllers\AccidentController::class, 'add_barang_bukti'])->name('add_barang_bukti');
     Route::get('/barang-bukti/list', [App\Http\Controllers\AccidentController::class, 'get_barang_bukti'])->name('get_barang_bukti');
-    Route::get('/tersabarang-buktingka/edit', [App\Http\Controllers\AccidentController::class, 'edit_barang_bukti'])->name('edit_barang_bukti');
+    Route::get('/barang-bukti/edit', [App\Http\Controllers\AccidentController::class, 'edit_barang_bukti'])->name('edit_barang_bukti');
+    Route::post('/barang-bukti/delete', [App\Http\Controllers\AccidentController::class, 'delete_barang_bukti'])->name('delete_barang_bukti');
     Route::post('/add-surat-penyitaan', [App\Http\Controllers\AccidentController::class, 'add_surat_penyitaan'])->name('add_surat_penyitaan');
     Route::post('/edit-surat-penyitaan', [App\Http\Controllers\AccidentController::class, 'edit_surat_penyitaan'])->name('edit_surat_penyitaan');
     Route::get('view-surat-penyitaan', [App\Http\Controllers\AccidentController::class, 'view_surat_penyitaan'])->name('view_surat_penyitaan');

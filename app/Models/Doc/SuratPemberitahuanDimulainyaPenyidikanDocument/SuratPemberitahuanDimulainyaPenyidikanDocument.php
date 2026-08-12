@@ -6,8 +6,11 @@ use App\Observers\UserActionObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
+
+use App\Models\ReturnDocuments;
 
 class SuratPemberitahuanDimulainyaPenyidikanDocument extends Model
 {
@@ -34,7 +37,7 @@ class SuratPemberitahuanDimulainyaPenyidikanDocument extends Model
         parent::boot();
 
         self::observe(UserActionObserver::class);
-     
+
         self::creating(function ($model) {
             $model->id = (string) Uuid::generate();
             $model->status_id = '2';
@@ -129,14 +132,14 @@ class SuratPemberitahuanDimulainyaPenyidikanDocument extends Model
 
     public function suratPemberitahuanDimulainyaPenyidikanDocumentOfficers()
     {
-        return $this->hasMany('App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocumentOfficer', 'surat_pemberitahuan_dimulainya_penyidikan_document_id', 'id');
+        return $this->hasMany('App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocumentOfficer', 'surat_pemberitahuan_dimulainya_penyidikan_document_id', 'id')->withRelated();
     }
 
     public function suspects(){
         return $this->belongsToMany('App\Models\Suspect', 'pivot.surat_pemberitahuan_dimulainya_penyidikan_document_suspect', 'surat_pemberitahuan_dimulainya_penyidikan_document_id', 'suspect_id')
             ->withRelated();
     }
-   
+
     public function reportedPersons(){
         return $this->belongsToMany('App\Models\ReportedPerson', 'pivot.surat_pemberitahuan_dimulainya_penyidikan_doc_reported_person', 'surat_pemberitahuan_dimulainya_penyidikan_document_id', 'reported_person_id')
             ->withRelated();

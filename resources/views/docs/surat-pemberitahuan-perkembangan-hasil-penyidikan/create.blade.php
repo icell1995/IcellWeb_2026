@@ -1334,53 +1334,49 @@
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Laporan Polisi" id="b_lp" name="berkas[]"
-                                                    data-template="Telah diterima Laporan Polisi nomor: {{ $accident->no_lp ?? 'LP/.../2025/...' }} tanggal {{ $accident->report_date ? \Carbon\Carbon::parse($accident->report_date)->format('d-m-Y') : '...' }}"
-                                                    {{ is_array(old('berkas')) && in_array('Laporan Polisi', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="lp" id="b_lp" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('lp', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_lp"> Laporan Polisi </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_lp" style="display: none;">
-                                                <input type="text" class="form-control keterangan-input" name="berkas_keterangan[Laporan Polisi]" 
-                                                    placeholder="Keterangan untuk Laporan Polisi" value="{{ old('berkas_keterangan.Laporan Polisi') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[lp]" 
+                                                    placeholder="Keterangan untuk Laporan Polisi" value="{{ old('berkas_keterangan.lp') }}">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Surat Perintah Tugas" id="b_sprintugas" name="berkas[]"
-                                                    data-template="Telah diterbitkan Surat Perintah Tugas nomor ................ pada tanggal ...../...../........"
-                                                    {{ is_array(old('berkas')) && in_array('Surat Perintah Tugas', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="sprin_tugas" id="b_sprintugas" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('sprin_tugas', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_sprintugas"> Surat Perintah Tugas </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_sprintugas" style="display: none;">
-                                                <input type="text" class="form-control keterangan-input" name="berkas_keterangan[Surat Perintah Tugas]" 
-                                                    placeholder="Contoh: Telah diterbitkan Surat perintah tugas pada tanggal 14 desember 2025" value="{{ old('berkas_keterangan.Surat Perintah Tugas') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[sprin_tugas]" 
+                                                    placeholder="Contoh: Telah diterbitkan Surat perintah tugas pada tanggal 14 desember 2025" value="{{ old('berkas_keterangan.sprin_tugas') }}">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Surat Perintah Penyidikan" id="b_sprindik" name="berkas[]"
-                                                    data-template="Telah diterbitkan Surat Perintah Penyidikan nomor {{ $nomorSprinSidik ?: '................' }} pada tanggal {{ $tanggalSprinSidik ?: '...../...../........' }}"
-                                                    {{ is_array(old('berkas')) && in_array('Surat Perintah Penyidikan', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="sprindik" id="b_sprindik" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('sprindik', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_sprindik"> Surat Perintah Penyidikan </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_sprindik" style="display: none;">
-                                                <input type="text" class="form-control keterangan-input" name="berkas_keterangan[Surat Perintah Penyidikan]" 
-                                                    placeholder="Keterangan untuk Surat Perintah Penyidikan" value="{{ old('berkas_keterangan.Surat Perintah Penyidikan') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[sprindik]" 
+                                                    placeholder="Keterangan untuk Surat Perintah Penyidikan" value="{{ old('berkas_keterangan.sprindik') }}">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Surat Pemberitahuan Dimulainya Penyidikan" id="b_spdp" name="berkas[]"
-                                                    data-template="Telah diterbitkan Surat Pemberitahuan Dimulainya Penyidikan (SPDP) nomor {{ $nomorSpdp ?: '................' }} pada tanggal {{ $tanggalSpdp ?: '...../...../........' }}"
-                                                    {{ is_array(old('berkas')) && in_array('Surat Pemberitahuan Dimulainya Penyidikan', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="spdp" id="b_spdp" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('spdp', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_spdp"> SPDP </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_spdp" style="display: none;">
-                                                <input type="text" class="form-control keterangan-input" name="berkas_keterangan[Surat Pemberitahuan Dimulainya Penyidikan]" 
-                                                    placeholder="Keterangan untuk SPDP" value="{{ old('berkas_keterangan.Surat Pemberitahuan Dimulainya Penyidikan') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[spdp]" 
+                                                    placeholder="Keterangan untuk SPDP" value="{{ old('berkas_keterangan.spdp') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -1391,14 +1387,13 @@
                                         </small>
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Berita Acara Pemeriksaan TKP" id="b_ba_tkp" name="berkas[]"
-                                                    data-template="Telah dilakukan pemeriksaan TKP pada tanggal ..."
-                                                    {{ is_array(old('berkas')) && in_array('Berita Acara Pemeriksaan TKP', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="ba_tkp" id="b_ba_tkp" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('ba_tkp', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_ba_tkp"> BA Pemeriksaan TKP </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_ba_tkp" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Berita Acara Pemeriksaan TKP]" 
-                                                    placeholder="Keterangan untuk BA Pemeriksaan TKP" value="{{ old('berkas_keterangan.Berita Acara Pemeriksaan TKP') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[ba_tkp]" 
+                                                    placeholder="Keterangan untuk BA Pemeriksaan TKP" value="{{ old('berkas_keterangan.ba_tkp') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -1409,27 +1404,25 @@
                                         </small>
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Surat Panggilan Saksi" id="b_panggilan_saksi" name="berkas[]"
-                                                    data-template="Telah diterbitkan Surat Panggilan untuk ... orang saksi"
-                                                    {{ is_array(old('berkas')) && in_array('Surat Panggilan Saksi', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="panggilan_saksi" id="b_panggilan_saksi" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('panggilan_saksi', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_panggilan_saksi"> Surat Panggilan Saksi </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_panggilan_saksi" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Surat Panggilan Saksi]" 
-                                                    placeholder="Keterangan untuk Surat Panggilan Saksi" value="{{ old('berkas_keterangan.Surat Panggilan Saksi') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[panggilan_saksi]" 
+                                                    placeholder="Keterangan untuk Surat Panggilan Saksi" value="{{ old('berkas_keterangan.panggilan_saksi') }}">
                                             </div>
                                         </div>
                                         
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Berita Acara Pemeriksaan Saksi" id="b_ba_saksi" name="berkas[]"
-                                                    data-template="Telah diperiksa ... orang saksi"
-                                                    {{ is_array(old('berkas')) && in_array('Berita Acara Pemeriksaan Saksi', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="ba_periksa_saksi" id="b_ba_saksi" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('ba_periksa_saksi', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_ba_saksi"> BA Pemeriksaan Saksi/Korban </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_ba_saksi" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Berita Acara Pemeriksaan Saksi]" 
-                                                    placeholder="Keterangan untuk BA Pemeriksaan Saksi/Korban" value="{{ old('berkas_keterangan.Berita Acara Pemeriksaan Saksi') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[ba_periksa_saksi]" 
+                                                    placeholder="Keterangan untuk BA Pemeriksaan Saksi/Korban" value="{{ old('berkas_keterangan.ba_periksa_saksi') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -1444,25 +1437,25 @@
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Surat Panggilan Tersangka" id="b_panggilan_tersangka" name="berkas[]"
-                                                    {{ is_array(old('berkas')) && in_array('Surat Panggilan Tersangka', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="panggilan_tersangka" id="b_panggilan_tersangka" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('panggilan_tersangka', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_panggilan_tersangka"> Surat Panggilan Tersangka </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_panggilan_tersangka" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Surat Panggilan Tersangka]" 
-                                                    placeholder="Keterangan untuk Surat Panggilan Tersangka" value="{{ old('berkas_keterangan.Surat Panggilan Tersangka') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[panggilan_tersangka]" 
+                                                    placeholder="Keterangan untuk Surat Panggilan Tersangka" value="{{ old('berkas_keterangan.panggilan_tersangka') }}">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Berita Acara Pemeriksaan Tersangka" id="b_ba_tersangka" name="berkas[]"
-                                                    {{ is_array(old('berkas')) && in_array('Berita Acara Pemeriksaan Tersangka', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="ba_periksa_tersangka" id="b_ba_tersangka" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('ba_periksa_tersangka', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_ba_tersangka"> BA Pemeriksaan Tersangka </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_ba_tersangka" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Berita Acara Pemeriksaan Tersangka]" 
-                                                    placeholder="Keterangan untuk BA Pemeriksaan Tersangka" value="{{ old('berkas_keterangan.Berita Acara Pemeriksaan Tersangka') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[ba_periksa_tersangka]" 
+                                                    placeholder="Keterangan untuk BA Pemeriksaan Tersangka" value="{{ old('berkas_keterangan.ba_periksa_tersangka') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -1474,25 +1467,25 @@
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Surat Perintah Penyitaan" id="b_sprin_sita" name="berkas[]"
-                                                    {{ is_array(old('berkas')) && in_array('Surat Perintah Penyitaan', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="sprin_sita" id="b_sprin_sita" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('sprin_sita', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_sprin_sita"> Surat Perintah Penyitaan </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_sprin_sita" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Surat Perintah Penyitaan]" 
-                                                    placeholder="Keterangan untuk Surat Perintah Penyitaan" value="{{ old('berkas_keterangan.Surat Perintah Penyitaan') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[sprin_sita]" 
+                                                    placeholder="Keterangan untuk Surat Perintah Penyitaan" value="{{ old('berkas_keterangan.sprin_sita') }}">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Berita Acara Penyitaan" id="b_ba_sita" name="berkas[]"
-                                                    {{ is_array(old('berkas')) && in_array('Berita Acara Penyitaan', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="ba_sita" id="b_ba_sita" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('ba_sita', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_ba_sita"> BA Penyitaan </label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_ba_sita" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Berita Acara Penyitaan]" 
-                                                    placeholder="Keterangan untuk BA Penyitaan" value="{{ old('berkas_keterangan.Berita Acara Penyitaan') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[ba_sita]" 
+                                                    placeholder="Keterangan untuk BA Penyitaan" value="{{ old('berkas_keterangan.ba_sita') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -1504,25 +1497,25 @@
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Surat Pengiriman Berkas ke JPU" id="b_kirim_berkas" name="berkas[]"
-                                                    {{ is_array(old('berkas')) && in_array('Surat Pengiriman Berkas ke JPU', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="kirim_berkas" id="b_kirim_berkas" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('kirim_berkas', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_kirim_berkas">Surat Pengiriman Berkas ke JPU</label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_kirim_berkas" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Surat Pengiriman Berkas ke JPU]" 
-                                                    placeholder="Keterangan untuk Surat Pengiriman Berkas ke JPU" value="{{ old('berkas_keterangan.Surat Pengiriman Berkas ke JPU') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[kirim_berkas]" 
+                                                    placeholder="Keterangan untuk Surat Pengiriman Berkas ke JPU" value="{{ old('berkas_keterangan.kirim_berkas') }}">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <div class="form-check mb-2">
-                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="Berita Acara Serah Terima Tersangka dan Barang Bukti" id="b_serah_bb" name="berkas[]"
-                                                    {{ is_array(old('berkas')) && in_array('Berita Acara Serah Terima Tersangka dan Barang Bukti', old('berkas')) ? 'checked' : '' }}>
+                                                <input class="form-check-input tindakan-sequence tindakan-checkbox" type="checkbox" value="serah_tersangka_bb" id="b_serah_bb" name="berkas[]"
+                                                    {{ is_array(old('berkas')) && in_array('serah_tersangka_bb', old('berkas')) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="b_serah_bb"> BA Serah Terima Tersangka & BB</label>
                                             </div>
                                             <div class="tindakan-keterangan-container" id="ket_b_serah_bb" style="display: none;">
-                                                <input type="text" class="form-control" name="berkas_keterangan[Berita Acara Serah Terima Tersangka dan Barang Bukti]" 
-                                                    placeholder="Keterangan untuk BA Serah Terima Tersangka & BB" value="{{ old('berkas_keterangan.Berita Acara Serah Terima Tersangka dan Barang Bukti') }}">
+                                                <input type="text" class="form-control" name="berkas_keterangan[serah_tersangka_bb]" 
+                                                    placeholder="Keterangan untuk BA Serah Terima Tersangka & BB" value="{{ old('berkas_keterangan.serah_tersangka_bb') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -4512,26 +4505,12 @@
                 
                 // Toggle keterangan input visibility
                 const keteranganContainer = $('#ket_' + id);
-                const keteranganInput = keteranganContainer.find('.keterangan-input');
-                
                 if (isChecked) {
                     keteranganContainer.slideDown(200);
-                    
-                    // Auto-populate template jika input masih kosong
-                    if (!keteranganInput.val() || keteranganInput.val().trim() === '') {
-                        const template = $(this).data('template');
-                        if (template) {
-                            keteranganInput.val(template);
-                            // Focus pada input agar user bisa langsung edit
-                            setTimeout(() => {
-                                keteranganInput.focus();
-                            }, 250);
-                        }
-                    }
                 } else {
                     keteranganContainer.slideUp(200);
                     // Clear keterangan value when unchecked
-                    keteranganInput.val('');
+                    keteranganContainer.find('input').val('');
                 }
                 
                 if (!isChecked) {
@@ -4540,7 +4519,7 @@
                         const nextId = berkasSequence[i];
                         $('#' + nextId).prop('checked', false);
                         // Hide and clear keterangan for unchecked items
-                        $('#ket_' + nextId).slideUp(200).find('.keterangan-input').val('');
+                        $('#ket_' + nextId).slideUp(200).find('input').val('');
                     }
                 }
                 

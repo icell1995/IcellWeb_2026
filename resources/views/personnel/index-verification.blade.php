@@ -13,6 +13,7 @@
 @section('content')
     @php
         $userRoleId = Auth::user()->role_id;
+        $isNationalLevel = empty(Auth::user()->police_id);
     @endphp
     
     <div class="loaderbg" style="display:none"></div>
@@ -26,7 +27,7 @@
             <div class="d-flex justify-content-between">
                 <div class="col-3">
                     <select class="form-control select2" id="policeSearch" name="policeSearch">
-                            @if ($userRoleId == 1)
+                                                @if ($isNationalLevel)
                                 <option value="">Pilih Satker</option>
                                 @foreach ($polices as $police)
                                     @if ($police->class == 'DAERAH')
@@ -54,11 +55,15 @@
                             @endif
                         </select>
                 </div>
-                <div class="col-3 text-end">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#checkOfficerModal" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Tambah Anggota
-                    </a>
-                </div>
+                @if(!empty($policeId))
+                    @if(Auth::user()->hasPermission('personnel.C'))
+                        <div class="col-3 text-end">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#checkOfficerModal" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Tambah Anggota
+                            </a>
+                        </div>
+                    @endif
+                @endif
             </div>
 
             @include('personnel.components.index-navigation')
@@ -73,11 +78,11 @@
                             <th class="text-center">Username</th>
                             <th class="text-center">Pangkat</th>
                             <th class="text-center">Jabatan</th>
-                            @if($userRoleId == 1)
+                            @if($isNationalLevel)
                                 <th class="text-center">Role</th>
                             @endif
 
-                            @if($userRoleId == 1)
+                            @if($isNationalLevel)
                                 <th class="text-center">Satker</th>
                             @endif
 
@@ -118,13 +123,13 @@
                                                 {{'(PENANDATANGAN)'}}
                                             @endif
                                         </td>
-                                        @if($userRoleId == 1)
+                                        @if($isNationalLevel)
                                             <td class="text-center align-middle">
                                                 {{ $user->role->name ?? '-' }} {{ '(' . $user->role_id . ')'}}
                                             </td>
                                         @endif
 
-                                        @if($userRoleId == 1)
+                                        @if($isNationalLevel)
                                             <td class="text-center align-middle">
                                                 {{ $user->officer->police()->first()->full_name ?? '-' }}
                                             </td>
@@ -165,13 +170,13 @@
                                                 $positionClusterId = $user->officer->position->position_cluster_id ?? '';
                                             @endphp
 
-                                            @if (($positionClusterId != '6' && $positionClusterId != '12') || $userRoleId == 1)
+                                            @if (($positionClusterId != '6' && $positionClusterId != '12') || empty(Auth::user()->police_id))
                                                 <a href="{{ route('personnel.show', ['id' => $user->id, 'policeId' => $user->police_id]) }}" class="btn btn-warning m-1">
                                                     <i class="bi bi-binoculars"></i> Lihat
                                                 </a>
                                             @endif
 
-                                            @if ($userRoleId == 1)
+                                            @if (Auth::user()->hasPermission('personnel.U'))
                                                 @if ($user->officer->is_valid == false)
                                                     <a href="{{ route('personnel.validation', ['id' => $user->id, 'policeId' => $user->police_id]) }}" class="btn btn-secondary m-1">
                                                         <i class="bi bi-check-circle"></i> Validasi

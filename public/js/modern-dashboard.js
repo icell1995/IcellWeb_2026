@@ -1,10 +1,9 @@
-// Modern Dashboard JavaScript
-
 // Global variables for dashboard functionality
 let autoReloadInterval;
 let isAutoReloadEnabled = true;
 let countdownTimer;
-let remainingTime = 600; // 600 seconds = 10 minutes
+const AUTO_RELOAD_TIME = 600; // 600 seconds = 10 minutes (change to lower value for testing)
+let remainingTime = AUTO_RELOAD_TIME;
 
 // Define modern color palette
 const modernColors = [
@@ -34,9 +33,6 @@ document.addEventListener('DOMContentLoaded', function () {
     updateTime();
     setInterval(updateTime, 1000);
 
-    // Add loading overlay
-    setupLoadingOverlay();
-
     // Enhance charts with modern settings
     enhanceCharts();
 
@@ -46,22 +42,20 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize auto reload system
     initializeAutoReload();
 
+    // Add loading overlay
+    setupLoadingOverlay();
+
     // Initialize dashboard specific functions if they exist
     setTimeout(() => {
-        console.log('Modern Dashboard: Initializing dashboard functions...');
         if (typeof loadDashBarChart === 'function') {
-            console.log('Modern Dashboard: Loading bar chart...');
             loadDashBarChart();
         }
         if (typeof loadPieChart === 'function') {
-            console.log('Modern Dashboard: Loading pie charts...');
             loadPieChart();
         }
         if (typeof updateContent === 'function') {
-            console.log('Modern Dashboard: Updating content...');
             updateContent();
         }
-        console.log('Modern Dashboard: Initialization complete!');
     }, 100);
 });
 
@@ -112,11 +106,49 @@ function setupLoadingOverlay() {
     // Show loading on AJAX start
     $(document).ajaxStart(function () {
         loadingOverlay.classList.remove('d-none');
+        // Stop countdown while loading
+        stopCountdown();
     });
 
     // Hide loading on AJAX stop
     $(document).ajaxStop(function () {
         loadingOverlay.classList.add('d-none');
+        console.log('Loading overlay hidden - restarting countdown');
+        // Restart countdown after loading is complete
+        if (isAutoReloadEnabled) {
+            resetCountdown();
+            startCountdown();
+        }
+    });
+
+    // Also watch for manual changes to loading overlay visibility
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const target = mutation.target;
+                if (target.classList.contains('d-none')) {
+                    // Loading overlay is hidden
+                    console.log('MutationObserver: Loading overlay hidden');
+                    if (isAutoReloadEnabled && !countdownTimer) {
+                        setTimeout(() => {
+                            console.log('Restarting countdown after overlay hidden');
+                            resetCountdown();
+                            startCountdown();
+                        }, 500); // Small delay to ensure everything is loaded
+                    }
+                } else {
+                    // Loading overlay is shown
+                    console.log('MutationObserver: Loading overlay shown - stopping countdown');
+                    stopCountdown();
+                }
+            }
+        });
+    });
+
+    // Start observing
+    observer.observe(loadingOverlay, {
+        attributes: true,
+        attributeFilter: ['class']
     });
 }
 
@@ -210,10 +242,11 @@ function setupEventListeners() {
     const refreshBtn = document.getElementById('refreshData');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', function () {
-            // Reload data and refresh charts
-            if (typeof loadDashBarChart === 'function') loadDashBarChart();
-            if (typeof loadPieChart === 'function') loadPieChart();
-            if (typeof updateContent === 'function') updateContent();
+            // Option 1: Page reload (current behavior)
+            window.location.reload();
+            
+            // Option 2: Manual refresh without page reload (uncomment to use)
+            // resetAndRestartCountdown();
         });
     }
 
@@ -222,9 +255,7 @@ function setupEventListeners() {
         // Ctrl/Cmd + R to refresh data
         if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
             e.preventDefault();
-            if (typeof loadDashBarChart === 'function') loadDashBarChart();
-            if (typeof loadPieChart === 'function') loadPieChart();
-            if (typeof updateContent === 'function') updateContent();
+            window.location.reload();
         }
 
         // Space to toggle auto reload
@@ -232,7 +263,31 @@ function setupEventListeners() {
             e.preventDefault();
             toggleAutoReload();
         }
+
+        // F5 to manual refresh and restart countdown (without page reload)
+        if (e.key === 'F5') {
+            e.preventDefault();
+            resetAndRestartCountdown();
+        }
     });
+}
+
+// Reset and restart countdown (for manual refresh without page reload)
+function resetAndRestartCountdown() {
+    if (!isAutoReloadEnabled) return;
+    
+    console.log('Manual refresh: resetting and restarting countdown');
+    resetCountdown();
+    startCountdown();
+    
+    // Optional: trigger a visual feedback
+    const indicator = document.getElementById('autoReloadIndicator');
+    if (indicator) {
+        indicator.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            indicator.style.transform = 'scale(1)';
+        }, 200);
+    }
 }
 
 // Refresh charts with new theme
@@ -375,8 +430,10 @@ function animateCounter(id, start, end) {
  * @returns {string} Formatted time string
  */
 function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
+    // Ensure seconds is not negative
+    const positiveSeconds = Math.max(0, seconds);
+    const mins = Math.floor(positiveSeconds / 60);
+    const secs = positiveSeconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
@@ -458,7 +515,7 @@ function createAutoReloadIndicator() {
         indicator.id = 'autoReloadIndicator';
         indicator.className = 'auto-reload-indicator';
         indicator.innerHTML = `
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 object-fit-scale">
                 <div class="auto-reload-dot"></div>
                 <span class="auto-reload-text">Memperbarui data dalam <span id="countdown">${formatTime(remainingTime)}</span></span>
                 <button class="btn-toggle-auto-reload" id="toggleAutoReload" title="Pause auto reload">
@@ -489,7 +546,7 @@ function addAutoReloadStyles() {
             position: fixed;
             bottom: 1.5rem;
             right: 1.5rem;
-            z-index: 1050;
+            z-index: 1;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -530,6 +587,22 @@ function addAutoReloadStyles() {
             color: #475569;
         }
         
+        .auto-reload-text.updating {
+            color: #f59e0b !important;
+            font-weight: 600 !important;
+        }
+
+        @keyframes updatePulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.02);
+            }
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -542,16 +615,67 @@ function addAutoReloadStyles() {
 function startCountdown() {
     stopCountdown(); // Clear any existing timer
 
+    if (!isAutoReloadEnabled) return; // Don't start if auto reload is disabled
+
     countdownTimer = setInterval(() => {
+        if (!isAutoReloadEnabled || remainingTime <= 0) {
+            stopCountdown(); // Stop the timer if disabled or time is up
+            if (isAutoReloadEnabled && remainingTime <= 0) {
+                // Update text and visual indicators to show "Memperbarui data..."
+                const textElement = document.querySelector('.auto-reload-text');
+                const dot = document.querySelector('.auto-reload-dot');
+
+                if (textElement) {
+                    textElement.innerHTML = 'Sedang memperbarui data...';
+                    textElement.classList.add('updating');
+                }
+                // Change dot color to indicate loading
+                if (dot) {
+                    dot.style.backgroundColor = '#f59e0b'; // amber color
+                    dot.style.animation = 'pulse 1s infinite'; // faster pulse
+                }
+                //btn-toggle-auto-reload hide
+                const btnToggleAutoReload = document.querySelector('.btn-toggle-auto-reload');
+                if (btnToggleAutoReload) {
+                    btnToggleAutoReload.style.display = 'none';
+                }
+
+                performAutoReload();
+            }
+            return;
+        }
+
         remainingTime--;
 
         const countdownElement = document.getElementById('countdown');
-        if (countdownElement) {
-            countdownElement.textContent = formatTime(remainingTime);
-        }
+        const textElement = document.querySelector('.auto-reload-text');
 
         if (remainingTime <= 0) {
+            // Update text and visual indicators to show "Memperbarui data..."
+            const dot = document.querySelector('.auto-reload-dot');
+
+            if (textElement) {
+                textElement.innerHTML = 'Sedang memperbarui data...';
+                textElement.classList.add('updating');
+            }
+
+            // Change dot color to indicate loading
+            if (dot) {
+                dot.style.backgroundColor = '#f59e0b'; // amber color
+                dot.style.animation = 'pulse 1s infinite'; // faster pulse
+            }
+
+            stopCountdown(); // Stop the timer before performing reload
             performAutoReload();
+        } else {
+        // Normal countdown display
+            if (countdownElement) {
+                countdownElement.textContent = formatTime(remainingTime);
+            }
+            // Ensure text shows countdown format
+            if (textElement) {
+                textElement.innerHTML = `Memperbarui data dalam <span id="countdown">${formatTime(remainingTime)}</span>`;
+            }
         }
     }, 1000);
 }
@@ -567,10 +691,29 @@ function stopCountdown() {
 // Reset countdown timer
 function resetCountdown() {
     stopCountdown();
-    remainingTime = 600; // Reset to 10 minutes
+
+    setTimeout(() => {
+        remainingTime = AUTO_RELOAD_TIME; // Reset to configured time
+    },1000);
+
     const countdownElement = document.getElementById('countdown');
+    const textElement = document.querySelector('.auto-reload-text');
+    const dot = document.querySelector('.auto-reload-dot');
+
     if (countdownElement) {
         countdownElement.textContent = formatTime(remainingTime);
+    }
+
+    // Reset text to normal countdown format
+    if (textElement) {
+        textElement.innerHTML = `Memperbarui data dalam <span id="countdown">${formatTime(remainingTime)}</span>`;
+        textElement.classList.remove('updating');
+    }
+
+    // Reset dot color and animation
+    if (dot) {
+        dot.style.backgroundColor = '#10b981'; // green color
+        dot.style.animation = 'pulse 2s infinite'; // normal pulse
     }
 }
 
@@ -579,16 +722,30 @@ function toggleAutoReload() {
     isAutoReloadEnabled = !isAutoReloadEnabled;
     const toggleBtn = document.getElementById('toggleAutoReload');
     const dot = document.querySelector('.auto-reload-dot');
+    const textElement = document.querySelector('.auto-reload-text');
 
     if (isAutoReloadEnabled) {
         toggleBtn.innerHTML = '<i class="bi bi-pause-fill"></i>';
         toggleBtn.title = 'Pause auto reload';
-        if (dot) dot.style.backgroundColor = '#10b981';
+        if (dot) {
+            dot.style.backgroundColor = '#10b981'; // green color
+            dot.style.animation = 'pulse 2s infinite'; // normal pulse
+        }
+
+        // Reset text to countdown format when enabling auto reload
+        if (textElement) {
+            textElement.innerHTML = `Memperbarui data dalam <span id="countdown">${formatTime(remainingTime)}</span>`;
+            textElement.classList.remove('updating');
+        }
+
         startCountdown();
     } else {
         toggleBtn.innerHTML = '<i class="bi bi-play-fill"></i>';
         toggleBtn.title = 'Resume auto reload';
-        if (dot) dot.style.backgroundColor = '#ef4444';
+        if (dot) {
+            dot.style.backgroundColor = '#ef4444'; // red color when paused
+            dot.style.animation = 'pulse 2s infinite';
+        }
         stopCountdown();
     }
 }
@@ -597,15 +754,6 @@ function toggleAutoReload() {
 function performAutoReload() {
     if (!isAutoReloadEnabled) return;
 
-    console.log('Performing auto reload...');
-    resetCountdown();
-
-    // Call dashboard specific functions (these should be defined in the view)
-    if (typeof loadDashBarChart === 'function') loadDashBarChart();
-    if (typeof loadPieChart === 'function') loadPieChart();
-    if (typeof updateContent === 'function') updateContent();
-
-    if (isAutoReloadEnabled) {
-        startCountdown();
-    }
+    // Simple page reload
+    window.location.reload();
 }

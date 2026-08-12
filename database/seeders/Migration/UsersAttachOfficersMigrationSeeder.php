@@ -17,8 +17,8 @@ class UsersAttachOfficersMigrationSeeder extends Seeder
      */
     public function run()
     {
-         //$this->migrateAttachUserToOfficer();
-        //$this->migrateAttachOfficerToUser();
+//         $this->migrateAttachUserToOfficer();
+        $this->migrateAttachOfficerToUser();
     }
 
     private function migrateAttachUserToOfficer(){

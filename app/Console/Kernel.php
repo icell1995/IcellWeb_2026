@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('production:esignature:renew-api-token')
-            ->daily()
+            ->everyMinute()
             ->appendOutputTo(storage_path('logs/scheduler/esignature-renew-api-token.log'));
     }
 

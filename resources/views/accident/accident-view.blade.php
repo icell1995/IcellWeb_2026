@@ -296,13 +296,13 @@
                     </div>
 
                     @if(Auth::getUser()->role_id == 3 || Auth::getUser()->role_id == 1)
-			@if(Auth::getUser()->polres_id != 0)
+                        @if (Auth::getUser()->polres_id != 0)
                             <div class="d-flex justify-content-center">
                                 <button id="btn-save-accident" type="submit" class="btn btn-dark-blue">
                                     {{ __('Tindak Lanjut') }}
                                 </button>
                             </div>
-			@endif
+                        @endif
                     @endif
                 </form>
             @endforeach

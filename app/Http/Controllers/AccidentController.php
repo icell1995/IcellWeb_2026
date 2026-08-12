@@ -141,17 +141,12 @@ class AccidentController extends Controller
                 $polress = Polres::all();
                 $polda = '-';
                 $polres = '-';
-		
-		$apiPolda = implode(',', $allPoldasIds);
-		$apiPolda = $apiPolda === '0' ? "-" : $apiPolda;
 
-		$apiPolres = implode(',', $allPolresIds);
-		$apiPolres = $apiPolres === '0' ? "-" : $apiPolres;
-
+                $apiPolda = "-";
+                $apiPolres = "-";
         }
 
-//dd($apiPolres);
-
+        dd($apiPolda);
         // $response = Http::get('https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_icell?polres_id='.$id);
         // $data = $response->json();
         // return view('accident.accident-index',compact('data'));
@@ -206,7 +201,7 @@ class AccidentController extends Controller
         $no_lp = $request->no_lp ?? '';
         $accident_date = $request->accident_date ?? '';
         $tipe_laka = $request->tipe_laka ?? 0;
-        
+
         switch ($user->role_id) {
             case 2:
                 $poldas = Polda::where('id', '=', $user->polda_id)->get();
@@ -273,8 +268,8 @@ class AccidentController extends Controller
         $curl = curl_init();
         curl_setopt_array($curl, array(
             //  CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/search?no_lp=".$no_lp."&polda=".$polda."&polres=".$polres,
-            //  CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell?no_lp=".$no_lp."&polda=".$polda."&polres=".$polres."&accident_date=".$accident_date,
-            CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell",
+             CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell?no_lp=".$no_lp."&polda=".$polda."&polres=".$polres."&accident_date=".$accident_date,
+            // CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_TIMEOUT => 30000,
@@ -284,14 +279,14 @@ class AccidentController extends Controller
                 // Set Here Your Requesred Headers
                 'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
                 'Content-Type: application/json',
-            ),
-            CURLOPT_POSTFIELDS => json_encode([
-                'no_lp' => $no_lp,
-                'polda' => $polda,
-                'polres' => $polres,
-                'accident_date' => $accident_date,
-                'tipe_laka' => $tipe_laka
-            ])
+            )
+            // CURLOPT_POSTFIELDS => json_encode([
+            //     'no_lp' => $no_lp,
+            //     'polda' => $polda,
+            //     'polres' => $polres,
+            //     'accident_date' => $accident_date,
+            //     'tipe_laka' => $tipe_laka
+            // ])
         ));
         $response = curl_exec($curl);
         $err = curl_error($curl);
@@ -1144,7 +1139,7 @@ class AccidentController extends Controller
 
 
         //kategori 4
-        $surat_perintah_penahanan = DB::select('select * from surat_perintah_penahanan where accident_id = \'' . $get_accident . '\'');
+        // $surat_perintah_penahanan = DB::select('select * from surat_perintah_penahanan where accident_id = \'' . $get_accident . '\'');
         $berita_acara_penahanan = DB::select('select * from berita_acara_penahanan where accident_id = \'' . $get_accident . '\'');
         $permintaan_perpanjangan_penahanan = DB::select('select * from permintaan_perpanjangan_penahanan where accident_id = \'' . $get_accident . '\'');
         $berita_penahanan_lanjutan = DB::select('select * from berita_penahanan_lanjutan where accident_id = \'' . $get_accident . '\'');
@@ -1158,7 +1153,7 @@ class AccidentController extends Controller
         $tanda_terima_berkas_perkara = DB::select('select * from tanda_terima_berkas_perkara where accident_id = \'' . $get_accident . '\'');
 
         // total kategori 4
-        $DocPenahanan1 = DB::table("surat_perintah_penahanan")->where("accident_id", "=", "$get_accident")->count();
+        // $DocPenahanan1 = DB::table("surat_perintah_penahanan")->where("accident_id", "=", "$get_accident")->count();
         $DocPenahanan2 = DB::table("berita_acara_penahanan")->where("accident_id", "=", "$get_accident")->count();
         $DocPenahanan3 = DB::table("permintaan_perpanjangan_penahanan")->where("accident_id", "=", "$get_accident")->count();
         $DocPenahanan4 = DB::table("berita_penahanan_lanjutan")->where("accident_id", "=", "$get_accident")->count();
@@ -1172,7 +1167,7 @@ class AccidentController extends Controller
         $DocPenahanan12 = DB::table("tanda_terima_berkas_perkara")->where("accident_id", "=", "$get_accident")->count();
 
         $TotalKategori4 = round((
-            ($DocPenahanan1 + $DocPenahanan2 + $DocPenahanan3 + $DocPenahanan4 + $DocPenahanan5 +
+            ($DocPenahanan2 + $DocPenahanan3 + $DocPenahanan4 + $DocPenahanan5 +
                 $DocPenahanan6 + $DocPenahanan7 + $DocPenahanan8 + $DocPenahanan9 + $DocPenahanan10 +
                 $DocPenahanan11 + $DocPenahanan12) / 12) * 100);
 
@@ -1386,10 +1381,25 @@ class AccidentController extends Controller
             'laporanHasilGelarPerkaraDocuments',
             'suratKetetapanTentangPenetapanTersangkaDocuments',
             'suratPemberitahuanDimulainyaPenyidikanDocuments',
-            'suratPemberitahuanPerkembanganHasilPenyidikanDocuments'
+            'suratPemberitahuanPerkembanganHasilPenyidikanDocuments',
+            'suratPerintahPenahananDocuments',
+            'suratKetetapanPenghentianPenyidikanDocuments',
+            'tahap1Documents',
+            'permintaanPerpanjanganPenahananDocuments',
+            'perpanjanganLanjutanDocuments',
+            'suratPerintahPenangkapanDocuments',
         ];
 
-        $accidentDocument = Accident::with($documentTypes)
+
+        // Eager load documents with createdByUser relationship
+        $withRelations = [];
+        foreach ($documentTypes as $documentType) {
+            $withRelations[] = $documentType;
+            $withRelations[] = $documentType . '.createdByUser';
+            $withRelations[] = $documentType . '.createdByUser.rank';
+        }
+
+        $accidentDocument = Accident::with($withRelations)
             ->where('id', $get_accident)
             ->first();
 
@@ -1415,6 +1425,10 @@ class AccidentController extends Controller
                 } elseif ($documentType == 'suratKetetapanTentangPenetapanTersangkaDocuments') {
                     $countAccidentDocumentCollection = $countAccidentDocumentCollection->put($documentType, [
                         "count" => $documents->whereIn('status_id', ['85', '86'])->count()
+                    ]);
+                } elseif ($documentType == 'suratPerintahPenangkapanDocuments') {
+                    $countAccidentDocumentCollection = $countAccidentDocumentCollection->put($documentType, [
+                        "count" => $documents->whereIn('status_id', ['86'])->count()
                     ]);
                 }
             }
@@ -1524,7 +1538,7 @@ class AccidentController extends Controller
         $data['surat_penahanan_lanjutan'] = $surat_penahanan_lanjutan;
         $data['surat_pencabutan_pembatalan_penahanan'] = $surat_pencabutan_pembatalan_penahanan;
         $data['surat_perpanjangan_penahanan'] = $surat_perpanjangan_penahanan;
-        $data['surat_perintah_penahanan'] = $surat_perintah_penahanan;
+        // $data['surat_perintah_penahanan'] = $surat_perintah_penahanan;
         $data['berita_acara_penahanan'] = $berita_acara_penahanan;
         $data['permintaan_perpanjangan_penahanan'] = $permintaan_perpanjangan_penahanan;
         $data['TotalKategori4'] = $TotalKategori4;
@@ -1745,17 +1759,13 @@ class AccidentController extends Controller
 
             //upload file
             $selraFile->move(public_path('file/penghentian/upload-surat-ketetapan'), $fileName);
-            UploadSuratKetetapan::updateOrCreate(
-                [
-                    'accident_id' => $accident->id,
-                    'initial' => 'upload-surat-ketetapan',
-                ],
-                [
-                    'name' => $fileName,
-                    'category' => 'D110115',
-                    'created_by' => $userAuth->first_name . ' ' . $userAuth->last_name,
-                ]
-            );
+            UploadSuratKetetapan::create([
+                'accident_id' => $accident->id,
+                'name' => $fileName,
+                'category' => 'D110115',
+                'initial' => 'upload-surat-ketetapan',
+                'created_by' => $userAuth->first_name . ' ' . $userAuth->last_name,
+            ]);
 
             if (env('APP_MODE') == 'PRODUCTION') {
                 $headers = [
@@ -3054,14 +3064,20 @@ class AccidentController extends Controller
                 'jumlah_barang' =>  $request->jumlah_barang,
             ]
         );
-        // return response()->json(['success'=>'Added new records.']);
+
         return response()->json($barangbukti);
-        // }
-
-        // return response()->json(['error'=>$validator->errors()]);
-
     }
 
+    public function delete_barang_bukti(Request $request)
+    {
+        try {
+            $barangbukti = DaftarBarangBukti::findOrFail($request->id);
+            $barangbukti->delete();
+            return response()->json(['success' => true, 'message' => 'Barang bukti berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus barang bukti: ' . $e->getMessage()], 500);
+        }
+    }
 
     public function add_surat_penyitaan(Request $request)
     {
@@ -3387,7 +3403,7 @@ class AccidentController extends Controller
             "/tersangka/surat-perintah-penangkapan" => DB::select("select name from surat_perintah_penangkapan where accident_id='$id'"),
             "/penahanan/berita-acara-penahanan" => DB::select("select name from berita_acara_penahanan where accident_id='$id'"),
             "/penahanan/pencabutan-pembatalan-penahanan" => DB::select("select name from surat_pencabutan_penyelidikan where accident_id='$id'"),
-            "/penahanan/surat-perintah-penahanan" => DB::select("select name from surat_perintah_penahanan where accident_id='$id'"),
+            // "/penahanan/surat-perintah-penahanan" => DB::select("select name from surat_perintah_penahanan where accident_id='$id'"),
             "/penahanan/surat-perpanjangan-penahanan" => DB::select("select name from surat_perpanjangan_penahanan where accident_id='$id'"),
             "/penggeledahan/berita-acara-penggeledahan" => DB::select("select name from berita_acara_penggeledahan where accident_id='$id'"),
             "/penggeledahan/perintah-penggeledahan" => DB::select("select name from surat_perintah_penggeledahan where accident_id='$id'"),

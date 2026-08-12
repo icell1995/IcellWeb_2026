@@ -59,16 +59,16 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/icell-services/api-emp-bareskrim/v1.php'));
           
             Route::middleware('api-auth')
-                ->prefix('icell-services/api-tar-korlantas/v1')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/icell-services/api-tar-korlantas/v1.php'));
-
-	    Route::middleware('api-auth')
                 ->prefix('icell-services/api-irsms-korlantas/v1')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-irsms-korlantas/v1.php'));
-	    
-	    Route::middleware('api-auth')
+
+            Route::middleware('api-auth')
+                ->prefix('icell-services/api-tar-korlantas/v1')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/icell-services/api-tar-korlantas/v1.php'));
+            
+            Route::middleware('api-auth')
                 ->prefix('icell-services/api-divtik-polri')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-divtik-polri/get-divtik.php'));
@@ -87,17 +87,17 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
 
-            Route::middleware(['web', 'auth', 'prevent-back-history', 'can:view-data'])
+            Route::middleware(['web', 'auth', 'prevent-back-history', 'can:case.R'])
                 ->namespace($this->namespace)
                 ->prefix('case')
                 ->group(base_path('routes/case.php'));
 
-            Route::middleware(['web', 'auth', 'prevent-back-history', 'can:view-data'])
+            Route::middleware(['web', 'auth', 'prevent-back-history', 'can:productivity.R'])
                 ->namespace($this->namespace)
                 ->prefix('produktivitas')
                 ->group(base_path('routes/produktivitas.php'));
             
-            Route::middleware(['web', 'auth', 'prevent-back-history', 'can:view-data'])
+            Route::middleware(['web', 'auth', 'prevent-back-history', 'can:productivity.R'])
                 ->namespace($this->namespace)
                 ->prefix('document')
                 ->group(base_path('routes/document.php'));

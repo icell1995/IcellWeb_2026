@@ -544,7 +544,7 @@ class DashboardicellController extends Controller
                 AND officers.state = '1'
                 AND officers.is_active = true
                 AND lib.polices.class = 'RESOR'
-                
+                AND lib.polices.is_active = true
         ");
 
         return $result[0];

@@ -7,7 +7,9 @@
         </div>
         <div class="box-body">
             <div class="text-end">
+                @if(Auth::user()->hasPermission('role.C'))
                 <a href={{route('role-add')}} class="btn btn-dark-blue">Tambah Roles Management</a>
+                @endif
             </div>
             <div class="table-responsive mt-3">
                 <table class="table table-bordered table-officer" width="100%" id="dataTable" name="dataTable">

@@ -46,7 +46,7 @@ class statistikaController extends Controller
             break;
             case 3:
                 $polda=Polda::where('id','=',$user->polda_id)->get();
-                $polres=Polres::where('polda_id','=',$user->polda_id)->get();
+                $polres=Polres::where('id','=',$user->polres_id)->get();
             break;
             case 4:
                 $polda=Polda::where('id','=',$user->polda_id)->get();
@@ -552,7 +552,7 @@ class statistikaController extends Controller
             break;
             case 3:
                 $polda=Polda::where('id','=',$user->polda_id)->get();
-                $polres=Polres::where('polda_id','=',$user->polda_id)->get();
+                $polres=Polres::where('id','=',$user->polres_id)->get();
             break;
             case 4:
                 $polda=Polda::where('id','=',$user->polda_id)->get();
@@ -1206,7 +1206,7 @@ class statistikaController extends Controller
             break;
             case 3:
                 $polda=Polda::where('id','=',$user->polda_id)->get();
-                $polres=Polres::where('polda_id','=',$user->polda_id)->get();
+                $polres=Polres::where('id','=',$user->polres_id)->get();
             break;
             case 4:
                 $polda=Polda::where('id','=',$user->polda_id)->get();

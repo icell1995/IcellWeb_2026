@@ -20,6 +20,12 @@ use App\Models\Doc\P21Document\P21Document;
 use App\Models\Doc\P19Document\P19Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Doc\PermintaanPerpanjanganPenahananDocument\PermintaanPerpanjanganPenahananDocument;
+use App\Models\Doc\PerpanjanganLanjutanDocument\PerpanjanganLanjutanDocument;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\SuratPerintahPenangkapanDocument\SuratPerintahPenangkapanDocument;
 
 class DocumentCategoriesTableSeeder extends Seeder
 {
@@ -231,7 +237,7 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'id' => '0112',
                 'code' => 'DCT-0112',
                 'parent_id' => '01',
-                'name' => 'SURAT KETETAPAN PENGHENTIAN PENYELIDIKAN',
+                'name' => 'SURAT KETETAPAN TENTANG PENGHENTIAN PENYELIDIKAN',
                 'category' => $categoryType,
                 'route' => NULL,
                 'base_route' => NULL,
@@ -325,12 +331,12 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'id' => '0206',
                 'code' => 'DCT-0206',
                 'parent_id' => '02',
-                'name' => 'SURAT KETETAPAN PENGHENTIAN PENYIDIKAN',
+                'name' => 'SURAT KETETAPAN TENTANG PENGHENTIAN PENYIDIKAN',
                 'category' => $categoryType,
-                'route' => NULL,
-                'base_route' => NULL,
+                'route' => 'doc.surat-ketetapan-penghentian-penyidikan-document.create',
+                'base_route' => 'doc.surat-ketetapan-penghentian-penyidikan-document',
                 'is_digital_signature' => false,
-                'model_class' => NULL,
+                'model_class' => get_class(new SuratKetetapanPenghentianPenyidikanDocument()) . '::class',
                 'alt_code' => 'surat-ketetapan-penghentian-penyidikan-document',
                 'is_case_finish' => false,
             ],
@@ -473,10 +479,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '03',
                 'name' => 'SURAT PERINTAH PENANGKAPAN',
                 'category' => $categoryType,
-                'route' => NULL,
-                'base_route' => NULL,
+                'route' => 'doc.surat-perintah-penangkapan-document.create',
+                'base_route' => 'doc.surat-perintah-penangkapan-document',
                 'is_digital_signature' => false,
-                'model_class' => NULL,
+                'model_class' => get_class(new SuratPerintahPenangkapanDocument()) . '::class',
                 'alt_code' => 'surat-perintah-penangkapan-document',
                 'is_case_finish' => false,
             ],
@@ -664,10 +670,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '06',
                 'name' => 'SURAT PERINTAH PENAHANAN',
                 'category' => $categoryType,
-                'route' => NULL,
-                'base_route' => NULL,
+                'route' => 'doc.surat-perintah-penahanan-document.create',
+                'base_route' => 'doc.surat-perintah-penahanan-document',
                 'is_digital_signature' => false,
-                'model_class' => NULL,
+                'model_class' => get_class(new SuratPerintahPenahananDocument()) . '::class',
                 'alt_code' => 'surat-perintah-penahanan-document',
                 'is_case_finish' => false,
             ],
@@ -682,6 +688,32 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'is_digital_signature' => false,
                 'model_class' => NULL,
                 'alt_code' => 'berita-acara-serah-terima-tersangka-dan-barang-bukti-document',
+                'is_case_finish' => false,
+            ],
+            [
+                'id' => '0603',
+                'code' => 'DCT-0603',
+                'parent_id' => '06',
+                'name' => 'SURAT PERMINTAAN PERPANJANGAN PENAHANAN',
+                'category' => $categoryType,
+                'route' => 'doc.permintaan-perpanjangan-penahanan-document.create',
+                'base_route' => 'doc.permintaan-perpanjangan-penahanan-document',
+                'is_digital_signature' => false,
+                'model_class' => get_class(new PermintaanPerpanjanganPenahananDocument()) . '::class',
+                'alt_code' => 'permintaan-perpanjangan-penahanan-document',
+                'is_case_finish' => false,
+            ],
+            [
+                'id' => '0604',
+                'code' => 'DCT-0604',
+                'parent_id' => '06',
+                'name' => 'SURAT PERINTAH PENAHANAN LANJUTAN',
+                'category' => $categoryType,
+                'route' => 'doc.perpanjangan-lanjutan-document.create',
+                'base_route' => 'doc.perpanjangan-lanjutan-document',
+                'is_digital_signature' => false,
+                'model_class' => get_class(new PerpanjanganLanjutanDocument()) . '::class',
+                'alt_code' => 'perpanjangan-lanjutan-document',
                 'is_case_finish' => false,
             ],
             // =====( END PENAHANAN )=====
@@ -969,10 +1001,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '08',
                 'name' => 'TAHAP I',
                 'category' => $categoryType,
-                'route' => NULL,
-                'base_route' => NULL,
+                'route' => 'doc.tahap-1-document.create',
+                'base_route' => 'doc.tahap-1-document',
                 'is_digital_signature' => false,
-                'model_class' =>  NULL,
+                'model_class' => \App\Models\Doc\Tahap1Document\Tahap1Document::class,
                 'alt_code' => 'tahap-1-document',
                 'is_case_finish' => false,
             ],

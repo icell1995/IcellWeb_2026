@@ -357,9 +357,14 @@ trait AccidentQueryTraits
 
         // dd($query);
         return DB::select($query, [
-            $officerId, $officerId, $officerId,
-            $officerId, $officerId, $officerId,
-            $polresId]);
+            $officerId,
+            $officerId,
+            $officerId,
+            $officerId,
+            $officerId,
+            $officerId,
+            $polresId
+        ]);
     }
 
     protected function searchGetAccident($officerId, $polda, $polres, $checkTanggal, $checkstatus, $tanggal, $no_lp, $level)
@@ -422,7 +427,6 @@ trait AccidentQueryTraits
                         EXISTS (
                             SELECT 1 FROM doc.surat_perintah_penyidikan_documents as spd
                             WHERE spd.accident_id = acc.id
-                            AND deleted_at IS NULL
                         )
                         OR EXISTS (
                             SELECT 1 FROM legacy.investigation_warrants as iw
@@ -437,7 +441,6 @@ trait AccidentQueryTraits
                         NOT EXISTS (
                             SELECT 1 FROM doc.surat_perintah_penyidikan_documents as spd
                             WHERE spd.accident_id = acc.id
-                            AND deleted_at IS NULL
                         ) AND NOT EXISTS (
                             SELECT 1 FROM legacy.investigation_warrants as iw
                             WHERE iw.accident_id = acc.id
@@ -450,7 +453,6 @@ trait AccidentQueryTraits
                     NOT EXISTS (
                         SELECT 1 FROM doc.surat_perintah_penyidikan_documents as spd
                         WHERE spd.accident_id = acc.id
-                        AND deleted_at IS NULL
                     ) AND NOT EXISTS (
                         SELECT 1 FROM legacy.investigation_warrants as iw
                         WHERE iw.accident_id = acc.id
@@ -466,14 +468,18 @@ trait AccidentQueryTraits
         // dd($query);
 
         return DB::select($query, [
-            $officerId, $officerId, $officerId,
-            $officerId, $officerId, $officerId
+            $officerId,
+            $officerId,
+            $officerId,
+            $officerId,
+            $officerId,
+            $officerId
         ]);
     }
 
     protected function getEffectivePolresId($userPolresId)
     {
-        if($userPolresId == 0){
+        if ($userPolresId == 0) {
             return [0];
         }
 
@@ -484,16 +490,17 @@ trait AccidentQueryTraits
 
         if ($mapped) {
             return [
-                $mapped->old_police_id, $mapped->new_police_id
+                $mapped->old_police_id,
+                $mapped->new_police_id
             ];
         }
 
         return [$userPolresId];
-    } 
+    }
 
     protected function getEffectivePoldaId($userPoldaId)
     {
-        if($userPoldaId == 0){
+        if ($userPoldaId == 0) {
             return [0];
         }
 
@@ -504,12 +511,13 @@ trait AccidentQueryTraits
 
         if ($mapped) {
             return [
-                $mapped->old_polda_id, $mapped->new_polda_id
+                $mapped->old_polda_id,
+                $mapped->new_polda_id
             ];
         }
 
         return [$userPoldaId];
-    } 
+    }
 
     public function getUserHasOldPolresId($userPolresId)
     {

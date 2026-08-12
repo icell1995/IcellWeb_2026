@@ -39,7 +39,7 @@ class AddRowToOfficerForUserSuperAdminColumnMigrationSeeder extends Seeder
                         'last_name' => $user->last_name,
                         'last_title' => $user->last_title,
     
-                        'position_short_name' => '-',
+                        'position' => '-',
                         'class' => 'ADMIN',
                         'status' => 'PRESENT',
                     ]);

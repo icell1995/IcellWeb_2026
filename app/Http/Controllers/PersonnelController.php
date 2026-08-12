@@ -37,41 +37,42 @@ class PersonnelController extends Controller
         $this->middleware(function ($request, $next) {
             $policeId = request()->policeId;
             $this->policeId = $policeId;
-    
+
             $userAuth = Auth::user();
             $this->userAuth = $userAuth;
 
             $police = Police::with(['children' => function ($query) {
-                    $query->where('is_active', true);
-                }])
+                $query->where('is_active', true);
+            }])
                 ->where('id', $userAuth->police_id)
                 ->first();
-            
+
             $policeChildrenIds = [];
-            if(!empty($police->children)){
+            if (!empty($police->children)) {
                 $policeChildrenIds = $police->children->pluck('id')->toArray();
             }
 
-            //check is there police id
-            if(empty($policeId) && $userAuth->role_id != 1){
-                return redirect()->route('personnel.index', ['policeId' => $userAuth->police_id])->with('error', 'Akses data ditolak');
+            // RBAC Check for Read Permission
+            if (!$userAuth->hasPermission('personnel.R')) {
+                return redirect()->route('home')->with('error', 'Akses data ditolak');
             }
 
-            if ($userAuth->role_id != 1 && $userAuth->role_id != 3 && $userAuth->role_id != 5) {
-                // Redirect back to dashboard
-                return redirect()->route('home')->with('error', 'Akses data ditolak');
+            // User "level nasional" = super_admin ATAU tidak terikat satker (police_id null/kosong)
+            // Level nasional bisa akses semua polda tanpa batasan wilayah
+            $isNationalLevel = empty($userAuth->police_id);
+
+            // Jika tidak ada policeId di URL dan user terikat satker, redirect ke satker sendiri
+            if (empty($policeId) && !$isNationalLevel) {
+                return redirect()->route('personnel.index', ['policeId' => $userAuth->police_id]);
             }
-    
-            if ($userAuth->police_id != $policeId && $userAuth->role_id != 1 && empty($policeChildrenIds)) {
-                // Redirect back to dashboard
-                return redirect()->route('home')->with('error', 'Akses data ditolak');
+
+            // Jika ada policeId tapi bukan miliknya dan bukan level nasional, cek apakah child satker
+            if (!empty($policeId) && !$isNationalLevel && $userAuth->police_id != $policeId) {
+                if (empty($policeChildrenIds) || !in_array($policeId, $policeChildrenIds)) {
+                    return redirect()->route('home')->with('error', 'Akses data ditolak');
+                }
             }
-            
-            if ($userAuth->police_id != $policeId && $userAuth->role_id != 1 && !empty($policeChildrenIds) && !in_array($policeId, $policeChildrenIds)) {
-                // Redirect back to dashboard
-                return redirect()->route('home')->with('error', 'Akses data ditolak');
-            }
-    
+
             return $next($request);
         });
     }
@@ -83,25 +84,15 @@ class PersonnelController extends Controller
         $userAuth = $this->userAuth;
         $policeId = $this->policeId;
 
-        if($pageParam == 'active' || empty($pageParam)){
+        if ($pageParam == 'active' || empty($pageParam)) {
             return $this->indexActive($userAuth, $policeId);
-        }else if($pageParam == 'inactive'){
+        } else if ($pageParam == 'inactive') {
             return $this->indexInactive($userAuth, $policeId);
-        }else if($pageParam == 'verification'){
-            if($userAuth->role_id != 1){
-                // back to dashboard
-                return redirect()->route('home')->with('error', 'Akses data ditolak');
-            }
-
+        } else if ($pageParam == 'verification') {
             return $this->indexVerification($userAuth, $policeId);
-        }else if($pageParam == 'signatory'){
-            if($userAuth->role_id != 1){
-                // back to dashboard
-                return redirect()->route('home')->with('error', 'Akses data ditolak');
-            }
-
+        } else if ($pageParam == 'signatory') {
             return $this->indexSignatory($userAuth, $policeId);
-        }else{
+        } else {
             // back to dashboard
             return redirect()->route('home')->with('error', 'Akses data ditolak');
         }
@@ -113,33 +104,36 @@ class PersonnelController extends Controller
             ->selectFullNameExpression()
             ->where('is_active', true)
             ->whereHas('officer', function ($query) {
-                $query->whereIn('status', ['PRESENT','ASSISTANCE'])
+                $query->whereIn('status', ['PRESENT', 'ASSISTANCE'])
                     ->where('is_active', true);
             })
             ->groupBy('users.id')
             ->groupBy('users.police_id')
             ->orderBy('users.police_id');
-        
+
         $policesQuery = Police::with(['children' => function ($query) {
-                $query->where('is_active', true);
-            }])
+            $query->where('is_active', true);
+        }])
             ->where('is_active', true)
             ->orderBy('id', 'ASC');
-    
-        if(($userAuth->role_id == 3 && !empty($policeId)) || $userAuth->role_id == 3) {
+
+        // User level nasional = super_admin atau tidak terikat satker (police_id null)
+        $isNationalLevel = empty($userAuth->police_id);
+
+        if (($userAuth->role_id == 3 && !empty($policeId)) || $userAuth->role_id == 3) {
             $policesQuery->where('id', $userAuth->police_id);
             $usersQuery->where('police_id', $policeId);
         }
-        
-        if($userAuth->role_id == 1 && !empty($policeId)){
+
+        if ($isNationalLevel && !empty($policeId)) {
             $usersQuery->where('police_id', $policeId);
         }
 
-        if($userAuth->role_id == 1 && empty($policeId)){
+        if ($isNationalLevel && empty($policeId)) {
             $policesQuery->where('class', 'DAERAH');
         }
 
-        if($userAuth->role_id == 5){
+        if ($userAuth->role_id == 5) {
             $usersQuery->whereHas('officer', function ($query) {
                 $query->where('flag', 'ADMIN');
             })->where('police_id', $userAuth->police_id);
@@ -158,7 +152,7 @@ class PersonnelController extends Controller
             'currentPoliceId' => $currentPolice->id ?? null,
             'polices' => $polices,
         ];
-    
+
         return view('personnel.index-active', $viewData);
     }
 
@@ -168,32 +162,35 @@ class PersonnelController extends Controller
             ->selectFullNameExpression()
             ->whereHas('officer', function ($query) {
                 $query->valid()
-                    ->whereIn('status', ['RETIRE','EXIT']);
+                    ->whereIn('status', ['RETIRE', 'EXIT']);
             })
             ->groupBy('users.id')
             ->groupBy('users.police_id')
             ->orderBy('users.police_id');
-        
+
         $policesQuery = Police::with(['children' => function ($query) {
-                $query->where('is_active', true);
-            }])
+            $query->where('is_active', true);
+        }])
             ->where('is_active', true)
             ->orderBy('id', 'ASC');
-    
-        if(($userAuth->role_id == 3 && !empty($policeId)) || $userAuth->role_id == 3) {
+
+        // User level nasional = super_admin atau tidak terikat satker (police_id null)
+        $isNationalLevel = empty($userAuth->police_id);
+
+        if (($userAuth->role_id == 3 && !empty($policeId)) || $userAuth->role_id == 3) {
             $policesQuery->where('id', $userAuth->police_id);
             $usersQuery->where('police_id', $policeId);
         }
-        
-        if($userAuth->role_id == 1 && !empty($policeId)){
+
+        if ($isNationalLevel && !empty($policeId)) {
             $usersQuery->where('police_id', $policeId);
         }
 
-        if($userAuth->role_id == 1 && empty($policeId)){
+        if ($isNationalLevel && empty($policeId)) {
             $policesQuery->where('class', 'DAERAH');
         }
 
-        if($userAuth->role_id == 5){
+        if ($userAuth->role_id == 5) {
             $usersQuery->whereHas('officer', function ($query) {
                 $query->where('flag', 'ADMIN');
             })->where('police_id', $userAuth->police_id);
@@ -201,9 +198,9 @@ class PersonnelController extends Controller
 
         $users = $usersQuery->get();
         $polices = $policesQuery->get();
-        
+
         $currentPolice = Police::where('id', $policeId)
-        ->first();
+            ->first();
 
         $viewData = [
             'users' => $users,
@@ -213,9 +210,9 @@ class PersonnelController extends Controller
             'polices' => $polices,
         ];
 
-        return view('personnel.index-inactive', $viewData);  
+        return view('personnel.index-inactive', $viewData);
     }
-    
+
     private function indexVerification($userAuth, $policeId)
     {
         $usersQuery = User::withRelated()
@@ -226,17 +223,19 @@ class PersonnelController extends Controller
             ->groupBy('users.id')
             ->groupBy('users.police_id')
             ->orderBy('users.police_id');
-            
+
         $policesQuery = Police::with(['children' => function ($query) {
-                $query->where('is_active', true);
-            }])
+            $query->where('is_active', true);
+        }])
             ->where('is_active', true)
             ->orderBy('id', 'ASC');
-        
-        if($userAuth->role_id == 1 && empty($policeId)){
+
+        $isNationalLevel = empty($userAuth->police_id);
+
+        if ($isNationalLevel && empty($policeId)) {
             $policesQuery->where('class', 'DAERAH');
         }
-        
+
         $users = $usersQuery->get();
 
         $polices = $policesQuery->get();
@@ -252,7 +251,7 @@ class PersonnelController extends Controller
             'polices' => $polices,
         ];
 
-        return view('personnel.index-verification', $viewData); 
+        return view('personnel.index-verification', $viewData);
     }
 
     private function indexSignatory($userAuth, $policeId)
@@ -265,17 +264,19 @@ class PersonnelController extends Controller
             ->groupBy('users.id')
             ->groupBy('users.police_id')
             ->orderBy('users.police_id');
-            
+
         $policesQuery = Police::with(['children' => function ($query) {
-                $query->where('is_active', true);
-            }])
+            $query->where('is_active', true);
+        }])
             ->where('is_active', true)
             ->orderBy('id', 'ASC');
-        
-        if($userAuth->role_id == 1 && empty($policeId)){
+
+        $isNationalLevel = empty($userAuth->police_id);
+
+        if ($isNationalLevel && empty($policeId)) {
             $policesQuery->where('class', 'DAERAH');
         }
-        
+
         $users = $usersQuery->get();
 
         $polices = $policesQuery->get();
@@ -291,7 +292,7 @@ class PersonnelController extends Controller
             'polices' => $polices,
         ];
 
-        return view('personnel.index-signatory', $viewData); 
+        return view('personnel.index-signatory', $viewData);
     }
 
     public function validation($id)
@@ -299,7 +300,7 @@ class PersonnelController extends Controller
         $userAuth = $this->userAuth;
         $policeId = $this->policeId;
 
-        if($userAuth->role_id != 1){
+        if (!$userAuth->hasPermission('personnel.R')) {
             // back to dashboard
             return redirect()->route('home')->with('error', 'Akses data ditolak');
         }
@@ -311,7 +312,7 @@ class PersonnelController extends Controller
 
         $officer = $user->officer()->selectFullName()->first();
 
-        if(empty($user)){
+        if (empty($user)) {
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
         }
 
@@ -382,7 +383,7 @@ class PersonnelController extends Controller
 
         return view('personnel.validation', $viewData);
     }
-   
+
     public function validationProcess(Request $request, $id)
     {
         $id = $request->id;
@@ -392,7 +393,7 @@ class PersonnelController extends Controller
         $officer = Officer::where('id', $id)
             ->first();
 
-        if(empty($officer)){
+        if (empty($officer)) {
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
         }
 
@@ -418,16 +419,19 @@ class PersonnelController extends Controller
             ->groupBy('users.id')
             ->groupBy('users.police_id')
             ->orderBy('users.police_id');
-        
-        if($userAuth->role_id == 3 && !empty($policeId)){
-	    $polices = Police::where('parent_id', $policeId)->orWhere('id', $policeId)->get();
+
+        $isNationalLevel = empty($userAuth->police_id);
+
+        if ($userAuth->role_id == 3 && !empty($policeId)) {
+            $polices = Police::where('parent_id', $policeId)->orWhere('id', $policeId)->get();
             $polices = $polices->pluck('id');
 
             $usersQuery->whereIn('police_id', $polices);
-        }elseif(empty($policeId) && $userAuth->role_id != 1){
-            return redirect()->route('home');
+        } elseif (empty($policeId) && !$isNationalLevel) {
+            // Redirect ke policeId milik user sendiri jika bukan level nasional dan policeId kosong
+            return redirect()->route('personnel.signatory', ['policeId' => $userAuth->police_id]);
         }
-        
+
         $users = $usersQuery->get();
 
         $currentPolice = Police::where('id', $policeId)
@@ -440,9 +444,9 @@ class PersonnelController extends Controller
             'currentPoliceId' => $currentPolice->id ?? null,
         ];
 
-        return view('personnel.signatory', $viewData); 
+        return view('personnel.signatory', $viewData);
     }
-    
+
     public function certification()
     {
         $userAuth = $this->userAuth;
@@ -456,13 +460,16 @@ class PersonnelController extends Controller
             ->groupBy('users.id')
             ->groupBy('users.police_id')
             ->orderBy('users.police_id');
-        
-        if($userAuth->role_id == 3 && !empty($policeId)){
+
+        $isNationalLevel = empty($userAuth->police_id);
+
+        if ($userAuth->role_id == 3 && !empty($policeId)) {
             $usersQuery->where('police_id', $policeId);
-        }elseif(empty($policeId) && $userAuth->role_id != 1){
-            return redirect()->route('home');
+        } elseif (empty($policeId) && !$isNationalLevel) {
+            // Redirect ke policeId milik user sendiri jika bukan level nasional dan policeId kosong
+            return redirect()->route('personnel.certification', ['policeId' => $userAuth->police_id]);
         }
-        
+
         $users = $usersQuery->get();
 
         $currentPolice = Police::where('id', $policeId)
@@ -475,7 +482,7 @@ class PersonnelController extends Controller
             'currentPoliceId' => $currentPolice->id ?? null,
         ];
 
-        return view('personnel.certification', $viewData); 
+        return view('personnel.certification', $viewData);
     }
 
     public function create()
@@ -571,7 +578,7 @@ class PersonnelController extends Controller
 
         $positionId = htmlspecialchars($request->position);
         $position = Position::with(['positionCluster'])->where('id', $positionId)->first();
-        
+
         $isRegisterSignatory = htmlspecialchars($request->isRegisterSignatory);
         $isRegisterAdmin = htmlspecialchars($request->isRegisterAdmin);
 
@@ -610,7 +617,7 @@ class PersonnelController extends Controller
         $isExistsOfficerCertificate = filter_var($request->isExistsOfficerCertificate, FILTER_VALIDATE_BOOLEAN);
 
         DB::beginTransaction();
-        try{
+        try {
             $police = Police::with('parent')->where('id', $policeId)
                 ->first();
             $rank = Rank::where('id', $rankId)
@@ -643,7 +650,7 @@ class PersonnelController extends Controller
                     'avatar' => 'user.png',
                     'role_id' => $roleId,
 
-                    'polda_id' =>  ($police->class == 'DAERAH') ? $police->id : (($police->class == 'RESOR' && !empty($police->parent)) ? $police->parent->id : null),
+                    'polda_id' => ($police->class == 'DAERAH') ? $police->id : (($police->class == 'RESOR' && !empty($police->parent)) ? $police->parent->id : null),
                     'polres_id' => ($police->class == 'RESOR') ? $police->id : 0,
                     'pangkat' => $rank->name ?? null,
                     'officer_id' => $registerNumber,
@@ -686,7 +693,7 @@ class PersonnelController extends Controller
                     'police_diktuk_education_graduate_year' => $policeDiktukEducationGraduateYear,
                     'police_id' => $police->id,
 
-                    'is_valid'=> (filter_var($isRegisterSignatory, FILTER_VALIDATE_BOOLEAN) == true) ? false : true,
+                    'is_valid' => (filter_var($isRegisterSignatory, FILTER_VALIDATE_BOOLEAN) == true) ? false : true,
                     'is_active' => true,
 
                     'class' => $class,
@@ -736,17 +743,19 @@ class PersonnelController extends Controller
             $careerHistoryYearCollection = Collection::make($careerHistoryYears);
 
             $careerHistoryCollection = $careerHistoryPoliceDivisionIdCollection
-                                        ->zip($careerHistoryPositionNameCollection,
-                                            $careerHistoryYearCollection)
-                                        ->map(function ($careerHistory) {
-                                            return [
-                                                'police_division_id' => $careerHistory[0],
-                                                'position_name' => $careerHistory[1],
-                                                'year' => $careerHistory[2],
-                                            ];
-                                        })->all();
-            
-            foreach($careerHistoryCollection as $careerHistory){
+                ->zip(
+                    $careerHistoryPositionNameCollection,
+                    $careerHistoryYearCollection
+                )
+                ->map(function ($careerHistory) {
+                    return [
+                        'police_division_id' => $careerHistory[0],
+                        'position_name' => $careerHistory[1],
+                        'year' => $careerHistory[2],
+                    ];
+                })->all();
+
+            foreach ($careerHistoryCollection as $careerHistory) {
                 $officer->officerCareerHistories()->create(
                     [
                         'officer_id' => $officer->id,
@@ -763,17 +772,19 @@ class PersonnelController extends Controller
             $policeDikjurEducationMaterialIdCollection = Collection::make($policeDikjurEducationMaterialIds);
 
             $policeDikjurEducationCollection = $policeDikjurEducationPlaceIdCollection
-                                        ->zip($policeDikjurEducationGraduateYearCollection,
-                                            $policeDikjurEducationMaterialIdCollection)
-                                        ->map(function ($policeDikjurEducation) {
-                                            return [
-                                                'police_dikjur_education_place_id' => $policeDikjurEducation[0],
-                                                'graduate_year' => $policeDikjurEducation[1],
-                                                'police_dikjur_education_material_id' => $policeDikjurEducation[2],
-                                            ];
-                                        })->all();
+                ->zip(
+                    $policeDikjurEducationGraduateYearCollection,
+                    $policeDikjurEducationMaterialIdCollection
+                )
+                ->map(function ($policeDikjurEducation) {
+                    return [
+                        'police_dikjur_education_place_id' => $policeDikjurEducation[0],
+                        'graduate_year' => $policeDikjurEducation[1],
+                        'police_dikjur_education_material_id' => $policeDikjurEducation[2],
+                    ];
+                })->all();
 
-            foreach($policeDikjurEducationCollection as $policeDikjurEducation){
+            foreach ($policeDikjurEducationCollection as $policeDikjurEducation) {
                 $officer->officerPoliceDikjurEducations()->create(
                     [
                         'officer_id' => $officer->id,
@@ -785,7 +796,7 @@ class PersonnelController extends Controller
             }
 
             //CERTIFICATE HISTORY
-            if($isExistsOfficerCertificate == true){
+            if ($isExistsOfficerCertificate == true) {
                 $certificateTypeIds = $request->certificateTypeIds ?? [];
                 $certificateNumbers = $request->certificateNumbers ?? [];
                 $certificateStartDates = $request->certificateStartDates ?? [];
@@ -795,21 +806,23 @@ class PersonnelController extends Controller
                 $certificateNumberCollection = Collection::make($certificateNumbers);
                 $certificateStartDateCollection = Collection::make($certificateStartDates);
                 $certificateEndDateCollection = Collection::make($certificateEndDates);
-                
-                $certificateCollection = $certificateTypeIdCollection
-                                            ->zip($certificateNumberCollection,
-                                                $certificateStartDateCollection,
-                                                $certificateEndDateCollection)
-                                            ->map(function ($certificate) {
-                                                return [
-                                                    'certificate_type_id' => $certificate[0],
-                                                    'certificate_number' => $certificate[1],
-                                                    'begin_date' => $certificate[2],
-                                                    'expired_date' => $certificate[3],
-                                                ];
-                                            })->all();
 
-                foreach($certificateCollection as $certificate){
+                $certificateCollection = $certificateTypeIdCollection
+                    ->zip(
+                        $certificateNumberCollection,
+                        $certificateStartDateCollection,
+                        $certificateEndDateCollection
+                    )
+                    ->map(function ($certificate) {
+                        return [
+                            'certificate_type_id' => $certificate[0],
+                            'certificate_number' => $certificate[1],
+                            'begin_date' => $certificate[2],
+                            'expired_date' => $certificate[3],
+                        ];
+                    })->all();
+
+                foreach ($certificateCollection as $certificate) {
                     $officer->officerCertificateHistories()->create(
                         [
                             'officer_id' => $officer->id,
@@ -820,16 +833,16 @@ class PersonnelController extends Controller
                         ]
                     );
                 }
-            }else if($isExistsOfficerCertificate == false){
+            } else if ($isExistsOfficerCertificate == false) {
                 $officer->officerCertificateHistories()->delete();
             }
 
             DB::commit();
 
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('success', 'Data berhasil disimpan');
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
-            Log::error('PersonnelController@store : ',$e->getMessage());
+            Log::error('PersonnelController@store : ', $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data');
         }
     }
@@ -840,11 +853,11 @@ class PersonnelController extends Controller
         $policeId = $this->policeId;
 
         $user = User::withRelated()
-        ->selectFullNameExpression()
-        ->where('users.id', $id)
-        ->first();
+            ->selectFullNameExpression()
+            ->where('users.id', $id)
+            ->first();
 
-        if(empty($user)){
+        if (empty($user)) {
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
         }
 
@@ -922,7 +935,7 @@ class PersonnelController extends Controller
     }
 
     public function edit($id)
-    { 
+    {
         $policeId = $this->policeId;
 
         $user = User::withRelated()
@@ -930,7 +943,7 @@ class PersonnelController extends Controller
             ->where('users.id', $id)
             ->first();
 
-        if(empty($user)){
+        if (empty($user)) {
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
         }
 
@@ -1032,7 +1045,7 @@ class PersonnelController extends Controller
 
         $isRegisterAdmin = htmlspecialchars($request->isRegisterAdmin);
         $isRegisterAdminCanEntryDocument = filter_var($request->isRegisterAdminCanEntryDocument, FILTER_VALIDATE_BOOLEAN);
-        
+
         $educationId = htmlspecialchars($request->education);
         $educationInstitutionName = htmlspecialchars($request->educationInstitutionName);
         $phoneNumber = htmlspecialchars($request->phoneNumber);
@@ -1064,9 +1077,9 @@ class PersonnelController extends Controller
         $policeDikjurEducationMaterialIds = $request->policeDikjurEducationMaterialIds ?? [];
 
         $isExistsOfficerCertificate = filter_var($request->isExistsOfficerCertificate, FILTER_VALIDATE_BOOLEAN);
-        
+
         DB::beginTransaction();
-        try{
+        try {
             $police = Police::with('parent')->where('id', $policeId)
                 ->first();
             $rank = Rank::where('id', $rankId)
@@ -1077,7 +1090,7 @@ class PersonnelController extends Controller
                 ->first();
 
             $user = User::where('id', $id)->first();
-            
+
             $user->update(
                 [
                     'id' => (!empty($currentUser)) ? $currentUser->id : $lastUserId + 1,
@@ -1111,13 +1124,13 @@ class PersonnelController extends Controller
                 ->first();
 
             $isValidAsRegisterSignatory = false;
-            if(!empty($currentOfficer)){
-                if(!empty($currentOfficer->identity_number)){
+            if (!empty($currentOfficer)) {
+                if (!empty($currentOfficer->identity_number)) {
                     $isValidAsRegisterSignatory = $currentOfficer->is_valid;
-                }else{
+                } else {
                     $isValidAsRegisterSignatory = (filter_var($isRegisterSignatory, FILTER_VALIDATE_BOOLEAN) == true) ? false : true;
                 }
-            }else{
+            } else {
                 $isValidAsRegisterSignatory = (filter_var($isRegisterSignatory, FILTER_VALIDATE_BOOLEAN) == true) ? false : true;
             }
 
@@ -1125,8 +1138,7 @@ class PersonnelController extends Controller
                 ->first();
             $class = (filter_var($isRegisterSignatory, FILTER_VALIDATE_BOOLEAN) == true) ? 'SIGNATORY' : 'MEMBER';
             $flag = (filter_var($isRegisterAdmin, FILTER_VALIDATE_BOOLEAN) == true) ? 'ADMIN' : null;
-            if($officer->identity_number != $registerSignatoryIdentityNumber)
-            {
+            if ($officer->identity_number != $registerSignatoryIdentityNumber) {
                 $isValidAsRegisterSignatory = false;
             }
 
@@ -1153,7 +1165,7 @@ class PersonnelController extends Controller
                     'police_diktuk_education_graduate_year' => $policeDiktukEducationGraduateYear,
                     'police_id' => $police->id,
 
-                    'is_valid'=> $isValidAsRegisterSignatory,
+                    'is_valid' => $isValidAsRegisterSignatory,
                     'class' => $class,
                     'flag' => $flag,
 
@@ -1202,20 +1214,22 @@ class PersonnelController extends Controller
             $careerHistoryYearCollection = Collection::make($careerHistoryYears);
 
             $careerHistoryCollection = $careerHistoryPoliceDivisionIdCollection
-                                        ->zip($careerHistoryPositionNameCollection,
-                                            $careerHistoryYearCollection)
-                                        ->map(function ($careerHistory) {
-                                            return [
-                                                'police_division_id' => $careerHistory[0],
-                                                'position_name' => $careerHistory[1],
-                                                'year' => $careerHistory[2],
-                                            ];
-                                        })->all();
-            
+                ->zip(
+                    $careerHistoryPositionNameCollection,
+                    $careerHistoryYearCollection
+                )
+                ->map(function ($careerHistory) {
+                    return [
+                        'police_division_id' => $careerHistory[0],
+                        'position_name' => $careerHistory[1],
+                        'year' => $careerHistory[2],
+                    ];
+                })->all();
+
             //delete all career history
             $officer->officerCareerHistories()->delete();
 
-            foreach($careerHistoryCollection as $careerHistory){
+            foreach ($careerHistoryCollection as $careerHistory) {
                 $officer->officerCareerHistories()->create(
                     [
                         'officer_id' => $officer->id,
@@ -1232,20 +1246,22 @@ class PersonnelController extends Controller
             $policeDikjurEducationMaterialIdCollection = Collection::make($policeDikjurEducationMaterialIds);
 
             $policeDikjurEducationCollection = $policeDikjurEducationPlaceIdCollection
-                                        ->zip($policeDikjurEducationGraduateYearCollection,
-                                            $policeDikjurEducationMaterialIdCollection)
-                                        ->map(function ($policeDikjurEducation) {
-                                            return [
-                                                'police_dikjur_education_place_id' => $policeDikjurEducation[0],
-                                                'graduate_year' => $policeDikjurEducation[1],
-                                                'police_dikjur_education_material_id' => $policeDikjurEducation[2],
-                                            ];
-                                        })->all();
+                ->zip(
+                    $policeDikjurEducationGraduateYearCollection,
+                    $policeDikjurEducationMaterialIdCollection
+                )
+                ->map(function ($policeDikjurEducation) {
+                    return [
+                        'police_dikjur_education_place_id' => $policeDikjurEducation[0],
+                        'graduate_year' => $policeDikjurEducation[1],
+                        'police_dikjur_education_material_id' => $policeDikjurEducation[2],
+                    ];
+                })->all();
 
             //delete all police dikjur education
             $officer->officerPoliceDikjurEducations()->delete();
 
-            foreach($policeDikjurEducationCollection as $policeDikjurEducation){
+            foreach ($policeDikjurEducationCollection as $policeDikjurEducation) {
                 $officer->officerPoliceDikjurEducations()->create(
                     [
                         'officer_id' => $officer->id,
@@ -1257,7 +1273,7 @@ class PersonnelController extends Controller
             }
 
             //CERTIFICATE HISTORY
-            if($isExistsOfficerCertificate == true){
+            if ($isExistsOfficerCertificate == true) {
                 $certificateTypeIds = $request->certificateTypeIds ?? [];
                 $certificateNumbers = $request->certificateNumbers ?? [];
                 $certificateStartDates = $request->certificateStartDates ?? [];
@@ -1269,22 +1285,24 @@ class PersonnelController extends Controller
                 $certificateEndDateCollection = Collection::make($certificateEndDates);
 
                 $certificateCollection = $certificateTypeIdCollection
-                                            ->zip($certificateNumberCollection,
-                                                $certificateStartDateCollection,
-                                                $certificateEndDateCollection)
-                                            ->map(function ($certificate) {
-                                                return [
-                                                    'certificate_type_id' => $certificate[0],
-                                                    'certificate_number' => $certificate[1],
-                                                    'begin_date' => $certificate[2],
-                                                    'expired_date' => $certificate[3],
-                                                ];
-                                            })->all();
+                    ->zip(
+                        $certificateNumberCollection,
+                        $certificateStartDateCollection,
+                        $certificateEndDateCollection
+                    )
+                    ->map(function ($certificate) {
+                        return [
+                            'certificate_type_id' => $certificate[0],
+                            'certificate_number' => $certificate[1],
+                            'begin_date' => $certificate[2],
+                            'expired_date' => $certificate[3],
+                        ];
+                    })->all();
 
                 //delete all certificate history
                 $officer->officerCertificateHistories()->delete();
 
-                foreach($certificateCollection as $certificate){
+                foreach ($certificateCollection as $certificate) {
                     $officer->officerCertificateHistories()->create(
                         [
                             'officer_id' => $officer->id,
@@ -1295,16 +1313,16 @@ class PersonnelController extends Controller
                         ]
                     );
                 }
-            }else if($isExistsOfficerCertificate == false){
+            } else if ($isExistsOfficerCertificate == false) {
                 $officer->officerCertificateHistories()->delete();
             }
 
             DB::commit();
 
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('success', 'Data berhasil disimpan');
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
-            Log::error('PersonnelController@update : ',$e->getMessage());
+            Log::error('PersonnelController@update : ', $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data');
         }
     }
@@ -1319,7 +1337,7 @@ class PersonnelController extends Controller
             ->where('users.id', $id)
             ->first();
 
-        if(empty($user)){
+        if (empty($user)) {
             return redirect()->route('personnel.index', ['policeId' => $policeId]);
         }
 
@@ -1345,7 +1363,7 @@ class PersonnelController extends Controller
             ->where('users.id', $id)
             ->first();
 
-        if(empty($user)){
+        if (empty($user)) {
             return redirect()->route('personnel.index', ['policeId', $policeId]);
         }
 
@@ -1355,7 +1373,7 @@ class PersonnelController extends Controller
             'password' => 'required|min:6|max:255|confirmed:password_confirmation|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[-_#@$!%*?&])[A-Za-z\d\-_#@$!%*?&]+$/
             ',
             'password_confirmation' => 'required',
-        ],[
+        ], [
             'password.required' => 'Password tidak boleh kosong',
             'password.min' => 'Password minimal 6 karakter',
             'password.max' => 'Password maksimal 255 karakter',
@@ -1366,7 +1384,7 @@ class PersonnelController extends Controller
         $password = $request->password;
 
         DB::beginTransaction();
-        try{
+        try {
             $user->update([
                 'password' => Hash::make($password),
                 'is_password_changed' => true,
@@ -1374,7 +1392,7 @@ class PersonnelController extends Controller
 
             DB::commit();
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('success', 'Data berhasil disimpan');
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat mengubah password');
         }
@@ -1390,7 +1408,7 @@ class PersonnelController extends Controller
             ->where('users.id', $id)
             ->first();
 
-        if(empty($user)){
+        if (empty($user)) {
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
         }
 
@@ -1424,7 +1442,7 @@ class PersonnelController extends Controller
             'operationControlAssistanceDate' => 'required_if:mutationType,ASSISTANCE',
             'operationControlAssistancePoliceName' => 'required_if:mutationType,ASSISTANCE',
             'operationControlAssistancePoliceId' => 'required_if:mutationType,ASSISTANCE',
-        ],[
+        ], [
             'name.required' => 'Nama tidak boleh kosong',
             'name.max' => 'Nama maksimal 255 karakter',
             'mutationType.required' => 'Jenis mutasi tidak boleh kosong',
@@ -1448,7 +1466,7 @@ class PersonnelController extends Controller
             ->where('users.id', $id)
             ->first();
 
-        if(empty($user)){
+        if (empty($user)) {
             return redirect()->route('personnel.index', ['policeId', $policeId]);
         }
 
@@ -1462,7 +1480,7 @@ class PersonnelController extends Controller
         $operationControlAssistancePoliceId = htmlspecialchars($request->operationControlAssistancePoliceId);
 
         DB::beginTransaction();
-        try{
+        try {
             $officer->officerPoliceHistories()
                 ->where('officer_id', $officer->id,)
                 ->where('is_present', true)
@@ -1473,7 +1491,7 @@ class PersonnelController extends Controller
                     ]
                 );
 
-            if($mutationType == 'PRESENT'){
+            if ($mutationType == 'PRESENT') {
                 $police = Police::with(['parent', 'children'])->where('id', $presentMutationTypePoliceId)
                     ->first();
                 $regionalPolice = ($police->class == 'DAERAH') ? $police->id : (($police->class == 'RESOR') ? $police->parent()->first()->id : null);
@@ -1505,7 +1523,7 @@ class PersonnelController extends Controller
                         'is_present' => true,
                     ]
                 );
-            }else if($mutationType == 'EXIT'){
+            } else if ($mutationType == 'EXIT') {
                 $user->update([
                     'is_active' => false,
                 ]);
@@ -1514,7 +1532,7 @@ class PersonnelController extends Controller
                     'status' => $mutationType,
                     'is_active' => false,
                 ]);
-            }else if($mutationType == 'RETIRE'){
+            } else if ($mutationType == 'RETIRE') {
                 $user->update([
                     'is_active' => false,
                 ]);
@@ -1523,7 +1541,7 @@ class PersonnelController extends Controller
                     'status' => $mutationType,
                     'is_active' => false,
                 ]);
-            }else if($mutationType == 'ASSISTANCE'){
+            } else if ($mutationType == 'ASSISTANCE') {
                 $police = Police::with(['parent', 'children'])->where('id', $operationControlAssistancePoliceId)
                     ->first();
                 $regionalPolice = ($police->class == 'DAERAH') ? $police->id : (($police->class == 'RESOR') ? $police->parent()->first()->id : null);
@@ -1573,7 +1591,7 @@ class PersonnelController extends Controller
             DB::commit();
 
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('success', 'Data berhasil dipindahkan');
-        } catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat memindahkan data');
         }
@@ -1586,14 +1604,14 @@ class PersonnelController extends Controller
         $policeId = $request->policeId;
         $registerNumber = htmlspecialchars($request->registerNumber);
 
-        try{
+        try {
             $officer = Officer::withRelated()
                 ->selectFullName()
                 ->where('officers.register_number', $registerNumber)
                 ->where('officers.user_id', '!=', NULL)
                 ->first();
 
-            if(empty($officer)){
+            if (empty($officer)) {
                 return response()->json([
                     'status' => 'error',
                     'code' => 404,
@@ -1604,7 +1622,7 @@ class PersonnelController extends Controller
             $admins = Officer::withRelated()
                 ->selectFullName()
                 ->where('officers.police_id', $officer->police_id)
-                ->whereHas('user', function($query){
+                ->whereHas('user', function ($query) {
                     $query->where('users.role_id', 3);
                 })
                 ->where('officers.flag', 'ADMIN')
@@ -1618,7 +1636,7 @@ class PersonnelController extends Controller
                     'admins' => $admins,
                 ]
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'code' => 500,
@@ -1632,8 +1650,8 @@ class PersonnelController extends Controller
         $policeClass = $request->policeClass;
         $policeId = $request->policeId;
 
-        try{
-            switch($policeClass){
+        try {
+            switch ($policeClass) {
                 case 'DAERAH':
                     $polices = Police::where('is_active', true)
                         ->where('class', $policeClass)
@@ -1655,7 +1673,7 @@ class PersonnelController extends Controller
                 'code' => 200,
                 'data' => $polices
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'code' => 500,
@@ -1670,10 +1688,10 @@ class PersonnelController extends Controller
         $policeNameKeyword = htmlspecialchars($request->policeNameKeyword);
         $policeNameKeyword = strtoupper($policeNameKeyword);
 
-        try{
+        try {
             $polices = [];
 
-            switch($policeClass){
+            switch ($policeClass) {
                 case 'PUSAT':
                     $polices = Police::with('parent')
                         ->where('is_active', true)
@@ -1682,7 +1700,7 @@ class PersonnelController extends Controller
                         ->orderBy('sort', 'asc')
                         ->get();
                     break;
-                    
+
                 case 'DAERAH':
                     $polices = Police::with('parent')
                         ->where('is_active', true)
@@ -1707,7 +1725,7 @@ class PersonnelController extends Controller
                 'code' => 200,
                 'data' => $polices
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'code' => 500,
@@ -1721,13 +1739,13 @@ class PersonnelController extends Controller
         $employmentTypeId = request()->employmentTypeId;
         $policeId = request()->policeId;
 
-        try{
+        try {
             $ranks = Rank::where('employment_type_id', $employmentTypeId)
                 ->where('is_active', true)
                 ->orderBy('sort', 'asc')
                 ->get();
 
-            if(empty($ranks)){
+            if (empty($ranks)) {
                 return response()->json([
                     'status' => 'error',
                     'code' => 404,
@@ -1740,7 +1758,7 @@ class PersonnelController extends Controller
                 'code' => 200,
                 'data' => $ranks
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'code' => 500,
@@ -1754,7 +1772,7 @@ class PersonnelController extends Controller
         $employmentTypeId = request()->employmentTypeId;
         $policeId = request()->policeId;
 
-        try{
+        try {
             $positions = Position::withRelated()
                 ->where('employment_type_id', $employmentTypeId)
                 ->where('police_id', $policeId)
@@ -1762,7 +1780,7 @@ class PersonnelController extends Controller
                 ->orderBy('sort', 'asc')
                 ->get();
 
-            if(empty($positions)){
+            if (empty($positions)) {
                 return response()->json([
                     'status' => 'error',
                     'code' => 404,
@@ -1775,7 +1793,7 @@ class PersonnelController extends Controller
                 'code' => 200,
                 'data' => $positions
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'code' => 500,
@@ -1786,7 +1804,7 @@ class PersonnelController extends Controller
 
     public function validateRequestForm(Request $request)
     {
-        try{
+        try {
             $validator = $this->validateForm($request);
 
             if ($validator->fails()) {
@@ -1801,14 +1819,14 @@ class PersonnelController extends Controller
             $oldIsRegisterAdminCanEntryDocument = $request->oldIsRegisterAdminCanEntryDocument;
             $registerNumber = $request->registerNumber;
 
-            if(filter_var($request->isRegisterAdmin, FILTER_VALIDATE_BOOLEAN) == true){
-                $countUserAsWorkUnitAdmin = User::whereHas('officer', function($query) use($policeId, $oldIsRegisterAdminCanEntryDocument, $registerNumber){
-                    if(filter_var($oldIsRegisterAdminCanEntryDocument, FILTER_VALIDATE_BOOLEAN) == true){
+            if (filter_var($request->isRegisterAdmin, FILTER_VALIDATE_BOOLEAN) == true) {
+                $countUserAsWorkUnitAdmin = User::whereHas('officer', function ($query) use ($policeId, $oldIsRegisterAdminCanEntryDocument, $registerNumber) {
+                    if (filter_var($oldIsRegisterAdminCanEntryDocument, FILTER_VALIDATE_BOOLEAN) == true) {
                         $query->where('flag', 'ADMIN')
                             ->where('police_id', $policeId)
                             ->where('register_number', '!=', $registerNumber)
                             ->where('is_active', true);
-                    }else{
+                    } else {
                         $query->where('flag', 'ADMIN')
                             ->where('police_id', $policeId)
                             ->where('is_active', true);
@@ -1816,7 +1834,7 @@ class PersonnelController extends Controller
                 })->count();
 
                 // if more 2 then return error
-                if($countUserAsWorkUnitAdmin >= 2){
+                if ($countUserAsWorkUnitAdmin >= 2) {
                     return response()->json([
                         'success' => false,
                         'errors' => $validator->errors()->add('position', 'Jumlah Admin Satker maksimal 2 orang'),
@@ -1830,7 +1848,7 @@ class PersonnelController extends Controller
                 'code' => 200,
                 'message' => 'Silahkan menunggu proses simpan data',
             ], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'errors' => 'Terjadi kesalahan pada sistem.',

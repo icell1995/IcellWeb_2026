@@ -328,10 +328,10 @@
                 </div>
 
                 <hr>
-		
-		@if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratPerintahTugasDocument->isLegacy == true || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-		        @include('docs.components.form.checkbox.is-legacy', ['document' => $suratPerintahTugasDocument])
-		@endif
+
+                @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratPerintahTugasDocument->isLegacy == true || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
+		            @include('docs.components.form.checkbox.is-legacy', ['document' => $suratPerintahTugasDocument])
+                @endif
 
                 <div class="text-center">
                     <button type="submit" class="btn btn-dark-blue" id="suratPerintahTugasFormSubmit">
@@ -362,7 +362,7 @@
 @endphp
 
 @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratPerintahTugasDocument->isLegacy == true || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
-	@include('docs.components.form.checkbox.is-legacy-js')
+    @include('docs.components.form.checkbox.is-legacy-js')
 @endif
 
 <script type="text/javascript">

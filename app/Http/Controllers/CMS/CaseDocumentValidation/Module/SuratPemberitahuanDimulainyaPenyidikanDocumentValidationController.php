@@ -209,12 +209,11 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController extends
         $isApproved = $request->input('isApproved');
         $isLegacy = $request->input('isLegacy');
         $isApplyLeagcySettingToAllDocument = $request->input('isApplyLeagcySettingToAllDocument');
-        $currentStatusId = $request->input('currentStatusId');
 
         $isApprovedBoolean = filter_var($isApproved, FILTER_VALIDATE_BOOLEAN);
         $isLegacyBoolean = filter_var($isLegacy, FILTER_VALIDATE_BOOLEAN);
 
-        // $whatsappWebhookService = new WhatsappWebhookService();
+        $whatsappWebhookService = new WhatsappWebhookService();
 
         DB::beginTransaction();
         try{
@@ -225,17 +224,9 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController extends
                     'suratPemberitahuanDimulainyaPenyidikanDocumentOfficers',
                 ])
                 ->where('id', $id)
-                ->lockForUpdate()
                 ->first();
             
             $updatedStatusId = '86';
-
-            if ($isApprovedBoolean == true && $currentStatusId !== null) {
-                if ((string)$suratPemberitahuanDimulainyaPenyidikanDocument->status_id !== (string)$currentStatusId) {
-                    DB::rollback();
-                    return redirect()->back()->with('error', 'Dokumen ini sudah divalidasi.');
-                }
-            }
 
             if($isApprovedBoolean == true) {
                 $documentSignatory = $suratPemberitahuanDimulainyaPenyidikanDocument
@@ -253,13 +244,8 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController extends
 
                 if($suratPemberitahuanDimulainyaPenyidikanDocument->status_id == '9'){
 
-                    if($isLegacyBoolean == true){
-                        $suratPemberitahuanDimulainyaPenyidikanDocument->status_id = '85';
-                        $updatedStatusId = '85';
-                    }else{
-                        $suratPemberitahuanDimulainyaPenyidikanDocument->status_id = '9';
-                        $updatedStatusId = '9';
-                    }
+                    $suratPemberitahuanDimulainyaPenyidikanDocument->status_id = '85';
+                    $updatedStatusId = '85';
 
                 }elseif($suratPemberitahuanDimulainyaPenyidikanDocument->status_id == '12'){
 
@@ -271,40 +257,40 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController extends
                         $updatedStatusId = '9';
               
                         // Send whatsapp message to signatory
-                        // if(!empty($documentSignatory->position->name)){
-                        //     $officer = Officer::where('register_number', $documentSignatory->register_number)->first();
+                        if(!empty($documentSignatory->position->name)){
+                            $officer = Officer::where('register_number', $documentSignatory->register_number)->first();
 
-                        //     if(!empty($officer->phone_number)){
-                        //         $whatsappWebhookService->sendMessageTemplate(
-                        //             destinationPhoneNumber: $officer->phone_number, 
-                        //             templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_READY_TO_SIGNED'),
-                        //             props: [
-                        //                 '{positionName}' => $documentSignatory->position->name,
-                        //                 '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->document_number,
-                        //                 '{documentName}' => $suratPemberitahuanDimulainyaPenyidikanDocument->documentCategory->name ?? '',
-                        //                 '{accidentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->accident->no_lp ?? '',
-                        //             ]
-                        //         );
-                        //     }
-                        // }
+                            if(!empty($officer->phone_number)){
+                                $whatsappWebhookService->sendMessageTemplate(
+                                    destinationPhoneNumber: $officer->phone_number, 
+                                    templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_READY_TO_SIGNED'),
+                                    props: [
+                                        '{positionName}' => $documentSignatory->position->name,
+                                        '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->document_number,
+                                        '{documentName}' => $suratPemberitahuanDimulainyaPenyidikanDocument->documentCategory->name ?? '',
+                                        '{accidentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->accident->no_lp ?? '',
+                                    ]
+                                );
+                            }
+                        }
                     }
 
                     // Send whatsapp message to admin
-                    // foreach($policeAdmins as $policeAdmin){
-                    //     if(!empty($policeAdmin->phone_number)){
-                    //         $policeName = (isset($policeAdmin->police->full_name)) ? $policeAdmin->police->full_name : '';
-                    //         $whatsappWebhookService->sendMessageTemplate(
-                    //             destinationPhoneNumber: $policeAdmin->phone_number,
-                    //             templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_VALIDATED'),
-                    //             props: [
-                    //                 '{positionName}' => 'ADMIN ' . $policeName,
-                    //                 '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->document_number,
-                    //                 '{documentName}' => $suratPemberitahuanDimulainyaPenyidikanDocument->documentCategory->name ?? '',
-                    //                 '{accidentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->accident->no_lp ?? '',
-                    //             ]
-                    //         );
-                    //     }
-                    // }
+                    foreach($policeAdmins as $policeAdmin){
+                        if(!empty($policeAdmin->phone_number)){
+                            $policeName = (isset($policeAdmin->police->full_name)) ? $policeAdmin->police->full_name : '';
+                            $whatsappWebhookService->sendMessageTemplate(
+                                destinationPhoneNumber: $policeAdmin->phone_number,
+                                templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_VALIDATED'),
+                                props: [
+                                    '{positionName}' => 'ADMIN ' . $policeName,
+                                    '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->document_number,
+                                    '{documentName}' => $suratPemberitahuanDimulainyaPenyidikanDocument->documentCategory->name ?? '',
+                                    '{accidentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->accident->no_lp ?? '',
+                                ]
+                            );
+                        }
+                    }
                     
                 }else{
                     $suratPemberitahuanDimulainyaPenyidikanDocument->status_id = '86';
@@ -406,23 +392,7 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController extends
 
             $suratPemberitahuanDimulainyaPenyidikanDocument->approved_at = $this->timestampNow;
 
-            if ($isApprovedBoolean == true) {
-                $affected = SuratPemberitahuanDimulainyaPenyidikanDocument::where('id', $id)
-                    ->where('status_id', $currentStatusId)
-                    ->update([
-                        'status_id'   => $updatedStatusId,
-                        'released_at' => $this->timestampNow,
-                        'approved_at' => $this->timestampNow,
-                        'is_legacy'   => $isLegacyBoolean,
-                    ]);
-
-                if ($affected === 0) {
-                    DB::rollback();
-                    return redirect()->back()->with('error', 'Dokumen ini sudah divalidasi oleh petugas lain. Silakan refresh halaman.');
-                }
-            } else {
-                $suratPemberitahuanDimulainyaPenyidikanDocument->save();
-            }
+            $suratPemberitahuanDimulainyaPenyidikanDocument->save();
 
             DB::commit();
 
@@ -436,7 +406,7 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController extends
     public function rejectValidation(Request $request, $id)
     {
         $docValidationService = new DocValidationService();
-        // $whatsappWebhookService = new WhatsappWebhookService();
+        $whatsappWebhookService = new WhatsappWebhookService();
 
         $isRejected = $request->input('isRejected');
         $rejectStatusOption = $request->input('rejectStatusOption');
@@ -470,22 +440,22 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController extends
                     ->get();
                     
                 // Send whatsapp message to admin
-                // foreach($policeAdmins as $policeAdmin){
-                //     if(!empty($policeAdmin->phone_number)){
-                //         $policeName = (isset($policeAdmin->police->full_name)) ? $policeAdmin->police->full_name : '';
-                //         $whatsappWebhookService->sendMessageTemplate(
-                //             destinationPhoneNumber: $policeAdmin->phone_number,
-                //             templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_VALIDATE_REJECTED'),
-                //             props: [
-                //                 '{positionName}' => 'ADMIN ' . $policeName,
-                //                 '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->document_number,
-                //                 '{documentName}' => $suratPemberitahuanDimulainyaPenyidikanDocument->documentCategory->name ?? '',
-                //                 '{accidentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->accident->no_lp ?? '',
-                //                 '{rejectMessage}' => $rejectReason
-                //             ]
-                //         );
-                //     }
-                // }
+                foreach($policeAdmins as $policeAdmin){
+                    if(!empty($policeAdmin->phone_number)){
+                        $policeName = (isset($policeAdmin->police->full_name)) ? $policeAdmin->police->full_name : '';
+                        $whatsappWebhookService->sendMessageTemplate(
+                            destinationPhoneNumber: $policeAdmin->phone_number,
+                            templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_VALIDATE_REJECTED'),
+                            props: [
+                                '{positionName}' => 'ADMIN ' . $policeName,
+                                '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->document_number,
+                                '{documentName}' => $suratPemberitahuanDimulainyaPenyidikanDocument->documentCategory->name ?? '',
+                                '{accidentNumber}' => $suratPemberitahuanDimulainyaPenyidikanDocument->accident->no_lp ?? '',
+                                '{rejectMessage}' => $rejectReason
+                            ]
+                        );
+                    }
+                }
 
                 // $suratPemberitahuanDimulainyaPenyidikanDocument->id = Str::uuid();
 

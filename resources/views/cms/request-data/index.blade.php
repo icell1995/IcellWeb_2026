@@ -21,9 +21,11 @@
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="mb-0 fw-bold">Request Data</h3>
+        @if(Auth::user()->hasPermission('cms.C'))
         <button class="btn btn-danger" id="btnTambah">
             <i class="bi bi-plus-circle me-1"></i> Tambah Permintaan Data
         </button>
+        @endif
     </div>
 
     {{-- Alert flash --}}
@@ -154,7 +156,7 @@
                     @csrf
                     <input type="hidden" id="record_id" name="record_id" value="">
 
-                    {{-- --- CATATAN PERMINTAAN DATA --- --}}
+                    {{-- ─── CATATAN PERMINTAAN DATA ─── --}}
                     <div class="mb-4">
                         <label class="form-label fw-semibold">
                             Catatan Permintaan Data
@@ -165,7 +167,7 @@
 
                     <hr class="my-3">
 
-                    {{-- --- DETAIL PEMOHON --- --}}
+                    {{-- ─── DETAIL PEMOHON ─── --}}
                     <h6 class="fw-bold text-uppercase text-secondary mb-3 mt-1">Detail Pemohon</h6>
 
                     <div class="row g-3">
@@ -174,7 +176,7 @@
                             <input type="text" name="nama_lengkap_pemohon" id="nama_lengkap_pemohon" class="form-control" required>
                         </div>
 
-                        {{-- No Telp � disembunyikan saat korlantas --}}
+                        {{-- No Telp – disembunyikan saat korlantas --}}
                         <div class="col-md-6" id="wrap_telp">
                             <label class="form-label">Nomor Telepon Pemohon</label>
                             <input type="text" name="no_telp_pemohon" id="no_telp_pemohon" class="form-control"
@@ -234,7 +236,7 @@
 
                     <hr class="my-4">
 
-                    {{-- --- DETAIL PENYEDIA --- --}}
+                    {{-- ─── DETAIL PENYEDIA ─── --}}
                     <h6 class="fw-bold text-uppercase text-secondary mb-3">Detail Penyedia</h6>
 
                     <div class="row g-3">
@@ -301,14 +303,14 @@
 (function () {
     'use strict';
 
-    /* --- Route helpers --- */
+    /* ─── Route helpers ─── */
     const ROUTE_INDEX     = '{{ route('request-data.index') }}';
     const ROUTE_STORE     = '{{ route('request-data.store') }}';
     const ROUTE_EXPORT    = '{{ route('request-data.exportExcel') }}';
     const POLRES_API_BASE = '{{ url('cms/request-data/api/polres') }}';
     const CSRF            = '{{ csrf_token() }}';
 
-    /* --- DataTable --- */
+    /* ─── DataTable ─── */
     let table;
 
     function initTable() {
@@ -349,7 +351,7 @@
         });
     }
 
-    /* --- Filter Panel Dynamics --- */
+    /* ─── Filter Panel Dynamics ─── */
     $('#filter_jenis').on('change', function () {
         const val = $(this).val();
         // Sembunyikan semua sub-filter dulu
@@ -389,7 +391,7 @@
         }
     });
 
-    /* --- Filter submit --- */
+    /* ─── Filter submit ─── */
     $('#btnCari').on('click', function () {
         buildExportUrl();
         table.ajax.reload();
@@ -474,7 +476,7 @@
         .catch(() => { sel.html('<option value="">-- Pilih Polres --</option>'); });
     }
 
-    /* --- Open modal: ADD --- */
+    /* ─── Open modal: ADD ─── */
     $('#btnTambah').on('click', function () {
         resetForm();
         $('#modalRequestLabel').text('Permintaan Data');
@@ -482,7 +484,7 @@
         new bootstrap.Modal(document.getElementById('modalRequest')).show();
     });
 
-    /* --- Open modal: EDIT (via DataTable row) --- */
+    /* ─── Open modal: EDIT (via DataTable row) ─── */
     $(document).on('click', '.btn-edit-request', function () {
         const id = $(this).data('id');
         fetch(`${ROUTE_INDEX}/${id}`, { headers: { 'Accept': 'application/json' } })
@@ -528,7 +530,7 @@
         .catch(() => alert('Terjadi kesalahan. Coba lagi.'));
     });
 
-    /* --- Delete --- */
+    /* ─── Delete ─── */
     $(document).on('click', '.btn-delete-request', function () {
         const id  = $(this).data('id');
         const btn = $(this);
@@ -558,7 +560,7 @@
         });
     });
 
-    /* --- Simpan (Create / Update) --- */
+    /* ─── Simpan (Create / Update) ─── */
     $('#btnSimpan').on('click', function () {
         const id = $('#record_id').val();
         const formData = new FormData(document.getElementById('formRequest'));
@@ -591,14 +593,14 @@
         .catch(() => alert('Terjadi kesalahan jaringan.'));
     });
 
-    /* --- Reset form --- */
+    /* ─── Reset form ─── */
     function resetForm() {
         document.getElementById('formRequest').reset();
-        // Cukup kosongkan value � jangan panggil datepicker('clearDates')
+        // Cukup kosongkan value — jangan panggil datepicker('clearDates')
         // karena jika belum diinit, Bootstrap Datepicker akan auto-init dengan opsi default (salah)
         $('#tanggal_permintaan, #tanggal_penyajian').val('');
         $('#wrap_polda, #wrap_polres, #wrap_instansi_lain').hide();
-        // Reset institusi ke default (korlantas) ? sembunyikan telp
+        // Reset institusi ke default (korlantas) → sembunyikan telp
         $('#jenis_institusi').val('korlantas');
         $('#wrap_telp').hide();
         $('#no_telp_pemohon').val('');
@@ -607,7 +609,7 @@
         $('#form_polres_id').html('<option value="">-- Pilih Polres --</option>');
     }
 
-    /* --- Simple toast --- */
+    /* ─── Simple toast ─── */
     function showToast(msg, type = 'success') {
         const color = type === 'success' ? '#198754' : '#dc3545';
         const el = document.createElement('div');
@@ -619,12 +621,12 @@
         setTimeout(() => el.remove(), 3000);
     }
 
-    /* --- Init --- */
+    /* ─── Init ─── */
     $(document).ready(function () {
         initTable();
         buildExportUrl();
 
-        // Init datepicker � filter panel
+        // Init datepicker – filter panel
         $('#filter_dari, #filter_hingga').datepicker({
             format        : 'dd-mm-yyyy',
             autoclose     : true,
@@ -633,7 +635,7 @@
             orientation   : 'bottom auto',
         });
 
-        // Init datepicker � modal form
+        // Init datepicker – modal form
         // SELALU force destroy + init setiap modal terbuka
         // agar opsi (format, endDate, container) selalu ter-update
         $('#modalRequest').on('shown.bs.modal', function () {

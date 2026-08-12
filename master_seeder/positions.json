@@ -449,7 +449,7 @@
     },
     {
         "id": "57",
-        "name": "KAPOLRES BUKIT TINGGI",
+        "name": "KAPOLRES KOTA BUKIT TINGGI",
         "code": "",
         "police_id": "0305",
         "employment_type_id": "1",
@@ -665,7 +665,7 @@
     },
     {
         "id": "84",
-        "name": "KAPOLRES BENGKULU",
+        "name": "KAPOLRES KOTA BENGKULU",
         "code": "",
         "police_id": "0501",
         "employment_type_id": "1",
@@ -753,7 +753,7 @@
     },
     {
         "id": "95",
-        "name": "KAPOLRES BATANGHARI",
+        "name": "KAPOLRES BATANG HARI",
         "code": "",
         "police_id": "0602",
         "employment_type_id": "1",
@@ -905,7 +905,7 @@
     },
     {
         "id": "114",
-        "name": "KAPOLRES MUSIRAWAS",
+        "name": "KAPOLRES MUSI RAWAS",
         "code": "",
         "police_id": "0711",
         "employment_type_id": "1",
@@ -1081,7 +1081,7 @@
     },
     {
         "id": "136",
-        "name": "KAPOLRES PANGKAL PINANG",
+        "name": "KAPOLRES KOTA PANGKAL PINANG",
         "code": "",
         "police_id": "0901",
         "employment_type_id": "1",
@@ -4465,7 +4465,7 @@
     },
     {
         "id": "559",
-        "name": "WAKAPOLRES BUKIT TINGGI",
+        "name": "WAKAPOLRES KOTA BUKIT TINGGI",
         "code": "",
         "police_id": "0305",
         "employment_type_id": "1",
@@ -4681,7 +4681,7 @@
     },
     {
         "id": "586",
-        "name": "WAKAPOLRES BENGKULU",
+        "name": "WAKAPOLRES KOTA BENGKULU",
         "code": "",
         "police_id": "0501",
         "employment_type_id": "1",
@@ -4769,7 +4769,7 @@
     },
     {
         "id": "597",
-        "name": "WAKAPOLRES BATANGHARI",
+        "name": "WAKAPOLRES BATANG HARI",
         "code": "",
         "police_id": "0602",
         "employment_type_id": "1",
@@ -4921,7 +4921,7 @@
     },
     {
         "id": "616",
-        "name": "WAKAPOLRES MUSIRAWAS",
+        "name": "WAKAPOLRES MUSI RAWAS",
         "code": "",
         "police_id": "0711",
         "employment_type_id": "1",
@@ -5097,7 +5097,7 @@
     },
     {
         "id": "638",
-        "name": "WAKAPOLRES PANGKAL PINANG",
+        "name": "WAKAPOLRES KOTA PANGKAL PINANG",
         "code": "",
         "police_id": "0901",
         "employment_type_id": "1",
@@ -8481,7 +8481,7 @@
     },
     {
         "id": "1061",
-        "name": "KASAT LANTAS RES BUKIT TINGGI",
+        "name": "KASAT LANTAS RESTA BUKIT TINGGI",
         "code": "",
         "police_id": "0305",
         "employment_type_id": "1",
@@ -8697,7 +8697,7 @@
     },
     {
         "id": "1088",
-        "name": "KASAT LANTAS RES BENGKULU",
+        "name": "KASAT LANTAS RESTA BENGKULU",
         "code": "",
         "police_id": "0501",
         "employment_type_id": "1",
@@ -8785,7 +8785,7 @@
     },
     {
         "id": "1099",
-        "name": "KASAT LANTAS RES BATANGHARI",
+        "name": "KASAT LANTAS RES BATANG HARI",
         "code": "",
         "police_id": "0602",
         "employment_type_id": "1",
@@ -8937,7 +8937,7 @@
     },
     {
         "id": "1118",
-        "name": "KASAT LANTAS RES MUSIRAWAS",
+        "name": "KASAT LANTAS RES MUSI RAWAS",
         "code": "",
         "police_id": "0711",
         "employment_type_id": "1",
@@ -9113,7 +9113,7 @@
     },
     {
         "id": "1140",
-        "name": "KASAT LANTAS RES PANGKAL PINANG",
+        "name": "KASAT LANTAS RESTA PANGKAL PINANG",
         "code": "",
         "police_id": "0901",
         "employment_type_id": "1",
@@ -12497,7 +12497,7 @@
     },
     {
         "id": "1563",
-        "name": "KANIT I GAKKUM SAT LANTAS RES BUKIT TINGGI",
+        "name": "KANIT I GAKKUM SAT LANTAS RESTA BUKIT TINGGI",
         "code": "",
         "police_id": "0305",
         "employment_type_id": "1",
@@ -12713,7 +12713,7 @@
     },
     {
         "id": "1590",
-        "name": "KANIT I GAKKUM SAT LANTAS RES BENGKULU",
+        "name": "KANIT I GAKKUM SAT LANTAS RESTA BENGKULU",
         "code": "",
         "police_id": "0501",
         "employment_type_id": "1",
@@ -12801,7 +12801,7 @@
     },
     {
         "id": "1601",
-        "name": "KANIT I GAKKUM SAT LANTAS RES BATANGHARI",
+        "name": "KANIT I GAKKUM SAT LANTAS RES BATANG HARI",
         "code": "",
         "police_id": "0602",
         "employment_type_id": "1",
@@ -12953,7 +12953,7 @@
     },
     {
         "id": "1620",
-        "name": "KANIT I GAKKUM SAT LANTAS RES MUSIRAWAS",
+        "name": "KANIT I GAKKUM SAT LANTAS RES MUSI RAWAS",
         "code": "",
         "police_id": "0711",
         "employment_type_id": "1",
@@ -13129,7 +13129,7 @@
     },
     {
         "id": "1642",
-        "name": "KANIT I GAKKUM SAT LANTAS RES PANGKAL PINANG",
+        "name": "KANIT I GAKKUM SAT LANTAS RESTA PANGKAL PINANG",
         "code": "",
         "police_id": "0901",
         "employment_type_id": "1",
@@ -16513,7 +16513,7 @@
     },
     {
         "id": "2065",
-        "name": "BANIT I GAKKUM SAT LANTAS RES BUKIT TINGGI",
+        "name": "BANIT I GAKKUM SAT LANTAS RESTA BUKIT TINGGI",
         "code": "",
         "police_id": "0305",
         "employment_type_id": "1",
@@ -16729,7 +16729,7 @@
     },
     {
         "id": "2092",
-        "name": "BANIT I GAKKUM SAT LANTAS RES BENGKULU",
+        "name": "BANIT I GAKKUM SAT LANTAS RESTA BENGKULU",
         "code": "",
         "police_id": "0501",
         "employment_type_id": "1",
@@ -16817,7 +16817,7 @@
     },
     {
         "id": "2103",
-        "name": "BANIT I GAKKUM SAT LANTAS RES BATANGHARI",
+        "name": "BANIT I GAKKUM SAT LANTAS RES BATANG HARI",
         "code": "",
         "police_id": "0602",
         "employment_type_id": "1",
@@ -16969,7 +16969,7 @@
     },
     {
         "id": "2122",
-        "name": "BANIT I GAKKUM SAT LANTAS RES MUSIRAWAS",
+        "name": "BANIT I GAKKUM SAT LANTAS RES MUSI RAWAS",
         "code": "",
         "police_id": "0711",
         "employment_type_id": "1",
@@ -17145,7 +17145,7 @@
     },
     {
         "id": "2144",
-        "name": "BANIT I GAKKUM SAT LANTAS RES PANGKAL PINANG",
+        "name": "BANIT I GAKKUM SAT LANTAS RESTA PANGKAL PINANG",
         "code": "",
         "police_id": "0901",
         "employment_type_id": "1",
@@ -20529,7 +20529,7 @@
     },
     {
         "id": "2567",
-        "name": "ADMIN I SAT LANTAS RES BUKIT TINGGI",
+        "name": "ADMIN I SAT LANTAS RESTA BUKIT TINGGI",
         "code": "",
         "police_id": "0305",
         "employment_type_id": "1",
@@ -20745,7 +20745,7 @@
     },
     {
         "id": "2594",
-        "name": "ADMIN I SAT LANTAS RES BENGKULU",
+        "name": "ADMIN I SAT LANTAS RESTA BENGKULU",
         "code": "",
         "police_id": "0501",
         "employment_type_id": "1",
@@ -20833,7 +20833,7 @@
     },
     {
         "id": "2605",
-        "name": "ADMIN I SAT LANTAS RES BATANGHARI",
+        "name": "ADMIN I SAT LANTAS RES BATANG HARI",
         "code": "",
         "police_id": "0602",
         "employment_type_id": "1",
@@ -20985,7 +20985,7 @@
     },
     {
         "id": "2624",
-        "name": "ADMIN I SAT LANTAS RES MUSIRAWAS",
+        "name": "ADMIN I SAT LANTAS RES MUSI RAWAS",
         "code": "",
         "police_id": "0711",
         "employment_type_id": "1",
@@ -21161,7 +21161,7 @@
     },
     {
         "id": "2646",
-        "name": "ADMIN I SAT LANTAS RES PANGKAL PINANG",
+        "name": "ADMIN I SAT LANTAS RESTA PANGKAL PINANG",
         "code": "",
         "police_id": "0901",
         "employment_type_id": "1",
@@ -26729,7 +26729,7 @@
     },
     {
         "id": "3342",
-        "name": "ADMIN II SAT LANTAS RES BUKIT TINGGI",
+        "name": "ADMIN II SAT LANTAS RESTA BUKIT TINGGI",
         "code": "",
         "police_id": "0305",
         "employment_type_id": "1",
@@ -26945,7 +26945,7 @@
     },
     {
         "id": "3369",
-        "name": "ADMIN II SAT LANTAS RES BENGKULU",
+        "name": "ADMIN II SAT LANTAS RESTA BENGKULU",
         "code": "",
         "police_id": "0501",
         "employment_type_id": "1",
@@ -27033,7 +27033,7 @@
     },
     {
         "id": "3380",
-        "name": "ADMIN II SAT LANTAS RES BATANGHARI",
+        "name": "ADMIN II SAT LANTAS RES BATANG HARI",
         "code": "",
         "police_id": "0602",
         "employment_type_id": "1",
@@ -27185,7 +27185,7 @@
     },
     {
         "id": "3399",
-        "name": "ADMIN II SAT LANTAS RES MUSIRAWAS",
+        "name": "ADMIN II SAT LANTAS RES MUSI RAWAS",
         "code": "",
         "police_id": "0711",
         "employment_type_id": "1",
@@ -27361,7 +27361,7 @@
     },
     {
         "id": "3421",
-        "name": "ADMIN II SAT LANTAS RES PANGKAL PINANG",
+        "name": "ADMIN II SAT LANTAS RESTA PANGKAL PINANG",
         "code": "",
         "police_id": "0901",
         "employment_type_id": "1",

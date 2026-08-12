@@ -10,14 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use App\Models\Log\CaseResolutionValidation as LogSelra;
 use App\Models\Opt\Status;
 use App\Models\Suspect;
 use App\Models\ReportedPerson;
 use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
 
 
 class CaseResolutionsAprrovalController extends Controller
@@ -35,13 +32,11 @@ class CaseResolutionsAprrovalController extends Controller
         $status = $request->get('status', 'pending');      // default pending
         $type   = trim((string) $request->get('type', ''));
         $q      = trim((string) $request->get('q', ''));
-        $qSearch = str_replace(' ', '%', $q);
 
         // Tanggal (opsional; default: 15/09/2025 s/d today jika user tidak isi)
         $tz        = config('app.timezone', 'Asia/Jakarta');
         $todayEnd  = \Carbon\Carbon::now($tz)->endOfDay();
-        //$defaultFrom = \Carbon\Carbon::createFromFormat('Y-m-d', '2025-09-15', $tz)->startOfDay();
-	$defaultFrom = \Carbon\Carbon::now($tz)->startOfYear()->startOfDay();
+        $defaultFrom = \Carbon\Carbon::createFromFormat('Y-m-d', '2025-09-15', $tz)->startOfDay();
 
         // datepicker kamu kirim "dd-mm-yyyy", jadi pakai createFromFormat agar aman
         $fromDt = $request->filled('from')
@@ -61,6 +56,7 @@ class CaseResolutionsAprrovalController extends Controller
          */
         $query = \App\Models\Accident::query()
             ->select(['id', 'no_lp', 'accident_date', 'report_date', 'police_id', 'polres_id', 'created_at'])
+            ->whereYear('accident_date', '>=', 2025)
             ->whereHas('accidentResolution', function ($q2) use ($fromDt, $toDt) {
                 if ($fromDt && $toDt) {
                     $q2->whereBetween('created_at', [$fromDt, $toDt]);
@@ -156,16 +152,15 @@ class CaseResolutionsAprrovalController extends Controller
 
         // Pencarian bebas untuk LIST
         if ($q !== '') {
-            $query->where(function ($qq) use ($qSearch, $likeOp) {
-                $qq->where('no_lp', $likeOp, "%{$qSearch}%")
-                    ->orWhereHas('police', fn($w) => $w->where('full_name', $likeOp, "%{$qSearch}%"))
-                    ->orWhereHas('polres', fn($w) => $w->where('name',      $likeOp, "%{$qSearch}%"))
-                    ->orWhereHas('polda',  fn($w) => $w->where('name',      $likeOp, "%{$qSearch}%"));
+            $query->where(function ($qq) use ($q, $likeOp) {
+                $qq->where('no_lp', $likeOp, "%{$q}%")
+                    ->orWhereHas('police', fn($w) => $w->where('full_name', $likeOp, "%{$q}%"))
+                    ->orWhereHas('polres', fn($w) => $w->where('name',      $likeOp, "%{$q}%"))
+                    ->orWhereHas('polda',  fn($w) => $w->where('name',      $likeOp, "%{$q}%"));
             });
         }
 
         $accidents = $query
-	    // ->whereYear('accident_date', '>=', 2025)
             ->orderByDesc('report_date')
             ->paginate($perPage)
             ->withQueryString();
@@ -186,12 +181,13 @@ class CaseResolutionsAprrovalController extends Controller
             ->when($fromDt && !$toDt, fn($q2) => $q2->where('created_at', '>=', $fromDt))
             ->when(!$fromDt && $toDt, fn($q2) => $q2->where('created_at', '<=', $toDt))
             ->when($type !== '', fn($q2) => $q2->where('type_name', $type))
-            ->when($q !== '', function ($q2) use ($qSearch, $likeOp) {
-                $q2->whereHas('accident', function ($qa) use ($qSearch, $likeOp) {
-                    $qa->where('no_lp', $likeOp, "%{$qSearch}%")
-                        ->orWhereHas('police', fn($w) => $w->where('full_name', $likeOp, "%{$qSearch}%"))
-                        ->orWhereHas('polres', fn($w) => $w->where('name',      $likeOp, "%{$qSearch}%"))
-                        ->orWhereHas('polda',  fn($w) => $w->where('name',      $likeOp, "%{$qSearch}%"));
+            ->whereHas('accident', fn($qa) => $qa->whereYear('accident_date', 2025))
+            ->when($q !== '', function ($q2) use ($q, $likeOp) {
+                $q2->whereHas('accident', function ($qa) use ($q, $likeOp) {
+                    $qa->where('no_lp', $likeOp, "%{$q}%")
+                        ->orWhereHas('police', fn($w) => $w->where('full_name', $likeOp, "%{$q}%"))
+                        ->orWhereHas('polres', fn($w) => $w->where('name',      $likeOp, "%{$q}%"))
+                        ->orWhereHas('polda',  fn($w) => $w->where('name',      $likeOp, "%{$q}%"));
                 });
             });
 
@@ -200,18 +196,19 @@ class CaseResolutionsAprrovalController extends Controller
 
         // Pending & Returned count (basis Accident, supaya bisa pakai exists/not exists log)
         $baseAccCount = \App\Models\Accident::query()
+            ->whereYear('accident_date', '>=', 2025)
             ->whereHas('accidentResolution', function ($q2) use ($fromDt, $toDt, $type) {
                 if ($fromDt && $toDt)      $q2->whereBetween('created_at', [$fromDt, $toDt]);
                 elseif ($fromDt)           $q2->where('created_at', '>=', $fromDt);
                 elseif ($toDt)             $q2->where('created_at', '<=', $toDt);
                 if ($type !== '')          $q2->where('type_name', $type);
             })
-            ->when($q !== '', function ($qq) use ($qSearch, $likeOp) {
-                $qq->where(function ($w) use ($qSearch, $likeOp) {
-                    $w->where('no_lp', $likeOp, "%{$qSearch}%")
-                        ->orWhereHas('police', fn($x) => $x->where('full_name', $likeOp, "%{$qSearch}%"))
-                        ->orWhereHas('polres', fn($x) => $x->where('name',      $likeOp, "%{$qSearch}%"))
-                        ->orWhereHas('polda',  fn($x) => $x->where('name',      $likeOp, "%{$qSearch}%"));
+            ->when($q !== '', function ($qq) use ($q, $likeOp) {
+                $qq->where(function ($w) use ($q, $likeOp) {
+                    $w->where('no_lp', $likeOp, "%{$q}%")
+                        ->orWhereHas('police', fn($x) => $x->where('full_name', $likeOp, "%{$q}%"))
+                        ->orWhereHas('polres', fn($x) => $x->where('name',      $likeOp, "%{$q}%"))
+                        ->orWhereHas('polda',  fn($x) => $x->where('name',      $likeOp, "%{$q}%"));
                 });
             });
 
@@ -300,7 +297,7 @@ class CaseResolutionsAprrovalController extends Controller
      */
     public function show(string $id)
     {
-        $resolution = \App\Models\AccidentResolution::with(['accident:id,no_lp,accident_date,report_date'])->findOrFail($id);
+        $resolution = \App\Models\AccidentResolution::with(['accident:id,no_lp'])->findOrFail($id);
 
         $accidentId = $resolution->accident_id;
 
@@ -333,12 +330,11 @@ class CaseResolutionsAprrovalController extends Controller
         $rejectReasons = [
             'Surat Ketetapan yang diupload tidak sesuai',
             'Judul Surat Ketetapan berbeda dengan SELRA yang dipilih',
-            'No LP tidak sesuai di Dokumen Upload',
+            'No LP tidak sesuai dengan Dokumen Upload',
             'No Dokumen Surat Ketetapan tidak sesuai dengan Dokumen Upload',
             'Nama Tersangka berbeda dengan Dokumen Upload',
             'Tanggal Surat Ketetapan berbeda / tidak ada di Dokumen Upload',
             'Tidak Ada Stampel pada Surat',
-	    'Tidak Ada Tanda Tangan pada Surat',
         ];
 
         // === CEK PERNAH REJECT (sebelum SELRA yang ini diupload) ===
@@ -378,11 +374,12 @@ class CaseResolutionsAprrovalController extends Controller
         $resolution->setAttribute('was_rejected_before', $wasRejectedBefore);
         $resolution->setAttribute('last_reject_info',   $rejectInfo);
 
+
         // return view('cms.case-resolutions-validation.show', compact('resolution','suspects','reporteds'));
-        return response()->view(
+        return view(
             'cms.case-resolutions-validation.show',
             compact('resolution', 'rejectReasons') + ['personLine' => $personLine]
-        )->header('Content-Security-Policy', "default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob:; worker-src * 'unsafe-inline' 'unsafe-eval' blob:;");
+        );
     }
 
     /**
@@ -471,12 +468,9 @@ class CaseResolutionsAprrovalController extends Controller
 
         $reasonForLog = json_encode($reasons, JSON_UNESCAPED_UNICODE);
 
-        $accidentIdToSync = null;
-
         try {
-            DB::transaction(function () use ($id, $reasonForLog, $reasons, &$accidentIdToSync) {
+            DB::transaction(function () use ($id, $reasonForLog, $reasons) {
                 $r = \App\Models\AccidentResolution::lockForUpdate()->findOrFail($id);
-                $accidentIdToSync = $r->accident_id;
 
                 $st = $this->resolveStatus('REJECTED', 'rejected');
 
@@ -493,22 +487,6 @@ class CaseResolutionsAprrovalController extends Controller
                 \App\Models\UploadSuratKetetapan::where('accident_id', $r->accident_id)->delete();
                 $r->delete();
             });
-
-            if (env('APP_MODE') == 'PRODUCTION' && $accidentIdToSync) {
-                try {
-                    $headers = [
-                        'Content-Type' => 'application/json',
-                        'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell'
-                    ];
-
-                    Http::withHeaders($headers)->post('https://irsms.korlantas.polri.go.id/irsmsapi/api/icellSelra', [
-                        'id' => $accidentIdToSync,
-                        'selra_flag' => 'S0107',
-                    ]);
-                } catch (\Exception $e) {
-                    Log::error('Gagal mengirim update IRSMS saat reject SELRA: ' . $e->getMessage());
-                }
-            }
 
             $message = 'SELRA direject: LP menjadi Dalam Proses, dokumen dihapus, log tersimpan.';
 
@@ -535,7 +513,6 @@ class CaseResolutionsAprrovalController extends Controller
     /**
      * Catat log SELRA (approve/reject)
      */
-
 
     // private function logSelra(\App\Models\AccidentResolution $r, array $opt = []): void
     // {

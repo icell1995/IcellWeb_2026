@@ -6,8 +6,11 @@ use App\Observers\UserActionObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
+
+use App\Models\ReturnDocuments;
 
 class SuratPerintahPenyidikanDocument extends Model
 {
@@ -33,7 +36,7 @@ class SuratPerintahPenyidikanDocument extends Model
         parent::boot();
 
         self::observe(UserActionObserver::class);
-     
+
         self::creating(function ($model) {
             $model->id = (string) Uuid::generate();
             $model->status_id = '2';
@@ -116,7 +119,7 @@ class SuratPerintahPenyidikanDocument extends Model
     {
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument', 'surat_perintah_penyidikan_document_id', 'id');
     }
-    
+
     public function attachment()
     {
         return $this->hasOne('App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocumentAttachment', 'surat_perintah_penyidikan_document_id', 'id');

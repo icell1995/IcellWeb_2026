@@ -32,7 +32,7 @@
                     </div>
                     <div class="login-header">
                         <h2>ICELL</h2>
-                        <h4>Informasi Cepat Penyidikan Laka Lantas</h4>
+                        <h4>Informasi Cepat Penyidikan Lalu Lintas</h4>
                     </div>
                 </div>
             </div>

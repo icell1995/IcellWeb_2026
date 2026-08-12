@@ -9,7 +9,7 @@ use App\Http\Controllers\PdfController;
 use App\Http\Controllers\KPoldaController;
 use App\Http\Controllers\KPolresController;
 use App\Http\Controllers\KPangkatController;
-
+use App\Http\Controllers\UsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +25,7 @@ use App\Http\Controllers\KPangkatController;
 Auth::routes();
 Route::get('search', [App\Http\Controllers\OfficerController::class, 'search'])->name('searchOfficer');
 Route::get('search_user', [App\Http\Controllers\PenggunaController::class, 'search_user'])->name('searchUser');
-Route::post('authenticate', [App\Http\Controllers\LoginController::class, 'authenticate'])->name('authenticate');
+Route::post('authenticate', [App\Http\Controllers\LoginController::class, 'authenticate'])->name('authenticate')->middleware('throttle:3,1');
 Route::post('verifyOtp', [App\Http\Controllers\LoginController::class, 'verifyOtp'])->name('verifyOtp');
 Route::post('resend-otp', [App\Http\Controllers\LoginController::class, 'resendOtp'])->name('resendOtp');
 Route::get('forget-password', [App\Http\Controllers\LoginController::class, 'forget_password'])->name('forget-password');
@@ -33,6 +33,7 @@ Route::post('forget-password', [App\Http\Controllers\LoginController::class, 'po
 Route::get('refresh_captcha', [App\Http\Controllers\LoginController::class, 'refreshCaptcha'])->name('refresh_captcha');
 // Route::get('reset-password/{token}', [App\Http\Controllers\LoginController::class, 'reset_password'])->name('reset-password');
 // Route::post('reset-password', [App\Http\Controllers\LoginController::class, 'post_reset_password'])->name('reset-password');
+
 
 Route::get('/dashboardicell', [App\Http\Controllers\DashboardicellController::class, 'index'])->name('index');
 Route::get('/getDashBar', [App\Http\Controllers\DashboardicellController::class, 'getDashBar'])->name('getDashBar');
@@ -47,6 +48,10 @@ Route::get('/qr-codes', [App\Http\Controllers\QrCodeController::class, 'generate
 Route::get('/sso-login', [\App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\SsoLoginController::class, 'handleSSOLogin']);
 Route::get('/sso/redirect/{target}', [\App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\SsoLoginController::class, 'redirectTo'])->name('sso.redirect');
 Route::get('/verify-token', [\App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\SsoLoginController::class, 'verifyToken']);
+
+Route::get('/integrasi-dashboard-ops-v3', function () {
+    return view('integrasi-dashboard-ops');
+});
 
 Route::group(['middleware' => ['guest', 'prevent-back-history']], function () {
     Route::get('/', [App\Http\Controllers\LoginController::class, 'login'])->name('login');
@@ -66,6 +71,11 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
     Route::prefix('/evaluation-form-fill')->group(function () {
         Route::get('/', [App\Http\Controllers\EvaluationFormController::class, 'index'])->name('evaluation-form-fill.index');
         Route::get('/redirect', [App\Http\Controllers\EvaluationFormController::class, 'redirect'])->name('evaluation-form-fill.redirect');
+    });
+
+    Route::prefix('/leaderboard')->group(function () {
+        Route::get('/', [App\Http\Controllers\LeaderboardController::class, 'index'])->name('leaderboard.index');
+        Route::get('/redirect', [App\Http\Controllers\LeaderboardController::class, 'redirect'])->name('leaderboard.redirect');
     });
 
     Route::prefix('/esignature-confirmation')->group(function () {
@@ -96,7 +106,7 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
         Route::post('/post-reset_password', [App\Http\Controllers\HomeController::class, 'post_reset_password'])->name('post_reset_password');
         Route::post('/update_profile', [App\Http\Controllers\HomeController::class, 'update_profile'])->name('update_profile');
 
-        Route::group(['middleware' => 'can:manage-permissions'], function () {
+        Route::group(['middleware' => 'can:permission.R'], function () {
             Route::prefix('permission')->group(function () {
                 Route::get('/', [App\Http\Controllers\PermissionController::class, 'index'])->name('permission');
                 Route::get('/permission-add', [App\Http\Controllers\PermissionController::class, 'add'])->name('permission-add');
@@ -108,7 +118,7 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
             });
         });
 
-        Route::group(['middleware' => 'can:manage-roles'], function () {
+        Route::group(['middleware' => 'can:role.R'], function () {
             Route::prefix('role')->group(function () {
                 Route::get('/', [App\Http\Controllers\RoleController::class, 'index'])->name('role');
                 Route::get('/edit/{id}', [App\Http\Controllers\RoleController::class, 'edit'])->name('edit');
@@ -116,88 +126,136 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
                 Route::get('/role-add', [App\Http\Controllers\RoleController::class, 'add_role'])->name('role-add');
                 Route::post('/role_add', [App\Http\Controllers\RoleController::class, 'submit_add_role'])->name('role_add');
             });
+
+            Route::prefix('role-new')->group(function () {
+                Route::get('/', [App\Http\Controllers\RoleNewController::class, 'index'])->name('role-new');
+                Route::get('/add', [App\Http\Controllers\RoleNewController::class, 'add'])->name('role-new-add');
+                Route::post('/store', [App\Http\Controllers\RoleNewController::class, 'store'])->name('role-new-store');
+                Route::get('/view/{id}', [App\Http\Controllers\RoleNewController::class, 'view'])->name('role-new-view');
+                Route::get('/edit/{id}', [App\Http\Controllers\RoleNewController::class, 'edit'])->name('role-new-edit');
+                Route::post('/update/{id}', [App\Http\Controllers\RoleNewController::class, 'update'])->name('role-new-update');
+            });
         });
 
-        Route::group(['middleware' => 'can:manage-users'], function () {
+        Route::group(['middleware' => 'can:personnel.R'], function () {
 
             Route::prefix('pengguna')->group(function () {
                 Route::get('/', [App\Http\Controllers\PenggunaController::class, 'index'])->name('pengguna');
-                Route::get('/pengguna-add', [App\Http\Controllers\PenggunaController::class, 'add'])->name('pengguna-add');
+                Route::get('/pengguna-add', [App\Http\Controllers\PenggunaController::class, 'add'])->name('pengguna-add')->middleware('can:personnel.C');
+                Route::post('/pengguna_add', [App\Http\Controllers\PenggunaController::class, 'add_pengguna'])->name('pengguna_add')->middleware('can:personnel.C');
+                Route::get('/pengguna-edit/{id}', [App\Http\Controllers\PenggunaController::class, 'edit'])->name('pengguna-edit')->middleware('can:personnel.U');
+                Route::post('/pengguna_edit', [App\Http\Controllers\PenggunaController::class, 'edit_pengguna'])->name('pengguna_edit')->middleware('can:personnel.U');
+                Route::get('/pengguna_delete/{id}', [App\Http\Controllers\PenggunaController::class, 'delete_pengguna'])->name('pengguna_delete')->middleware('can:personnel.U');
+                Route::get('/edit_modal_pengguna', [App\Http\Controllers\PenggunaController::class, 'edit_modal_pengguna'])->name('edit_modal_pengguna')->middleware('can:personnel.U');
                 Route::get('polres_list/{poldaId}', [App\Http\Controllers\PenggunaController::class, 'polres_list'])->name('polres_list');
-                // function($poldaId) {
-                //     $polda = App\Polda::find($poldaId);
-                //     $polres = $polda->polres()->get();
-                //     return response()->json($polres);
-                // });
-                Route::post('/pengguna_add', [App\Http\Controllers\PenggunaController::class, 'add_pengguna'])->name('pengguna_add');
-                Route::get('/pengguna-edit/{id}', [App\Http\Controllers\PenggunaController::class, 'edit'])->name('pengguna-edit');
-                Route::post('/pengguna_edit', [App\Http\Controllers\PenggunaController::class, 'edit_pengguna'])->name('pengguna_edit');
-                Route::get('/pengguna_delete/{id}', [App\Http\Controllers\PenggunaController::class, 'delete_pengguna'])->name('pengguna_delete');
-                Route::get('/edit_modal_pengguna', [App\Http\Controllers\PenggunaController::class, 'edit_modal_pengguna'])->name('edit_modal_pengguna');
             });
 
             Route::prefix('petugas')->group(function () {
                 Route::get('/', [App\Http\Controllers\OfficerController::class, 'index'])->name('petugas');
-                Route::get('/petugas-add', [App\Http\Controllers\OfficerController::class, 'add'])->name('petugas-add');
-                Route::post('/petugas_add', [App\Http\Controllers\OfficerController::class, 'add_petugas'])->name('petugas_add');
-                Route::get('/petugas-edit/{id}', [App\Http\Controllers\OfficerController::class, 'edit'])->name('petugas-edit');
-                Route::post('/petugas_edit', [App\Http\Controllers\OfficerController::class, 'edit_petugas'])->name('petugas_edit');
-                Route::get('/petugas_delete/{id}', [App\Http\Controllers\OfficerController::class, 'delete_petugas'])->name('petugas_delete');
-                Route::get('/edit_modal_petugas', [App\Http\Controllers\OfficerController::class, 'edit_modal_petugas'])->name('edit_modal_petugas');
+                Route::get('/petugas-add', [App\Http\Controllers\OfficerController::class, 'add'])->name('petugas-add')->middleware('can:personnel.C');
+                Route::post('/petugas_add', [App\Http\Controllers\OfficerController::class, 'add_petugas'])->name('petugas_add')->middleware('can:personnel.C');
+                Route::get('/petugas-edit/{id}', [App\Http\Controllers\OfficerController::class, 'edit'])->name('petugas-edit')->middleware('can:personnel.U');
+                Route::post('/petugas_edit', [App\Http\Controllers\OfficerController::class, 'edit_petugas'])->name('petugas_edit')->middleware('can:personnel.U');
+                Route::get('/petugas_delete/{id}', [App\Http\Controllers\OfficerController::class, 'delete_petugas'])->name('petugas_delete')->middleware('can:personnel.U');
+                Route::get('/edit_modal_petugas', [App\Http\Controllers\OfficerController::class, 'edit_modal_petugas'])->name('edit_modal_petugas')->middleware('can:personnel.U');
                 Route::get('/export_officer', [App\Http\Controllers\OfficerController::class, 'export_petugas'])->name('export_petugas');
             });
 
             Route::prefix('signatories')->group(function () {
                 Route::get('/', [App\Http\Controllers\SignatoryController::class, 'index'])->name('signatories');
-                Route::get('/create', [App\Http\Controllers\SignatoryController::class, 'create'])->name('signatories.create');
-                Route::post('/create', [App\Http\Controllers\SignatoryController::class, 'store'])->name('signatories.store');
-                Route::get('/{id}/edit', [App\Http\Controllers\SignatoryController::class, 'edit'])->name('signatories.edit');
-                Route::put('/{id}/edit', [App\Http\Controllers\SignatoryController::class, 'update'])->name('signatories.update');
-                Route::delete('/{id}/delete', [App\Http\Controllers\SignatoryController::class, 'destroy'])->name('signatories.destroy');
+                Route::get('/create', [App\Http\Controllers\SignatoryController::class, 'create'])->name('signatories.create')->middleware('can:personnel.C');
+                Route::post('/create', [App\Http\Controllers\SignatoryController::class, 'store'])->name('signatories.store')->middleware('can:personnel.C');
+                Route::get('/{id}/edit', [App\Http\Controllers\SignatoryController::class, 'edit'])->name('signatories.edit')->middleware('can:personnel.U');
+                Route::put('/{id}/edit', [App\Http\Controllers\SignatoryController::class, 'update'])->name('signatories.update')->middleware('can:personnel.U');
+                Route::delete('/{id}/delete', [App\Http\Controllers\SignatoryController::class, 'destroy'])->name('signatories.destroy')->middleware('can:personnel.U');
             });
 
-            // Route::prefix('polda')->group(function () {
-            Route::resource('/polda', KPoldaController::class);
-            // });
+            Route::prefix('/personnel')->group(function(){
+                Route::get('/', [App\Http\Controllers\PersonnelController::class, 'index'])->name('personnel.index');
+                Route::get('/signatory', [App\Http\Controllers\PersonnelController::class, 'signatory'])->name('personnel.signatory');
+                Route::get('/certification', [App\Http\Controllers\PersonnelController::class, 'certification'])->name('personnel.certification');
+                Route::get('/{id}/show', [App\Http\Controllers\PersonnelController::class, 'show'])->name('personnel.show');
+                Route::get('/{id}/validation', [App\Http\Controllers\PersonnelController::class, 'validation'])->name('personnel.validation');
+                Route::post('/{id}/validation', [App\Http\Controllers\PersonnelController::class, 'validationProcess'])->name('personnel.validation.process');
+                Route::get('/create', [App\Http\Controllers\PersonnelController::class, 'create'])->name('personnel.create')->middleware('can:personnel.C');
+                Route::post('/create', [App\Http\Controllers\PersonnelController::class, 'store'])->name('personnel.store')->middleware('can:personnel.C');
+                Route::get('/{id}/edit', [App\Http\Controllers\PersonnelController::class, 'edit'])->name('personnel.edit')->middleware('can:personnel.U');
+                Route::post('/{id}/edit', [App\Http\Controllers\PersonnelController::class, 'update'])->name('personnel.update')->middleware('can:personnel.U');
+                Route::get('/{id}/move', [App\Http\Controllers\PersonnelController::class, 'move'])->name('personnel.move')->middleware('can:personnel.U');
+                Route::put('/{id}/move', [App\Http\Controllers\PersonnelController::class, 'updateMove'])->name('personnel.move.update')->middleware('can:personnel.U');
+                Route::get('/{id}/change-password', [App\Http\Controllers\PersonnelController::class, 'changePassword'])->name('personnel.change-password')->middleware('can:personnel.U');
+                Route::put('/{id}/change-password', [App\Http\Controllers\PersonnelController::class, 'updatePassword'])->name('personnel.update-password')->middleware('can:personnel.U');
+
+                Route::get('/api/polices', [App\Http\Controllers\PersonnelController::class, 'getPolices'])->name('personnel.api.polices');
+                Route::get('/api/polices/search', [App\Http\Controllers\PersonnelController::class, 'getSearchPolices'])->name('personnel.api.polices.search');
+                Route::get('/api/ranks', [App\Http\Controllers\PersonnelController::class, 'getRanks'])->name('personnel.api.ranks');
+                Route::get('/api/positions', [App\Http\Controllers\PersonnelController::class, 'getPositions'])->name('personnel.api.positions');
+                Route::get('/api/check-officer', [App\Http\Controllers\PersonnelController::class, 'checkOfficer'])->name('personnel.api.check-officer');
+                Route::post('/api/validate-request-form', [App\Http\Controllers\PersonnelController::class, 'validateRequestForm'])->name('personnel.api.validate-request-form');
+                Route::post('/api/validate-request-move-form', [App\Http\Controllers\PersonnelController::class, 'validateRequestMoveForm'])->name('personnel.api.validate-request-move-form');
+                Route::post('/api/send-account-info', [App\Http\Controllers\PersonnelController::class, 'sendAccountInfo'])->name('personnel.api.send-account-info');
+            });
 
         });
 
-        Route::group(['middleware' => 'can:view-data'], function () {
-            // KATALOG -> Daftar Laka
-
-            // Route::get('titik-acuan', [App\Http\Controllers\KDaftarLakaController::class, 'index'])->name('titik-acuan');
-            //katalog - daftar
+        // Katalog: satu gate per resource — sama pola dengan Route::group(['middleware' => 'can:personnel.R'], …)
+        Route::middleware('can:catalog-titik-acuan.R')->group(function () {
             Route::resource('/titik-acuan', KDaftarLakaController::class);
-            // Route::delete('/titik-acuan/{id}', [KDaftarLakaController::class, 'destroy'])->name('titik-acuan.destroy'); // Laravel 8
+        });
+        Route::middleware('can:catalog-tipe-kecelakaan.R')->group(function () {
             Route::resource('/tipe-kecelakaan', KDaftarLakaController::class);
+        });
+        Route::middleware('can:catalog-kondisi-cahaya.R')->group(function () {
             Route::resource('/kondisi-cahaya', KDaftarLakaController::class);
+        });
+        Route::middleware('can:catalog-pengaturan-simpang.R')->group(function () {
             Route::resource('/pengaturan-simpang', KDaftarLakaController::class);
+        });
+        Route::middleware('can:catalog-kerusakan.R')->group(function () {
             Route::resource('/kerusakan', KDaftarLakaController::class);
+        });
+        Route::middleware('can:catalog-pendidikan.R')->group(function () {
             Route::resource('/pendidikan', KDaftarLakaController::class);
-
-            //katalog - dokumen
+        });
+        Route::middleware('can:catalog-dpo-dpb.R')->group(function () {
             Route::resource('/dpo-dpb', KDokumenController::class);
+        });
+        Route::middleware('can:catalog-labfor.R')->group(function () {
             Route::resource('/labfor', KDokumenController::class);
+        });
+        Route::middleware('can:catalog-penahanan.R')->group(function () {
             Route::resource('/penahanan', KDokumenController::class);
+        });
+        Route::middleware('can:catalog-penggeledahan.R')->group(function () {
             Route::resource('/penggeledahan', KDokumenController::class);
+        });
+        Route::middleware('can:catalog-penyegelan.R')->group(function () {
             Route::resource('/penyegelan', KDokumenController::class);
+        });
+        Route::middleware('can:catalog-penyitaan.R')->group(function () {
             Route::resource('/penyitaan', KDokumenController::class);
+        });
+        Route::middleware('can:catalog-rekening-bank.R')->group(function () {
             Route::resource('/rekening-bank', KDokumenController::class);
+        });
+        Route::middleware('can:catalog-saksi.R')->group(function () {
             Route::resource('/saksi', KDokumenController::class);
+        });
+        Route::middleware('can:catalog-tersangka.R')->group(function () {
             Route::resource('/tersangka', KDokumenController::class);
-
-            //katalog - polda
+        });
+        Route::middleware('can:catalog-polda.R')->group(function () {
             Route::resource('/polda', KPoldaController::class);
-
-            //katalog - polres
+        });
+        Route::middleware('can:catalog-polres.R')->group(function () {
             Route::resource('/polres', KPolresController::class);
-            // Route::post('/polres/search',KPolresController::class,'search');
             Route::post('/polres/search', [App\Http\Controllers\KPolresController::class, 'search'])->name('polres_search');
-
-            //katalog pangkat
+        });
+        Route::middleware('can:catalog-pangkat.R')->group(function () {
             Route::resource('/pangkat', KPangkatController::class);
+        });
 
-
+        Route::middleware('can:productivity.R')->group(function () {
             //kategori 1
             // Route::resource('/surat-tugas', PdfController::class);
             Route::resource('/springas', PdfController::class);
@@ -233,7 +291,7 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
             // Route::resource('/pelepasan-tersangka', PdfController::class);
 
             //kategori 4
-            Route::resource('/surat-perintah-penahanan', PdfController::class);
+            // Route::resource('/surat-perintah-penahanan', PdfController::class);
             Route::resource('/berita-acara-penahanan', PdfController::class);
             Route::resource('/perpanjangan-penahanan-hakim', PdfController::class);
             Route::resource('/surat-perpanjangan-penahanan', PdfController::class);
@@ -325,14 +383,18 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
             //kategori 13
             Route::resource('/surat-p21-tahap-1', PdfController::class);
             Route::resource('/surat-p21-tahap-2', PdfController::class);
+        });
 
+        Route::middleware('can:accident.R')->group(function () {
             Route::prefix('accident')->group(function () {
                 Route::get('/', [App\Http\Controllers\AccidentController::class, 'index'])->name('accident');
                 Route::get('/search', [App\Http\Controllers\AccidentController::class, 'search'])->name('search_accident');
                 Route::get('/view', [App\Http\Controllers\AccidentController::class, 'view'])->name('view_accident');
                 Route::post('/save', [App\Http\Controllers\AccidentController::class, 'save'])->name('save_accident');
             });
+        });
 
+        Route::middleware('can:statistics.R')->group(function () {
             Route::prefix('statistika')->group(function () {
                 // Route::get('/', [App\Http\Controllers\statistikaController::class, 'index'])->name('statistika');
                 Route::get('/month', [App\Http\Controllers\statistikaController::class, 'index_month'])->name('index_month');
@@ -348,11 +410,13 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
                 Route::get('/week', [App\Http\Controllers\statistikaController::class, 'index_week'])->name('index_week');
                 Route::get('/day', [App\Http\Controllers\statistikaController::class, 'index_day'])->name('index_day');
             });
+        });
 
             // Route::prefix('pdf')->group(function () {
             //     Route::get('/get-pdf', [App\Http\Controllers\PdfController::class, 'get_pdf'])->name('get_pdf');
             // });
 
+        Route::middleware('can:recap.R')->group(function () {
             Route::prefix('rekap')->group(function () {
                 Route::get('/', [App\Http\Controllers\rekapController::class, 'index'])->name('rekap');
                 Route::get('/rekap-show/{id}', [App\Http\Controllers\rekapController::class, 'show'])->name('rekap-show');
@@ -369,15 +433,21 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
                 Route::post('file-upload', [App\Http\Controllers\FileUploadController::class, 'fileUploadPost'])->name('file.upload.post');
                 // Route::post('/petugas/getPetugas/', [App\Http\Controllers\AccidentController::class, 'getPetugas'])->name('get_petugas');
             });
+        });
 
+        Route::middleware('can:territory.R')->group(function () {
             Route::prefix('wilayah')->group(function () {
                 Route::get('/', [App\Http\Controllers\daftarWilayahController::class, 'index'])->name('index');
             });
+        });
 
+        Route::middleware('can:organization.R')->group(function () {
             Route::prefix('organisasi')->group(function () {
                 Route::get('/', [App\Http\Controllers\SturkturOrganisasiController::class, 'index'])->name('index');
             });
+        });
 
+        Route::middleware('can:productivity.R')->group(function () {
             Route::get('/createword-surat-tugas/{id}', [App\Http\Controllers\WordController::class, 'createword_surat_tugas'])->name('createword_surat_tugas');
             Route::get('/createword-surat-penyitaan/{id}', [App\Http\Controllers\WordController::class, 'createword_surat_penyitaan'])->name('createword_surat_penyitaan');
             Route::get('/createword-springas/{id}', [App\Http\Controllers\WordController::class, 'createword_springas'])->name('createword_springas');
@@ -391,26 +461,32 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
             Route::get('/createword-sp3/{id}', [App\Http\Controllers\WordController::class, 'createword_sp3'])->name('createword_sp3');
             Route::get('/daftar-saksi/{id}', [App\Http\Controllers\WordController::class, 'daftarSaksi'])->name('daftarSaksi');
             Route::get('/daftar-tersangka/{id}', [App\Http\Controllers\WordController::class, 'daftarTersangka'])->name('daftarTersangka');
+        });
 
+        Route::middleware('can:dpo.R')->group(function () {
             Route::prefix('dpo')->group(function () {
                 Route::get('/', [App\Http\Controllers\DpoController::class, 'index_dpo'])->name('index_dpo');
                 Route::get('/list-dpo', [App\Http\Controllers\DpoController::class, 'list_dpo'])->name('list_dpo');
                 Route::get('/search-dpo', [App\Http\Controllers\DpoController::class, 'search_dpo'])->name('search_dpo');
             });
+        });
 
+        Route::middleware('can:dpb.R')->group(function () {
             Route::prefix('dpb')->group(function () {
                 Route::get('/', [App\Http\Controllers\DpbController::class, 'index_dpb'])->name('index_dpb');
                 Route::get('/list-dpb', [App\Http\Controllers\DpbController::class, 'list_dpb'])->name('list_dpb');
                 Route::get('/search-dpb', [App\Http\Controllers\DpbController::class, 'search_dpb'])->name('search_dpb');
             });
+        });
 
-            Route::prefix('caraousel')->group(function () {
-                Route::get('/caraousel', [App\Http\Controllers\ImageCarouselController::class, 'index'])->name('carousel_index');
-                Route::get('/add_image', [App\Http\Controllers\ImageCarouselController::class, 'add_image'])->name('add_image_carousel');
-                Route::post('/save_image', [App\Http\Controllers\ImageCarouselController::class, 'save_image'])->name('save_image_carousel');
-                Route::post('/deleteCarousel/{name}', [App\Http\Controllers\ImageCarouselController::class, 'deleteImage'])->name('deleteCarousel');
-            });
+        Route::prefix('caraousel')->group(function () {
+            Route::get('/caraousel', [App\Http\Controllers\ImageCarouselController::class, 'index'])->name('carousel_index');
+            Route::get('/add_image', [App\Http\Controllers\ImageCarouselController::class, 'add_image'])->name('add_image_carousel');
+            Route::post('/save_image', [App\Http\Controllers\ImageCarouselController::class, 'save_image'])->name('save_image_carousel');
+            Route::post('/deleteCarousel/{name}', [App\Http\Controllers\ImageCarouselController::class, 'deleteImage'])->name('deleteCarousel');
+        });
 
+        Route::middleware('can:organization.R')->group(function () {
             Route::prefix('organisasi')->group(function (){
                 Route::get('/struktur-organisasi', [App\Http\Controllers\SturkturOrganisasiController::class, 'index'])->name('index');
                 Route::post('/struktur-organisasi',[App\Http\Controllers\SturkturOrganisasiController::class, 'store'])->name('store');
@@ -418,46 +494,32 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
             });
         });
 
-        Route::get('/2', [App\Http\Controllers\KPoldaController::class, 'index'])->name('2');
-        Route::get('/3', [App\Http\Controllers\KPoldaController::class, 'index'])->name('3');
-        Route::get('/4', [App\Http\Controllers\KPoldaController::class, 'index'])->name('4');
-        Route::get('/5', [App\Http\Controllers\KPoldaController::class, 'index'])->name('5');
+        Route::middleware('can:catalog-polda.R')->group(function () {
+            Route::get('/2', [App\Http\Controllers\KPoldaController::class, 'index'])->name('2');
+            Route::get('/3', [App\Http\Controllers\KPoldaController::class, 'index'])->name('3');
+            Route::get('/4', [App\Http\Controllers\KPoldaController::class, 'index'])->name('4');
+            Route::get('/5', [App\Http\Controllers\KPoldaController::class, 'index'])->name('5');
+        });
 
 
         // Route::get('/login', [App\Http\Controllers\LoginController::class, 'index'])->name('login');
 
 
         // Route::post('/postlogin', [App\Http\Controllers\LoginController::class, 'authenticate']);
-	
-	Route::prefix('/commander-wish')->group(function(){
+
+        Route::prefix('/commander-wish')->group(function(){
             Route::get('/', [App\Http\Controllers\CommanderWishController::class, 'index'])->name('commander-wish.index');
+            Route::get('/generate-presentation', [App\Http\Controllers\CommanderWishController::class, 'generatePresentation'])->name('commander-wish.generate-presentation');
 
             Route::get('/api/resort-polices', [App\Http\Controllers\CommanderWishController::class, 'getResortPolices'])->name('commander-wish.api.resort-polices');
         });
 
-        Route::prefix('/personnel')->group(function(){
-            Route::get('/', [App\Http\Controllers\PersonnelController::class, 'index'])->name('personnel.index');
-	    Route::get('/certification', [App\Http\Controllers\PersonnelController::class, 'certification'])->name('personnel.certification');
-	    Route::get('/signatory', [App\Http\Controllers\PersonnelController::class, 'signatory'])->name('personnel.signatory');
-            Route::get('/{id}/show', [App\Http\Controllers\PersonnelController::class, 'show'])->name('personnel.show');
-            Route::get('/{id}/validation', [App\Http\Controllers\PersonnelController::class, 'validation'])->name('personnel.validation');
-            Route::post('/{id}/validation', [App\Http\Controllers\PersonnelController::class, 'validationProcess'])->name('personnel.validation.process');
-            Route::get('/create', [App\Http\Controllers\PersonnelController::class, 'create'])->name('personnel.create');
-            Route::post('/create', [App\Http\Controllers\PersonnelController::class, 'store'])->name('personnel.store');
-            Route::get('/{id}/edit', [App\Http\Controllers\PersonnelController::class, 'edit'])->name('personnel.edit');
-            Route::post('/{id}/edit', [App\Http\Controllers\PersonnelController::class, 'update'])->name('personnel.update');
-            Route::get('/{id}/move', [App\Http\Controllers\PersonnelController::class, 'move'])->name('personnel.move');
-            Route::put('/{id}/move', [App\Http\Controllers\PersonnelController::class, 'updateMove'])->name('personnel.move.update');
-            Route::get('/{id}/change-password', [App\Http\Controllers\PersonnelController::class, 'changePassword'])->name('personnel.change-password');
-            Route::put('/{id}/change-password', [App\Http\Controllers\PersonnelController::class, 'updatePassword'])->name('personnel.update-password');
+            // the personnel group is moved inside the can:personnel.R middleware above
 
-            Route::get('/api/polices', [App\Http\Controllers\PersonnelController::class, 'getPolices'])->name('personnel.api.polices');
-            Route::get('/api/polices/search', [App\Http\Controllers\PersonnelController::class, 'getSearchPolices'])->name('personnel.api.polices.search');
-            Route::get('/api/ranks', [App\Http\Controllers\PersonnelController::class, 'getRanks'])->name('personnel.api.ranks');
-            Route::get('/api/positions', [App\Http\Controllers\PersonnelController::class, 'getPositions'])->name('personnel.api.positions');
-            Route::get('/api/check-officer', [App\Http\Controllers\PersonnelController::class, 'checkOfficer'])->name('personnel.api.check-officer');
-            Route::post('/api/validate-request-form', [App\Http\Controllers\PersonnelController::class, 'validateRequestForm'])->name('personnel.api.validate-request-form');
-            Route::post('/api/validate-request-move-form', [App\Http\Controllers\PersonnelController::class, 'validateRequestMoveForm'])->name('personnel.api.validate-request-move-form');
+        Route::prefix('/anggota')->group(function () {
+            Route::get('/', [UsersController::class, 'index'])->name('anggota.index');
+            Route::get('/polres', [UsersController::class, 'getPolresByPolda'])
+                ->name('anggota.polres');
         });
 
         Route::prefix('/document-action')->group(function(){

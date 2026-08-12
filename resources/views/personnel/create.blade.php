@@ -388,7 +388,7 @@
                 </div>
             </div>
             
-            @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 5)
+            @if(empty(Auth::user()->police_id) || Auth::user()->role_id == 5)
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="isRegisterAdmin">Flag</label>
                     <div class="col-lg-10 col-md-10 col-sm-10">

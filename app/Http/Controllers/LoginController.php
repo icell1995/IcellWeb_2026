@@ -103,7 +103,7 @@ class LoginController extends Controller
 
                     if ($sendResult === 'saungwa_logout' || $sendResult === 'api_error' || $sendResult === 'unauthorized') {
                         $response = [
-                            'status' => 'otp_required',
+                            'status' => $sendResult,
                             'message' => 'Gagal mengirim OTP via WhatsApp. Gunakan OTP berikut',
                             'otp' => $otp // Selalu tampilkan OTP untuk error koneksi WhatsApp
                         ];

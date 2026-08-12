@@ -34,7 +34,7 @@ class UpdateLPController extends Controller
             return $this->errorResponse(422, 'VALIDATION_ERROR', 'Parameter id (body), {accident_id} (route), atau accident_id (query) wajib diisi.');
         }
 
-        // Jika lebih dari satu sumber ID & nilainya berbeda ? tolak
+        // Jika lebih dari satu sumber ID & nilainya berbeda → tolak
         $candidates = array_values(array_filter([$bodyAccidentId, $routeAccidentId, $queryAccidentId]));
         if (count(array_unique($candidates)) > 1) {
             return $this->errorResponse(422, 'VALIDATION_ERROR', 'id (body), {accident_id} (route), dan accident_id (query) tidak konsisten.');
@@ -155,7 +155,7 @@ class UpdateLPController extends Controller
                     ? '-'
                     : mb_substr($trim, 0, 100); // jaga panjang sesuai validasi
             } else {
-                // tipe tak terduga ? fallback "-"
+                // tipe tak terduga → fallback "-"
                 $payload['special_info'] = '-';
             }
         }

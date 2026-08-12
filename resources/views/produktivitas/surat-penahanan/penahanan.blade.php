@@ -10,12 +10,11 @@
     </h2>
     <div id="collapsePenahanan" class="accordion-collapse collapse" data-bs-parent="#accordionProduktivitas">
         <div class="accordion-body item-body">
-            <div class="item-list">
+            {{-- <div class="item-list">
                 <span>Surat perintah penahanan</span>
                 @if ($surat_perintah_penahanan==null)
                 <i class="bi bi-pencil-square" id="surat_penahanan_1" name="surat_penahanan_1"></i>
                 @else
-                {{-- <a href=# class="" id="surat_penahanan_1" name="surat_penahanan_1">Edit</a> --}}
                 <a target="_blank" href="/surat-perintah-penahanan/{{$id}}" id="">Lihat</a></span>
                 <form action="/surat-perintah-penahanan/{{$id}}" method="post">
                     @method('DELETE')
@@ -23,9 +22,8 @@
                     <button type="submit" style="color: #007bff; border: none; background: none;
                     font-weight: bold; padding: 10px;">DELETE</button>
                 </form>
-                {{-- <a href=# class="" id="delete" name="delete">Delete</a> --}}
                 @endif
-            </div>
+            </div> --}}
 
             <div class="item-list">
                 <span>Berita acara penahanan</span>

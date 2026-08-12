@@ -42,6 +42,14 @@
         </style>
     </head>
     <body>
+        {{-- Konten utama halaman --}}
+        @yield('content')
+
+        {{-- Tempat modal dimasukkan --}}
+        @yield('modals')
+
+        {{-- Script dari halaman --}}
+        @stack('scripts')
         <div class="flex-center position-ref full-height">
             <div class="content">
                 <div class="title">

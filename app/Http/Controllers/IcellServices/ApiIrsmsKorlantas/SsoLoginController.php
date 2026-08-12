@@ -46,7 +46,6 @@ class SsoLoginController extends Controller
             Auth::login($user);
 
             return redirect('/home')->with('success','Berhasil Login dari IRSMS');
-
         } elseif ($data['status'] === 'expired') {
             return redirect('/login')->withErrors(['Token login kadaluarsa']);
         }
@@ -69,8 +68,14 @@ class SsoLoginController extends Controller
         }
 
         $token = SSOHelper::generateToken($user->id);
-	
+
         if ($target === 'irsms') {
+            if (!$user->hasPermission('irsms.R')) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Akses IRSMS tidak diizinkan untuk role Anda',
+                ], 403);
+            }
             $redirectUrl = 'https://irsms.korlantas.polri.go.id/sso-login?token=' . $token;
         } else {
             return response()->json([
@@ -84,8 +89,6 @@ class SsoLoginController extends Controller
             'redirect_url' => $redirectUrl,
         ]);
     }
-
-
 
     /**
      * Endpoint untuk memverifikasi token dari SSO.
