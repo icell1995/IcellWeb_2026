@@ -1289,7 +1289,7 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
             'suspect' => 'required',
 
             'identityTypeFieldSuspect' => 'required_if:suspectSource,"5"',
-            'identityNumberFieldSuspect' => 'required_if:suspectSource,"5"|numeric',
+            'identityNumberFieldSuspect' => 'required_if:suspectSource,"5"',
             'nameFieldSuspect' => 'required_if:suspectSource,"5"|max:255',
             'genderFieldSuspect' => 'required_if:suspectSource,"5"',
             'birthPlaceFieldSuspect' => 'required_if:suspectSource,"5"|max:255',
@@ -1349,7 +1349,6 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
             'birthDateFieldSuspect.required_if' => 'Tanggal Lahir Tersangka harus diisi',
             'identityTypeFieldSuspect.required_if' => 'Jenis Identitas Tersangka harus diisi',
             'identityNumberFieldSuspect.required_if' => 'Nomor Identitas Tersangka harus diisi',
-            'identityNumberFieldSuspect.numeric' => 'Nomor Identitas Tersangka harus berupa angka',
             'fatherFieldSuspect.required' => 'Nama Ayah Tersangka harus diisi, atau Pilih Tidak tahu',
             'motherFieldSuspect.required' => 'Nama Ibu Tersangka harus diisi, atau Pilih Tidak tahu',
             'nationalityFieldSuspect.required_if' => 'Kebangsaan Tersangka harus diisi',
