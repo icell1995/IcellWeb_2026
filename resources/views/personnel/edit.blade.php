@@ -1,0 +1,1794 @@
+@php
+    $_title = 'Ubah Personel';
+@endphp
+
+@extends('layouts.app')
+
+@push('style')
+    <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
+    <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
+    <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+    <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+@endpush
+
+@section('content')
+<a class="btn-back" href="{{ route('personnel.index', ['policeId' => $policeId]) }}"><i class="bi bi-arrow-left"></i>Kembali ke Halaman Daftar Personel</a>
+
+<div class="box">
+    <div class="box-header">
+        <h4 class="fw-bold text-blue-dark">Edit Personnel</h4>
+
+        <!-- error alert -->
+        @if ($errors->any())
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            </div>
+        @endif
+    </div>
+
+    <div class="boxy-body">
+        <form
+            action="{{ route('personnel.update', ['policeId' => $policeId, 'officerId' => $officer->id, 'id' => $user->id]) }}"
+            method="POST" enctype="multipart/form-data" id="officerForm">
+            @csrf
+
+            <input type="hidden" name="oldUserId" value="{{ $user->id }}">
+            <input type="hidden" name="oldOfficerId" value="{{ $currentOfficer->id }}">
+            <input type="hidden" name="oldRegisterNumber" value="{{ $currentOfficer->register_number }}">
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="name">Nama Lengkap</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name"
+                        value="{{ $currentOfficer->full_name }}" required
+                        placeholder="Masukkan Nama Lengkap Dan Gelar Pendidikan" @if(!empty(Auth::user()->police_id)) readonly @endif>
+                    @error('name')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label">Status Kepegawaian</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="d-flex">
+                        <div class="form-check mx-1">
+                            <input class="form-check-input" type="radio" id="typePoliceEmployment" name="employmentType"
+                                value="1"
+                               @if ($currentOfficer->employment_type_id == 1 || empty($currentOfficer->employment_type_id)) checked @endif>
+                            <label for="typePoliceEmployment">
+                                Anggota Polri
+                            </label>
+                        </div>
+
+                        <div class="form-check mx-1">
+                            <input class="form-check-input" type="radio" id="typeCivilEmployment" name="employmentType"
+                                value="2"
+                                @if ($currentOfficer->employment_type_id == 2)
+                                        checked @endif>
+                            <label for="typeCivilEmployment">
+                                PNS Polri
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label">Pangkat/Golongan</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <select class="form-control select2" name="rank" id="rank">
+                        <option value="">--Pilih Pangkat--</option>
+                        @foreach ($ranks as $rank)
+                            <option value="{{ $rank->id }}"
+                                {{ ($currentOfficer->rank_id == $rank->id) ? 'selected' : '' }}>
+                                {{ $rank->full_name . ' (' . $rank->name . ')' }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <small class="text-muted">(*Apabila daftar pangkat ingin pilih kosong silahkan hubungi Helpdesk untuk
+                        mendapat bantuan)</small>
+
+                    @error('rank')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label">Tanggal Lahir</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <input class="form-control" id="birthDate" name="birthDate" placeholder="YYYY-MM-DD" autocomplete="off"
+                        value="{{ $currentOfficer->birth_date }}" data-provide="datepicker">
+
+                    @error('birthDate')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="registerNumber">NRP</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <input id="registerNumber" type="text" class="form-control @error('registerNumber') is-invalid @enderror"
+                        name="registerNumber" value="{{ $currentOfficer->register_number }}"
+                        required placeholder="Masukkan NRP" @if(!empty(Auth::user()->police_id)) readonly @endif>
+
+                    @error('registerNumber')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="email">Email</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 align-self-center">
+                    <div class="input-group">
+                        <input id="email" type="text" class="form-control @error('email') is-invalid @enderror"
+                            name="email" value="{{ $currentOfficer->email }}" required
+                            placeholder="Email akan dibuat otomatis" readonly>
+                        <button type="button" class="align-items-center btn btn-outline-primary" id="generateEmail" title="Generate Email dari NRP">
+                            <i class="bi bi-arrow-clockwise me-1"></i><small>Perbarui Email</small>
+                        </button>
+                    </div>
+                    @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                    <small class="text-muted d-block mt-1">(*Email akan diperbarui sesuai NRP setelah menekan tombol "Perbarui Email")</small>
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="phoneNumber">Nomor Telepon</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <input id="phoneNumber" type="text" class="form-control @error('phoneNumber') is-invalid @enderror"
+                        name="phoneNumber" value="{{ $currentOfficer->phone_number }}" required
+                        placeholder="Masukkan Nomor Telepon">
+                    @error('phoneNumber')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label">Jenis Kelamin</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <select class="form-control select2" name="gender" id="gender">
+                        <option value="">--Pilih Jenis Kelamin--</option>
+
+                        @foreach ($genders as $gender)
+                            <option value="{{ $gender->id }}"
+                                {{ ($currentOfficer->gender_id == $gender->id) ? 'selected' : '' }}>
+                                {{ $gender->name }}</option>
+                        @endforeach
+
+                    </select>
+
+                    @error('gender')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label">Agama</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <select class="form-control select2" name="religion" id="religion">
+                        <option value="">--Pilih Agama--</option>
+
+                        @foreach ($religions as $religion)
+                            <option value="{{ $religion->id }}"
+                                {{ ($currentOfficer->religion_id == $religion->id) ? 'selected' : '' }}>
+                                {{ $religion->name }}</option>
+                        @endforeach
+                    </select>
+
+                    @error('religion')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label">Jabatan Struktural</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <select class="form-control select2" name="position" id="position">
+                        <option value="">--Pilih Jabatan--</option>
+                        <option value="">--Tidak Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+                        @foreach ($positions as $position)
+                            @php
+                                $isCanSignatory = $position->positionCLuster ? ($position->positionCluster->is_can_signatory == true ? 'true' : 'false') : 'false';
+                            @endphp
+
+                            <option value="{{ $position->id }}" data-is-can-signatory="{{ $isCanSignatory }}"
+                                {{ ($currentOfficer->position_id == $position->id) ? 'selected' : '' }}>
+                                {{ $position->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <small class="text-muted">(*Apabila daftar jabatan ingin pilih kosong silahkan hubungi Helpdesk untuk
+                        mendapat bantuan)</small>
+
+                    @error('position')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+
+                    @if (isset($currentOfficer->class))
+                        @if ($currentOfficer->class == 'SIGNATORY')
+                            @php $isRegisterSignatorySection = 'checked'; @endphp
+                        @endif
+                    @endif
+                    <div class="mt-4" @if (isset($isRegisterSignatorySection) == false) style="display: none;" @endif
+                        id="isRegisterSignatorySection">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isRegisterSignatory"
+                                name="isRegisterSignatory" value="true" aria-label="..."
+                                @if (isset($isRegisterSignatorySection) == true) checked @endif>
+                            <label for="isRegisterSignatory">
+                                Daftarkan Personnel Ini Sebagai Pejabat Penandatangan Tanda Tangan Elektronik
+                            </label>
+                        </div>
+
+                        <small class="text-muted">(*Untuk mendaftarkan pejabat penandatangan tanda tangan elektronik, jika buat
+                            baru setelah dibuat data personil ini perlu melewati tahap validasi oleh tim helpdesk.)</small>
+                    </div>
+                </div>
+            </div>
+
+            <div id="registerSignatorySection" class="mb-4"
+                @if (isset($isRegisterSignatorySection) == false) style="display: none;" @endif>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group row mb-3 ms-0">
+                            <label class="fw-bold col-sm-2 col-form-label">Jenis Identitas</label>
+                            <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                                <select class="form-control select2" name="registerSignatoryIdentityType"
+                                    id="registerSignatoryIdentityType">
+                                    @foreach ($registerSignatoryIdentityTypes as $registerSignatoryIdentityType)
+                                        <option value="{{ $registerSignatoryIdentityType->id }}" selected>
+                                            {{ $registerSignatoryIdentityType->name }}</option>
+                                    @endforeach
+                                </select>
+
+                                @error('registerSignatoryIdentityType')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="input-group row mb-3 ms-0">
+                            <label class="fw-bold col-sm-2 col-form-label" for="registerSignatoryIdentityNumber">Nomor NIK
+                            </label>
+                            <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                                <input id="registerSignatoryIdentityNumber" type="text"
+                                    class="form-control @error('registerSignatoryIdentityNumber') is-invalid @enderror"
+                                    name="registerSignatoryIdentityNumber"
+                                    value="{{ $currentOfficer->identity_number }}"
+                                    required placeholder="Masukkan nomor induk kependudukan">
+
+                                @error('registerSignatoryIdentityNumber')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label">Jenjang Pendidikan Terakhir</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <select class="form-control select2" name="education" id="education">
+                        <option value="">--Pilih Pendidikan--</option>
+
+                        @foreach ($educations as $education)
+                            <option value="{{ $education->id }}"
+                                {{ $currentOfficer->education_id == $education->id ? 'selected' : '' }}>
+                                {{ $education->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <small class="text-muted">(*Apabila daftar pendidikan ingin pilih kosong silahkan hubungi Helpdesk untuk
+                        mendapat bantuan)</small>
+
+                    @error('education')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="educationInstitutionName">Universitas / Perguruan Tinggi
+                    / Sekolah</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <input id="educationInstitutionName" type="text"
+                        class="form-control @error('educationInstitutionName') is-invalid @enderror"
+                        name="educationInstitutionName"
+                        value="{{ $currentOfficer->education_institution_name }}"
+                        placeholder="Nama Universitas / Perguruan Tinggi / Sekolah (Opsional)">
+
+                    @error('educationInstitutionName')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label">Diktuk Polri</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <select class="form-control select2" name="policeDiktukEducation" id="policeDiktukEducation">
+                        <option value="">--Pilih Pendidikan Diktuk Polri--</option>
+                        <option value="">--Tidak Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+
+                        @foreach ($policeDiktukEducations as $policeDiktukEducation)
+                            <option value="{{ $policeDiktukEducation->id }}"
+                                {{ $currentOfficer->police_diktuk_education_id == $policeDiktukEducation->id ? 'selected' : '' }}>
+                                {{ $policeDiktukEducation->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <small class="text-muted">(*Apabila daftar diktuk ingin pilih kosong silahkan hubungi Helpdesk untuk
+                        mendapat bantuan)</small>
+
+                    @error('policeDiktukEducation')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="policeDiktukEducationGraduateYear">Tahun Lulus Diktuk.
+                    POLRI</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <input id="policeDiktukEducationGraduateYear" type="text"
+                        class="form-control @error('policeDiktukEducationGraduateYear') is-invalid @enderror"
+                        name="policeDiktukEducationGraduateYear"
+                        value="{{ $currentOfficer->police_diktuk_education_graduate_year }}"
+                        required placeholder="Tahun Lulus">
+
+                    @error('policeDiktukEducationGraduateYear')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+            </div>
+
+            @if(empty(Auth::user()->police_id) || Auth::user()->role_id == 5)
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="isRegisterAdmin">Flag</label>
+                    <div class="col-lg-10 col-md-10 col-sm-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isRegisterAdmin"
+                                name="isRegisterAdmin" value="true" aria-label="..."
+                                @if ($currentOfficer->flag == 'ADMIN') checked @endif>
+                            <label for="isRegisterAdmin">
+                                Daftarkan Personnel Ini Sebagai Admin Satker
+                            </label>
+                        </div>
+
+                        @error('isRegisterAdmin')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isRegisterAdminCanEntryDocument"
+                                name="isRegisterAdminCanEntryDocument" value="true" aria-label="..."
+                                @php
+                                    $isCanEntryDocument = $user->properties['is_can_entry_document'] ?? false;
+                                @endphp
+                                @if ($isCanEntryDocument == true) checked @endif>
+                            <label for="isRegisterAdminCanEntryDocument">
+                                Jadikan Personnel Ini Dapat Entry Dokumen
+                            </label>
+                        </div>
+
+                        @error('isRegisterAdminCanEntryDocument')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+            @elseif(Auth::user()->role_id == 3 && Auth::user()->police_id != $policeId)
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="isRegisterAdmin">Flag</label>
+                    <div class="col-lg-10 col-md-10 col-sm-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isRegisterAdmin"
+                                name="isRegisterAdmin" value="true" aria-label="..."
+                                @if ($currentOfficer->flag == 'ADMIN') checked @endif>
+                            <label for="isRegisterAdmin">
+                                Daftarkan Personnel Ini Sebagai Admin Satker
+                            </label>
+                        </div>
+
+                        @error('isRegisterAdmin')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+                
+                <input type="hidden" name="oldIsRegisterAdminCanEntryDocument" value="{{ $currentOfficer->flag == 'ADMIN' ? 'true' : 'false' }}">
+                <input type="hidden" name="isRegisterAdminCanEntryDocument" value="{{ $user->properties['is_can_entry_document'] ?? 'false' }}">
+            @else
+                <input type="hidden" name="isRegisterAdmin" value="{{ $currentOfficer->flag == 'ADMIN' ? 'true' : 'false' }}">
+                <input type="hidden" name="isRegisterAdminCanEntryDocument" value="{{ $user->properties['is_can_entry_document'] ?? 'false' }}">
+            @endif
+
+            <br/>
+            <hr/>
+
+            <div class="box-header">
+                <h5 class="fw-bold text-blue-dark">RIWAYAT JABATAN</h5>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="mb-2 mt-2">
+
+                        <div id="careerHistory">
+                            <div class="row">
+                                <div class="col-md-12">
+                                        <button class="btn btn-primary" id="addCareerHistoryButton" type="button"
+                                        data-bs-toggle="modal" data-bs-target="#addCareerHistoryModal"><i
+                                            class="bi bi-plus-circle"></i> Tambah</button>
+                                </div>
+                            </div>
+
+                            <div class="input-group mt-3">
+                                <table class="table table-bordered table-responsive-md" id="careerHistoryTable">
+                                    <thead class="table-danger">
+                                        <tr class="text-center">
+                                            <th scope="col">Fungsi</th>
+                                            <th scope="col">Jabatan</th>
+                                            <th scope="col">Tahun</th>
+                                            <th scope="col">Opsi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br/>
+            <hr/>
+
+            <div class="box-header">
+                <h5 class="fw-bold">PENDIDIKAN LANTAS / DIKJUR</h5>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="mb-2 mt-2">
+
+                        <div id="policeDikjurEducation">
+                            <div class="row">
+                                <div class="col-md-12">
+                                        <button class="btn btn-primary" id="addPoliceDikjurEducationButton" type="button"
+                                        data-bs-toggle="modal" data-bs-target="#addPoliceDikjurEducationModal"><i
+                                            class="bi bi-plus-circle"></i> Tambah</button>
+                                </div>
+                            </div>
+
+                            <div class="input-group mt-3">
+                                <table class="table table-bordered table-responsive-md" id="policeDikjurEducationTable">
+                                    <thead class="table-danger">
+                                        <tr class="text-center">
+                                            <th scope="col">Tempat Pendidikan</th>
+                                            <th scope="col">Tahun Lulus</th>
+                                            <th scope="col">Materi Pendidikan</th>
+                                            <th scope="col">Opsi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <h4 class="fw-bold text-blue-dark">KEPENYIDIKAN</h4>
+
+            <div class="row">
+                <div class="col-12 my-2">
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-2 col-form-label">Status Kepenyidikan</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                            <h6 class="fw-bold">*Silahkan isi jika sudah memiliki Skep</h6>
+
+                            <div class="mb-3">
+                                <div class="icheck-primary">
+                                    <input type="radio" id="existsOfficerSkepPenyidik" name="isExistsOfficerSkepPenyidik"
+                                        value="true">
+                                    <label for="existsOfficerSkepPenyidik">
+                                        Sudah ada Skep Penyidik
+                                    </label>
+                                </div>
+
+                                <div class="icheck-primary">
+                                    <input type="radio" id="notExistsOfficerSkepPenyidik"
+                                        name="isExistsOfficerSkepPenyidik" value="false"
+                                        checked>
+                                    <label for="notExistsOfficerSkepPenyidik">
+                                        Belum ada Skep Penyidik
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="officerSkepPenyidikSection" style="display:none;">
+                        <div class="input-group row mb-3 ms-0">
+                            <label class="fw-bold col-sm-2 col-form-label" for="officerSkepPenyidikNumber">NOMOR SKEP PENYIDIK</label>
+                            <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                                <input id="officerSkepPenyidikNumber" type="text"
+                                    class="form-control @error('officerSkepPenyidikNumber') is-invalid @enderror"
+                                    name="officerSkepPenyidikNumber"
+                                    value=""
+                                    required placeholder="Masukkan Nomor Skep">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <br/>
+            <hr/>
+
+            <div class="box-header">
+                <h5 class="fw-bold">RIWAYAT SERTIFIKASI</h5>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12">
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-2 col-form-label">Status sertifikasi</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                            <h6 class="fw-bold">*Silahkan isi jika sudah memiliki sertifikat</h6>
+
+                            <div class="mb-3">
+                                <div class="icheck-primary">
+                                    <input type="radio" id="existsOfficerCertificate" name="isExistsOfficerCertificate"
+                                        value="true" @if (empty(old('isExistsOfficerCertificate')) || old('isExistsOfficerCertificate') == true) checked @endif>
+                                    <label for="existsOfficerCertificate">
+                                        Sudah Memiliki Sertifikasi
+                                    </label>
+                                </div>
+
+                                <div class="icheck-primary">
+                                    <input type="radio" id="notExistsOfficerCertificate"
+                                        name="isExistsOfficerCertificate" value="false"
+                                        @if (!empty(old('isExistsOfficerCertificate')) && old('isExistsOfficerCertificate') == false) checked @endif>
+                                    <label for="notExistsOfficerCertificate">
+                                        Belum Memiliki Sertifikasi
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="officerCertificateSection" style="display:none;">
+                        <div id="certificate">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button class="btn btn-primary" id="addCertificateButton" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#addCertificateModal"><i
+                                        class="bi bi-plus-circle"></i> Tambah</button>
+                                </div>
+                            </div>
+
+                            <div class="input-group mt-3">
+                                <table class="table table-bordered table-responsive-md" id="certificateTable">
+                                    <thead class="table-danger">
+                                        <tr class="text-center">
+                                            <th scope="col">Jenis Sertifikat</th>
+                                            <th scope="col">Nomor Register</th>
+                                            <th scope="col">Tanggal Mulai Berlaku</th>
+                                            <th scope="col">Tanggal Kadaluwarsa</th>
+                                            <th scope="col">Opsi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br/>
+            <hr/>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="box-header">
+                        <h5 class="fw-bold text-blue-dark">STATUS BKO</h5>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="mb-2 mt-2">
+                                <div class="input-group row mb-3 ms-0">
+                                    <label class="fw-bold col-sm-2 col-form-label">Status BKO</label>
+                                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                                        <h6>*Silahkan isi jika sudah BKO</h6>
+
+                                        <div class="mb-3">
+                                            <div class="icheck-primary">
+                                                <input type="radio" id="isOfficerOperationControlAssistance" name="isOfficerOperationControlAssistance" value="true">
+                                                <label for="isOfficerOperationControlAssistance">
+                                                    Ya
+                                                </label>
+                                            </div>
+
+                                            <div class="icheck-primary">
+                                                <input type="radio" id="isNotOfficerOperationControlAssistance" name="isOfficerOperationControlAssistance" value="false" checked>
+                                                <label for="isNotOfficerOperationControlAssistance">
+                                                    Tidak
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="officerOperationControlAssistanceSection" style="display:none;">
+                                    <div class="input-group row mb-3 ms-0">
+                                        <label class="fw-bold col-sm-2 col-form-label" for="officerOperationControlAssistanceNumber">No.Surat BKO</label>
+                                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                                            <input id="officerOperationControlAssistanceNumber" type="text"
+                                                class="form-control @error('officerOperationControlAssistanceNumber') is-invalid @enderror font-weight-bold" name="officerOperationControlAssistanceNumber"
+                                                value="" placeholder="">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row mb-3 ms-0">
+                                        <label class="fw-bold col-sm-2 col-form-label" for="officerOperationControlAssistanceDate">Tanggal Penugasan BKO</label>
+                                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                                            <input id="officerOperationControlAssistanceDate" type="text"
+                                                class="form-control @error('officerOperationControlAssistanceDate') is-invalid @enderror font-weight-bold" name="officerOperationControlAssistanceDate"
+                                                value="" placeholder="YYYY-MM-DD">
+                                        </div>
+                                    </div>
+
+                                    <div class="input-group row mb-3 ms-0">
+                                        <label class="fw-bold col-sm-2 col-form-label" for="officerOperationControlAssistanceOriginPolice">Satker Asal BKO</label>
+                                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                                            <input id="officerOperationControlAssistanceOriginPoliceName" type="text"
+                                                class="form-control @error('officerOperationControlAssistanceOriginPoliceName') is-invalid @enderror font-weight-bold" name="officerOperationControlAssistanceOriginPoliceName"
+                                                value="" readonly placeholder="">
+
+                                            <input id="officerOperationControlAssistanceOriginPoliceId" type="hidden"
+                                                class="form-control font-weight-bold" name="officerOperationControlAssistanceOriginPoliceId"
+                                                value="">
+                                        </div>
+                                    </div>
+                                    
+                                    <hr/>
+                                    <div id="officerOperationControlAssistancePoliceSection" class="mt-4">
+                                        <h6 class="fw-bold">WILAYAH HUKUM (SATKER ASAL)</h6>
+                                        <div class="input-group row mb-3 ms-0">
+                                            <label class="fw-bold col-sm-2 col-form-label" for="officerOperationControlAssistancePolice">Masukkan Satker Asal Mutasi</label>
+                                            <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        {{-- <div class="icheck-primary d-inline mx-1">
+                                                            <input type="radio" id="officerOperationControlAssistancePolicePusatClass" name="officerOperationControlAssistancePoliceClass" value="PUSAT" checked>
+                                                            <label for="officerOperationControlAssistancePolicePusatClass">
+                                                                Korlantas
+                                                            </label>
+                                                        </div> --}}
+
+                                                        <div class="icheck-primary d-inline mx-1">
+                                                            <input type="radio" id="officerOperationControlAssistancePoliceDaerahClass" name="officerOperationControlAssistancePoliceClass" value="DAERAH">
+                                                            <label for="officerOperationControlAssistancePoliceDaerahClass">
+                                                                Polda
+                                                            </label>
+                                                        </div>
+                                                    
+                                                        <div class="icheck-primary d-inline mx-1">
+                                                            <input type="radio" id="officerOperationControlAssistancePoliceResorClass" name="officerOperationControlAssistancePoliceClass" value="RESOR" checked>
+                                                            <label for="officerOperationControlAssistancePoliceResorClass">
+                                                                Polres
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <br/>
+                                                 <div class="row mt-1">
+                                                    <div class="col-md-6">
+                                                        <div class="input-group mb-3">
+                                                            <input type="text" class="form-control" id="officerOperationControlAssistancePoliceSearchField"
+                                                                placeholder="Cari Nama Satker Asal" aria-label="Cari Nama Satker Asal" aria-describedby="basic-addon2"
+                                                                aria-describedby="officerOperationControlAssistancePoliceSearch">
+                                                            <button class="btn btn-primary" id="officerOperationControlAssistancePoliceSearchButton" type="button"><i
+                                                                    class="bi bi-search"></i> Cari </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-6">
+                                                        <div class="input-group">
+                                                            <select class="custom-select select2-input-group" id="officerOperationControlAssistancePoliceSearchOption"
+                                                                aria-describedby="officerOperationControlAssistancePoliceSearchOptionAddButtton">
+                                                                <option value="">--Pilih Satker Asal--</option>
+                                                            </select>
+                                                            <button class="btn btn-primary" id="officerOperationControlAssistancePoliceSearchOptionAddButtton"
+                                                                type="button"><i class="bi bi-plus-circle"></i> Pilih</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary" id="officerFormSubmit">
+                    <i class="bi bi-save"></i> {{ __('Simpan') }}
+                </button>
+                <a href="{{ route('personnel.index', ['policeId' => $policeId]) }}" class="btn btn-danger">
+                    <i class="bi bi-x-circle"></i> {{ __('Batal') }}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Add CareerHistory-->
+<div class="modal fade" id="addCareerHistoryModal" tabindex="-1" role="dialog" aria-labelledby="addCareerHistoryModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="modalContent">
+        <!-- Header Modal -->
+        <div class="modal-header">
+            <h5 class="modal-title" id="addCareerHistoryModalLabel">RIWAYAT JABATAN</h5>
+            </button>
+        </div>
+
+        <!-- Body Modal -->
+        <div class="modal-body">
+            <div class="alert alert-primary mt-1 mb-3" role="alert">
+                Jika tidak terdapat opsi yang sesuai, silahkan menghubungi Helpdesk ICELL untuk koordinasi.
+            </div>
+            <form id="careerHistoryForm">
+                <div class="form-group mb-4">
+                    <label for="careerHistoryPoliceDivision">Fungsi</label>
+                    <select class="form-control" id="careerHistoryPoliceDivision">
+                        <option value="">--Pilihan Fungsi--</option>
+                        <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+
+                        @foreach ($policeDivisions as $policeDivision)
+                            <option value="{{ $policeDivision->id }}">
+                                {{ $policeDivision->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="careerHistoryPositionName">Jabatan</label>
+                    <input type="text" class="form-control" id="careerHistoryPositionName" placeholder="" value="">
+                </div>
+                <div class="form-group mb-4">
+                    <label for="careerHistoryYear">Tahun</label>
+                    <input type="text" class="form-control" id="careerHistoryYear" placeholder="YYYY" value="">
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Modal -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
+                    class="bi bi-x-circle"></i> Batal</button>
+            <button type="button" class="btn btn-dark-blue" id="saveAddCareerHistoryButton"><i
+                    class="bi bi-save"></i> Simpan</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add PoliceDikjurEducation-->
+<div class="modal fade" id="addPoliceDikjurEducationModal" tabindex="-1" role="dialog" aria-labelledby="addPoliceDikjurEducationModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="modalContent">
+        <!-- Header Modal -->
+        <div class="modal-header">
+            <h5 class="modal-title" id="addPoliceDikjurEducationModalLabel">PENDIDIKAN LANTAS/DIKJUR</h5>
+            </button>
+        </div>
+
+        <!-- Body Modal -->
+        <div class="modal-body">
+            <div class="alert alert-primary mt-1 mb-3" role="alert">
+                Jika tidak terdapat opsi yang sesuai, silahkan menghubungi Helpdesk ICELL untuk koordinasi.
+            </div>
+            <form id="oliceSpecialEducationForm">
+                <div class="form-group mb-4">
+                    <label for="policeDikjurEducationPlace">Tempat Pendidikan Lantas</label>
+                    <select class="form-control" id="policeDikjurEducationPlace">
+                        <option value="">--Pilihan Tempat Pendidikan Lantas--</option>
+                        <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+
+                        @foreach ($policeDikjurEducationPlaces as $policeDikjurEducationPlace)
+                            <option value="{{ $policeDikjurEducationPlace->id }}">
+                                {{ $policeDikjurEducationPlace->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="policeDikjurEducationGraduateYear">Tahun Lulus Pendidikan Lantas</label>
+                    <input type="text" class="form-control" id="policeDikjurEducationGraduateYear" placeholder="YYYY" value="">
+                </div>
+                <div class="form-group mb-4">
+                    <label for="policeDikjurEducationMaterial">Materi Pendidikan Lantas</label>
+                    <select class="form-control" id="policeDikjurEducationMaterial">
+                        <option value="">--Pilih Materi Pendidikan Lantas--</option>
+                        <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+
+                        @foreach ($policeDikjurEducationMaterials as $policeDikjurEducationMaterial)
+                            <option value="{{ $policeDikjurEducationMaterial->id }}">
+                                {{ $policeDikjurEducationMaterial->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Modal -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
+                    class="bi bi-x-circle"></i> Batal</button>
+            <button type="button" class="btn btn-dark-blue" id="saveAddPoliceDikjurEducationButton"><i
+                    class="bi bi-save"></i> Simpan</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add Certificate-->
+<div class="modal fade" id="addCertificateModal" tabindex="-1" role="dialog" aria-labelledby="addCertificateModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="modalContent">
+        <!-- Header Modal -->
+        <div class="modal-header">
+            <h5 class="modal-title" id="addCertificateModalLabel">Tambah Riwayat Sertifikasi Personnel</h5>
+            </button>
+        </div>
+
+        <!-- Body Modal -->
+        <div class="modal-body">
+            <form id="certificateForm">
+                <div class="form-group mb-4">
+                    <label for="certificateType">Jenis Sertifikat</label>
+                    <select class="form-control" id="certificateType" name="certificateType">
+                        <option value="">--Pilih Jenis Sertifikat--</option>
+                        <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+
+                        @foreach ($certificateTypes as $certificateType)
+                            <option value="{{ $certificateType->id }}">
+                                {{ $certificateType->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="certificateNumber">Nomor Sertifikat</label>
+                    <input type="text" class="form-control mt-2" id="certificateNumber" placeholder="" value="">
+                </div>
+                <div class="form-group mb-4">
+                    <label for="certificateStartDate">Tanggal Mulai Berlaku</label>
+                    <input class="form-control datepicker" id="certificateStartDate" name="certificateStartDate"
+                            placeholder="YYYY-MM-DD" autocomplete="off" value="" data-provide="datepicker">
+                </div>
+                <div class="form-group mb-4">
+                    <label for="certificateEndDate">Tanggal Kadaluwarsa</label>
+                    <input class="form-control datepicker" id="certificateEndDate" name="certificateEndDate"
+                            placeholder="YYYY-MM-DD" autocomplete="off" value="" data-provide="datepicker">
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Modal -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
+                    class="bi bi-x-circle"></i> Batal</button>
+            <button type="button" class="btn btn-dark-blue" id="saveAddCertificateButton"><i
+                    class="bi bi-save"></i> Simpan</button>
+        </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('script')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js" defer></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js" defer></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" defer></script>
+<script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js" defer></script>
+<script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
+<script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var officer = @json($officer);
+        var careerHistories = @json($officer->officerCareerHistories);
+        var policeDikjurEducations = @json($officer->officerPoliceDikjurEducations);
+        var certificateHistories = @json($officer->officerCertificateHistories);
+        var investigativeDetail = @json($officer->officerInvestigativeDetail);
+        var operationControlAssistance = @json($officer->officerOperationControlAssistance);
+        
+        //careerHistory
+        $(function(){
+            for (var key in careerHistories){
+                if(careerHistories.hasOwnProperty(key)){
+                    var careerHistory = careerHistories[key];
+                    var careerHistoryPoliceDivisionId = careerHistory.police_division.id ?? '';
+                    var careerHistoryPoliceDivisionName = careerHistory.police_division.name ?? '';
+                    var careerHistoryPositionName = careerHistory.position_name;
+                    var careerHistoryYear = careerHistory.year;
+
+                    // Append data ke table
+                    $('#careerHistoryTable tbody').append(
+                        '<tr>' +
+                        '<td>' + careerHistoryPoliceDivisionName + '</td>' +
+                        '<td>' + careerHistoryPositionName + '</td>' +
+                        '<td>' + careerHistoryYear + '</td>' +
+                        '<td>' +
+                        '<input type="hidden" name="careerHistoryPoliceDivisionIds[]" value="' + careerHistoryPoliceDivisionId + '">' +
+                        '<input type="hidden" name="careerHistoryPositionNames[]" value="' + careerHistoryPositionName + '">' +
+                        '<input type="hidden" name="careerHistoryYears[]" value="' + careerHistoryYear + '">' +
+                        '<button type="button" class="btn btn-danger btn-sm deleteCareerHistoryButton"><i class="bi bi-trash"></i></button>' +
+                        '</td>' +
+                        '</tr>'
+                    );
+
+                    // Hapus event listener deleteInternalOfficer sebelumnya
+                    $(document).off('click', '.deleteCareerHistoryButton');
+
+                    // Tambahkan event listener deleteInternalOfficer yang baru
+                    $(document).on('click', '.deleteCareerHistoryButton', function() {
+                        $(this).closest('tr').remove();
+                    });
+                }
+            }
+        });
+
+        //policeDikjurEducations
+        $(function(){
+            for (var key in policeDikjurEducations){
+                if(policeDikjurEducations.hasOwnProperty(key)){
+                    var policeDikjurEducation = policeDikjurEducations[key];
+                    var policeDikjurEducationPlaceId = policeDikjurEducation.police_dikjur_education_place.id ?? '';
+                    var policeDikjurEducationPlaceName = policeDikjurEducation.police_dikjur_education_place.name ?? '';
+                    var policeDikjurEducationGraduateYear = policeDikjurEducation.graduate_year;
+                    var policeDikjurEducationMaterialId = policeDikjurEducation.police_dikjur_education_material.id ?? '';
+                    var policeDikjurEducationMaterialName = policeDikjurEducation.police_dikjur_education_material.name ?? '';
+
+                    // Append data ke table
+                    $('#policeDikjurEducationTable tbody').append(
+                        '<tr>' +
+                        '<td>' + policeDikjurEducationPlaceName + '</td>' +
+                        '<td>' + policeDikjurEducationGraduateYear + '</td>' +
+                        '<td>' + policeDikjurEducationMaterialName + '</td>' +
+                        '<td>' +
+                        '<input type="hidden" name="policeDikjurEducationPlaceIds[]" value="' + policeDikjurEducationPlaceId + '">' +
+                        '<input type="hidden" name="policeDikjurEducationGraduateYears[]" value="' + policeDikjurEducationGraduateYear + '">' +
+                        '<input type="hidden" name="policeDikjurEducationMaterialIds[]" value="' + policeDikjurEducationMaterialId + '">' +
+                        '<button type="button" class="btn btn-danger btn-sm deletePoliceDikjurEducationButton"><i class="bi bi-trash"></i></button>' +
+                        '</td>' +
+                        '</tr>'
+                    );
+
+                    // Hapus event listener deleteInternalOfficer sebelumnya
+                    $(document).off('click', '.deletePoliceDikjurEducationButton');
+
+                    // Tambahkan event listener deleteInternalOfficer yang baru
+                    $(document).on('click', '.deletePoliceDikjurEducationButton', function() {
+                        $(this).closest('tr').remove();
+                    });
+                }
+            }
+        });
+
+        //certificateHistories
+        $(function(){
+            if (officer != null) {
+                var isOfficerCertificateExists = officer.is_certificate_exists;
+                if(isOfficerCertificateExists == true || isOfficerCertificateExists == 'true'){
+                    $('input[name="isExistsOfficerCertificate"][value="true"]').prop('checked', true).trigger('change');
+                    $('#officerCertificateSection').show();
+                } else {
+                    $('input[name="isExistsOfficerCertificate"][value="false"]').prop('checked', true).trigger('change');
+                    $('#officerCertificateSection').hide();
+                }
+            }
+
+            for (var key in certificateHistories){
+                if(certificateHistories.hasOwnProperty(key)){
+                    var certificateHistory = certificateHistories[key];
+                    var certificateHistoryTypeId = certificateHistory.certificate_type.id ?? '';
+                    var certificateHistoryTypeName = certificateHistory.certificate_type.name ?? '';
+                    var certificateHistoryNumber = certificateHistory.certificate_number;
+                    var certificateHistoryStartDate = certificateHistory.begin_date;
+                    var certificateHistoryEndDate = certificateHistory.expired_date;
+
+                    // Append data ke table
+                    $('#certificateTable tbody').append(
+                        '<tr>' +
+                        '<td>' + certificateHistoryTypeName + '</td>' +
+                        '<td>' + certificateHistoryNumber + '</td>' +
+                        '<td>' + certificateHistoryStartDate + '</td>' +
+                        '<td>' + certificateHistoryEndDate + '</td>' +
+                        '<td>' +
+                        '<input type="hidden" name="certificateTypeIds[]" value="' + certificateHistoryTypeId + '">' +
+                        '<input type="hidden" name="certificateNumbers[]" value="' + certificateHistoryNumber + '">' +
+                        '<input type="hidden" name="certificateStartDates[]" value="' + certificateHistoryStartDate + '">' +
+                        '<input type="hidden" name="certificateEndDates[]" value="' + certificateHistoryEndDate + '">' +
+                        '<button type="button" class="btn btn-danger btn-sm deleteCertificateButton"><i class="bi bi-trash"></i></button>' +
+                        '</td>' +
+                        '</tr>'
+                    );
+
+                    // Hapus event listener deleteInternalOfficer sebelumnya
+                    $(document).off('click', '.deleteCertificateButton');
+
+                    // Tambahkan event listener deleteInternalOfficer yang baru
+                    $(document).on('click', '.deleteCertificateButton', function() {
+                        $(this).closest('tr').remove();
+                    });
+                }
+            }
+        });
+
+        //operationControlAssistance
+        $(function(){
+            if (operationControlAssistance != null) {
+                var isOfficerOperationControlAssistance = operationControlAssistance.is_operation_control_assistance;
+                if(isOfficerOperationControlAssistance == true || isOfficerOperationControlAssistance == 'true'){
+                    $('input[name="isOfficerOperationControlAssistance"][value="true"]').prop('checked', true).trigger('change');
+                    $('#officerOperationControlAssistanceSection').show();
+
+                    var operationControlAssistanceLetterNumber = operationControlAssistance.letter_number;
+                    var operationControlAssistanceDate = operationControlAssistance.date;
+                    var operationControlAssistanceOriginPoliceId = operationControlAssistance.origin_police.id;
+                    var operationControlAssistanceOriginPoliceName = operationControlAssistance.origin_police.full_name;
+
+                    $('#officerOperationControlAssistanceNumber').val(operationControlAssistanceLetterNumber);
+                    $('#officerOperationControlAssistanceDate').val(operationControlAssistanceDate);
+                    $('#officerOperationControlAssistanceOriginPoliceName').val(operationControlAssistanceOriginPoliceName);
+                    $('#officerOperationControlAssistanceOriginPoliceId').val(operationControlAssistanceOriginPoliceId);
+                } else {
+                    $('input[name="isOfficerOperationControlAssistance"][value="false"]').prop('checked', true).trigger('change');
+                    $('#officerOperationControlAssistanceSection').hide();
+                }
+            }
+        });
+
+        //investigativeDetail
+        $(function(){
+            if (investigativeDetail != null) {
+                var isOfficerSkepPenyidikExists = investigativeDetail.is_skep_penyidik_exists;
+                if(isOfficerSkepPenyidikExists == true || isOfficerSkepPenyidikExists == 'true'){
+                    $('input[name="isExistsOfficerSkepPenyidik"][value="true"]').prop('checked', true).trigger('change');
+                    $('#officerSkepPenyidikSection').show();
+
+                    var officerSkepPenyidikNumber = investigativeDetail.skep_penyidik_number;
+                    $('#officerSkepPenyidikNumber').val(officerSkepPenyidikNumber);
+                } else {
+                    $('input[name="isExistsOfficerSkepPenyidik"][value="false"]').prop('checked', true).trigger('change');
+                    $('#officerSkepPenyidikSection').hide();
+                }
+            }
+        });
+    });
+
+    //first load initialize
+    $(document).ready(function() {
+        $('#policeDiktukEducationGraduateYear').on('input', function(e) {
+            var input = $(this).val();
+            var maxLength = 4; // Maksimal panjang karakter
+
+            // Menghapus karakter selain angka
+            input = input.replace(/[^0-9]/g, '');
+
+            // Memastikan panjang karakter tidak melebihi maxLength
+            if (input.length > maxLength) {
+                input = input.slice(0, maxLength);
+            }
+
+            $(this).val(input);
+        });
+
+        $(function(){
+            var positionIsCanSignatory = $('#position').find(':selected').data('is-can-signatory');
+
+            if (positionIsCanSignatory == true || positionIsCanSignatory == 'true') {
+                $('#isRegisterSignatorySection').show();
+            } else {
+                $('#isRegisterSignatory').prop('checked', false).trigger('change');
+                $('#isRegisterSignatorySection').hide();
+            }
+        });
+    });
+
+    //datepicker
+    $(document).ready(function() {
+        $('#birthDate').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: "true",
+            endDate: new Date(),
+        });
+        $('#birthDate').keydown(function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        $('#certificateStartDate').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: "true",
+            container: '#addCertificateModal'
+        });
+        $('#certificateStartDate').keydown(function(e) {
+            e.preventDefault();
+            return false;
+        });
+        $('#certificateEndDate').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: "true",
+            container: '#addCertificateModal'
+        });
+        $('#certificateEndDate').keydown(function(e) {
+            e.preventDefault();
+            return false;
+        });
+
+        $('#officerOperationControlAssistanceDate').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: "true",
+        });
+        $('#officerOperationControlAssistanceDate').keydown(function(e) {
+            e.preventDefault();
+            return false;
+        });
+    });
+
+    // Select2 with Bootstrap4 theme
+    $(document).ready(function() {
+        $('.select2').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+        $('.select2-multiple').select2({
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+        $('.select2-input-group').select2({
+            theme: 'bootstrap4'
+        });
+
+        $('#addPoliceDikjurEducationModal #policeDikjurEducationPlace').select2({
+            dropdownParent: $('#policeDikjurEducationPlace').parent(),
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+        $('#addPoliceDikjurEducationModal #policeDikjurEducationMaterial').select2({
+            dropdownParent: $('#policeDikjurEducationMaterial').parent(),
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+        
+        $('#careerHistoryForm #careerHistoryPoliceDivision').select2({
+            dropdownParent: $('#careerHistoryPoliceDivision').parent(),
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+
+        $('#certificateForm #certificateType').select2({
+            dropdownParent: $('#certificateType').parent(),
+            theme: 'bootstrap4',
+            width: '100%'
+        });
+    });
+
+    //dikjur
+    $(document).ready(function() {
+        $('#policeDikjurEducationGraduateYear').on('input', function(e) {
+            var input = $(this).val();
+            var maxLength = 4; // Maksimal panjang karakter
+
+            // Menghapus karakter selain angka
+            input = input.replace(/[^0-9]/g, '');
+
+            // Memastikan panjang karakter tidak melebihi maxLength
+            if (input.length > maxLength) {
+                input = input.slice(0, maxLength);
+            }
+
+            $(this).val(input);
+        });
+
+        //when click saveAddPoliceDikjurEducationButton
+        $('#saveAddPoliceDikjurEducationButton').on('click', function() {
+            var policeDikjurEducationPlaceId = $('#policeDikjurEducationPlace').find(':selected').val();
+            var policeDikjurEducationPlaceName = $('#policeDikjurEducationPlace').find(':selected').text();
+
+            var policeDikjurEducationGraduateYear = $('#policeDikjurEducationGraduateYear').val();
+
+            var policeDikjurEducationMaterialId = $('#policeDikjurEducationMaterial').find(':selected').val();
+            var policeDikjurEducationMaterialName = $('#policeDikjurEducationMaterial').find(':selected').text();
+
+            if (policeDikjurEducationPlaceId == '' || policeDikjurEducationMaterialId == '' || policeDikjurEducationGraduateYear == '') {
+                // Remove small text error di bawah inputan
+                $('#addPoliceDikjurEducationModal #policeDikjurEducationPlace').parent().find(
+                    'small').remove();
+                $('#addPoliceDikjurEducationModal #policeDikjurEducationMaterial').parent().find(
+                    'small').remove();
+                $('#addPoliceDikjurEducationModal #policeDikjurEducationGraduateYear').parent().find(
+                    'small').remove();
+                // append small text error di bawah inputan
+                $('#addPoliceDikjurEducationModal #policeDikjurEducationPlace').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+                $('#addPoliceDikjurEducationModal #policeDikjurEducationMaterial').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+                $('#addPoliceDikjurEducationModal #policeDikjurEducationGraduateYear').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+
+                return false;
+            } 
+
+            // Append data ke table
+            $('#policeDikjurEducationTable tbody').append(
+                '<tr>' +
+                '<td>' + policeDikjurEducationPlaceName + '</td>' +
+                '<td>' + policeDikjurEducationGraduateYear + '</td>' +
+                '<td>' + policeDikjurEducationMaterialName + '</td>' +
+                '<td>' +
+                '<input type="hidden" name="policeDikjurEducationPlaceIds[]" value="' + policeDikjurEducationPlaceId + '">' +
+                '<input type="hidden" name="policeDikjurEducationGraduateYears[]" value="' + policeDikjurEducationGraduateYear + '">' +
+                '<input type="hidden" name="policeDikjurEducationMaterialIds[]" value="' + policeDikjurEducationMaterialId + '">' +
+                '<button type="button" class="btn btn-danger btn-sm deletePoliceDikjurEducationButton"><i class="bi bi-trash"></i></button>' +
+                '</td>' +
+                '</tr>'
+            );
+
+            // Clear inputan
+            $('#addPoliceDikjurEducationModal #policeDikjurEducationPlace').val(null).trigger(
+                'change');
+            $('#addPoliceDikjurEducationModal #policeDikjurEducationGraduateYear').val(null);
+            $('#addPoliceDikjurEducationModal #policeDikjurEducationMaterial').val(null).trigger(
+                'change');
+
+            // Close modal
+            $('#addPoliceDikjurEducationModal').modal('hide');
+
+            // Remove small text error di bawah inputan
+            $('#addPoliceDikjurEducationModal #policeDikjurEducationPlace').parent().find(
+                'small').remove();
+            $('#addPoliceDikjurEducationModal #policeDikjurEducationMaterial').parent().find(
+                'small').remove();
+            $('#addPoliceDikjurEducationModal #policeDikjurEducationGraduateYear').parent().find(
+                'small').remove();
+        });
+
+        //when click deletePoliceDikjurEducationButton
+        $('#policeDikjurEducationTable tbody').on('click', '.deletePoliceDikjurEducationButton', function() {
+            $(this).closest('tr').remove();
+        });
+    });
+
+    //certificate history
+    $(document).ready(function() {
+         $('input[name="isExistsOfficerCertificate"]').on('change', function() {
+            if ($(this).val() == 'true') {
+                $('#officerCertificateSection').show();
+            } else {
+                $('#officerCertificateSection').hide();
+            }
+        });
+
+        $('#saveAddCertificateButton').on('click', function() {
+            var certificateTypeId = $('#certificateType').find(':selected').val();
+            var certificateTypeName = $('#certificateType').find(':selected').text();
+            var certificateNumber = $('#certificateNumber').val();
+            var certificateStartDate = $('#certificateStartDate').val();
+            var certificateEndDate = $('#certificateEndDate').val();
+
+            if (certificateNumber == '' || certificateStartDate == '' || certificateEndDate == '') {
+                // Remove small text error di bawah inputan
+                $('#addCertificateModal #certificateType').parent().find('small').remove();
+                $('#addCertificateModal #certificateNumber').parent().find('small').remove();
+                $('#addCertificateModal #certificateStartDate').parent().find('small').remove();
+                $('#addCertificateModal #certificateEndDate').parent().find('small').remove();
+                // append small text error di bawah inputan
+                $('#addCertificateModal #certificateType').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+                $('#addCertificateModal #certificateNumber').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+                $('#addCertificateModal #certificateStartDate').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+                $('#addCertificateModal #certificateEndDate').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+
+                return false;
+            } 
+
+            // Append data ke table
+            $('#certificateTable tbody').append(
+                '<tr>' +
+                '<td>' + certificateTypeName + '</td>' +
+                '<td>' + certificateNumber + '</td>' +
+                '<td>' + certificateStartDate + '</td>' +
+                '<td>' + certificateEndDate + '</td>' +
+                '<td>' +
+                '<input type="hidden" name="certificateTypeIds[]" value="' + certificateTypeId + '">' +
+                '<input type="hidden" name="certificateNumbers[]" value="' + certificateNumber + '">' +
+                '<input type="hidden" name="certificateStartDates[]" value="' + certificateStartDate + '">' +
+                '<input type="hidden" name="certificateEndDates[]" value="' + certificateEndDate + '">' +
+                '<button type="button" class="btn btn-danger btn-sm deleteCertificateButton"><i class="bi bi-trash"></i></button>' +
+                '</td>' +
+                '</tr>'
+            );
+
+            // Clear inputan
+            $('#addCertificateModal #certificateNumber').val(null);
+            $('#addCertificateModal #certificateStartDate').val(null);
+            $('#addCertificateModal #certificateEndDate').val(null);
+
+            // Close modal
+            $('#addCertificateModal').modal('hide');
+
+            // Remove small text error di bawah inputan
+            $('#addCertificateModal #certificateNumber').parent().find('small').remove();
+        });
+
+        //when click deleteCertificateButton
+        $('#certificateTable tbody').on('click', '.deleteCertificateButton', function() {
+            $(this).closest('tr').remove();
+        });
+    });
+
+    //career history
+    $(document).ready(function() {
+        $('#careerHistoryYear').on('input', function(e) {
+            var input = $(this).val();
+            var maxLength = 4; // Maksimal panjang karakter
+
+            // Menghapus karakter selain angka
+            input = input.replace(/[^0-9]/g, '');
+
+            // Memastikan panjang karakter tidak melebihi maxLength
+            if (input.length > maxLength) {
+                input = input.slice(0, maxLength);
+            }
+
+            $(this).val(input);
+        });
+
+        $('#saveAddCareerHistoryButton').on('click', function() {
+            var careerHistoryPoliceDivisionId = $('#careerHistoryPoliceDivision').find(':selected').val();
+            var careerHistoryPoliceDivisionName = $('#careerHistoryPoliceDivision').find(':selected').text();
+
+            var careerHistoryPositionName = $('#careerHistoryPositionName').val();
+
+            var careerHistoryYear = $('#careerHistoryYear').val();
+
+            if (careerHistoryPoliceDivisionId == '' || careerHistoryPositionName == '' || careerHistoryYear == '') {
+                // Remove small text error di bawah inputan
+                $('#addCareerHistoryModal #careerHistoryPoliceDivision').parent().find('small').remove();
+                $('#addCareerHistoryModal #careerHistoryPositionName').parent().find('small').remove();
+                $('#addCareerHistoryModal #careerHistoryYear').parent().find('small').remove();
+                // append small text error di bawah inputan
+                $('#addCareerHistoryModal #careerHistoryPoliceDivision').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+                $('#addCareerHistoryModal #careerHistoryPositionName').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+                $('#addCareerHistoryModal #careerHistoryYear').parent().append(
+                    '<small class="text-danger">Inputan ini wajib diisi</small>');
+
+                return false;
+            } 
+
+            // Append data ke table
+            $('#careerHistoryTable tbody').append(
+                '<tr>' +
+                '<td>' + careerHistoryPoliceDivisionName + '</td>' +
+                '<td>' + careerHistoryPositionName + '</td>' +
+                '<td>' + careerHistoryYear + '</td>' +
+                '<td>' +
+                '<input type="hidden" name="careerHistoryPoliceDivisionIds[]" value="' + careerHistoryPoliceDivisionId + '">' +
+                '<input type="hidden" name="careerHistoryPositionNames[]" value="' + careerHistoryPositionName + '">' +
+                '<input type="hidden" name="careerHistoryYears[]" value="' + careerHistoryYear + '">' +
+                '<button type="button" class="btn btn-danger btn-sm" id="deleteCareerHistoryButton"><i class="bi bi-trash"></i></button>' +
+                '</td>' +
+                '</tr>'
+            );
+
+            // Clear inputan
+            $('#careerHistoryPoliceDivision').val(null);
+            $('#careerHistoryPositionName').val(null);
+            $('#careerHistoryYear').val(null);
+
+            // Close modal
+            $('#addCareerHistoryModal').modal('hide');
+
+            // Remove small text error di bawah inputan
+            $('#addCareerHistoryModal #careerHistoryPoliceDivision').parent().find('small').remove();
+            $('#addCareerHistoryModal #careerHistoryPositionName').parent().find('small').remove();
+            $('#addCareerHistoryModal #careerHistoryYear').parent().find('small').remove();
+        });
+
+        //when click deleteCareerHistoryButton
+        $('#careerHistoryTable tbody').on('click', '#deleteCareerHistoryButton', function() {
+            $(this).closest('tr').remove();
+        });
+    });
+
+    // skep penyidik
+    $(document).ready(function() {
+        $('input[name="isExistsOfficerSkepPenyidik"]').on('change', function() {
+            if ($(this).val() == 'true') {
+                $('#officerSkepPenyidikSection').show();
+            } else {
+                $('#officerSkepPenyidikSection').hide();
+            }
+        });
+        
+        $('input[name="isOfficerOperationControlAssistance"]' ).on('change', function() {
+            if ($(this).val() == 'true') {
+                $('#officerOperationControlAssistanceSection').show();
+            } else {
+                $('#officerOperationControlAssistanceSection').hide();
+            }
+        });
+
+        function checkSignatoryEligibility() {
+            var educationId = $('#education').val();
+            var positionIsCanSignatory = $('#position').find(':selected').data('is-can-signatory');
+
+            if (educationId && parseInt(educationId) < 8) {
+                $('#isRegisterSignatory').prop('checked', false).trigger('change');
+                $('#isRegisterSignatorySection').hide();
+            } else {
+                if (positionIsCanSignatory == true || positionIsCanSignatory == 'true') {
+                    $('#isRegisterSignatorySection').show();
+                } else {
+                    $('#isRegisterSignatory').prop('checked', false).trigger('change');
+                    $('#isRegisterSignatorySection').hide();
+                }
+            }
+        }
+
+        $('#position').on('change', checkSignatoryEligibility);
+        $('#education').on('change', checkSignatoryEligibility);
+        checkSignatoryEligibility();
+
+        $('#isRegisterSignatory').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#registerSignatorySection').show();
+            } else {
+                $('#registerSignatorySection').hide();
+            }
+        });
+
+        $('input[name="employmentType"]').on('change', function() {
+            var employmentTypeId = $(this).val();
+
+            //call ajax to get ranks
+            $.ajax({
+                url: "{{ route('personnel.api.ranks', ['policeId' => $policeId]) }}",
+                type: "GET",
+                data: {
+                    employmentTypeId: employmentTypeId
+                },
+                success: function(response) {
+                    $('#rank').empty();
+                    $('#rank').append(
+                        '<option value="" selected disabled>Pilih Pangkat</option>');
+                    $.each(response.data, function(key, value) {
+                        $('#rank').append('<option value="' + value.id +
+                            '" data-rank-name="' + value.name + '">' + value
+                            .full_name + ' (' + value.name + ')' + '</option>');
+                    });
+                },
+                error: function(xhr) {
+                    //sweet alert
+                    return Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong! Please try again later.'
+                    });
+                }
+            });
+
+            //call ajax to get positions
+            $.ajax({
+                url: "{{ route('personnel.api.positions', ['policeId' => $policeId]) }}",
+                type: "GET",
+                data: {
+                    employmentTypeId: employmentTypeId
+                },
+                success: function(response) {
+                    $('#isRegisterSignatory').prop('checked', false).trigger('change');
+                    $('#isRegisterSignatorySection').hide();
+
+                    $('#position').empty();
+                    $('#position').append(
+                        '<option value="" selected disabled>Pilih Jabatan</option>');
+                    $.each(response.data, function(key, value) {
+                        $('#position').append('<option value="' + value.id +
+                            '" data-position-name="' + value.name +
+                            '" data-is-can-signatory="' + value.position_cluster
+                            .is_can_signatory + '">' + value.name + '</option>');
+                    });
+                },
+                error: function(xhr) {
+                    //sweet alert
+                    return Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong! Please try again later.'
+                    });
+                }
+            });
+        });
+    });
+
+    // bko
+    $(document).ready(function() {
+        $('#officerOperationControlAssistancePoliceSearchOption').select2({
+            theme: 'bootstrap4',
+        });
+
+        $('#officerOperationControlAssistancePoliceSearchButton').on('click', function() {
+            var searchField = $('#officerOperationControlAssistancePoliceSearchField').val();
+            var searchOption = $('#officerOperationControlAssistancePoliceSearchOption').val();
+            var policeClass = $('input[name="officerOperationControlAssistancePoliceClass"]:checked').val();
+
+            if (searchField == '') {
+                //return sweet alert
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Silahkan isi kolom pencarian terlebih dahulu!'
+                });
+            } 
+
+            //call ajax to get ranks
+            $.ajax({
+                url: "{{ route('personnel.api.polices.search', ['policeId' => $policeId]) }}",
+                type: "GET",
+                data: {
+                    policeNameKeyword: searchField,
+                    policeClass: policeClass,
+                },
+                success: function(response) {
+                    $('#officerOperationControlAssistancePoliceSearchOption').empty();
+
+                    if (response.data.length == 0) {
+                        $('#officerOperationControlAssistancePoliceSearchOption').append(
+                            '<option value="" selected disabled>--Tidak ada data--</option>');
+
+                        return Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Data tidak ditemukan!'
+                        });
+                    }
+
+                    $.each(response.data, function(key, value) {
+                        var parent = (value.parent != null) ? value.parent.full_name : '';
+                        var text =  (parent != '') ? value.full_name + ' - ' + parent : value.full_name;
+
+                        $('#officerOperationControlAssistancePoliceSearchOption').append(
+                            '<option value="' + value.id + '" data-police-name="' + text + '">' + text + '</option>');
+                    });
+                },
+                error: function(xhr) {
+                    //sweet alert
+                    return Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Something went wrong! Please try again later.'
+                    });
+                }
+            });
+        });
+
+        $('#officerOperationControlAssistancePoliceSearchOptionAddButtton').on('click', function() {
+            var policeId = $('#officerOperationControlAssistancePoliceSearchOption').find(':selected').val();
+            var policeName = $('#officerOperationControlAssistancePoliceSearchOption').find(':selected').data('police-name');
+
+            if (policeId == '') {
+                //return sweet alert
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Silahkan pilih opsi pencarian terlebih dahulu!'
+                });
+            } 
+
+            $('#officerOperationControlAssistanceOriginPoliceName').val(policeName);
+            $('#officerOperationControlAssistanceOriginPoliceId').val(policeId);
+        });
+    });
+
+    // Auto-generate email from NRP
+        $(document).ready(function() {
+            // Function to generate email from NRP
+            function generateEmailFromNRP(nrp) {
+                // Hapus spasi dan karakter khusus
+                let cleanNRP = nrp.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                
+                // Jika NRP kosong, return string kosong
+                if (cleanNRP === '') return '';
+                
+                // Concat dengan domain untuk email lengkap
+                return cleanNRP + '@polri.go.id';
+            }
+            
+            // Event when generate button is clicked
+            $('#generateEmail').on('click', function() {
+                let nrp = $('#registerNumber').val();
+                
+                if (nrp === '') {
+                    // Show error message if NRP is empty
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'NRP Kosong',
+                        text: 'Silakan masukkan NRP terlebih dahulu untuk generate email'
+                    });
+                    return;
+                }
+                
+                // Hapus spasi dan karakter khusus
+                let cleanNRP = nrp.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                
+                // Generate email dengan concat domain langsung
+                let generatedEmail = cleanNRP + '@polri.go.id';
+                
+                // Set nilai email lengkap ke input field
+                $('#email').val(generatedEmail);
+                
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Email Berhasil Dibuat',
+                    text: 'Email ' + generatedEmail + ' telah dibuat berdasarkan NRP',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            });
+            
+            // Jika form disubmit, pastikan email memiliki domain @polri.go.id
+            $('#officerForm').on('submit', function() {
+                let nrp = $('#registerNumber').val();
+                let emailValue = $('#email').val();
+
+                //Hapus spasi dan karakter khusus
+                let cleanNRP = nrp.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+                //Generate email baru dari NRP
+                let generatedEmail = generateEmailFromNRP(cleanNRP);
+                $('#email').val(generatedEmail);
+
+            });
+        });
+    
+    // Validasi Submit Form
+    $(document).ready(function() {
+        $('#officerFormSubmit').on('click', function(e) {
+            e.preventDefault();
+
+            // Lakukan validasi di sisi server menggunakan Ajax
+            $.ajax({
+                url: "{{ route('personnel.api.validate-request-form', ['policeId' => $policeId]) }}",
+                type: 'POST',
+                dataType: 'json',
+                data: $('#officerForm').serialize(),
+                success: function(response) {
+                    // Cek jika validasi berhasil di sisi server
+                    if (response.success) {
+                        // sweetalert2 berhasil sebelum submit form
+                        Swal.fire({
+                            title: 'Berhasil',
+                            text: response.message,
+                            icon: 'success',
+                            confirmButtonText: 'Ok'
+                        }).then((result) => {
+                            // Submit form
+                            $('#officerForm').submit();
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    // Tangani error jika terjadi kesalahan saat melakukan validasi
+                    response = JSON.parse(xhr.responseText);
+
+                    if (response.code == '422') {
+                        var errorMessages = '';
+
+                        $.each(response.errors, function(key, value) {
+                            errorMessages += '- ' + value + '<br>';
+                        });
+
+                        return Swal.fire({
+                            icon: 'error',
+                            title: 'Mohon Periksa Kembali Isian Anda',
+                            html: errorMessages,
+                        });
+                    }
+                }
+            });
+        });
+    });
+</script>
+@endpush

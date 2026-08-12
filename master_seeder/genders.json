@@ -1,0 +1,14 @@
+[
+    {
+        "Id": 1,
+        "Emp_Id": 1,
+        "code" : "G-LK",
+        "Nama": "LAKI-LAKI"
+    },
+    {
+        "Id": 2,
+        "Emp_Id": 2,
+        "code" : "G-PR",
+        "Nama": "PEREMPUAN"
+    }
+]

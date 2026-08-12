@@ -1,0 +1,62 @@
+[
+    {
+        "IdEMP": 0,
+        "Nama": "TIDAK DIKETAHUI",
+        "IdPuskarda": 0
+    },
+    {
+        "IdEMP": 1,
+        "Nama": "SD / SEDERAJAT",
+        "IdPuskarda": 2
+    },
+    {
+        "IdEMP": 2,
+        "Nama": "SMP / SEDERAJAT",
+        "IdPuskarda": 3
+    },
+    {
+        "IdEMP": 3,
+        "Nama": "SMA / SEDERAJAT",
+        "IdPuskarda": 4
+    },
+    {
+        "IdEMP": 4,
+        "Nama": "D1",
+        "IdPuskarda": 5
+    },
+    {
+        "IdEMP": 5,
+        "Nama": "D2",
+        "IdPuskarda": 5
+    },
+    {
+        "IdEMP": 6,
+        "Nama": "D3",
+        "IdPuskarda": 5
+    },
+    {
+        "IdEMP": 7,
+        "Nama": "D4",
+        "IdPuskarda": 6
+    },
+    {
+        "IdEMP": 8,
+        "Nama": "S1",
+        "IdPuskarda": 6
+    },
+    {
+        "IdEMP": 9,
+        "Nama": "S2",
+        "IdPuskarda": 7
+    },
+    {
+        "IdEMP": 10,
+        "Nama": "S3",
+        "IdPuskarda": 8
+    },
+    {
+        "IdEMP": 11,
+        "Nama": "Tidak Sekolah",
+        "IdPuskarda": 1
+    }
+]

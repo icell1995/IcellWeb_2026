@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Polda;
+use User;
+
+class KPoldaController extends Controller
+{
+    public function index(){
+        // $pengguna=User::all();
+        
+        $polda=Polda::paginate(10);
+        // dd($polda);
+        return view('katalog.polda.polda',compact('polda'));
+        // return view('katalog.polda');
+    }
+
+    public function create(){
+        return view('katalog.polda.polda-add');
+    }
+}

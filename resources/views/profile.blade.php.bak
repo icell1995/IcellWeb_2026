@@ -1,0 +1,83 @@
+@php
+    $_title = 'Profile';
+@endphp
+
+@extends('layouts.app')
+
+@section('content')
+    <div class="box">
+            <div class="box-header">
+                <h3 class="text-blue-dark fw-semibold mb-2">
+                    {{ $user->first_name}}{{' '}}{{$user->last_name}}'s Profile</h3>
+
+                <div class="radius-card">
+                    <div class="d-flex justify-content-center">
+                        <div class="col-lg-3 col-md-3 col-sm-12 col-12 mb-3">
+                            <div class="justify-content-center" style="margin-bottom: 20px">
+                                <img src="/image-profile/profile640/{{ $user->avatar }}"
+                                    style="">
+                            </div>
+                            <form enctype="multipart/form-data" action="/update_profile" method="POST"
+                                style="text-align: center;">
+                                @csrf
+                                <label class="fw-bold text-blue-dark">Update Profile Image</label>
+                                <input type="file" name="avatar" class="form-control col-lg-12">
+                                {{-- <input type="hidden" name="_token" value="{{ csrf_token() }}"> --}}
+                                <input type="submit" class="btn btn-dark-blue mt-3">
+                            </form>
+                        </div>
+
+                        <div class="col-lg-8 col-md-8 col-sm-12 col-12 mb-3">
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold text-blue-dark col-sm-2">{{ __('Nama') }}</label>
+                                <div class="col-lg-7 col-md-7 col-sm-8 col-8">
+                                    <input class="form-control col-lg-12 col-md-12 col-sm-12 col-12" type="text"
+                                        value="{{ $user->full_name}}" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold text-blue-dark col-sm-2">{{ __('Email') }}</label>
+                                <div class="col-lg-7 col-md-7 col-sm-8 col-8">
+                                    <input class=" form-control col-lg-12 col-md-12 col-sm-12 col-12" type="text" value="{{ $user->email}}" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold text-blue-dark col-sm-2">{{ __('Tingkat Akses') }}</label>
+                                <div class="col-lg-7 col-md-7 col-sm-8 col-8">
+                                    <input class="form-control col-lg-12 col-md-12 col-sm-12 col-12" type="text" value="{{ $user->role->name}}" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold text-blue-dark col-sm-2">{{ __('ID') }}</label>
+                                <div class="col-lg-7 col-md-7 col-sm-8 col-8">
+                                    <input class="form-control col-lg-12 col-md-12 col-sm-12 col-12" type="text" value="{{ $user->officer_id}}" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold text-blue-dark col-sm-2">{{ __('Pangkat') }}</label>
+                                <div class="col-lg-7 col-md-7 col-sm-8 col-8">
+                                    <input class="form-control col-lg-12 col-md-12 col-sm-12 col-12" type="text" value="{{ $user->pangkat}}" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold text-blue-dark col-sm-2">{{ __('Polda') }}</label>
+                                <div class="col-lg-7 col-md-7 col-sm-8 col-8">
+                                    <input class="form-control col-lg-12 col-md-12 col-sm-12 col-12" type="text"
+                                        value="@if($user->polda_id==null)-@else {{$user->polda->name}} @endif" disabled>
+                                </div>
+                            </div>
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold text-blue-dark col-sm-2">{{ __('Polres') }}</label>
+                                <div class="col-lg-7 col-md-7 col-sm-8 col-8">
+                                    <input class="form-control col-lg-12 col-md-12 col-sm-12 col-12" type="text"
+                                        value="@if($user->polres_id==null)-@else{{$user->polres->name}}@endif" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

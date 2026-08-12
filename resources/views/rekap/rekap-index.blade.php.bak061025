@@ -1,0 +1,243 @@
+@php
+    $_title = 'Rekap';
+@endphp
+
+@extends('layouts.app')
+
+@section('content')
+        <div class="box">
+            <div class="box-header">
+            <h3 class="text-blue-dark fw-semibold mb-2">Daftar Rekap</h3>
+            
+            <fieldset id="search-filter" class="border rounded-3 p-3">
+                <form method="GET" class="row mt-2 search" action="{{route('rekap-search')}}">
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+                            <input type="text" id="no_LP" class="form-control mt-1" name="no_lp" placeholder="Nomor lp"
+                                value="{{old('no_lp')}}">
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+                            <input class="form-select" type="text" id="date_from" name="date_from"
+                                placeholder="Dari Tanggal (Tanggal Kejadian)" autocomplete="off" value="{{old('date_from')}}">
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+                            <input class="form-select" type="text" id="date_to" name="date_to"
+                                placeholder="Hingga Tanggal (Tanggal Kejadian)" autocomplete="off" value="{{old('date_to')}}">
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+                            <select id="status" name="status" class="form-select">
+                                <option value="">Status</option>
+                                <option value="S0107">Dalam Proses</option>
+                                <option value="S0101">P21</option>
+                                <option value="S0102">SP3</option>
+                                <option value="S0103">Diversi</option>
+                                <option value="S0104">POM/TNI</option>
+                                <option value="S0106">ADR/RJ</option>
+                                <option value="S0108">SP2LID</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+                            <select id="polda" name="polda" class="form-select @error('polda') is-invalid @enderror">
+                                @if( Auth::user()->role_id == 1)
+                                <option value="-" }}>Semua Polda</option>
+                                @endif
+                                @foreach ($poldas as $polda)
+                                <option value="{{ $polda->id }}" {{ old('polda_id')==$polda->id ? 'selected' : '' }}>
+                                    {{ $polda->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+                            <select id="polres" name="polres"
+                                class="form-select @error('polres') is-invalid @enderror">
+                                @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
+                                    <option value="-" }}>Pilih Polres</option>
+                                    @endif
+                                    @foreach ($polress as $polres)
+                                    <option value="{{ $polres->id }}" {{ old('polres_id')==$polres->id ? 'selected' : ''
+                                        }}>
+                                        {{ $polres->name }}
+                                    </option>
+                                    @endforeach
+                            </select>
+                        </div>
+                        <div class="m-2 text-center">
+                            <button type="submit" id="btn-search" class="btn btn-dark-blue">{{__('Search')}} </button>
+                            <button type="button" class="btn btn-secondary"> <a class="text-decoration-none text-white" href="{{ url('/rekap') }}"> Reset </a>
+                            </button>
+                        </div>
+                </form>
+                <div class="text-end">
+                    <button class="RekapExport btn btn-short rounded-pill"> <span><i class="fas fa-download"></i></span>
+                        Download Excel</button>
+                </div>
+            </fieldset>
+            <div class="box-body">
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered table-officer" width="100%" id="dataTable" name="dataTable">
+                        <thead>
+                            <tr>
+                                <th class="text-center">No</th>
+                                <th class="text-center">No LP</th>
+                                <th class="text-center">Tanggal Kejadian</th>
+                                <th class="text-center">Tanggal Tindak Lanjut</th>
+                                <th class="text-center">Proses Selama</th>
+                                <th class="text-center">Tanggal Aktivitas Terakhir</th>
+                                <th class="text-center">Aktivitas</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach($rekap as $index => $rkp)
+                            <tr>
+                                <td class="text-center" scope="row">{{
+                                    (($rekap->perPage())-$rekap->perPage())+($index+1) }}</td>
+                                <td>{{$rkp->no_lp}}</td>
+                                <td class="text-center">{{$rkp->accident_date}}</td>
+                                <td class="text-center">{{$rkp->accident_tindak_lanjut}}</td>
+                                <td class="text-center">{{$rkp->accident_proses}}</td>
+                                <td>{{$rkp->accident_last_update}}</td>
+                                <td>{{$rkp->tipe_update}} {{$rkp->tipe_berkas}}</td>
+                                <td class="text-center">
+                                    @if ($rkp->selra== 'S0101')
+                                    <span class="px-3 rounded font-weight-600"
+                                        style="width: max-content !important; background-color: #00FF00">
+                                        {{$rkp->selra_flag}}</span>
+                                    @elseif ($rkp->selra== 'S0102')
+                                    <span class="px-3 rounded font-weight-600"
+                                        style="width: max-content !important; background-color: #00FFFF">
+                                        {{$rkp->selra_flag}}</span>
+                                    @elseif ($rkp->selra== 'S0103')
+                                    <span class="px-3 rounded font-weight-600"
+                                        style="width: max-content !important; background-color: #0000FF">
+                                        {{$rkp->selra_flag}}</span>
+                                    @elseif ($rkp->selra== 'S0104')
+                                    <span class="px-3 rounded font-weight-600"
+                                        style="width: max-content !important; background-color: #FF00FF">
+                                        {{$rkp->selra_flag}}</span>
+                                    @elseif ($rkp->selra== 'S0106')
+                                    <span class="px-3 rounded font-weight-600"
+                                        style="width: max-content !important; background-color: #FFFF00">
+                                        {{$rkp->selra_flag}}</span>
+                                    @elseif ($rkp->selra== 'S0107')
+                                    <span class="px-3 rounded font-weight-600"
+                                        style="width: max-content !important; background-color: #EE354F">
+                                        {{$rkp->selra_flag}}</span>
+                                    @elseif ($rkp->selra== 'S0108')
+                                    <span class="px-3 rounded font-weight-600"
+                                        style="width: max-content !important; background-color: #EE354F">
+                                        {{$rkp->selra_flag}}</span>
+                                    @else
+                                    <span class="px-3 rounded font-weight-600"
+                                        style="width: max-content !important; background-color: #FF9900">
+                                        {{$rkp->selra_flag}}</span>
+                                    @endif
+                                    {{-- {{$rkp->selra_flag}} --}}
+                                </td>
+                                <td class="text-center"><button class="btn btn-lihat btn-dark-blue"><a class="text-decoration-none text-white"
+                                            href="/rekap/rekap-show/{{ $rkp->id }}">Lihat</a></button></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pagination">
+                    {{$rekap->links()}}
+                </div>
+                <div class="pull-left">
+                    Showing
+                    {{$rekap->firstItem()}}
+                    to
+                    {{$rekap->lastItem()}}
+                    of
+                    {{$rekap->total()}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+@push('script')
+<script type="text/javascript">
+    $("#date_from").datepicker({
+        format  : 'dd-mm-yyyy'
+    });
+
+    $("#tglKejadian").datepicker({
+        format  : 'dd-mm-yyyy'
+    });
+
+    $("#date_to").datepicker({
+        format  : 'dd-mm-yyyy'
+    });
+
+    $(document).ready(function(){
+    var get_pol = $('#polda').val();
+        if( get_pol == null || get_pol == '-'){
+            $('#polres').prop('disabled', true);
+        }else{
+            $('#polres').prop('disabled', false);
+        }
+    });
+    $(".RekapExport").click(function(e){
+        e.preventDefault();
+        var polda = $('#polda').val();
+        if( polda == null || polda == '-'){
+            $('#polres').prop('disabled', true);
+        }else{
+            $('#polres').prop('disabled', false);
+        }
+        var no_lp = $("#no_LP").val();
+        var date_from = $("#date_from").val();
+        var date_to = $("#date_to").val();
+        var status = $("#status").val();
+        var polres = $("#polres").val();
+        alert(date_to);
+        window.location = "{{route('ExportRekap')}}"+ '?no_lp=' +no_lp+ '&polres=' +polres+ '&polda=' +polda+ '&status=' +status+
+        '&date_from=' +date_from+ '&date_to=' +date_to
+    })
+
+    $('#polda').on('change', function(event) {
+        event.preventDefault();
+        var poldaId = $(this).val();
+        $('#polres').prop('disabled', true);
+        $('#polres').empty();
+        $('#polres').append('<option value="">Pilih Polres</option>');
+        if (!poldaId) {
+            return;
+        }
+
+        $.get('{{ url('pengguna/polres_list') }}/' + poldaId, function(data) {
+
+            $('#polres').empty()
+            var option = '<option value="">Pilih Polres</option>';
+            $('#polres').append(option);
+
+            $.each(data, function(key, polres) {
+                var id = polres.id;
+                var name = polres.name;
+                var option = '<option value="' + id + '">' + name + '</option>';
+
+                $('#polres').append(option);
+            });
+
+            $('#polres').prop('disabled', false);
+        });
+    });
+
+    $('#search_btn').click(function(){
+            $('#polres').prop('disabled',false);
+        });
+</script>
+
+@endpush
+
+@endsection

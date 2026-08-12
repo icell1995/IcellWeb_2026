@@ -1,0 +1,563 @@
+<?php
+
+namespace App\Http\Controllers\CMS\CaseResolutionsValidation;
+
+use App\Http\Controllers\Controller;
+use App\Models\Accident;
+use App\Models\AccidentResolution;
+use App\Models\UploadSuratKetetapan;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Log\CaseResolutionValidation as LogSelra;
+use App\Models\Opt\Status;
+use App\Models\Suspect;
+use App\Models\ReportedPerson;
+use Carbon\Carbon;
+
+
+class CaseResolutionsAprrovalController extends Controller
+{
+    /**
+     * INDEX — default tampilkan Pending, dengan filter Jenis & Status + per_page.
+     */
+    public function index(Request $request)
+    {
+        // Page size
+        $perPage = (int) $request->get('per_page', 10);
+        $perPage = $perPage > 100 ? 100 : ($perPage < 5 ? 5 : $perPage);
+
+        // Filter
+        $status = $request->get('status', 'pending');      // default pending
+        $type   = trim((string) $request->get('type', ''));
+        $q      = trim((string) $request->get('q', ''));
+
+        // Tanggal (opsional; default: 15/09/2025 s/d today jika user tidak isi)
+        $tz        = config('app.timezone', 'Asia/Jakarta');
+        $todayEnd  = \Carbon\Carbon::now($tz)->endOfDay();
+        $defaultFrom = \Carbon\Carbon::createFromFormat('Y-m-d', '2025-09-15', $tz)->startOfDay();
+
+        // datepicker kamu kirim "dd-mm-yyyy", jadi pakai createFromFormat agar aman
+        $fromDt = $request->filled('from')
+            ? \Carbon\Carbon::createFromFormat('d-m-Y', $request->get('from'), $tz)->startOfDay()
+            : $defaultFrom;
+
+        $toDt = $request->filled('to')
+            ? \Carbon\Carbon::createFromFormat('d-m-Y', $request->get('to'), $tz)->endOfDay()
+            : $todayEnd;
+
+        // LIKE vs ILIKE
+        $driver = DB::connection()->getDriverName();
+        $likeOp = $driver === 'pgsql' ? 'ILIKE' : 'LIKE';
+
+        /**
+         * ===== DATA LIST (TABEL) =====
+         */
+        $query = \App\Models\Accident::query()
+            ->select(['id','no_lp','accident_date','report_date','police_id','polres_id','created_at'])
+            ->whereHas('accidentResolution', function($q2) use ($fromDt, $toDt) {
+                if ($fromDt && $toDt) {
+                    $q2->whereBetween('created_at', [$fromDt, $toDt]);
+                } elseif ($fromDt) {
+                    $q2->where('created_at', '>=', $fromDt);
+                } elseif ($toDt) {
+                    $q2->where('created_at', '<=', $toDt);
+                }
+            })
+            ->with([
+                'police:id,full_name',
+                'polres:id,name',
+                'polda:id,name',
+                'accidentResolution:id,accident_id,type_name,uploaded_at,approved_at,file,created_at'
+            ]);
+
+        // >>> Subquery untuk status "pernah dikembalikan"
+        $logTable = (new LogSelra)->getTable();
+
+        $lastResSub = AccidentResolution::query()
+            ->selectRaw('MAX(created_at)')
+            ->whereColumn('accident_id', 'accidents.id');
+
+        $lastRejectAtSub = DB::table($logTable)
+            ->selectRaw('MAX(COALESCE(rejected_at, created_at))')
+            ->whereColumn('accident_id', 'accidents.id')
+            ->where('updated_status_name', 'rejected');
+
+        $lastRejectReasonSub = DB::table($logTable.' as l')
+            ->select('l.reject_reason')
+            ->whereColumn('l.accident_id', 'accidents.id')
+            ->where('l.updated_status_name', 'rejected')
+            ->orderByRaw('COALESCE(l.rejected_at, l.created_at) DESC')
+            ->limit(1);
+
+        $query->addSelect([
+            'last_res_created_at' => $lastResSub,
+            'last_reject_at'      => $lastRejectAtSub,
+            'last_reject_reason'  => $lastRejectReasonSub,
+        ]);
+
+        // Filter Status untuk LIST
+        // if ($status === 'approved') {
+        //     $query->whereHas('accidentResolution', fn($q2) => $q2->whereNotNull('approved_at'));
+        // } else {
+        //     $query->whereHas('accidentResolution', fn($q2) => $q2->whereNull('approved_at'));
+        //     $status = 'pending';
+        // }
+        if ($status === 'approved') {
+            $query->whereHas('accidentResolution', fn($q2) => $q2->whereNotNull('approved_at'));
+        } elseif ($status === 'returned') {
+            // pending + PERNAH ditolak pada rentang yang sama
+            $query->whereHas('accidentResolution', fn($q2) => $q2->whereNull('approved_at'));
+            $query->whereExists(function($s) use ($logTable, $fromDt, $toDt) {
+                $s->from($logTable.' as lg')
+                ->selectRaw('1')
+                ->whereColumn('lg.accident_id', 'accidents.id')
+                ->where('lg.updated_status_name', 'rejected');
+
+                if ($fromDt && $toDt) {
+                    $s->whereBetween(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), [$fromDt, $toDt]);
+                } elseif ($fromDt) {
+                    $s->where(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), '>=', $fromDt);
+                } elseif ($toDt) {
+                    $s->where(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), '<=', $toDt);
+                }
+            });
+            $status = 'returned';
+        } else {
+            // PENDING DEFAULT: approved_at null DAN TIDAK PERNAH ditolak (di rentang yang sama)
+            $query->whereHas('accidentResolution', fn($q2) => $q2->whereNull('approved_at'));
+            $query->whereNotExists(function($s) use ($logTable, $fromDt, $toDt) {
+                $s->from($logTable.' as lg')
+                ->selectRaw('1')
+                ->whereColumn('lg.accident_id', 'accidents.id')
+                ->where('lg.updated_status_name', 'rejected');
+
+                if ($fromDt && $toDt) {
+                    $s->whereBetween(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), [$fromDt, $toDt]);
+                } elseif ($fromDt) {
+                    $s->where(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), '>=', $fromDt);
+                } elseif ($toDt) {
+                    $s->where(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), '<=', $toDt);
+                }
+            });
+            $status = 'pending';
+        }
+
+        // Filter Jenis Selra untuk LIST
+        if ($type !== '') {
+            $query->whereHas('accidentResolution', fn($q2) => $q2->where('type_name', $type));
+        }
+
+        // Pencarian bebas untuk LIST
+        if ($q !== '') {
+            $query->where(function($qq) use ($q, $likeOp) {
+                $qq->where('no_lp', $likeOp, "%{$q}%")
+                ->orWhereHas('police', fn($w) => $w->where('full_name', $likeOp, "%{$q}%"))
+                ->orWhereHas('polres', fn($w) => $w->where('name',      $likeOp, "%{$q}%"))
+                ->orWhereHas('polda',  fn($w) => $w->where('name',      $likeOp, "%{$q}%"));
+            });
+        }
+
+        $accidents = $query
+            ->orderByDesc('report_date')
+            ->paginate($perPage)
+            ->withQueryString();
+
+        // Opsi dropdown jenis
+        $types = \App\Models\AccidentResolution::query()
+            ->whereNotNull('type_name')
+            ->select('type_name')->distinct()->orderBy('type_name')
+            ->pluck('type_name');
+
+        /**
+         * ===== COUNTER TOTAL (BADGE) =====
+         * Hitung total Pending & Approved dengan filter YANG SAMA (tanggal, jenis, keyword).
+         * Lebih efisien menghitung dari tabel AccidentResolution lalu whereHas ke Accident untuk filter bebas.
+         */
+        $baseCount = \App\Models\AccidentResolution::query()
+        ->when($fromDt && $toDt, fn($q2) => $q2->whereBetween('created_at', [$fromDt, $toDt]))
+        ->when($fromDt && !$toDt, fn($q2) => $q2->where('created_at', '>=', $fromDt))
+        ->when(!$fromDt && $toDt, fn($q2) => $q2->where('created_at', '<=', $toDt))
+        ->when($type !== '', fn($q2) => $q2->where('type_name', $type))
+        ->when($q !== '', function($q2) use ($q, $likeOp) {
+            $q2->whereHas('accident', function($qa) use ($q, $likeOp) {
+                $qa->where('no_lp', $likeOp, "%{$q}%")
+                   ->orWhereHas('police', fn($w) => $w->where('full_name', $likeOp, "%{$q}%"))
+                   ->orWhereHas('polres', fn($w) => $w->where('name',      $likeOp, "%{$q}%"))
+                   ->orWhereHas('polda',  fn($w) => $w->where('name',      $likeOp, "%{$q}%"));
+            });
+        });
+
+        // $pendingCount  = (clone $baseCount)->whereNull('approved_at')->count();
+        $approvedCount = (clone $baseCount)->whereNotNull('approved_at')->count();
+
+        // Pending & Returned count (basis Accident, supaya bisa pakai exists/not exists log)
+        $baseAccCount = \App\Models\Accident::query()
+            ->whereHas('accidentResolution', function($q2) use ($fromDt, $toDt, $type) {
+                if ($fromDt && $toDt)      $q2->whereBetween('created_at', [$fromDt, $toDt]);
+                elseif ($fromDt)           $q2->where('created_at', '>=', $fromDt);
+                elseif ($toDt)             $q2->where('created_at', '<=', $toDt);
+                if ($type !== '')          $q2->where('type_name', $type);
+            })
+            ->when($q !== '', function($qq) use ($q, $likeOp) {
+                $qq->where(function($w) use ($q, $likeOp) {
+                    $w->where('no_lp', $likeOp, "%{$q}%")
+                    ->orWhereHas('police', fn($x) => $x->where('full_name', $likeOp, "%{$q}%"))
+                    ->orWhereHas('polres', fn($x) => $x->where('name',      $likeOp, "%{$q}%"))
+                    ->orWhereHas('polda',  fn($x) => $x->where('name',      $likeOp, "%{$q}%"));
+                });
+            });
+
+        // Returned = pending + exists log rejected
+        $returnedCount = (clone $baseAccCount)
+            ->whereHas('accidentResolution', fn($q2) => $q2->whereNull('approved_at'))
+            ->whereExists(function($s) use ($logTable, $fromDt, $toDt) {
+                $s->from($logTable.' as lg')
+                ->selectRaw('1')
+                ->whereColumn('lg.accident_id', 'accidents.id')
+                ->where('lg.updated_status_name', 'rejected');
+
+                if ($fromDt && $toDt) {
+                    $s->whereBetween(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), [$fromDt, $toDt]);
+                } elseif ($fromDt) {
+                    $s->where(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), '>=', $fromDt);
+                } elseif ($toDt) {
+                    $s->where(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), '<=', $toDt);
+                }
+            })
+            ->count();
+
+        // Pending = pending + NOT EXISTS log rejected
+        $pendingCount = (clone $baseAccCount)
+            ->whereHas('accidentResolution', fn($q2) => $q2->whereNull('approved_at'))
+            ->whereNotExists(function($s) use ($logTable, $fromDt, $toDt) {
+                $s->from($logTable.' as lg')
+                ->selectRaw('1')
+                ->whereColumn('lg.accident_id', 'accidents.id')
+                ->where('lg.updated_status_name', 'rejected');
+
+                if ($fromDt && $toDt) {
+                    $s->whereBetween(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), [$fromDt, $toDt]);
+                } elseif ($fromDt) {
+                    $s->where(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), '>=', $fromDt);
+                } elseif ($toDt) {
+                    $s->where(DB::raw('COALESCE(lg.rejected_at, lg.created_at)'), '<=', $toDt);
+                }
+            })
+            ->count();
+
+        // kirim ke view
+        return view('cms.case-resolutions-validation.index', [
+            'accidents'     => $accidents,
+            'types'         => $types,
+            'type'          => $type,
+            'status'        => $status,
+            'q'             => $q,
+            'from'          => $fromDt,
+            'to'            => $toDt,
+            'pendingCount'  => $pendingCount,   // pending tanpa pernah ditolak
+            'approvedCount' => $approvedCount,
+            'returnedCount' => $returnedCount,  // pending tapi pernah ditolak
+        ]);
+
+        // // kirim juga range agar bisa ditampilkan di blade (kalau diperlukan)
+        // return view('cms.case-resolutions-validation.index', [
+        //     'accidents'     => $accidents,
+        //     'types'         => $types,
+        //     'type'          => $type,
+        //     'status'        => $status,
+        //     'q'             => $q,
+        //     'from'          => $fromDt,
+        //     'to'            => $toDt,
+        //     'pendingCount'  => $pendingCount,
+        //     'approvedCount' => $approvedCount,
+        // ]);
+    }
+
+    /**
+     * API untuk modal (opsional; 1 LP = 1 SELRA)
+     */
+    public function apiResolutions(Request $request)
+    {
+        $r = AccidentResolution::with(['accident:id,no_lp'])
+            ->where('accident_id', $request->get('accidentId'))
+            ->first();
+
+        return view('cms.case-resolutions-validation._rows-selra', [
+            'resolutions' => collect([$r])->filter()
+        ])->render();
+    }
+
+    /**
+     * Detail
+     */
+    public function show(string $id)
+    {
+        $resolution = \App\Models\AccidentResolution::with(['accident:id,no_lp'])->findOrFail($id);
+
+        $accidentId = $resolution->accident_id;
+
+        $suspects = Suspect::where('accident_id', $accidentId)
+            ->get(['name','birth_place','birth_date'])
+            ->map(function($p){
+                $name  = $p->name ? trim((string) $p->name) : null;
+                if (!$name) return null;
+                $place = trim((string) ($p->birth_place ?? ''));
+                $date  = $p->birth_date ? Carbon::parse($p->birth_date)->format('d-m-Y') : null;
+                $ttl   = trim($place . ($place && $date ? ', ' : '') . ($date ?? ''));
+                return $ttl ? "{$name} | {$ttl}" : $name;
+            })->filter()->unique()->values();
+
+        $reporteds = ReportedPerson::where('accident_id', $accidentId)
+            ->get(['name','birth_place','birth_date'])
+            ->map(function($p){
+                $name  = $p->name ? trim((string) $p->name) : null;
+                if (!$name) return null;
+                $place = trim((string) ($p->birth_place ?? ''));
+                $date  = $p->birth_date ? Carbon::parse($p->birth_date)->format('d-m-Y') : null;
+                $ttl   = trim($place . ($place && $date ? ', ' : '') . ($date ?? ''));
+                return $ttl ? "{$name} | {$ttl}" : $name;
+            })->filter()->unique()->values();
+
+        $personLine = $suspects->isNotEmpty()
+            ? $suspects->implode(' ; ')
+            : ($reporteds->isNotEmpty() ? $reporteds->implode(' ; ') : null);
+
+        $rejectReasons = [
+            'Jenis Surat Ketetapan Berbeda dengan SELRA',
+            'No LP Tidak Sesuai dengan Dokumen Upload',
+            'No Surat Ketetapan Tidak Sesuai dengan Dokumen Upload',
+            'Nama Tersangka Berbeda dengan Dokumen Upload',
+            'Tanggal Surat Ketetapan Berbeda / Tidak Ada di Dokumen Upload',
+        ];
+
+        // === CEK PERNAH REJECT (sebelum SELRA yang ini diupload) ===
+        $pivotTime = $resolution->created_at;
+
+        $lastRejectBefore = LogSelra::query()
+            ->where('accident_id', $accidentId)
+            ->where('updated_status_name', 'rejected') // log pakai lowercase 'rejected'
+            ->where(function($q) use ($pivotTime){
+                $q->whereNotNull('rejected_at')->where('rejected_at', '<', $pivotTime)
+                ->orWhere(function($qq) use ($pivotTime){
+                    $qq->whereNull('rejected_at')->where('created_at', '<', $pivotTime);
+                });
+            })
+            ->orderByDesc(DB::raw('COALESCE(rejected_at, created_at)'))
+            ->first();
+
+        $wasRejectedBefore = (bool) $lastRejectBefore;
+
+        $rejectWhen  = $lastRejectBefore ? ($lastRejectBefore->rejected_at ?: $lastRejectBefore->created_at) : null;
+        $rejectAtStr = $rejectWhen ? \Carbon\Carbon::parse($rejectWhen)->format('d-m-Y H:i') : null;
+        $rejectInfo  = $lastRejectBefore
+            ? sprintf('Alasan: %s', $lastRejectBefore->reject_reason ?: '-')
+            : null;
+
+        // URL ke PdfController@show (param HARUS bernama 'upload_surat_ketetapan')
+        $fileUrl = route('upload-surat-ketetapan.show', [
+            'upload_surat_ketetapan' => $accidentId,
+        ]);
+
+        // Nama file terakhir (untuk ditampilkan saja)
+        $upload = \App\Models\UploadSuratKetetapan::where('accident_id', $accidentId)
+                    ->orderByDesc('created_at')->first();
+
+        $resolution->setAttribute('file_url',  $fileUrl);
+        $resolution->setAttribute('file_name', $upload->name ?? null);
+        $resolution->setAttribute('was_rejected_before', $wasRejectedBefore);
+        $resolution->setAttribute('last_reject_info',   $rejectInfo);
+
+
+        // return view('cms.case-resolutions-validation.show', compact('resolution','suspects','reporteds'));
+        return view('cms.case-resolutions-validation.show',
+            compact('resolution','rejectReasons') + ['personLine' => $personLine]
+        );
+    }
+
+    /**
+     * Approve (set approved_at)
+     */
+    public function approve(Request $request, string $id)
+    {
+        $r = \App\Models\AccidentResolution::findOrFail($id);
+
+        if ($r->approved_at) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'SELRA ini sudah di-approve.',
+                    'action'  => 'redirect',
+                    'url'     => route('cms.case-resolutions-validations.index')
+                ], 400);
+            }
+
+            return redirect()
+                ->route('cms.case-resolutions-validations.index')
+                ->with('error', 'SELRA ini sudah di-approve.');
+        }
+
+        if (empty($r->type_name) || empty($r->file)) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Jenis Selra & File wajib terisi sebelum approve.',
+                    'action'  => 'redirect',
+                    'url'     => route('cms.case-resolutions-validations.index')
+                ], 400);
+            }
+
+            return redirect()
+                ->route('cms.case-resolutions-validations.index')
+                ->with('error', 'Jenis Selra & File wajib terisi sebelum approve.');
+        }
+
+        $r->approved_at = now();
+        $r->save();
+
+        // Logging
+        $st = $this->resolveStatus('APPROVED', 'approved');
+        $this->logSelra($r, [
+            'approved'            => true,
+            'rejected'            => false,
+            'updated_status_id'   => $st['id'],
+            'updated_status_name' => $st['name'],
+            'approved_at'         => $r->approved_at,
+        ]);
+
+        // Check if request from detail page (has referer show URL)
+        $fromDetailPage = $request->headers->get('referer') &&
+                         Str::contains($request->headers->get('referer'), '/case-resolutions-validations/'.$id);
+
+        if ($request->expectsJson() || $request->ajax() || $fromDetailPage) {
+            return response()->json([
+                'success' => true,
+                'message' => 'SELRA berhasil di-approve.',
+                'action'  => 'close_tab' // Signal untuk close tab
+            ]);
+        }
+
+        // Default redirect untuk request dari index page
+        return redirect()
+            ->route('cms.case-resolutions-validations.index')
+            ->with('success', 'SELRA berhasil di-approve.');
+    }
+
+    /**
+     * Reject (set accidents.selra_flag = S0107, hapus upload_surat_ketetapan & hapus SELRA)
+     */
+    public function reject(Request $request, string $id)
+    {
+        $reason = $request->input('reject_reason');
+
+        try {
+            DB::transaction(function () use ($id, $reason) {
+                $r = \App\Models\AccidentResolution::lockForUpdate()->findOrFail($id);
+
+                $st = $this->resolveStatus('REJECTED', 'rejected');
+
+                // log sebelum hapus
+                $this->logSelra($r, [
+                    'approved'            => false,
+                    'rejected'            => true,
+                    'updated_status_id'   => $st['id'],
+                    'updated_status_name' => $st['name'],
+                    'reject_reason'       => $reason,
+                    'rejected_at'         => now(),
+                ]);
+
+                \App\Models\Accident::where('id', $r->accident_id)->update(['selra_flag' => 'S0107']);
+                \App\Models\UploadSuratKetetapan::where('accident_id', $r->accident_id)->delete();
+                $r->delete();
+            });
+
+            // Check if request from detail page
+            $fromDetailPage = $request->headers->get('referer') &&
+                            Str::contains($request->headers->get('referer'), '/case-resolutions-validations/'.$id);
+
+            if ($request->expectsJson() || $request->ajax() || $fromDetailPage) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'SELRA direject: LP menjadi Dalam Proses, dokumen dihapus, log tersimpan.',
+                    'action'  => 'close_tab' // Signal untuk close tab
+                ]);
+            }
+
+            // Default redirect untuk request dari index page
+            return redirect()
+                ->route('cms.case-resolutions-validations.index')
+                ->with('success', 'SELRA direject: LP menjadi Dalam Proses, dokumen dihapus, log tersimpan.');
+
+        } catch (\Exception $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'action'  => 'redirect',
+                    'url'     => route('cms.case-resolutions-validations.index')
+                ], 500);
+            }
+
+            return redirect()
+                ->route('cms.case-resolutions-validations.index')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Catat log SELRA (approve/reject)
+     */
+
+    private function logSelra(\App\Models\AccidentResolution $r, array $opt = []): void
+    {
+        $accident = $r->accident()->select('id','no_lp')->first();
+
+        $user     = Auth::user(); // bisa null saat job/CLI
+        // fallback berlapis: name → full_name → username → email → 'Unknown'
+        $userName = $user?->name
+                ?? $user?->full_name
+                ?? $user?->username
+                ?? $user?->email
+                ?? 'Unknown';
+
+        LogSelra::create([
+            'accident_id'         => $accident?->id ?? $r->accident_id,
+            'accident_number'     => $accident?->no_lp,
+            'document_number'     => $r->number,
+            'type_id'             => $r->type_id,
+            'type_name'           => $r->type_name,
+            'model_class'         => 'App\\Models\\AccidentResolution',
+
+            'updated_status_id'   => $opt['updated_status_id']   ?? null,
+            'updated_status_name' => $opt['updated_status_name'] ?? null,
+
+            'approved_by_id'      => !empty($opt['approved']) ? ($user?->id) : null,
+            'approved_by_name'    => !empty($opt['approved']) ? $userName    : null,
+
+            'rejected_by_id'      => !empty($opt['rejected']) ? ($user?->id) : null,
+            'rejected_by_name'    => !empty($opt['rejected']) ? $userName    : null,
+
+            'reject_reason'       => $opt['reject_reason'] ?? null,
+            'approved_at'         => $opt['approved_at']   ?? null,
+            'rejected_at'         => $opt['rejected_at']   ?? null,
+        ]);
+    }
+
+    /**
+     * Resolve status by id/code/name to array ['id'=>..., 'name'=>...]
+     */
+    private function resolveStatus(string $wantedIdOrCodeOrName, string $labelLowercase): array
+    {
+        $s = Status::query()
+            ->where('id', $wantedIdOrCodeOrName)
+            ->orWhere('code', $wantedIdOrCodeOrName)
+            ->orWhere('name', $wantedIdOrCodeOrName)
+            ->first();
+
+        return [
+            'id'   => $s?->id,               // boleh null (FK SET NULL)
+            'name' => Str::lower($labelLowercase), // SELALU 'approved' / 'rejected'
+        ];
+    }
+}

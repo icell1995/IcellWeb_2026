@@ -1,0 +1,12 @@
+$('#surat_penggeledahan_1').click(function(){
+    $('#myModalPenggeledahan1').modal('show');
+});
+$('#surat_penggeledahan_2').click(function(){
+    $('#myModalPenggeledahan2').modal('show');
+});
+$('#surat_penggeledahan_3').click(function(){
+    $('#myModalPenggeledahan3').modal('show');
+});
+$('#surat_penggeledahan_4').click(function(){
+    $('#myModalPenggeledahan4').modal('show');
+});

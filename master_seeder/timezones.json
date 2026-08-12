@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1,
+        "code": "TZ-WIB",
+        "name": "WIB",
+        "full_name": "Waktu Indonesia Barat",
+        "country": "Indonesia",
+        "utc": "+07:00",
+        "dst": "+07:00",
+        "olson": "Asia/Jakarta",
+        "zone" : "Western Indonesian Time"
+    },
+    {
+        "id": 2,
+        "code": "TZ-WITA",
+        "name": "WITA",
+        "full_name": "Waktu Indonesia Tengah",
+        "country": "Indonesia",
+        "utc": "+08:00",
+        "dst": "+08:00",
+        "olson": "Asia/Makassar",
+        "zone" : "Central Indonesian Time"
+    },
+    {
+        "id": 3,
+        "code": "TZ-WIT",
+        "name": "WIT",
+        "full_name": "Waktu Indonesia Timur",
+        "country": "Indonesia",
+        "utc": "+09:00",
+        "dst": "+09:00",
+        "olson": "Asia/Jayapura",
+        "zone" : "Eastern Indonesian Time"
+    }
+]
