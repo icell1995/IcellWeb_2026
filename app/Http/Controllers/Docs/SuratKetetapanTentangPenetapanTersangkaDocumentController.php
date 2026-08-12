@@ -1298,6 +1298,10 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
                             if (!preg_match('/^[0-9]{16}$/', $value)) {
                                 $fail('Nomor KTP harus berupa 16 digit angka.');
                             }
+                        } elseif ($type == 8) { // KK
+                            if (!preg_match('/^[0-9]{16}$/', $value)) {
+                                $fail('Nomor Kartu Keluarga (KK) harus berupa 16 digit angka.');
+                            }
                         } elseif ($type == 13) { // SIM
                             if (!preg_match('/^[0-9]{12}$/', $value)) {
                                 $fail('Nomor SIM harus berupa 12 digit angka.');
