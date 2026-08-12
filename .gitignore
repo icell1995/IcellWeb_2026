@@ -20,6 +20,12 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-composer.json
-composer.lock
-composerx.lock
+# Laravel storage exlusions
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+
+# System files
+.DS_Store
+Thumbs.db
