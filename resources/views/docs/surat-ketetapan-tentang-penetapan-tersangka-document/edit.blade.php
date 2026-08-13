@@ -270,6 +270,7 @@
                                 <div class="col-lg-6 col-md-6 col-sm-12 col-12">
                                     <input type="text" class="form-control" id="identityNumberFieldSuspect"
                                         name="identityNumberFieldSuspect" placeholder="Nomor Identitas">
+                                    <div id="identityNumberError" class="invalid-feedback"></div>
                                 </div>
                             </div>
 
@@ -1544,12 +1545,75 @@
             $('#identityNumberFieldSuspect').prop('disabled', false);
             $('#identityNumberFieldSuspect').val('');
         }
+        validateSuspectIdentityNumber();
     });
+
+    function validateSuspectIdentityNumber() {
+        var identityTypeId = $('#identityTypeFieldSuspect').val();
+        var val = $('#identityNumberFieldSuspect').val() || '';
+        var errorMsg = '';
+
+        // Skip validation if empty or disabled
+        if ($('#identityNumberFieldSuspect').is(':disabled') || val === '') {
+            $('#identityNumberFieldSuspect').removeClass('is-invalid');
+            $('#identityNumberError').text('');
+            return;
+        }
+
+        if (identityTypeId == 10) { // KTP
+            if (!/^[0-9]+$/.test(val)) {
+                errorMsg = 'Nomor KTP harus berupa angka saja.';
+            } else if (val.length !== 16) {
+                errorMsg = 'Nomor KTP harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
+            }
+        } else if (identityTypeId == 8) { // KK
+            if (!/^[0-9]+$/.test(val)) {
+                errorMsg = 'Nomor Kartu Keluarga (KK) harus berupa angka saja.';
+            } else if (val.length !== 16) {
+                errorMsg = 'Nomor Kartu Keluarga (KK) harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
+            }
+        } else if (identityTypeId == 13) { // SIM
+            if (!/^[0-9]+$/.test(val)) {
+                errorMsg = 'Nomor SIM harus berupa angka saja.';
+            } else if (val.length !== 12) {
+                errorMsg = 'Nomor SIM harus tepat 12 digit (saat ini: ' + val.length + ' digit).';
+            }
+        } else if (identityTypeId == 12) { // Passport
+            if (!/^[a-zA-Z0-9]+$/.test(val)) {
+                errorMsg = 'Nomor Passport harus alfanumerik (huruf dan angka saja).';
+            } else if (val.length < 7 || val.length > 9) {
+                errorMsg = 'Nomor Passport harus 7 sampai 9 karakter (saat ini: ' + val.length + ' karakter).';
+            }
+        }
+
+        if (errorMsg) {
+            $('#identityNumberFieldSuspect').addClass('is-invalid');
+            $('#identityNumberError').text(errorMsg);
+        } else {
+            $('#identityNumberFieldSuspect').removeClass('is-invalid');
+            $('#identityNumberError').text('');
+        }
+    }
+
+    $('#identityNumberFieldSuspect').on('input keyup', validateSuspectIdentityNumber);
 
     // Validasi Submit Form
     $(document).ready(function() {
+        // Initial run to validate existing loaded data on edit
+        validateSuspectIdentityNumber();
+
         $('#suratKetetapanTentangPenetapanTersangkaFormSubmit').on('click', function(e) {
             e.preventDefault();
+
+            // Lakukan validasi lokal terlebih dahulu
+            validateSuspectIdentityNumber();
+            if ($('#identityNumberFieldSuspect').hasClass('is-invalid')) {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Mohon Periksa Kembali Isian Anda',
+                    text: $('#identityNumberError').text(),
+                });
+            }
 
             // Lakukan validasi di sisi server menggunakan Ajax
             $.ajax({
