@@ -1117,6 +1117,13 @@
             });
 
             $(document).on('change', '#suspect', function() {
+                // Clear any validation errors on suspect and suspectDetail fields when suspect changes
+                $('#suspect').removeClass('is-invalid');
+                $('#suspect').next('.frontend-error').remove();
+                $('#suspect').siblings('.frontend-error').remove();
+                $('#suspectDetail .is-invalid').removeClass('is-invalid');
+                $('#suspectDetail .frontend-error').remove();
+
                 var suspectId = $(this).find(':selected').val();
                 var identityTypeId = $(this).find(':selected').data('identity-type-id');
                 var identityNumber = $(this).find(':selected').data('identity-number');
@@ -1754,6 +1761,25 @@
             });
 
             // Validasi Submit Form
+
+            // Auto-clear error merah ketika field diisi/diubah
+            $(document).on('input change', 'input.is-invalid, textarea.is-invalid, select.is-invalid', function() {
+                var $field = $(this);
+                var val = ($field.val() || '').trim();
+                if (val && val !== '' && val !== '0') {
+                    $field.removeClass('is-invalid');
+                    $field.next('.frontend-error').remove();
+                }
+            });
+            // Untuk select2
+            $(document).on('select2:select', 'select', function() {
+                var $field = $(this);
+                $field.removeClass('is-invalid');
+                $field.next('.frontend-error').remove();
+                // Select2 render element terpisah, cek juga sibling
+                $field.siblings('.frontend-error').remove();
+            });
+
             $('#suratKetetapanTentangPenetapanTersangkaFormSubmit').on('click', function(e) {
                 e.preventDefault();
 

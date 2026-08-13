@@ -1012,6 +1012,13 @@
         });
 
         $(document).on('change', '#suspect', function() {
+            // Clear any validation errors on suspect and suspectDetail fields when suspect changes
+            $('#suspect').removeClass('is-invalid');
+            $('#suspect').next('.frontend-error').remove();
+            $('#suspect').siblings('.frontend-error').remove();
+            $('#suspectDetail .is-invalid').removeClass('is-invalid');
+            $('#suspectDetail .frontend-error').remove();
+
             var suspectId = $(this).find(':selected').val();
             var identityTypeId = $(this).find(':selected').data('identity-type-id');
             var identityNumber = $(this).find(':selected').data('identity-number');
