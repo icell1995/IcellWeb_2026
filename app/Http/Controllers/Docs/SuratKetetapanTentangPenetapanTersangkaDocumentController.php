@@ -1289,7 +1289,31 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
             'suspect' => 'required',
 
             'identityTypeFieldSuspect' => 'required_if:suspectSource,"5"',
-            'identityNumberFieldSuspect' => 'required_if:suspectSource,"5"|numeric',
+            'identityNumberFieldSuspect' => [
+                'required_if:suspectSource,"5"',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->suspectSource == '5') {
+                        $type = $request->identityTypeFieldSuspect;
+                        if ($type == 10) { // KTP
+                            if (!preg_match('/^[0-9]{16}$/', $value)) {
+                                $fail('Nomor KTP harus berupa 16 digit angka.');
+                            }
+                        } elseif ($type == 8) { // KK
+                            if (!preg_match('/^[0-9]{16}$/', $value)) {
+                                $fail('Nomor Kartu Keluarga (KK) harus berupa 16 digit angka.');
+                            }
+                        } elseif ($type == 13) { // SIM
+                            if (!preg_match('/^[0-9]{12}$/', $value)) {
+                                $fail('Nomor SIM harus berupa 12 digit angka.');
+                            }
+                        } elseif ($type == 12) { // PASSPORT
+                            if (!preg_match('/^[a-zA-Z0-9]{7,9}$/', $value)) {
+                                $fail('Nomor Passport harus berupa 7 sampai 9 karakter alfanumerik.');
+                            }
+                        }
+                    }
+                }
+            ],
             'nameFieldSuspect' => 'required_if:suspectSource,"5"|max:255',
             'genderFieldSuspect' => 'required_if:suspectSource,"5"',
             'birthPlaceFieldSuspect' => 'required_if:suspectSource,"5"|max:255',
@@ -1349,7 +1373,6 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
             'birthDateFieldSuspect.required_if' => 'Tanggal Lahir Tersangka harus diisi',
             'identityTypeFieldSuspect.required_if' => 'Jenis Identitas Tersangka harus diisi',
             'identityNumberFieldSuspect.required_if' => 'Nomor Identitas Tersangka harus diisi',
-            'identityNumberFieldSuspect.numeric' => 'Nomor Identitas Tersangka harus berupa angka',
             'fatherFieldSuspect.required' => 'Nama Ayah Tersangka harus diisi, atau Pilih Tidak tahu',
             'motherFieldSuspect.required' => 'Nama Ibu Tersangka harus diisi, atau Pilih Tidak tahu',
             'nationalityFieldSuspect.required_if' => 'Kebangsaan Tersangka harus diisi',
