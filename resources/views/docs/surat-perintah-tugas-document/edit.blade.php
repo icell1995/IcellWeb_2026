@@ -215,7 +215,7 @@
                                 @php
                                     $positionName = $data->position->name ?? '';
                                 @endphp
-                                <option value="{{$data->id}}" data-register-number="{{$data->id}}">
+                                <option value="{{$data->id}}" data-register-number="{{$data->register_number}}">
                                     {{$data->id . ' - ' . $data->full_name . ' | ' . $positionName}}
                                 </option>
                             @endforeach
@@ -271,26 +271,14 @@
 
                             <div id="officer">
                                 <div class="alert alert-primary mt-3 mb-3" role="alert">
-                                    Cari personel berdasarkan NRP, pilih personel lalu klik tombol 'Tambah' untuk
-                                    menambahkan
-                                    personel sebagai penyidik.
+                                    Pilih personel dari dropdown lalu klik tombol 'Tambah' untuk menambahkan personel sebagai penyidik.
                                 </div>
 
                                 <div class="row mt-3">
                                     <div class="col-md-6">
-                                        <div class="input-group mb-3">
-                                            <input type="text" class="form-control" id="searchOfficerField"
-                                                placeholder="Cari NRP" aria-label="Cari NRP"
-                                                aria-describedby="searchOfficerButton">
-                                            <button class="btn btn-primary" id="searchOfficerButton" type="button"><i
-                                                    class="bi bi-search"></i> Cari</button>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
                                         <div class="input-group">
                                             <select class="custom-select select2-input-group" id="officerMemberOption"
-                                                aria-describedby="officerMemberOptionAddButtton">
+                                                aria-describedby="officerMemberOptionAddButtton" disabled>
                                                 <option value="">--Pilih Penyidik--</option>
                                             </select>
                                             <button class="btn btn-primary" id="officerMemberOptionAddButtton"
@@ -445,6 +433,11 @@
             $('#officerLeaderRegionalPoliceName').val(leaderOfficerRegionalPoliceName);
             $('#officerLeaderResortPoliceId').val(leaderOfficerResortPoliceId);
             $('#officerLeaderResortPoliceName').val(leaderOfficerResortPoliceName);
+
+            // Langsung muat dropdown anggota berdasarkan ketua yang sudah ada
+            if (leaderOfficerRegisterNumber) {
+                fetchOfficerMembers(leaderOfficerRegisterNumber);
+            }
         });
 
         //officers
@@ -688,93 +681,79 @@
     });
 
     // ===Officer===
-    $(document).ready(function() {
-        $('#searchOfficerButton').on('click', function() {
-            var searchedOfficer = $('#searchOfficerField').val();
-            var accidentId = $('#accidentId').val();
+    // Fungsi untuk memuat dropdown anggota berdasarkan NRP ketua
+    function fetchOfficerMembers(leaderRegisterNumber) {
+        if (!leaderRegisterNumber) {
+            $('#officerMemberOption').prop('disabled', true).empty().append('<option value="">--Pilih Penyidik--</option>');
+            return;
+        }
 
-            if (searchedOfficer !== '') {
-                $.ajax({
-                    url: "{{ route('doc.surat-perintah-tugas-document.api.officer', ['accident_id' => $accidentId]) }}",
-                    type: "GET",
-                    dataType: "json",
-                    data: {
-                        searchedOfficerRegisterNumber: searchedOfficer
-                    },
-                    success: function(response) {
-                        // Clear existing options
-                        $('#officerMemberOption').empty();
+        $.ajax({
+            url: "{{ route('doc.surat-perintah-penyelidikan-document.api.internal-officers', ['accident_id' => $accidentId]) }}",
+            type: "GET",
+            dataType: "json",
+            data: {
+                selectedLeaderOfficerRegisterNumber: leaderRegisterNumber
+            },
+            success: function(response) {
+                $('#officerMemberOption').empty().append('<option value="">--Pilih Penyidik--</option>');
 
-                        // Populate options based on response data
-                        var member = response.data;
-                        var rankName = (member.rank) ? member.rank.name : '-';
-                        var positionName = (member.position) ? member.position.name : '-';
+                response.data.forEach(function(member) {
+                    var rankName = (member.rank) ? member.rank.name : '-';
+                    var positionName = (member.position) ? member.position.name : '-';
 
-                        var police = member.police ?? null;
+                    var police = member.police ?? null;
+                    var resortPoliceName = null;
+                    var regionalPoliceName = null;
 
-                        var resortPolice = null;
-                        var resortPoliceId = null;
-                        var resortPoliceName = null;
-                        var regionalPolice = null;
-                        var regionalPoliceId = null;
-                        var regionalPoliceName = null;
-                        var policeName = null;
-
-                        if(police){
-                            if(police.class == 'RESOR'){
-                                var resortPolice = police;
-                                var resortPoliceId = resortPolice.id;
-                                var resortPoliceName = resortPolice.full_name;
-
-                                var regionalPolice = police.parent;
-                                var regionalPoliceId = regionalPolice.id;
-                                var regionalPoliceName = regionalPolice.full_name;
-
-                                var policeName = resortPoliceName + ' - ' + regionalPoliceName;
-                            }else if(police.class == 'DAERAH'){
-                                var resortPolice = '';
-                                var resortPoliceId = '';
-                                var resortPoliceName = '';
-
-                                var regionalPolice = police;
-                                var regionalPoliceId = regionalPolice.id;
-                                var regionalPoliceName = regionalPolice.full_name;
-
-                                var policeName = regionalPoliceName;
-                            }
-                        }
-
-                        $('#officerMemberOption').append($('<option>', {
-                            value: member.id,
-                            text: member.register_number + ' - ' + member.full_name + ' - ' + rankName,
-                            'data-register-number': member.register_number,
-                            'data-rank-name': rankName,
-                            'data-name': member.full_name,
-                            'data-position-name': positionName,
-                            'data-resort-police-name': resortPoliceName,
-                            'data-regional-police-name': regionalPoliceName,
-                        }));
-
-                        $('#officerMemberOption').select2({
-                            theme: 'bootstrap4',
-                        });
-                    },
-                    error: function(error, xhr, status) {
-                        if(status == 'Not Found'){
-                            return Swal.fire({
-                                icon: 'error',
-                                title: 'Data Tidak Ditemukan',
-                                text: 'Data penyidik dengan NRP ' + searchedOfficer + ' tidak ditemukan',
-                            });
+                    if (police) {
+                        if (police.class == 'RESOR') {
+                            resortPoliceName = police.full_name;
+                            regionalPoliceName = police.parent ? police.parent.full_name : null;
+                        } else if (police.class == 'DAERAH') {
+                            resortPoliceName = '';
+                            regionalPoliceName = police.full_name;
                         }
                     }
+
+                    $('#officerMemberOption').append($('<option>', {
+                        value: member.id,
+                        text: member.register_number + ' - ' + member.full_name + ' - ' + rankName,
+                        'data-register-number': member.register_number,
+                        'data-rank-name': rankName,
+                        'data-name': member.full_name,
+                        'data-position-name': positionName,
+                        'data-resort-police-name': resortPoliceName,
+                        'data-regional-police-name': regionalPoliceName,
+                    }));
                 });
-            } else {
-                // Nonaktifkan opsi officerMember dan hapus opsi yang ada
-                $('#officerMemberOption').empty();
+
+                $('#officerMemberOption').prop('disabled', false).select2({
+                    theme: 'bootstrap4'
+                });
+
+                // Ketua berhasil dimuat = clear error ketua
+                $('#officerLeader').removeClass('is-invalid');
+                $('#officerLeader').next('.select2-container').next('.frontend-error').remove();
+                $('#officerLeader').next('.frontend-error').remove();
+            },
+            error: function() {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Maaf, terjadi kesalahan teknis saat memuat daftar penyidik!'
+                });
             }
         });
+    }
 
+    // Ketika ketua tim dipilih secara manual, otomatis populate dropdown anggota
+    $(document).on('change', '#officerLeader', function() {
+        var selectedLeaderRegisterNumber = $(this).find('option:selected').data('register-number');
+        fetchOfficerMembers(selectedLeaderRegisterNumber);
+    });
+
+    $(document).ready(function() {
         $('#officerMemberOptionAddButtton').on('click', function() {
             var selectedOption = $('#officerMemberOption').find('option:selected');
             var signatoryRegisterNumber = $('#signatory').find('option:selected').data('register-number');
@@ -852,6 +831,10 @@
                 // Tambahkan baris ke dalam tabel
                 $('#officerMemberTable tbody').append(newRow);
 
+                // Clear error tabel setelah berhasil tambah anggota
+                $('#officerMemberTable').removeClass('border border-danger');
+                $('#officerMemberTable').next('.frontend-error').remove();
+
                 // Hapus event listener deleteOfficer sebelumnya
                 $(document).off('click', '.deleteOfficer');
 
@@ -865,8 +848,135 @@
 
     // Validasi Submit Form
     $(document).ready(function() {
+
+        // Helper: tandai error pada field (mendukung Select2)
+        function markError(selector, message) {
+            var $el = $(selector);
+            $el.addClass('is-invalid');
+            // Jika Select2, tampilkan error setelah .select2-container
+            var $target = $el.next('.select2-container').length
+                ? $el.next('.select2-container')
+                : $el;
+            if ($target.next('.frontend-error').length === 0) {
+                $target.after('<span class="text-danger frontend-error d-block" style="font-size:0.875em; margin-top:0.25rem">' + message + '</span>');
+            }
+        }
+
+        // Helper: hapus error pada field (mendukung Select2)
+        function clearError(selector) {
+            var $el = $(selector);
+            $el.removeClass('is-invalid');
+            // Hapus dari setelah select2-container atau setelah element itu sendiri
+            $el.next('.select2-container').next('.frontend-error').remove();
+            $el.next('.frontend-error').remove();
+        }
+
+        // Auto-clear saat user ubah nilai
+        $('#documentNumber').on('input', function() { clearError(this); });
+        $('#relatedDocument').on('change', function() { clearError(this); });
+        $('#startDate').on('change', function() { clearError(this); });
+        $('#endDate').on('change', function() { clearError(this); });
+        $('#documentDate').on('change', function() { clearError(this); });
+        $('#signatory').on('change', function() { clearError(this); });
+        $('#task').on('input', function() { clearError(this); });
+        $('#officerLeader').on('change', function() {
+            clearError(this);
+            $('#officerMemberTable').removeClass('border border-danger');
+            $('#officerMemberTable').next('.frontend-error').remove();
+        });
+
+
         $('#suratPerintahTugasFormSubmit').on('click', function(e) {
             e.preventDefault();
+
+            var hasError = false;
+            var $firstError = null;
+
+            // Bersihkan semua error sebelumnya
+            $('.frontend-error').remove();
+            $('.is-invalid').removeClass('is-invalid');
+            $('#officerMemberTable').removeClass('border border-danger');
+
+            // Validasi No Dokumen
+            var documentNumber = $.trim($('#documentNumber').val());
+            if (documentNumber === '') {
+                markError('#documentNumber', 'No Dokumen harus diisi');
+                if (!hasError) $firstError = $('#documentNumber');
+                hasError = true;
+            } else if (documentNumber.length < 5) {
+                markError('#documentNumber', 'No Dokumen harus lengkap (min 5 karakter)');
+                if (!hasError) $firstError = $('#documentNumber');
+                hasError = true;
+            }
+
+            // Validasi Sprinlidik/Sprindik
+            if (!$('#relatedDocument').val()) {
+                markError('#relatedDocument', 'No Sprinlidik/Sprindik harus diisi');
+                if (!hasError) $firstError = $('#relatedDocument');
+                hasError = true;
+            }
+
+            // Validasi Tanggal Mulai
+            if ($.trim($('#startDate').val()) === '') {
+                markError('#startDate', 'Tanggal Mulai Tugas harus diisi');
+                if (!hasError) $firstError = $('#startDate');
+                hasError = true;
+            }
+
+            // Validasi Tanggal Akhir (kecuali sampai selesai)
+            if (!$('#isFinished').is(':checked') && $.trim($('#endDate').val()) === '') {
+                markError('#endDate', 'Tanggal Akhir Tugas harus diisi');
+                if (!hasError) $firstError = $('#endDate');
+                hasError = true;
+            }
+
+            // Validasi Tanggal Ditandatangani
+            if ($.trim($('#documentDate').val()) === '') {
+                markError('#documentDate', 'Tanggal Ditandatangani harus diisi');
+                if (!hasError) $firstError = $('#documentDate');
+                hasError = true;
+            }
+
+            // Validasi Yang Menandatangani
+            if ($('#signatory').val() === '') {
+                markError('#signatory', 'Yang Menandatangani harus diisi');
+                if (!hasError) $firstError = $('#signatory');
+                hasError = true;
+            }
+
+            // Validasi Tugas
+            if ($.trim($('#task').val()) === '') {
+                markError('#task', 'Tugas harus diisi');
+                if (!hasError) $firstError = $('#task');
+                hasError = true;
+            }
+
+            // Validasi Ketua Tim
+            var leaderVal = $('#officerLeaderRegisterNumber').val() ||
+                            $('#officerLeader').find('option:selected').data('register-number') ||
+                            $('#officerLeader').find('option:selected').val();
+            if (!leaderVal) {
+                markError('#officerLeader', 'Ketua Tim Tugas harus diisi');
+                if (!hasError) $firstError = $('#officerLeader');
+                hasError = true;
+            }
+
+            // Validasi Anggota (tabel)
+            if ($('#officerMemberTable tbody tr').length === 0) {
+                $('#officerMemberTable').addClass('border border-danger');
+                if ($('#officerMemberTable').next('.frontend-error').length === 0) {
+                    $('#officerMemberTable').after('<span class="text-danger frontend-error" style="display:block; margin-top:4px">Anggota Tim Tugas harus diisi minimal 1 personil</span>');
+                }
+                if (!hasError) $firstError = $('#officerMemberTable');
+                hasError = true;
+            }
+
+            if (hasError) {
+                if ($firstError) {
+                    $('html, body').animate({ scrollTop: $firstError.offset().top - 120 }, 400);
+                }
+                return;
+            }
 
             // Lakukan validasi di sisi server menggunakan Ajax
             $.ajax({
@@ -875,25 +985,21 @@
                 dataType: 'json',
                 data: $('#suratPerintahTugasForm').serialize(),
                 success: function(response) {
-                    // Cek jika validasi berhasil di sisi server
                     if (response.success) {
-                        // sweetalert2 berhasil sebelum submit form
                         Swal.fire({
                             title: 'Berhasil',
                             text: response.message,
                             icon: 'success',
                             confirmButtonText: 'Ok'
                         }).then((result) => {
-                            // Submit form
                             $('#suratPerintahTugasForm').submit();
                         });
                     }
                 },
                 error: function(xhr) {
-                    // Tangani error jika terjadi kesalahan saat melakukan validasi
                     response = JSON.parse(xhr.responseText);
 
-                    if(response.code == '422'){
+                    if (response.code == '422') {
                         var errorMessages = '';
 
                         $.each(response.errors, function(key, value) {
@@ -912,3 +1018,4 @@
     });
 </script>
 @endpush
+
