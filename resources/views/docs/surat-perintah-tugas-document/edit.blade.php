@@ -853,6 +853,9 @@
         function markError(selector, message) {
             var $el = $(selector);
             $el.addClass('is-invalid');
+            if ($el.next('.select2-container').length) {
+                $el.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+            }
             // Jika Select2, tampilkan error setelah .select2-container
             var $target = $el.next('.select2-container').length
                 ? $el.next('.select2-container')
@@ -866,6 +869,9 @@
         function clearError(selector) {
             var $el = $(selector);
             $el.removeClass('is-invalid');
+            if ($el.next('.select2-container').length) {
+                $el.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+            }
             // Hapus dari setelah select2-container atau setelah element itu sendiri
             $el.next('.select2-container').next('.frontend-error').remove();
             $el.next('.frontend-error').remove();
@@ -895,6 +901,7 @@
             // Bersihkan semua error sebelumnya
             $('.frontend-error').remove();
             $('.is-invalid').removeClass('is-invalid');
+            $('.select2-selection').removeClass('border border-danger is-invalid');
             $('#officerMemberTable').removeClass('border border-danger');
 
             // Validasi No Dokumen
@@ -972,8 +979,24 @@
             }
 
             if (hasError) {
-                if ($firstError) {
-                    $('html, body').animate({ scrollTop: $firstError.offset().top - 120 }, 400);
+                var $target = null;
+                if ($firstError && $firstError.length) {
+                    if ($firstError.is(':visible')) {
+                        $target = $firstError;
+                    } else if ($firstError.next('.select2-container').is(':visible')) {
+                        $target = $firstError.next('.select2-container');
+                    } else {
+                        $target = $firstError.closest(':visible');
+                    }
+                }
+                if (!$target || !$target.length || !$target.offset()) {
+                    $target = $('.frontend-error:visible, .is-invalid:visible, .border-danger:visible').first();
+                }
+
+                if ($target && $target.length && $target.offset()) {
+                    $('html, body').animate({
+                        scrollTop: Math.max(0, $target.offset().top - 120)
+                    }, 400);
                 }
                 return;
             }
