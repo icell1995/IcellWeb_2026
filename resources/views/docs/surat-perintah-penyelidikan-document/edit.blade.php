@@ -53,7 +53,7 @@
         </div>
 
         <form action="{{ route('doc.surat-perintah-penyelidikan-document.update', ['accident_id' => $accidentId, 'id'=> $suratPerintahPenyelidikanDocumentId]) }}" 
-            method="POST" enctype="multipart/form-data" id="suratPerintahPenyelidikanForm">
+            method="POST" enctype="multipart/form-data" id="suratPerintahPenyelidikanForm" novalidate>
             @csrf
             <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
 
@@ -1819,13 +1819,21 @@
         var val = ($field.val() || '').trim();
         if (val && val !== '' && val !== '0') {
             $field.removeClass('is-invalid');
+            if ($field.next('.select2-container').length) {
+                $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+            }
+            $field.next('.select2-container').next('.frontend-error').remove();
             $field.next('.frontend-error').remove();
         }
     });
     // Untuk select2
-    $(document).on('select2:select', 'select', function() {
+    $(document).on('select2:select change', 'select', function() {
         var $field = $(this);
         $field.removeClass('is-invalid');
+        if ($field.next('.select2-container').length) {
+            $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+        }
+        $field.next('.select2-container').next('.frontend-error').remove();
         $field.next('.frontend-error').remove();
         $field.siblings('.frontend-error').remove();
     });
@@ -1837,12 +1845,13 @@
 
     // Validasi Submit Form
     $(document).ready(function() {
-        $('#suratPerintahPenyelidikanFormSubmit').on('click', function(e) {
+        $(document).on('click', '#suratPerintahPenyelidikanFormSubmit', function(e) {
             e.preventDefault();
 
             // Bersihkan semua error sebelumnya
             $('.is-invalid').removeClass('is-invalid');
             $('.border.border-danger').removeClass('border border-danger');
+            $('.select2-selection').removeClass('border border-danger is-invalid');
             $('.frontend-error').remove();
 
             var errors = [];
@@ -1855,8 +1864,12 @@
                 } else {
                     $field.addClass('is-invalid');
                 }
-                if ($field.next('.frontend-error').length === 0) {
-                    $field.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                }
+                var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                if ($target.next('.frontend-error').length === 0) {
+                    $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
                 }
                 errors.push(message);
             }
@@ -1943,11 +1956,30 @@
 
             // Jika ada error, scroll ke field pertama yang error
             if (errors.length > 0) {
-                var $firstError = $('.is-invalid').first();
-                if ($firstError.length) {
-                    $('html, body').animate({
-                        scrollTop: $firstError.offset().top - 100
-                    }, 300);
+                var $firstError = $('.is-invalid, .border-danger').first();
+                var $target = null;
+                if ($firstError && $firstError.length) {
+                    if ($firstError.is(':visible')) {
+                        $target = $firstError;
+                    } else if ($firstError.next('.select2-container').is(':visible')) {
+                        $target = $firstError.next('.select2-container');
+                    } else {
+                        $target = $firstError.closest(':visible');
+                    }
+                }
+                if (!$target || !$target.length || !$target.offset()) {
+                    $target = $('.frontend-error:visible, .is-invalid:visible, .border-danger:visible').first();
+                }
+
+                if ($target && $target.length) {
+                    if ($target[0] && typeof $target[0].scrollIntoView === 'function') {
+                        $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    if ($target.offset()) {
+                        $('html, body, .content-wrapper, .wrapper').animate({
+                            scrollTop: Math.max(0, $target.offset().top - 120)
+                        }, 400);
+                    }
                 }
                 return;
             }
