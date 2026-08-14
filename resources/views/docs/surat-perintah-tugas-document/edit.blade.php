@@ -53,7 +53,7 @@
 
         <div class="box-body">
             <form action="{{ route('doc.surat-perintah-tugas-document.update', ['accident_id' => $accidentId, 'id' => $suratPerintahTugasDocumentId]) }}"
-                method="POST" enctype="multipart/form-data" id="suratPerintahTugasForm">
+                method="POST" enctype="multipart/form-data" id="suratPerintahTugasForm" novalidate>
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
 
@@ -672,6 +672,10 @@
                         $('#officerLeaderRegionalPoliceName').val(relatedDocumentLeaderOfficerRegionalPoliceName);
                         $('#officerLeaderResortPoliceId').val(relatedDocumentLeaderOfficerResortPoliceId);
                         $('#officerLeaderResortPoliceName').val(relatedDocumentLeaderOfficerResortPoliceName);
+
+                        if (relatedDocumentLeaderOfficerRegisterNumber) {
+                            fetchOfficerMembers(relatedDocumentLeaderOfficerRegisterNumber);
+                        }
                     }
                 });
             } else {
@@ -817,7 +821,7 @@
             });
 
             if (!isAppended) {
-            // Buat baris baru untuk ditambahkan ke dalam tabel
+                // Buat baris baru untuk ditambahkan ke dalam tabel
                 var newRow = $('<tr class="text-center"></tr>');
 
                 // Tambahkan kolom-kolom dengan nilai yang diambil dari selectedOption
@@ -891,8 +895,7 @@
             $('#officerMemberTable').next('.frontend-error').remove();
         });
 
-
-        $('#suratPerintahTugasFormSubmit').on('click', function(e) {
+        $(document).on('click', '#suratPerintahTugasFormSubmit', function(e) {
             e.preventDefault();
 
             var hasError = false;
@@ -993,10 +996,15 @@
                     $target = $('.frontend-error:visible, .is-invalid:visible, .border-danger:visible').first();
                 }
 
-                if ($target && $target.length && $target.offset()) {
-                    $('html, body').animate({
-                        scrollTop: Math.max(0, $target.offset().top - 120)
-                    }, 400);
+                if ($target && $target.length) {
+                    if ($target[0] && typeof $target[0].scrollIntoView === 'function') {
+                        $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    if ($target.offset()) {
+                        $('html, body, .content-wrapper, .wrapper').animate({
+                            scrollTop: Math.max(0, $target.offset().top - 120)
+                        }, 400);
+                    }
                 }
                 return;
             }
@@ -1041,4 +1049,5 @@
     });
 </script>
 @endpush
+
 

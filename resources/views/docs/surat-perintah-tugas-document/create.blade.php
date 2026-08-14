@@ -53,7 +53,7 @@
 
         <div class="box-body">
             <form action="{{ route('doc.surat-perintah-tugas-document.store', ['accident_id' => $accidentId]) }}"
-                method="POST" enctype="multipart/form-data" id="suratPerintahTugasForm">
+                method="POST" enctype="multipart/form-data" id="suratPerintahTugasForm" novalidate>
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
 
@@ -770,7 +770,7 @@
             });
 
 
-            $('#suratPerintahTugasFormSubmit').on('click', function(e) {
+            $(document).on('click', '#suratPerintahTugasFormSubmit', function(e) {
                 e.preventDefault();
 
                 var hasError = false;
@@ -871,10 +871,15 @@
                         $target = $('.frontend-error:visible, .is-invalid:visible, .border-danger:visible').first();
                     }
 
-                    if ($target && $target.length && $target.offset()) {
-                        $('html, body').animate({
-                            scrollTop: Math.max(0, $target.offset().top - 120)
-                        }, 400);
+                    if ($target && $target.length) {
+                        if ($target[0] && typeof $target[0].scrollIntoView === 'function') {
+                            $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        if ($target.offset()) {
+                            $('html, body, .content-wrapper, .wrapper').animate({
+                                scrollTop: Math.max(0, $target.offset().top - 120)
+                            }, 400);
+                        }
                     }
                     return;
                 }
