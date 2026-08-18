@@ -240,6 +240,14 @@
                     }
 
                     $(document).ready(function() {
+                        $('#tanggal_surat').datepicker({
+                            format: 'dd-mm-yyyy',
+                            todayHighlight: true,
+                            autoclose: true,
+                            orientation: 'bottom auto',
+                            startDate: new Date()
+                        });
+
                         // wire buttons
                         $('#btnSaveSp2hpRegulation, #btnSaveSp2hpRegulationBottom').click(function() {
                             saveSp2hpRegulation();
@@ -302,6 +310,19 @@
 
                         checkInput('#nomor_surat', 'Nomor Surat');
                         checkInput('#tanggal_surat', 'Tanggal Surat');
+                        var tglSuratVal = ($('#tanggal_surat').val() || '').trim();
+                        if (tglSuratVal) {
+                            var parts = tglSuratVal.split('-');
+                            if (parts.length === 3) {
+                                var selectedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                                var today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                selectedDate.setHours(0, 0, 0, 0);
+                                if (selectedDate < today) {
+                                    markError('#tanggal_surat', 'Tanggal Surat minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                                }
+                            }
+                        }
                         checkInput('#tempat_surat', 'Tempat Surat');
                         checkSelect('#tipe_sp2hp', 'Tipe SP2HP');
                         checkSelect('#tingkat_kasus', 'Tingkat Kasus');

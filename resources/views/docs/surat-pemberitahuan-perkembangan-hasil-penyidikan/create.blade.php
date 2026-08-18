@@ -2529,16 +2529,32 @@
             });
         }
         
-        // Initialize all datepickers
-        $('.datepicker, #tanggal_surat, #penerima_tanggal_lahir, #a3_tanggal_sprin, #a6_tanggal_kirim, #a7_tanggal_p21, #a7_tanggal_serah_tahap2, #tersangka_tanggal_lahir, #korban_tanggal_lahir, #a4_tanggal_tindakan').datepicker({
+        // Initialize birth date datepickers (past only)
+        $('#penerima_tanggal_lahir, #tersangka_tanggal_lahir, #korban_tanggal_lahir').datepicker({
             format: 'dd-mm-yyyy',
             todayHighlight: true,
             autoclose: true,
             orientation: 'bottom auto',
             endDate: new Date()
-        })
-            .each(function () {
-                if (!$(this).val()) $(this).datepicker('setDate', new Date());
+        });
+
+        // Initialize tanggal surat datepicker (minimal today)
+        $('#tanggal_surat').datepicker({
+            format: 'dd-mm-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            orientation: 'bottom auto',
+            startDate: new Date()
+        }).each(function () {
+            if (!$(this).val()) $(this).datepicker('setDate', new Date());
+        });
+
+        // Initialize other datepickers
+        $('.datepicker, #a3_tanggal_sprin, #a6_tanggal_kirim, #a7_tanggal_p21, #a7_tanggal_serah_tahap2, #a4_tanggal_tindakan').not('#penerima_tanggal_lahir, #tersangka_tanggal_lahir, #korban_tanggal_lahir, #tanggal_surat').datepicker({
+            format: 'dd-mm-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            orientation: 'bottom auto'
         });
         
         // FORCE hide all sections on initial load
@@ -3870,6 +3886,19 @@
             if (tipe === 'A1' || tipe === 'A4') {
                 checkInput('#nomor_surat', 'Nomor Surat');
                 checkInput('#tanggal_surat', 'Tanggal Surat');
+                var tglSuratVal = ($('#tanggal_surat').val() || '').trim();
+                if (tglSuratVal) {
+                    var parts = tglSuratVal.split('-');
+                    if (parts.length === 3) {
+                        var selectedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                        var today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        selectedDate.setHours(0, 0, 0, 0);
+                        if (selectedDate < today) {
+                            markError('#tanggal_surat', 'Tanggal Surat minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                        }
+                    }
+                }
                 checkSelect('#provinsi_tempat_surat', 'Provinsi Tempat Surat');
                 checkSelect('#kota_tempat_surat', 'Kota/Kabupaten Tempat Surat');
                 checkSelect('#kecamatan_tempat_surat', 'Kecamatan Tempat Surat');
