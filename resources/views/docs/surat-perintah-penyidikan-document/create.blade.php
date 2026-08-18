@@ -52,7 +52,7 @@
 
         <div class="box-body">
             <form action="{{ route('doc.surat-perintah-penyidikan-document.store', ['accident_id' => $accidentId]) }}"
-                method="POST" enctype="multipart/form-data" id="suratPerintahPenyidikanForm">
+                method="POST" enctype="multipart/form-data" id="suratPerintahPenyidikanForm" novalidate>
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
 
@@ -878,7 +878,7 @@
 @push('script')
     <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
     @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
@@ -1480,17 +1480,13 @@
 
                 var lawCrimeConstitutionChapter = $('#constitutionChapterLawForm').find(':selected').val();
 
+                $('#addLawForm small.text-danger').remove();
                 if (lawCrimeTypeId == '' || lawCrimeClassId == '' || lawCrimeConstitutionId == '' ||
                     lawCrimeConstitutionChapter == '') {
-                    // append small text error di bawah inputan
-                    $('#addLawForm #crimeTypeLawForm').parent().append(
-                        '<small class="text-danger">Inputan ini wajib diisi</small>');
-                    $('#addLawForm #crimeClassLawForm').parent().append(
-                        '<small class="text-danger">Inputan ini wajib diisi</small>');
-                    $('#addLawForm #crimeConstitutionLawForm').parent().append(
-                        '<small class="text-danger">Inputan ini wajib diisi</small>');
-                    $('#addLawForm #constitutionChapterLawForm').parent().append(
-                        '<small class="text-danger">Inputan ini wajib diisi</small>');
+                    if (lawCrimeTypeId == '') $('#addLawForm #crimeTypeLawForm').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
+                    if (lawCrimeClassId == '') $('#addLawForm #crimeClassLawForm').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
+                    if (lawCrimeConstitutionId == '') $('#addLawForm #crimeConstitutionLawForm').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
+                    if (lawCrimeConstitutionChapter == '') $('#addLawForm #constitutionChapterLawForm').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
 
                     return false;
                 } else {
@@ -2367,10 +2363,213 @@
             });
         });
 
+        // Helper check field has value
+        function hasFieldValue($field) {
+            var raw = $field.val();
+            if (raw === null || raw === undefined) return false;
+            if (Array.isArray(raw)) return raw.length > 0;
+            var str = String(raw).trim();
+            return str !== '' && str !== '0';
+        }
+
+        // Helper clear single field error
+        function clearFieldError($field) {
+            $field.removeClass('is-invalid border border-danger');
+            if ($field.next('.select2-container').length) {
+                $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                $field.next('.select2-container').next('.frontend-error, .invalid-feedback').remove();
+            }
+            $field.next('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
+            $field.closest('.input-group, .mb-3, .col-lg-8, .col-lg-10, .col-md-10, .col-md-8, div').find('.frontend-error, .invalid-feedback').remove();
+        }
+
+        // Auto-clear realtime saat user mengetik atau mengubah nilai field
+        $(document).on('input change changeDate dp.change keyup blur', 'input, textarea, select', function() {
+            var $field = $(this);
+            if (hasFieldValue($field)) {
+                clearFieldError($field);
+            }
+        });
+
+        $(document).on('select2:select select2:unselect change', 'select', function() {
+            var $field = $(this);
+            if (hasFieldValue($field)) {
+                clearFieldError($field);
+            }
+        });
+
+        // Auto-clear saat radio ketua tim penyidik diubah
+        $(document).on('change', 'input[name="isPresentOfficerLeader"]', function() {
+            $('#officerLeader').removeClass('is-invalid');
+            if ($('#officerLeader').next('.select2-container').length) {
+                $('#officerLeader').next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                $('#officerLeader').next('.select2-container').next('.frontend-error, .invalid-feedback').remove();
+            }
+            $('#movedOfficerLeaderRegisterNumber').removeClass('is-invalid');
+            $('#presentOfficerLeader, #pastOfficerLeader').find('.frontend-error, .invalid-feedback').remove();
+        });
+
+        // Clear error pada tabel saat baris ditambahkan atau dihapus
+        $(document).on('click', '#saveAddLawFormButton, #officerInternalMemberOptionAddButtton, #officerMovedMemberOptionAddButtton, #saveAddMovedOfficerLeaderForm, #saveAddManualMovedOfficerForm, #officerExternalMemberOptionAddButtton, .deleteLaw, .deleteInternalOfficer, .deleteMovedOfficer, .deleteManualMovedOfficer, .deleteExternalOfficer', function() {
+            setTimeout(function() {
+                if ($('#lawTable tbody tr').length > 0) {
+                    $('#lawTable').removeClass('is-invalid border border-danger');
+                    $('#lawTable').closest('.table-responsive, #law').find('.frontend-error, .invalid-feedback').remove();
+                    $('#law').find('.frontend-error, .invalid-feedback').remove();
+                }
+                var totalOfficers = $('#internalOfficerMemberTable tbody tr').length +
+                                    $('#movedOfficerMemberTable tbody tr').length +
+                                    $('#externalOfficerMemberTable tbody tr').length;
+                if (totalOfficers > 0) {
+                    $('#internalOfficerMemberTable, #movedOfficerMemberTable, #externalOfficerMemberTable').removeClass('is-invalid border border-danger');
+                    $('#internalOfficerMemberTable').closest('.table-responsive, #internalOfficer').find('.frontend-error, .invalid-feedback').remove();
+                    $('#internalOfficer, #movedOfficers, #externalOfficers').find('.frontend-error, .invalid-feedback').remove();
+                }
+                var movedLeaderNRP = ($('#movedOfficerLeaderRegisterNumber').val() || '').trim();
+                if (movedLeaderNRP) {
+                    $('#movedOfficerLeaderRegisterNumber').removeClass('is-invalid border border-danger');
+                    $('#pastOfficerLeader').find('.frontend-error, .invalid-feedback').remove();
+                }
+            }, 100);
+        });
+
+        // Continuous watcher untuk membersihkan highlight jika value sudah terisi
+        setInterval(function() {
+            $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
+                var $field = $(this);
+                if (hasFieldValue($field)) {
+                    clearFieldError($field);
+                }
+            });
+        }, 200);
+
+        // Helper scrollToFirstError
+        function scrollToFirstError() {
+            var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+            if (!$firstError.length) {
+                $firstError = $('.is-invalid, .border-danger').first();
+            }
+            if ($firstError && $firstError.length) {
+                var el = $firstError[0];
+                if (el && typeof el.scrollIntoView === 'function') {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                var topPos = $firstError.offset() ? $firstError.offset().top : 0;
+                $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                    scrollTop: Math.max(0, topPos - 140)
+                }, 400);
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
         // Validasi Submit Form
         $(document).ready(function() {
             $('#suratPerintahPenyidikanFormSubmit').on('click', function(e) {
                 e.preventDefault();
+
+                // Bersihkan error sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.border.border-danger').removeClass('border border-danger');
+                $('.select2-selection').removeClass('border border-danger is-invalid');
+                $('.frontend-error').remove();
+                $('.invalid-feedback').remove();
+
+                let errors = [];
+
+                function markError(fieldSelector, message) {
+                    var $field = $(fieldSelector);
+                    if (!$field.length) return;
+
+                    if ($field.is('table')) {
+                        $field.addClass('border border-danger is-invalid');
+                        var $wrapper = $field.closest('.table-responsive, .input-group');
+                        var $container = $wrapper.length ? $wrapper : $field;
+                        $container.siblings('.frontend-error, .invalid-feedback').remove();
+                        $container.next('.frontend-error, .invalid-feedback').remove();
+                        $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                        errors.push(message);
+                        return;
+                    } else if ($field.is(':radio')) {
+                        $field.addClass('is-invalid');
+                        var $container = $field.closest('.d-flex, .form-check-group, .row');
+                        $container.siblings('.frontend-error, .invalid-feedback').remove();
+                        $container.next('.frontend-error, .invalid-feedback').remove();
+                        $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                        errors.push(message);
+                        return;
+                    } else {
+                        $field.addClass('is-invalid');
+                    }
+                    if ($field.next('.select2-container').length) {
+                        $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    }
+                    var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                    $target.siblings('.frontend-error, .invalid-feedback').remove();
+                    $target.next('.frontend-error, .invalid-feedback').remove();
+                    $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    errors.push(message);
+                }
+
+                function checkInput(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || !$field.is(':visible')) return;
+                    var raw = $field.val();
+                    var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                    if (!val || val === '') {
+                        markError(fieldSelector, label + ' harus diisi');
+                    }
+                }
+
+                function checkSelect(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                    var raw = $field.val();
+                    var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                    if (!hasVal) {
+                        markError(fieldSelector, label + ' harus dipilih');
+                    }
+                }
+
+                // 1. Validasi Field Utama Berbintang (*)
+                checkInput('#documentNumber', 'Nomor Dokumen Sprindik');
+                checkSelect('#caseClassification', 'Klasifikasi Kasus');
+                checkInput('#startDate', 'Tanggal Mulai Sidik');
+                checkInput('#endDate', 'Tanggal Akhir Sidik');
+                checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
+                checkSelect('#signatory', 'Yang Menandatangani');
+
+                // 2. Validasi Undang-Undang yang Dikenakan (*) (minimal 1 baris)
+                var lawCount = $('#lawTable tbody tr').length;
+                if (lawCount === 0) {
+                    markError('#lawTable', 'Undang-Undang yang Dikenakan harus ditambahkan minimal 1');
+                }
+
+                // 3. Validasi Ketua Tim Penyidik (*)
+                var isPresentLeader = $('input[name="isPresentOfficerLeader"]:checked').val();
+                if (isPresentLeader === 'true') {
+                    checkSelect('#officerLeader', 'Ketua Tim Penyidik');
+                } else {
+                    var movedLeaderNRP = ($('#movedOfficerLeaderRegisterNumber').val() || '').trim();
+                    if (!movedLeaderNRP) {
+                        markError('#movedOfficerLeaderRegisterNumber', 'Ketua Tim Penyidik Yang Telah Pindah harus dipilih/diisi');
+                    }
+                }
+
+                // 4. Validasi Anggota Tim Penyidik (*) (internal / moved / external minimal 1 personil)
+                var totalOfficers = $('#internalOfficerMemberTable tbody tr').length +
+                                    $('#movedOfficerMemberTable tbody tr').length +
+                                    $('#externalOfficerMemberTable tbody tr').length;
+                if (totalOfficers === 0) {
+                    markError('#internalOfficerMemberTable', 'Penyidik harus ditambahkan minimal 1 orang');
+                }
+
+                // Jika ada error di frontend, scroll ke field pertama
+                if (errors.length > 0) {
+                    scrollToFirstError();
+                    return false;
+                }
 
                 // Lakukan validasi di sisi server menggunakan Ajax
                 $.ajax({
@@ -2381,34 +2580,42 @@
                     success: function(response) {
                         // Cek jika validasi berhasil di sisi server
                         if (response.success) {
-                            // sweetalert2 berhasil sebelum submit form
                             Swal.fire({
                                 title: 'Berhasil',
-                                text: response.message,
+                                text: response.message || 'Silahkan menunggu proses simpan data',
                                 icon: 'success',
                                 confirmButtonText: 'Ok'
                             }).then((result) => {
-                                // Submit form
-                                $('#suratPerintahPenyidikanForm').submit();
+                                $('#suratPerintahPenyidikanForm')[0].submit();
                             });
                         }
                     },
                     error: function(xhr) {
-                        // Tangani error jika terjadi kesalahan saat melakukan validasi
-                        response = JSON.parse(xhr.responseText);
-
-                        if (response.code == '422') {
-                            var errorMessages = '';
-
-                            $.each(response.errors, function(key, value) {
-                                errorMessages += '- ' + value + '<br>';
-                            });
-
-                            return Swal.fire({
-                                icon: 'error',
-                                title: 'Mohon Periksa Kembali Isian Anda',
-                                html: errorMessages,
-                            });
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.code == '422' && response.errors) {
+                                $.each(response.errors, function(key, messages) {
+                                    var msg = Array.isArray(messages) ? messages[0] : messages;
+                                    var $target = $('#' + key + ', [name="' + key + '"]');
+                                    if ($target.length) {
+                                        markError($target, msg);
+                                    } else if (key.indexOf('law') !== -1) {
+                                        markError('#lawTable', msg);
+                                    } else if (key.indexOf('Officer') !== -1 || key.indexOf('officer') !== -1 || key === 'personnel') {
+                                        markError('#internalOfficerMemberTable', msg);
+                                    }
+                                });
+                                scrollToFirstError();
+                            } else {
+                                var message = response.message || response.errors || 'Terjadi kesalahan saat memproses data.';
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Perhatian',
+                                    text: typeof message === 'string' ? message : JSON.stringify(message)
+                                });
+                            }
+                        } catch (e) {
+                            console.error(e);
                         }
                     }
                 });
