@@ -431,7 +431,8 @@
             $('#documentDate').datepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: "true",
-                endDate: new Date()
+                orientation: 'auto bottom',
+                startDate: new Date()
             });
             $('#documentDate').keydown(function(e) {
                 e.preventDefault();
@@ -689,6 +690,16 @@
                 checkSelect('#prosecutor', 'Nama Kejaksaan Penerima');
                 checkInput('#appendix', 'Lampiran');
                 checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
+                var docDateVal = ($('#documentDate').val() || '').trim();
+                if (docDateVal) {
+                    var selectedDate = new Date(docDateVal);
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    selectedDate.setHours(0, 0, 0, 0);
+                    if (selectedDate < today) {
+                        markError('#documentDate', 'Tanggal Ditandatangani Dokumen minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                    }
+                }
                 checkSelect('#signatory', 'Penandatanganan Surat');
                 checkSelect('#court', 'Pengadilan sebagai Tembusan');
 
