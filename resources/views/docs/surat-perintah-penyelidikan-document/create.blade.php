@@ -615,7 +615,7 @@
                 format: 'yyyy-mm-dd',
                 autoclose: "true",
                 orientation: 'auto bottom',
-                endDate: new Date()
+                startDate: new Date()
             });
             $('#documentDate').keydown(function(e) {
                 e.preventDefault();
@@ -1587,6 +1587,16 @@
 
                 // Tanggal Ditandatangani Dokumen
                 checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
+                var docDateVal = ($('#documentDate').val() || '').trim();
+                if (docDateVal) {
+                    var selectedDate = new Date(docDateVal);
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    selectedDate.setHours(0, 0, 0, 0);
+                    if (selectedDate < today) {
+                        markError('#documentDate', 'Tanggal Ditandatangani Dokumen minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                    }
+                }
 
                 // Yang Menandatangani
                 checkSelect('#signatory', 'Yang Menandatangani');
