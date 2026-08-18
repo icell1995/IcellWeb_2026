@@ -55,7 +55,7 @@
         <div class="box-body">
             <form
                 action="{{ route('doc.surat-ketetapan-tentang-penetapan-tersangka-document.update', ['accident_id' => $accidentId, 'id'=> $suratKetetapanTentangPenetapanTersangkaDocumentId]) }}"
-                method="POST" enctype="multipart/form-data" id="suratKetetapanTentangPenetapanTersangkaForm">
+                method="POST" enctype="multipart/form-data" id="suratKetetapanTentangPenetapanTersangkaForm" novalidate>
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
 
@@ -703,6 +703,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" defer></script>
 <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js" defer></script>
 <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
 @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $suratKetetapanTentangPenetapanTersangkaDocument->is_legacy == true || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
@@ -1558,36 +1559,36 @@
     });
 
     function validateSuspectIdentityNumber() {
+        var $field = $('#identityNumberFieldSuspect');
         var identityTypeId = $('#identityTypeFieldSuspect').val();
-        var val = $('#identityNumberFieldSuspect').val() || '';
+        var identityTypeName = ($('#identityTypeFieldSuspect').find(':selected').data('identity-type-name') || $('#identityTypeFieldSuspect').find(':selected').text() || '').toUpperCase();
+        var val = ($field.val() || '').trim();
         var errorMsg = '';
 
-        // Skip validation if empty or disabled
-        if ($('#identityNumberFieldSuspect').is(':disabled') || val === '') {
-            $('#identityNumberFieldSuspect').removeClass('is-invalid');
-            $('#identityNumberError').text('');
-            return;
+        // Skip validation if empty or disabled without wiping required error
+        if ($field.is(':disabled') || val === '') {
+            return null;
         }
 
-        if (identityTypeId == 10) { // KTP
+        if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) { // KTP
             if (!/^[0-9]+$/.test(val)) {
                 errorMsg = 'Nomor KTP harus berupa angka saja.';
             } else if (val.length !== 16) {
                 errorMsg = 'Nomor KTP harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
             }
-        } else if (identityTypeId == 8) { // KK
+        } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) { // KK
             if (!/^[0-9]+$/.test(val)) {
                 errorMsg = 'Nomor Kartu Keluarga (KK) harus berupa angka saja.';
             } else if (val.length !== 16) {
                 errorMsg = 'Nomor Kartu Keluarga (KK) harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
             }
-        } else if (identityTypeId == 13) { // SIM
+        } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) { // SIM
             if (!/^[0-9]+$/.test(val)) {
                 errorMsg = 'Nomor SIM harus berupa angka saja.';
-            } else if (val.length !== 12) {
-                errorMsg = 'Nomor SIM harus tepat 12 digit (saat ini: ' + val.length + ' digit).';
+            } else if (val.length !== 12 && val.length !== 14 && val.length !== 16) {
+                errorMsg = 'Nomor SIM harus 12, 14, atau 16 digit (saat ini: ' + val.length + ' digit).';
             }
-        } else if (identityTypeId == 12) { // Passport
+        } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) { // Passport
             if (!/^[a-zA-Z0-9]+$/.test(val)) {
                 errorMsg = 'Nomor Passport harus alfanumerik (huruf dan angka saja).';
             } else if (val.length < 7 || val.length > 9) {
@@ -1595,21 +1596,37 @@
             }
         }
 
+        $field.next('.frontend-error, .invalid-feedback').remove();
+        $field.siblings('.frontend-error, .invalid-feedback').remove();
+
         if (errorMsg) {
-            $('#identityNumberFieldSuspect').addClass('is-invalid');
-            $('#identityNumberError').text(errorMsg);
+            $field.addClass('is-invalid');
+            $field.after('<div class="invalid-feedback d-block frontend-error">' + errorMsg + '</div>');
+            return errorMsg;
         } else {
-            $('#identityNumberFieldSuspect').removeClass('is-invalid');
-            $('#identityNumberError').text('');
+            $field.removeClass('is-invalid');
+            return null;
         }
     }
 
-    $('#identityNumberFieldSuspect').on('input keyup', validateSuspectIdentityNumber);
+    $('#identityNumberFieldSuspect').on('input keyup change blur', function() {
+        var val = ($(this).val() || '').trim();
+        if (val !== '') {
+            validateSuspectIdentityNumber();
+        }
+    });
+    $('#identityTypeFieldSuspect').on('change select2:select', function() {
+        var val = $('#identityNumberFieldSuspect').val() || '';
+        if (val !== '') {
+            validateSuspectIdentityNumber();
+        }
+    });
 
     function validateSuspectPhoneAndEmail() {
         // Phone validation
-        var phoneVal = $('#phoneNumberFieldSuspect').val() || '';
-        var isPhoneDisabled = $('#phoneNumberFieldSuspect').is(':disabled');
+        var $phoneField = $('#phoneNumberFieldSuspect');
+        var phoneVal = ($phoneField.val() || '').trim();
+        var isPhoneDisabled = $phoneField.is(':disabled');
         var phoneError = '';
 
         if (!isPhoneDisabled && phoneVal !== '') {
@@ -1620,17 +1637,20 @@
             }
         }
 
+        $phoneField.next('.frontend-error, .invalid-feedback').remove();
+        $phoneField.siblings('.frontend-error, .invalid-feedback').remove();
+
         if (phoneError) {
-            $('#phoneNumberFieldSuspect').addClass('is-invalid');
-            $('#phoneNumberError').text(phoneError);
+            $phoneField.addClass('is-invalid');
+            $phoneField.after('<div class="invalid-feedback d-block frontend-error">' + phoneError + '</div>');
         } else {
-            $('#phoneNumberFieldSuspect').removeClass('is-invalid');
-            $('#phoneNumberError').text('');
+            $phoneField.removeClass('is-invalid');
         }
 
         // Email validation
-        var emailVal = $('#emailFieldSuspect').val() || '';
-        var isEmailDisabled = $('#emailFieldSuspect').is(':disabled');
+        var $emailField = $('#emailFieldSuspect');
+        var emailVal = ($emailField.val() || '').trim();
+        var isEmailDisabled = $emailField.is(':disabled');
         var emailError = '';
 
         if (!isEmailDisabled && emailVal !== '') {
@@ -1640,12 +1660,14 @@
             }
         }
 
+        $emailField.next('.frontend-error, .invalid-feedback').remove();
+        $emailField.siblings('.frontend-error, .invalid-feedback').remove();
+
         if (emailError) {
-            $('#emailFieldSuspect').addClass('is-invalid');
-            $('#emailError').text(emailError);
+            $emailField.addClass('is-invalid');
+            $emailField.after('<div class="invalid-feedback d-block frontend-error">' + emailError + '</div>');
         } else {
-            $('#emailFieldSuspect').removeClass('is-invalid');
-            $('#emailError').text('');
+            $emailField.removeClass('is-invalid');
         }
     }
 
@@ -1659,49 +1681,160 @@
         setTimeout(validateSuspectPhoneAndEmail, 100);
     });
 
+    // Helper check field has value
+    function hasFieldValue($field) {
+        var raw = $field.val();
+        if (raw === null || raw === undefined) return false;
+        if (Array.isArray(raw)) return raw.length > 0;
+        var str = String(raw).trim();
+        return str !== '' && str !== '0';
+    }
+
+    // Helper clear single field error
+    function clearFieldError($field) {
+        $field.removeClass('is-invalid border border-danger');
+        if ($field.next('.select2-container').length) {
+            $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+            $field.next('.select2-container').next('.frontend-error, .invalid-feedback').remove();
+        }
+        $field.next('.frontend-error, .invalid-feedback').remove();
+        $field.siblings('.frontend-error, .invalid-feedback').remove();
+        $field.closest('.input-group, .mb-3, .col-lg-9, .col-md-9, .col-lg-6, .col-md-6, div').find('.frontend-error, .invalid-feedback').remove();
+    }
+
+    // Auto-clear realtime saat user mengetik atau mengubah nilai field
+    $(document).on('input change changeDate dp.change keyup blur', 'input, textarea, select', function() {
+        var $field = $(this);
+        // Jangan auto-clear untuk field yang punya validasi format khusus
+        if ($field.is('#identityNumberFieldSuspect, #phoneNumberFieldSuspect, #emailFieldSuspect, #documentNumber')) {
+            return;
+        }
+        if (hasFieldValue($field)) {
+            clearFieldError($field);
+        }
+    });
+
+    $(document).on('select2:select select2:unselect change', 'select', function() {
+        var $field = $(this);
+        if ($field.is('#identityNumberFieldSuspect, #phoneNumberFieldSuspect, #emailFieldSuspect, #documentNumber')) {
+            return;
+        }
+        if (hasFieldValue($field)) {
+            clearFieldError($field);
+        }
+    });
+
+    // Validator khusus no dokumen
+    $('#documentNumber').on('input keyup change blur', function() {
+        var val = ($(this).val() || '').trim();
+        if (val && val.length >= 5 && /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*\/)/.test(val)) {
+            clearFieldError($(this));
+        }
+    });
+
+    // Continuous watcher untuk membersihkan highlight jika value sudah terisi (kecuali field berformat khusus)
+    setInterval(function() {
+        $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
+            var $field = $(this);
+            if ($field.is('#identityNumberFieldSuspect, #phoneNumberFieldSuspect, #emailFieldSuspect, #documentNumber')) {
+                return;
+            }
+            if (hasFieldValue($field)) {
+                clearFieldError($field);
+            }
+        });
+    }, 200);
+
+    // Helper scrollToFirstError
+    function scrollToFirstError() {
+        var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+        if (!$firstError.length) {
+            $firstError = $('.is-invalid, .border-danger, .frontend-error').first();
+        }
+        if ($firstError && $firstError.length) {
+            var topPos = $firstError.offset() ? $firstError.offset().top : 0;
+            $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                scrollTop: Math.max(0, topPos - 140)
+            }, 400);
+            var el = $firstError[0];
+            if (el && typeof el.focus === 'function' && !$firstError.is('.select2-container')) {
+                try { el.focus(); } catch (e) {}
+            }
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+
     // Validasi Submit Form
     $(document).ready(function() {
-        // Initial run to validate existing loaded data on edit
-        validateSuspectIdentityNumber();
-        validateSuspectPhoneAndEmail();
-
         $('#suratKetetapanTentangPenetapanTersangkaFormSubmit').on('click', function(e) {
             e.preventDefault();
 
             // Bersihkan semua error sebelumnya
             $('.is-invalid').removeClass('is-invalid');
+            $('.border.border-danger').removeClass('border border-danger');
+            $('.select2-selection').removeClass('border border-danger is-invalid');
             $('.frontend-error').remove();
+            $('.invalid-feedback').remove();
 
             var errors = [];
             var suspectSource = $('input[name="suspectSource"]:checked').val() || $('#suspectSource').val();
             var countryVal = $('#countryFieldSuspect').val();
 
             // Helper: tandai field merah dan kumpulkan error
-            function markError(fieldId, message) {
-                var $field = $(fieldId);
-                $field.addClass('is-invalid');
-                if ($field.next('.frontend-error').length === 0) {
-                    $field.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+            function markError(fieldSelector, message) {
+                var $field = $(fieldSelector);
+                if (!$field.length) return;
+
+                if ($field.is('table')) {
+                    $field.addClass('border border-danger is-invalid');
+                    var $wrapper = $field.closest('.table-responsive, .input-group');
+                    var $container = $wrapper.length ? $wrapper : $field;
+                    $container.siblings('.frontend-error, .invalid-feedback').remove();
+                    $container.next('.frontend-error, .invalid-feedback').remove();
+                    $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    errors.push(message);
+                    return;
+                } else if ($field.is(':radio')) {
+                    $field.addClass('is-invalid');
+                    var $container = $field.closest('.d-flex, .form-check-group, .row');
+                    $container.siblings('.frontend-error, .invalid-feedback').remove();
+                    $container.next('.frontend-error, .invalid-feedback').remove();
+                    $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    errors.push(message);
+                    return;
+                } else {
+                    $field.addClass('is-invalid');
                 }
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                }
+                var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                $target.siblings('.frontend-error, .invalid-feedback').remove();
+                $target.next('.frontend-error, .invalid-feedback').remove();
+                $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
                 errors.push(message);
             }
 
             // Helper: cek select2 / select
-            function checkSelect(fieldId, label) {
-                var $field = $(fieldId);
-                var val = $field.val();
-                if (!val || val === '' || val === '0' || val === null) {
-                    markError(fieldId, label + ' harus diisi');
+            function checkSelect(fieldSelector, label) {
+                var $field = $(fieldSelector);
+                if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                var raw = $field.val();
+                var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                if (!hasVal) {
+                    markError(fieldSelector, label + ' harus dipilih');
                 }
             }
 
             // Helper: cek input text
-            function checkInput(fieldId, label) {
-                var $field = $(fieldId);
-                if ($field.is(':disabled')) return;
-                var val = ($field.val() || '').trim();
+            function checkInput(fieldSelector, label) {
+                var $field = $(fieldSelector);
+                if ($field.is(':disabled') || !$field.is(':visible')) return;
+                var raw = $field.val();
+                var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
                 if (!val || val === '') {
-                    markError(fieldId, label + ' harus diisi');
+                    markError(fieldSelector, label + ' harus diisi');
                 }
             }
 
@@ -1724,7 +1857,7 @@
 
             // Sumber Tersangka
             if (!suspectSource) {
-                markError('#suspectSource', 'Sumber Tersangka harus diisi');
+                markError('#suspectSource', 'Sumber Tersangka harus dipilih');
             }
 
             // Kejaksaan
@@ -1736,13 +1869,8 @@
             // Tersangka
             checkSelect('#suspect', 'Tersangka');
 
-            // === FIELD WAJIB JIKA suspectSource == 4 ===
-            if (suspectSource === '4') {
-                checkInput('#resumeSuspectDeterminationDate', 'Tanggal Resume Penetapan Tersangka');
-            }
-
-            // === FIELD WAJIB JIKA suspectSource == 5 (input manual) ===
-            if (suspectSource === '5') {
+            // === FIELD DETAIL TERSANGKA JIKA TERSANGKA DIPILIH / FORM DETAIL TAMPIL ===
+            if ($('#suspectDetail').is(':visible') || suspectSource === '5' || $('#suspect').val()) {
                 checkSelect('#identityTypeFieldSuspect', 'Jenis Identitas Tersangka');
                 checkInput('#identityNumberFieldSuspect', 'Nomor Identitas Tersangka');
                 checkInput('#nameFieldSuspect', 'Nama Tersangka');
@@ -1776,8 +1904,13 @@
                     checkSelect('#districtFieldSuspect', 'Kecamatan');
                     checkSelect('#villageFieldSuspect', 'Desa/Kelurahan');
                 }
+            }
 
-                // Laporan Gelar Perkara
+            // === FIELD KHUSUS SUMBER ===
+            if (suspectSource === '4') {
+                checkInput('#resumeSuspectDeterminationDate', 'Tanggal Resume Penetapan Tersangka');
+            }
+            if (suspectSource === '5') {
                 checkSelect('#laporanHasilGelarPerkaraDocumentSuspectDetermination', 'Tanggal Gelar Perkara Penetapan Tersangka');
             }
 
@@ -1788,27 +1921,24 @@
             }
 
             // Validasi format khusus (nomor identitas, telepon, email)
-            validateSuspectIdentityNumber();
-            validateSuspectPhoneAndEmail();
-            if ($('#identityNumberFieldSuspect').hasClass('is-invalid')) {
-                errors.push($('#identityNumberError').text());
+            var idErr = validateSuspectIdentityNumber();
+            if (idErr) {
+                errors.push(idErr);
             }
+            validateSuspectPhoneAndEmail();
             if ($('#phoneNumberFieldSuspect').hasClass('is-invalid')) {
-                errors.push($('#phoneNumberError').text());
+                var phoneErr = $('#phoneNumberFieldSuspect').next('.frontend-error').text() || 'Nomor telepon tidak valid';
+                errors.push(phoneErr);
             }
             if ($('#emailFieldSuspect').hasClass('is-invalid')) {
-                errors.push($('#emailError').text());
+                var emailErr = $('#emailFieldSuspect').next('.frontend-error').text() || 'Email tidak valid';
+                errors.push(emailErr);
             }
 
             // Jika ada error, scroll ke field pertama yang error
             if (errors.length > 0) {
-                var $firstError = $('.is-invalid').first();
-                if ($firstError.length) {
-                    $('html, body').animate({
-                        scrollTop: $firstError.offset().top - 100
-                    }, 300);
-                }
-                return;
+                scrollToFirstError();
+                return false;
             }
 
             // Lakukan validasi di sisi server menggunakan Ajax
@@ -1820,44 +1950,39 @@
                 success: function(response) {
                     // Cek jika validasi berhasil di sisi server
                     if (response.success) {
-                        // sweetalert2 berhasil sebelum submit form
                         Swal.fire({
                             title: 'Berhasil',
-                            text: response.message,
+                            text: response.message || 'Silahkan menunggu proses simpan data',
                             icon: 'success',
                             confirmButtonText: 'Ok'
                         }).then((result) => {
-                            // Submit form
-                            $('#suratKetetapanTentangPenetapanTersangkaForm').submit();
+                            $('#suratKetetapanTentangPenetapanTersangkaForm')[0].submit();
                         });
                     }
                 },
                 error: function(xhr) {
-                    var response = {};
                     try {
-                        response = JSON.parse(xhr.responseText);
-                    } catch (e) {
-                        response = { message: 'Terjadi kesalahan tidak dikenal pada server.' };
-                    }
-
-                    var errorMessages = '';
-                    if (response.errors) {
-                        if (typeof response.errors === 'object') {
-                            $.each(response.errors, function(key, value) {
-                                errorMessages += '- ' + value + '<br>';
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.code == '422' && response.errors) {
+                            $.each(response.errors, function(key, messages) {
+                                var msg = Array.isArray(messages) ? messages[0] : messages;
+                                var $target = $('#' + key + ', [name="' + key + '"]');
+                                if ($target.length) {
+                                    markError($target, msg);
+                                }
                             });
+                            scrollToFirstError();
                         } else {
-                            errorMessages = response.errors;
+                            var message = response.message || response.errors || 'Terjadi kesalahan saat memproses data.';
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Perhatian',
+                                text: typeof message === 'string' ? message : JSON.stringify(message)
+                            });
                         }
-                    } else {
-                        errorMessages = response.message || 'Terjadi kesalahan sistem.';
+                    } catch (e) {
+                        console.error(e);
                     }
-
-                    return Swal.fire({
-                        icon: 'error',
-                        title: 'Mohon Periksa Kembali Isian Anda',
-                        html: errorMessages,
-                    });
                 }
             });
         });
