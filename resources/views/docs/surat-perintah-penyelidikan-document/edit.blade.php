@@ -53,7 +53,7 @@
         </div>
 
         <form action="{{ route('doc.surat-perintah-penyelidikan-document.update', ['accident_id' => $accidentId, 'id'=> $suratPerintahPenyelidikanDocumentId]) }}" 
-            method="POST" enctype="multipart/form-data" id="suratPerintahPenyelidikanForm">
+            method="POST" enctype="multipart/form-data" id="suratPerintahPenyelidikanForm" novalidate>
             @csrf
             <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
 
@@ -1813,10 +1813,176 @@
         });
     });
 
+    // Auto-clear error merah ketika field diisi/diubah
+    $(document).on('input change', 'input.is-invalid, textarea.is-invalid, select.is-invalid', function() {
+        var $field = $(this);
+        var val = ($field.val() || '').trim();
+        if (val && val !== '' && val !== '0') {
+            $field.removeClass('is-invalid');
+            if ($field.next('.select2-container').length) {
+                $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+            }
+            $field.next('.select2-container').next('.frontend-error').remove();
+            $field.next('.frontend-error').remove();
+        }
+    });
+    // Untuk select2
+    $(document).on('select2:select change', 'select', function() {
+        var $field = $(this);
+        $field.removeClass('is-invalid');
+        if ($field.next('.select2-container').length) {
+            $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+        }
+        $field.next('.select2-container').next('.frontend-error').remove();
+        $field.next('.frontend-error').remove();
+        $field.siblings('.frontend-error').remove();
+    });
+    // Clear table errors when a row is added
+    $(document).on('click', '#officerInternalMemberOptionAddButtton, #officerMovedMemberOptionAddButtton, #officerExternalMemberOptionAddButtton, #saveAddManualMovedOfficerForm', function() {
+        $('#internalOfficerMemberTable, #movedOfficerMemberTable, #externalOfficerMemberTable').removeClass('is-invalid border border-danger');
+        $('#internalOfficerMemberTable, #movedOfficerMemberTable, #externalOfficerMemberTable').next('.frontend-error').remove();
+    });
+
     // Validasi Submit Form
     $(document).ready(function() {
-        $('#suratPerintahPenyelidikanFormSubmit').on('click', function(e) {
+        $(document).on('click', '#suratPerintahPenyelidikanFormSubmit', function(e) {
             e.preventDefault();
+
+            // Bersihkan semua error sebelumnya
+            $('.is-invalid').removeClass('is-invalid');
+            $('.border.border-danger').removeClass('border border-danger');
+            $('.select2-selection').removeClass('border border-danger is-invalid');
+            $('.frontend-error').remove();
+
+            var errors = [];
+
+            // Helper: tandai field merah dan kumpulkan error
+            function markError(fieldId, message) {
+                var $field = $(fieldId);
+                if ($field.is('table')) {
+                    $field.addClass('border border-danger is-invalid');
+                } else {
+                    $field.addClass('is-invalid');
+                }
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                }
+                var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                if ($target.next('.frontend-error').length === 0) {
+                    $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                }
+                errors.push(message);
+            }
+
+            // Helper: cek select2 / select
+            function checkSelect(fieldId, label) {
+                var $field = $(fieldId);
+                var val = $field.val();
+                if (!val || val === '' || val === '0' || val === null) {
+                    markError(fieldId, label + ' harus diisi');
+                }
+            }
+
+            // Helper: cek input text
+            function checkInput(fieldId, label) {
+                var $field = $(fieldId);
+                if ($field.is(':disabled')) return;
+                var val = ($field.val() || '').trim();
+                if (!val || val === '') {
+                    markError(fieldId, label + ' harus diisi');
+                }
+            }
+
+            // === FIELD WAJIB SELALU ===
+            // No Dokumen
+            var docNum = ($('#documentNumber').val() || '').trim();
+            if (!docNum) {
+                markError('#documentNumber', 'No Dokumen harus diisi');
+            } else if (docNum.length < 5) {
+                markError('#documentNumber', 'No Dokumen harus lengkap');
+            } else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*\/)/.test(docNum)) {
+                markError('#documentNumber', 'No Dokumen harus lengkap (mengandung huruf, angka, dan /)');
+            }
+
+            // Kategori Surat Perpanjangan
+            if ($('#isRenewalDocument').is(':checked')) {
+                checkSelect('#referenceDocument', 'SP Penyelidikan Referensi');
+            }
+
+            // Klasifikasi Kasus
+            checkSelect('#caseClassification', 'Klasifikasi Kasus');
+
+            // Tanggal Mulai Lidik
+            checkInput('#startDate', 'Tanggal Mulai Lidik');
+
+            // Tanggal Akhir Lidik (wajib jika "Sampai dengan selesai" tidak dicentang)
+            if (!$('#isFinished').is(':checked')) {
+                checkInput('#endDate', 'Tanggal Akhir Lidik');
+            }
+
+            // Tanggal Ditandatangani Dokumen
+            checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
+
+            // Yang Menandatangani
+            checkSelect('#signatory', 'Yang Menandatangani');
+
+            // Ketua Tim Penyelidik
+            checkSelect('#officerLeader', 'Ketua Tim Penyelidik');
+
+            // === ANGGOTA TIM PENYELIDIK ===
+            var isMovedChecked = $('#isMovedOfficers').is(':checked');
+            var isExternalChecked = $('#isExternalOfficers').is(':checked');
+
+            // Jika isMovedOfficers dan isExternalOfficers tidak dicentang, internalOfficers wajib terisi
+            if (!isMovedChecked && !isExternalChecked) {
+                if ($('#internalOfficerMemberTable tbody tr').length === 0) {
+                    markError('#internalOfficerMemberTable', 'Anggota Tim Penyelidik internal harus diisi minimal 1 personel');
+                }
+            }
+
+            // Jika isMovedOfficers dicentang, movedOfficers wajib terisi
+            if (isMovedChecked) {
+                if ($('#movedOfficerMemberTable tbody tr').length === 0) {
+                    markError('#movedOfficerMemberTable', 'Anggota Tim Penyelidik yang telah pindah harus diisi minimal 1 personel');
+                }
+            }
+
+            // Jika isExternalOfficers dicentang, externalOfficers wajib terisi
+            if (isExternalChecked) {
+                if ($('#externalOfficerMemberTable tbody tr').length === 0) {
+                    markError('#externalOfficerMemberTable', 'Anggota Tim Penyelidik dari luar harus diisi minimal 1 personel');
+                }
+            }
+
+            // Jika ada error, scroll ke field pertama yang error
+            if (errors.length > 0) {
+                var $firstError = $('.is-invalid, .border-danger').first();
+                var $target = null;
+                if ($firstError && $firstError.length) {
+                    if ($firstError.is(':visible')) {
+                        $target = $firstError;
+                    } else if ($firstError.next('.select2-container').is(':visible')) {
+                        $target = $firstError.next('.select2-container');
+                    } else {
+                        $target = $firstError.closest(':visible');
+                    }
+                }
+                if (!$target || !$target.length || !$target.offset()) {
+                    $target = $('.frontend-error:visible, .is-invalid:visible, .border-danger:visible').first();
+                }
+
+                if ($target && $target.length) {
+                    if ($target[0] && typeof $target[0].scrollIntoView === 'function') {
+                        $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    if ($target.offset()) {
+                        $('html, body, .content-wrapper, .wrapper').animate({
+                            scrollTop: Math.max(0, $target.offset().top - 120)
+                        }, 400);
+                    }
+                }
+                return;
+            }
 
             // Lakukan validasi di sisi server menggunakan Ajax
             $.ajax({
@@ -1840,22 +2006,31 @@
                     }
                 },
                 error: function(xhr) {
-                    // Tangani error jika terjadi kesalahan saat melakukan validasi
-                    response = JSON.parse(xhr.responseText);
-
-                    if(response.code == '422'){
-                        var errorMessages = '';
-
-                        $.each(response.errors, function(key, value) {
-                            errorMessages += '- ' + value + '<br>';
-                        });
-
-                        return Swal.fire({
-                            icon: 'error',
-                            title: 'Mohon Periksa Kembali Isian Anda',
-                            html: errorMessages,
-                        });
+                    var response = {};
+                    try {
+                        response = JSON.parse(xhr.responseText);
+                    } catch (e) {
+                        response = { message: 'Terjadi kesalahan tidak dikenal pada server.' };
                     }
+
+                    var errorMessages = '';
+                    if (response.errors) {
+                        if (typeof response.errors === 'object') {
+                            $.each(response.errors, function(key, value) {
+                                errorMessages += '- ' + value + '<br>';
+                            });
+                        } else {
+                            errorMessages = response.errors;
+                        }
+                    } else {
+                        errorMessages = response.message || 'Terjadi kesalahan sistem.';
+                    }
+
+                    return Swal.fire({
+                        icon: 'error',
+                        title: 'Mohon Periksa Kembali Isian Anda',
+                        html: errorMessages,
+                    });
                 }
             });
         });
