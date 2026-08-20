@@ -153,7 +153,51 @@ class SuratPerintahTugasDocumentValidationController extends Controller
 
             DB::commit();
 
-            return redirect()->route('cms.case-document-validation.index')->with('success', 'Surat Perintah Tugas berhasil disetujui.');
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Surat Perintah Tugas berhasil disetujui.'
+                ]);
+            }
+
+            return "
+            <!DOCTYPE html>
+            <html lang='id'>
+            <head>
+                <meta charset='UTF-8'>
+                <title>Validasi Berhasil</title>
+                <link rel='preconnect' href='https://fonts.googleapis.com'>
+                <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+                <link href='https://fonts.googleapis.com/css2?family=Open+Sans&display=swap' rel='stylesheet'>
+                <link rel='stylesheet' href='" . asset('css/bootstrap1x.min.css') . "'>
+                <link rel='stylesheet' href='" . asset('css/style2x.css') . "'>
+                <script src='" . asset('libs/sweetalert/sweetalert2.all.min.js') . "'></script>
+                <style>
+                    body {
+                        font-family: 'Open Sans', sans-serif;
+                        background-color: #f4f6f9;
+                    }
+                </style>
+            </head>
+            <body>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Surat Perintah Tugas berhasil disetujui.',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(() => {
+                            window.close();
+                        });
+                    });
+                </script>
+            </body>
+            </html>";
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->with('error', 'Terjadi kesalahan. Surat Perintah Tugas gagal disetujui.');
@@ -211,7 +255,40 @@ class SuratPerintahTugasDocumentValidationController extends Controller
 
                 DB::commit();
 
-                return redirect()->route('cms.case-document-validation.index')->with('success', 'Surat Perintah Tugas berhasil dikembalikan.');
+            if ($request->ajax() || $request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Surat Perintah Tugas berhasil dikembalikan.'
+                ]);
+            }
+
+            return "
+                <!DOCTYPE html>
+                <html lang='id'>
+                <head>
+                    <meta charset='UTF-8'>
+                    <title>Validasi Berhasil</title>
+                    <script src='" . asset('libs/sweetalert/sweetalert2.all.min.js') . "'></script>
+                </head>
+                <body>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Surat Perintah Tugas berhasil dikembalikan.',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(() => {
+                            window.close();
+                        });
+                        });
+                    </script>
+                </body>
+                </html>";
             } catch (\Exception $e) {
                 DB::rollback();
                 return redirect()->back()->with('error', 'Terjadi kesalahan. Surat Perintah Tugas gagal ditolak.');
