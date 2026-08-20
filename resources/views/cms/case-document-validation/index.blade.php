@@ -178,6 +178,68 @@
     <script src="{{ asset('js/laravel.js') }}"></script>
 
     <script>
+        var currentAccidentId = null;
+        var currentAccidentNumber = null;
+
+        function showTableLoading() {
+            if ($.fn.DataTable.isDataTable('#documentsTable')) {
+                $('#documentsTable').DataTable().destroy();
+            }
+            $('#documentsTable tbody').html(`
+                <tr>
+                    <td colspan="7" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 2.5rem; height: 2.5rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <div class="mt-3 text-muted fw-bold">
+                            <i class="bi bi-arrow-repeat me-1"></i> Sedang memperbarui daftar dokumen...
+                        </div>
+                    </td>
+                </tr>
+            `);
+        }
+
+        function reloadDocumentsTable(accidentId, accidentNumber) {
+            accidentId = accidentId || currentAccidentId;
+            accidentNumber = accidentNumber || currentAccidentNumber;
+            if (!accidentId) return;
+
+            showTableLoading();
+
+            $.ajax({
+                url: "{{route('cms.case-document-validation.api.documents')}}",
+                type: 'GET',
+                data: {
+                    accidentId: accidentId
+                },
+                success: function(response) {
+                    if ($.fn.DataTable.isDataTable('#documentsTable')) {
+                        $('#documentsTable').DataTable().destroy();
+                    }
+                    $('#documentsTable tbody').empty();
+                    $('#documentsTable tbody').append(response);
+
+                    $('#documentsTable').DataTable({
+                        responsive: true
+                    });
+
+                    if (accidentNumber) {
+                        $('#documentListModalTitle').text('LP : ' + accidentNumber);
+                    }
+                },
+                error: function() {
+                    $('#documentsTable tbody').html(`
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-danger">
+                                <i class="bi bi-exclamation-triangle fs-4 d-block mb-2"></i>
+                                Gagal memuat daftar dokumen. Silakan coba lagi.
+                            </td>
+                        </tr>
+                    `);
+                }
+            });
+        }
+
         $(document).ready(function() {
             $('.dataTable').DataTable({
                 responsive: true,
@@ -187,30 +249,92 @@
 
         //when document list modal opened
         $('.documentListModalButton').on('click', function() {
-            var accidentId = $(this).data('accident-id');
-            var accidentNumber = $(this).data('accident-number');
+            currentAccidentId = $(this).data('accident-id');
+            currentAccidentNumber = $(this).data('accident-number');
             
+            $('#documentListModalTitle').text('LP : ' + currentAccidentNumber);
+            showTableLoading();
+            $('#documentListModal').modal('show');
+
             //call ajax to get document list
             $.ajax({
                 url: "{{route('cms.case-document-validation.api.documents')}}",
                 type: 'GET',
                 data: {
-                    accidentId: accidentId
+                    accidentId: currentAccidentId
                 },
                 success: function(response) {
-                    $('#documentsTable').DataTable().destroy();
+                    if ($.fn.DataTable.isDataTable('#documentsTable')) {
+                        $('#documentsTable').DataTable().destroy();
+                    }
                     $('#documentsTable tbody').empty();
                     $('#documentsTable tbody').append(response);
 
                     $('#documentsTable').DataTable({
                         responsive: true
                     });
-
-                    $('#documentListModalTitle').text('LP : ' + accidentNumber);
-                    $('#documentListModal').modal('show');
+                },
+                error: function() {
+                    $('#documentsTable tbody').html(`
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-danger">
+                                <i class="bi bi-exclamation-triangle fs-4 d-block mb-2"></i>
+                                Gagal memuat daftar dokumen. Silakan coba lagi.
+                            </td>
+                        </tr>
+                    `);
                 }
             });
+        });
 
+        // Handler saat ada dokumen yang berhasil disetujui / ditolak dari tab review
+        window.onMindikDocumentValidated = function(data) {
+            if ($('#documentListModal').is(':visible')) {
+                // Refresh daftar dokumen di modal secara otomatis agar dokumen yang sudah diapprove langsung hilang
+                reloadDocumentsTable();
+            }
+        };
+
+        // 1. Listen via BroadcastChannel (modern cross-tab)
+        try {
+            if ('BroadcastChannel' in window) {
+                var channel = new BroadcastChannel('mindik_validation_channel');
+                channel.onmessage = function(e) {
+                    if (e.data && e.data.action === 'document_validated') {
+                        window.onMindikDocumentValidated(e.data);
+                    }
+                };
+            }
+        } catch (e) {}
+
+        // 2. Listen via localStorage event (cross-tab fallback)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'mindik_document_validated' && e.newValue) {
+                try {
+                    var data = JSON.parse(e.newValue);
+                    window.onMindikDocumentValidated(data);
+                } catch (err) {}
+            }
+        });
+
+        // 3. Listen saat tab kembali difokuskan oleh pengguna
+        $(window).on('focus', function() {
+            var lastValidated = localStorage.getItem('mindik_document_validated');
+            if (lastValidated) {
+                try {
+                    var data = JSON.parse(lastValidated);
+                    if (Date.now() - (data.timestamp || 0) < 60000) {
+                        if ($('#documentListModal').is(':visible')) {
+                            reloadDocumentsTable();
+                        }
+                    }
+                } catch (e) {}
+            }
+        });
+
+        // reload page when modal is closed to refresh counters
+        $('#documentListModal').on('hidden.bs.modal', function () {
+            location.reload();
         });
     </script>
 @endpush
