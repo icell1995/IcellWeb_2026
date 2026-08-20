@@ -53,7 +53,7 @@
         </div>
 
         <div class="box-body">
-            <form action="{{ route('doc.sp2hp-document.update', ['id' => $sp2hpDocument->id]) }}" method="POST" enctype="multipart/form-data" id="sp2hpRegulationForm">
+            <form action="{{ route('doc.sp2hp-document.update', ['id' => $sp2hpDocument->id]) }}" method="POST" enctype="multipart/form-data" id="sp2hpRegulationForm" novalidate>
                 @csrf
                 @method('PUT')
                 <input type="hidden" id="sp2hp_id" name="sp2hp_id" value="{{ $sp2hpDocument->id }}">
@@ -88,14 +88,12 @@
                                                     <i class="fas fa-magic"></i> Generate
                                                 </button>
                                             </div>
-                                            <span class="text-danger error-text nomor_surat_err"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">Tanggal Surat <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control datepicker" id="tanggal_surat" name="tanggal_surat" placeholder="dd-mm-yyyy" value="{{ old('tanggal_surat', optional($sp2hpDocument->tanggal_surat)->format('d-m-Y') ?? '') }}">
-                                            <span class="text-danger error-text tanggal_surat_err"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -105,7 +103,6 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">Tempat Surat <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="tempat_surat" name="tempat_surat" placeholder="Contoh: Jakarta" value="{{ old('tempat_surat', $sp2hpDocument->tempat_surat ?? '') }}">
-                                            <span class="text-danger error-text tempat_surat_err"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -117,7 +114,6 @@
                                                     <option value="{{ $t }}" {{ (old('tipe_sp2hp', $sp2hpDocument->tipe_sp2hp ?? '') == $t) ? 'selected' : '' }}>{{ $t }}</option>
                                                 @endforeach
                                             </select>
-                                            <span class="text-danger error-text tipe_sp2hp_err"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -129,7 +125,6 @@
                                                     <option value="{{ $tk }}" {{ (old('tingkat_kasus', $sp2hpDocument->tingkat_kasus ?? '') == $tk) ? 'selected' : '' }}>{{ $tk }}</option>
                                                 @endforeach
                                             </select>
-                                            <span class="text-danger error-text tingkat_kasus_err"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -147,21 +142,18 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">Nama <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="penerima_nama" name="penerima_nama" placeholder="Nama lengkap penerima" value="{{ old('penerima_nama', $sp2hpDocument->penerima_nama ?? '') }}">
-                                            <span class="text-danger error-text penerima_nama_err"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">Jabatan <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" id="penerima_jabatan" name="penerima_jabatan" placeholder="Contoh: Kapolda, Wakapolda" value="{{ old('penerima_jabatan', $sp2hpDocument->penerima_jabatan ?? '') }}">
-                                            <span class="text-danger error-text penerima_jabatan_err"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Alamat <span class="text-danger">*</span></label>
                                     <textarea class="form-control" id="penerima_alamat" name="penerima_alamat" rows="2" placeholder="Alamat lengkap penerima">{{ old('penerima_alamat', $sp2hpDocument->penerima_alamat ?? '') }}</textarea>
-                                    <span class="text-danger error-text penerima_alamat_err"></span>
                                 </div>
                             </div>
                         </div>
@@ -189,11 +181,73 @@
                 </div>
             </form>
 
-            <div class="alert-sp2hp-reg mt-3"></div>
-
             @push('scripts')
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 <script>
+                    // Helper cek nilai field
+                    function hasFieldValue($field) {
+                        var raw = $field.val();
+                        if (raw === null || raw === undefined) return false;
+                        if (Array.isArray(raw)) return raw.length > 0;
+                        var str = String(raw).trim();
+                        return str !== '' && str !== '0';
+                    }
+
+                    // Auto-clear error merah ketika field diisi/diubah
+                    $(document).on('input change changeDate', 'input, textarea, select', function() {
+                        var $field = $(this);
+                        if (hasFieldValue($field)) {
+                            $field.removeClass('is-invalid');
+                            if ($field.next('.select2-container').length) {
+                                $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                            }
+                            $field.next('.frontend-error, .invalid-feedback').remove();
+                            $field.siblings('.frontend-error, .invalid-feedback').remove();
+                            $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                        }
+                    });
+
+                    $(document).on('select2:select select2:unselect change', 'select', function() {
+                        var $field = $(this);
+                        if (hasFieldValue($field)) {
+                            $field.removeClass('is-invalid');
+                            if ($field.next('.select2-container').length) {
+                                $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                            }
+                            $field.next('.frontend-error, .invalid-feedback').remove();
+                            $field.siblings('.frontend-error, .invalid-feedback').remove();
+                            $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                        }
+                    });
+
+                    function scrollToFirstError() {
+                        var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+                        if (!$firstError.length) {
+                            $firstError = $('.is-invalid, .border-danger').first();
+                        }
+                        if ($firstError.length) {
+                            var el = $firstError[0];
+                            if (el && typeof el.scrollIntoView === 'function') {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
+                            var topPos = $firstError.offset() ? $firstError.offset().top : 0;
+                            $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                                scrollTop: Math.max(0, topPos - 140)
+                            }, 400);
+                        } else {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    }
+
                     $(document).ready(function() {
+                        $('#tanggal_surat').datepicker({
+                            format: 'dd-mm-yyyy',
+                            todayHighlight: true,
+                            autoclose: true,
+                            orientation: 'bottom auto',
+                            startDate: new Date()
+                        });
+
                         // wire buttons
                         $('#btnSaveSp2hpRegulation, #btnSaveSp2hpRegulationBottom').click(function() {
                             saveSp2hpRegulation();
@@ -201,7 +255,9 @@
 
                         $('#btnResetForm').click(function() {
                             document.getElementById('sp2hpRegulationForm').reset();
-                            clearErrors();
+                            $('.is-invalid').removeClass('is-invalid');
+                            $('.border-danger').removeClass('border-danger');
+                            $('.frontend-error').remove();
                         });
 
                         $('#btnGenerateNomorSurat').click(function() {
@@ -210,9 +266,77 @@
                     });
 
                     function saveSp2hpRegulation() {
+                        // Bersihkan error sebelumnya
+                        $('.is-invalid').removeClass('is-invalid');
+                        $('.border-danger').removeClass('border-danger');
+                        $('.select2-selection').removeClass('border border-danger is-invalid');
+                        $('.frontend-error').remove();
+                        $('.invalid-feedback').remove();
+
+                        let errors = [];
+
+                        function markError(fieldSelector, message) {
+                            var $field = $(fieldSelector);
+                            $field.addClass('is-invalid');
+                            if ($field.next('.select2-container').length) {
+                                $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                            }
+                            var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                            if ($target.next('.frontend-error').length === 0) {
+                                $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                            }
+                            errors.push(message);
+                        }
+
+                        function checkInput(fieldSelector, label) {
+                            var $field = $(fieldSelector);
+                            if ($field.is(':disabled') || !$field.is(':visible')) return;
+                            var raw = $field.val();
+                            var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                            if (!val || val === '') {
+                                markError(fieldSelector, label + ' harus diisi');
+                            }
+                        }
+
+                        function checkSelect(fieldSelector, label) {
+                            var $field = $(fieldSelector);
+                            if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                            var raw = $field.val();
+                            var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                            if (!hasVal) {
+                                markError(fieldSelector, label + ' harus dipilih');
+                            }
+                        }
+
+                        checkInput('#nomor_surat', 'Nomor Surat');
+                        checkInput('#tanggal_surat', 'Tanggal Surat');
+                        var tglSuratVal = ($('#tanggal_surat').val() || '').trim();
+                        if (tglSuratVal) {
+                            var parts = tglSuratVal.split('-');
+                            if (parts.length === 3) {
+                                var selectedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                                var today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                selectedDate.setHours(0, 0, 0, 0);
+                                if (selectedDate < today) {
+                                    markError('#tanggal_surat', 'Tanggal Surat minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                                }
+                            }
+                        }
+                        checkInput('#tempat_surat', 'Tempat Surat');
+                        checkSelect('#tipe_sp2hp', 'Tipe SP2HP');
+                        checkSelect('#tingkat_kasus', 'Tingkat Kasus');
+                        checkInput('#penerima_nama', 'Nama Penerima');
+                        checkInput('#penerima_jabatan', 'Jabatan Penerima');
+                        checkInput('#penerima_alamat', 'Alamat Penerima');
+
+                        if (errors.length > 0) {
+                            scrollToFirstError();
+                            return false;
+                        }
+
                         let form = document.getElementById('sp2hpRegulationForm');
                         let formData = new FormData(form);
-                        // include method override for PUT
                         formData.append('_method', 'PUT');
 
                         let token = $('input[name="_token"]').val();
@@ -226,18 +350,37 @@
                             headers: { 'X-CSRF-TOKEN': token },
                             success: function(response) {
                                 if (response.success) {
-                                    showAlert('success', response.message);
-                                    setTimeout(() => window.location.href = response.redirect ?? window.location.href, 1200);
-                                } else {
-                                    showAlert('danger', response.message);
+                                    Swal.fire({
+                                        title: 'Berhasil',
+                                        text: response.message || 'Dokumen berhasil diperbarui',
+                                        icon: 'success',
+                                        confirmButtonText: 'Ok'
+                                    }).then((result) => {
+                                        window.location.href = response.redirect ?? window.location.href;
+                                    });
                                 }
                             },
                             error: function(xhr) {
-                                if (xhr.status === 422) {
-                                    let errors = xhr.responseJSON.errors;
-                                    displayErrors(errors);
+                                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                                    let serverErrors = xhr.responseJSON.errors;
+                                    $.each(serverErrors, function(key, messages) {
+                                        var $targetField = $('[name="' + key + '"], #' + key);
+                                        if ($targetField.length) {
+                                            markError($targetField, messages[0]);
+                                        }
+                                    });
+                                    scrollToFirstError();
                                 } else {
-                                    showAlert('danger', 'Terjadi kesalahan');
+                                    const message = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan data';
+                                    if (typeof Swal !== 'undefined') {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Error!',
+                                            text: message
+                                        });
+                                    } else {
+                                        alert('Error: ' + message);
+                                    }
                                 }
                             }
                         });
@@ -261,33 +404,12 @@
                             success: function(response) {
                                 if (response.success) {
                                     $('#nomor_surat').val(response.nomor_surat);
-                                    showAlert('success', 'Nomor surat berhasil di-generate');
                                 }
                             },
                             error: function() {
-                                showAlert('danger', 'Gagal generate nomor surat');
+                                alert('Gagal generate nomor surat');
                             }
                         });
-                    }
-
-                    function displayErrors(errors) {
-                        clearErrors();
-                        for (let field in errors) {
-                            let errorElement = $('.' + field + '_err');
-                            if (errorElement.length) {
-                                errorElement.text(errors[field][0]);
-                            }
-                        }
-                    }
-
-                    function clearErrors() {
-                        $('.text-danger.error-text').text('');
-                    }
-
-                    function showAlert(type, message) {
-                        let alertClass = 'alert-' + type;
-                        let alertHtml = `\n                            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">\n                                <i class="fas fa-info-circle"></i> ${message}\n                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>\n                            </div>\n                        `;
-                        $('.alert-sp2hp-reg').html(alertHtml);
                     }
                 </script>
             @endpush

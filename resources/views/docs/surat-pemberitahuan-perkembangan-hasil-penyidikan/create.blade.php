@@ -99,7 +99,7 @@
         <div class="box-body">
             <form
                 action="{{ isset($isEdit) && $isEdit ? route('doc.sp2hp-document.update', ['id' => $sp2hp->id]) : route('doc.sp2hp-document.store', ['accident_id' => $accident->id]) }}"
-                method="POST" enctype="multipart/form-data" id="sp2hpForm">
+                method="POST" enctype="multipart/form-data" id="sp2hpForm" novalidate>
                 @csrf
                 @if(isset($isEdit) && $isEdit)
                     @method('PUT')
@@ -259,9 +259,9 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-2">
-                                    <label class="form-label">Kecamatan</label>
+                                    <label class="form-label">Kecamatan <span class="text-danger">*</span></label>
                                     <select class="form-control form-select select2-location" id="kecamatan_tempat_surat" name="kecamatan_tempat_surat">
-                                        <option value="">-- Pilih Kecamatan (Opsional) --</option>
+                                        <option value="">-- Pilih Kecamatan --</option>
                                     </select>
                                 </div>
                             </div>
@@ -2244,14 +2244,12 @@
 
                 <!-- end form -->
             </form>
-
-            <!-- area alert untuk JS -->
-            <div class="alert-sp2hp-reg mt-3"></div>
         </div>
     </div>
 @endsection
 
 @push('script')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 <script>
@@ -2531,16 +2529,32 @@
             });
         }
         
-        // Initialize all datepickers
-        $('.datepicker, #tanggal_surat, #penerima_tanggal_lahir, #a3_tanggal_sprin, #a6_tanggal_kirim, #a7_tanggal_p21, #a7_tanggal_serah_tahap2, #tersangka_tanggal_lahir, #korban_tanggal_lahir, #a4_tanggal_tindakan').datepicker({
+        // Initialize birth date datepickers (past only)
+        $('#penerima_tanggal_lahir, #tersangka_tanggal_lahir, #korban_tanggal_lahir').datepicker({
             format: 'dd-mm-yyyy',
             todayHighlight: true,
             autoclose: true,
             orientation: 'bottom auto',
             endDate: new Date()
-        })
-            .each(function () {
-                if (!$(this).val()) $(this).datepicker('setDate', new Date());
+        });
+
+        // Initialize tanggal surat datepicker (minimal today)
+        $('#tanggal_surat').datepicker({
+            format: 'dd-mm-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            orientation: 'bottom auto',
+            startDate: new Date()
+        }).each(function () {
+            if (!$(this).val()) $(this).datepicker('setDate', new Date());
+        });
+
+        // Initialize other datepickers
+        $('.datepicker, #a3_tanggal_sprin, #a6_tanggal_kirim, #a7_tanggal_p21, #a7_tanggal_serah_tahap2, #a4_tanggal_tindakan').not('#penerima_tanggal_lahir, #tersangka_tanggal_lahir, #korban_tanggal_lahir, #tanggal_surat').datepicker({
+            format: 'dd-mm-yyyy',
+            todayHighlight: true,
+            autoclose: true,
+            orientation: 'bottom auto'
         });
         
         // FORCE hide all sections on initial load
@@ -2944,6 +2958,12 @@
         $('#penerima_negara').trigger('change');
 
         $('#addPenerimaButton').on('click', function() {
+            // Bersihkan error penerima sebelumnya
+            $('#penerimaSection .is-invalid').removeClass('is-invalid');
+            $('#penerimaSection .border-danger').removeClass('border-danger');
+            $('#penerimaSection .select2-selection').removeClass('border border-danger is-invalid');
+            $('#penerimaSection .frontend-error').remove();
+
             const selectedCountry = $('#penerima_negara').val();
             const isIndonesia = (selectedCountry === indonesiaCountryId);
             
@@ -2972,21 +2992,29 @@
                 requiredFields['penerima_kelurahan'] = 'Kelurahan/Desa';
             }
 
-            let missingFields = [];
+            let penerimaErrors = 0;
             for (let [fieldId, fieldName] of Object.entries(requiredFields)) {
-                const value = $('#' + fieldId).val();
-                if (!value || value.trim() === '') {
-                    missingFields.push(fieldName);
+                const $f = $('#' + fieldId);
+                const value = ($f.val() || '').toString().trim();
+                if (!value || value === '') {
+                    penerimaErrors++;
+                    $f.addClass('is-invalid');
+                    if ($f.next('.select2-container').length) {
+                        $f.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    }
+                    var $target = $f.next('.select2-container').length ? $f.next('.select2-container') : $f;
+                    if ($target.next('.frontend-error').length === 0) {
+                        $target.after('<div class="invalid-feedback d-block frontend-error">' + fieldName + ' harus diisi</div>');
+                    }
                 }
             }
 
-            if (missingFields.length > 0) {
-                return Swal.fire({
-                    icon: 'warning',
-                    title: 'Data Belum Lengkap',
-                    html: 'Field berikut harus diisi:<br><strong>' + missingFields.join(', ') + '</strong>',
-                    confirmButtonColor: '#3085d6'
-                });
+            if (penerimaErrors > 0) {
+                var $first = $('#penerimaSection .is-invalid:visible, #penerimaSection .border-danger:visible').first();
+                if ($first.length && $first[0] && typeof $first[0].scrollIntoView === 'function') {
+                    $first[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
             }
 
             penerimaCounter++;
@@ -3105,7 +3133,12 @@
         // Handler untuk button "Tambah Penerima ke Daftar" dari form clone (delegated event)
         $(document).on('click', '#addPenerimaButtonClone', function() {
             
-            // Validasi field required MINIMAL untuk form clone
+            // Bersihkan error penerima clone sebelumnya
+            $('.is-invalid').removeClass('is-invalid');
+            $('.border-danger').removeClass('border-danger');
+            $('.select2-selection').removeClass('border border-danger is-invalid');
+            $('.frontend-error').remove();
+
             const requiredFieldsClone = {
                 'penerima_jenis_identitas_clone': 'Jenis Identitas',
                 'penerima_nomor_identitas_clone': 'Nomor Identitas',
@@ -3114,24 +3147,27 @@
                 'penerima_alamat_clone': 'Alamat'
             };
 
-            let missingFields = [];
+            let cloneErrors = 0;
             for (let [fieldId, fieldName] of Object.entries(requiredFieldsClone)) {
-                const value = $('#' + fieldId).val();
-                if (!value || value.trim() === '') {
-                    missingFields.push(fieldName);
+                const $f = $('#' + fieldId);
+                const value = ($f.val() || '').toString().trim();
+                if (!value || value === '') {
+                    cloneErrors++;
+                    $f.addClass('is-invalid');
+                    if ($f.next('.select2-container').length) {
+                        $f.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    }
+                    var $target = $f.next('.select2-container').length ? $f.next('.select2-container') : $f;
+                    if ($target.next('.frontend-error').length === 0) {
+                        $target.after('<div class="invalid-feedback d-block frontend-error">' + fieldName + ' harus diisi</div>');
+                    }
                 }
             }
 
-            if (missingFields.length > 0) {
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Data Belum Lengkap',
-                        html: 'Field berikut harus diisi:<br><strong>' + missingFields.join(', ') + '</strong>',
-                        confirmButtonColor: '#3085d6'
-                    });
-                } else {
-                    alert('Data Belum Lengkap!\n\nField berikut harus diisi:\n- ' + missingFields.join('\n- '));
+            if (cloneErrors > 0) {
+                var $first = $('.is-invalid:visible, .border-danger:visible').first();
+                if ($first.length && $first[0] && typeof $first[0].scrollIntoView === 'function') {
+                    $first[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
                 return false;
             }
@@ -3680,137 +3716,328 @@
             }
         });
         
-        //Form validation and submission
+        // Helper cek nilai field aman untuk array maupun string
+        function hasFieldValue($field) {
+            var raw = $field.val();
+            if (raw === null || raw === undefined) return false;
+            if (Array.isArray(raw)) return raw.length > 0;
+            var str = String(raw).trim();
+            return str !== '' && str !== '0';
+        }
+
+        // Auto-clear error merah ketika field diisi/diubah
+        $(document).on('input change changeDate', 'input, textarea, select', function() {
+            var $field = $(this);
+            if (hasFieldValue($field)) {
+                $field.removeClass('is-invalid');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                }
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        // Untuk select2 auto clear
+        $(document).on('select2:select select2:unselect change', 'select', function() {
+            var $field = $(this);
+            if (hasFieldValue($field)) {
+                $field.removeClass('is-invalid');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                }
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        // Untuk tindakan checkbox auto clear
+        $(document).on('change', 'input.tindakan-checkbox', function() {
+            if ($('input.tindakan-checkbox:checked').length > 0) {
+                $('#section_a4 .card.shadow-sm').removeClass('is-invalid border border-danger');
+                $('#section_a4 .card.shadow-sm').next('.frontend-error, .invalid-feedback').remove();
+                $('#section_a4').find('.frontend-error, .invalid-feedback').each(function() {
+                    if ($(this).text().indexOf('Tindakan') !== -1) {
+                        $(this).remove();
+                    }
+                });
+            }
+        });
+
+        // Clear table error saat penerima atau personil ditambah
+        $(document).on('click', '#addPenerimaButton, #addPenerimaButtonClone, #btnTambahPersonilA1, #btnSimpanPenyidikA1, .deletePenerima, .removePersonnel', function() {
+            setTimeout(function() {
+                if ($('#penerimaTable tbody tr').length > 0) {
+                    $('#penerimaTable').removeClass('is-invalid border border-danger');
+                    $('#penerimaTable').next('.frontend-error, .invalid-feedback').remove();
+                    $('#penerimaTable').parent().find('.frontend-error, .invalid-feedback').remove();
+                }
+                if ($('#a1_personnelTable tbody tr').length > 0) {
+                    $('#a1_personnelTable').removeClass('is-invalid border border-danger');
+                    $('#a1_personnelTable').next('.frontend-error, .invalid-feedback').remove();
+                    $('#a1_personnelTable').parent().find('.frontend-error, .invalid-feedback').remove();
+                }
+            }, 100);
+        });
+
+        // Continuous watcher untuk input yang diupdate oleh plugin
+        setInterval(function() {
+            $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
+                var $field = $(this);
+                if (hasFieldValue($field)) {
+                    $field.removeClass('is-invalid');
+                    if ($field.next('.select2-container').length) {
+                        $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                    }
+                    $field.next('.frontend-error, .invalid-feedback').remove();
+                    $field.siblings('.frontend-error, .invalid-feedback').remove();
+                    $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                }
+            });
+        }, 200);
+
+        // Helper auto-scroll ke elemen error pertama
+        function scrollToFirstError() {
+            var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+            if (!$firstError.length) {
+                $firstError = $('.is-invalid, .border-danger').first();
+            }
+            if ($firstError && $firstError.length) {
+                var el = $firstError[0];
+                if (el && typeof el.scrollIntoView === 'function') {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                var topPos = $firstError.offset() ? $firstError.offset().top : 0;
+                $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                    scrollTop: Math.max(0, topPos - 140)
+                }, 400);
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Form validation and submission
         $('#sp2hpForm').on('submit', function(e) {
             e.preventDefault(); // Prevent default form submission
-                        
+
+            // Bersihkan error sebelumnya
+            $('.is-invalid').removeClass('is-invalid');
+            $('.border.border-danger').removeClass('border border-danger');
+            $('.select2-selection').removeClass('border border-danger is-invalid');
+            $('.frontend-error').remove();
+            $('.invalid-feedback').remove();
+
             const tipe = $('#tipe_sp2hp').val();
             let errors = [];
-                        
+
+            // Helper: tandai field merah dan masukkan pesan error inline
+            function markError(fieldSelector, message) {
+                var $field = $(fieldSelector);
+                if ($field.is('table')) {
+                    $field.addClass('border border-danger is-invalid');
+                } else if ($field.is(':radio') || $field.is(':checkbox')) {
+                    $field.addClass('is-invalid');
+                    var $container = $field.closest('.d-flex, .form-check-group, .row, .card-body');
+                    if ($container.next('.frontend-error').length === 0) {
+                        $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    }
+                    errors.push(message);
+                    return;
+                } else {
+                    $field.addClass('is-invalid');
+                }
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                }
+                var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                if ($target.next('.frontend-error').length === 0) {
+                    $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                }
+                errors.push(message);
+            }
+
+            function checkInput(fieldSelector, label) {
+                var $field = $(fieldSelector);
+                if ($field.is(':disabled') || !$field.is(':visible')) return;
+                var raw = $field.val();
+                var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                if (!val || val === '') {
+                    markError(fieldSelector, label + ' harus diisi');
+                }
+            }
+
+            function checkSelect(fieldSelector, label) {
+                var $field = $(fieldSelector);
+                if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                var raw = $field.val();
+                var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                if (!hasVal) {
+                    markError(fieldSelector, label + ' harus dipilih');
+                }
+            }
+
             // Basic validation
-            if (!tipe) errors.push('Pilih jenis SP2HP terlebih dahulu');
-            
+            checkSelect('#tipe_sp2hp', 'Jenis SP2HP');
+            checkSelect('#tingkat_kasus', 'Tingkat Kasus');
+
             // Nomor surat, tanggal surat, tempat surat hanya required untuk A1 dan A4
             if (tipe === 'A1' || tipe === 'A4') {
-                if (!($('#nomor_surat').val() || '').trim()) errors.push('Nomor surat harus diisi');
-                if (!($('#tanggal_surat').val() || '').trim()) errors.push('Tanggal surat harus diisi');
-                if (!($('#tempat_surat').val() || '').trim()) errors.push('Tempat surat harus diisi');
+                checkInput('#nomor_surat', 'Nomor Surat');
+                checkInput('#tanggal_surat', 'Tanggal Surat');
+                var tglSuratVal = ($('#tanggal_surat').val() || '').trim();
+                if (tglSuratVal) {
+                    var parts = tglSuratVal.split('-');
+                    if (parts.length === 3) {
+                        var selectedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                        var today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        selectedDate.setHours(0, 0, 0, 0);
+                        if (selectedDate < today) {
+                            markError('#tanggal_surat', 'Tanggal Surat minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                        }
+                    }
+                }
+                checkSelect('#provinsi_tempat_surat', 'Provinsi Tempat Surat');
+                checkSelect('#kota_tempat_surat', 'Kota/Kabupaten Tempat Surat');
+                checkSelect('#kecamatan_tempat_surat', 'Kecamatan Tempat Surat');
+                
+                var tempatSuratVal = ($('#tempat_surat').val() || '').trim();
+                if (!tempatSuratVal || tempatSuratVal.startsWith('--Pilih')) {
+                    markError('#tempat_surat', 'Tempat Surat harus terisi');
+                }
             }
-            
+
             // Type-specific validation
-            if (tipe === 'A2') {
-                if (!($('input[name="a2_rujukan_a1"]').val() || '').trim()) 
-                    errors.push('A2: No. Surat A1 harus diisi');
-                if (!($('textarea[name="a2_fakta_lidik"]').val() || '').trim()) 
-                    errors.push('A2: Fakta penyelidikan harus diisi');
-                if (!($('textarea[name="a2_alasan"]').val() || '').trim()) 
-                    errors.push('A2: Alasan belum naik sidik harus diisi');
+            if (tipe === 'A1') {
+                // A1 specific checks handled by penerimaTable and a1_personnelTable
+            } else if (tipe === 'A2') {
+                checkInput('input[name="a2_rujukan_a1"]', 'Nomor Surat Rujukan A1');
+                checkInput('input[name="a2_tanggal_a1"]', 'Tanggal Surat A1');
+                checkInput('textarea[name="a2_fakta_lidik"]', 'Fakta-fakta Hasil Penyelidikan');
+                checkInput('textarea[name="a2_alasan"]', 'Kesimpulan / Alasan Belum Naik Sidik');
             } else if (tipe === 'A3') {
-                if (!($('input[name="a3_rujukan_a1"]').val() || '').trim()) 
-                    errors.push('A3: No. Surat A1 harus diisi');
-                if (!($('input[name="a3_sprin_sidik"]').val() || '').trim()) 
-                    errors.push('A3: No. Sprin Sidik harus diisi');
+                checkInput('input[name="a3_rujukan_a1"]', 'Nomor Surat Rujukan A1');
+                checkInput('input[name="a3_tanggal_a1"]', 'Tanggal Surat A1');
+                checkInput('input[name="a3_sprin_sidik"]', 'Nomor Sprin Sidik');
+                checkInput('input[name="a3_tanggal_sprin"]', 'Tanggal Sprin Sidik');
+                checkInput('input[name="a3_nomor_spdp"]', 'Nomor SPDP');
+                checkInput('input[name="a3_tanggal_spdp"]', 'Tanggal SPDP');
+                checkInput('textarea[name="a3_pasal_diduga"]', 'Pasal yang Diduga');
             } else if (tipe === 'A4') {
-                // A4 tidak ada validasi field wajib karena semua optional
+                // Check minimal 1 tindakan
+                const $checkedTindakan = $('input.tindakan-checkbox:checked');
+                if ($checkedTindakan.length === 0) {
+                    markError('#section_a4 .card.shadow-sm', 'Tindakan yang telah dilakukan harus dicentang minimal 1');
+                } else {
+                    $checkedTindakan.each(function() {
+                        const $cb = $(this);
+                        const $ketInput = $cb.closest('.mb-3').find('.keterangan-input, input[type="text"]').filter(':visible');
+                        if ($ketInput.length && !($ketInput.val() || '').trim()) {
+                            markError($ketInput, 'Keterangan untuk tindakan ' + $cb.val() + ' harus diisi');
+                        }
+                    });
+                }
+
+                // Check card tersangka jika ditampilkan
+                if ($('#card-tersangka').is(':visible')) {
+                    checkInput('#tersangka_nama', 'Nama Tersangka');
+                    checkInput('#tersangka_nik', 'NIK Tersangka');
+                    checkInput('#tersangka_tempat_lahir', 'Tempat Lahir Tersangka');
+                    checkInput('#tersangka_tanggal_lahir', 'Tanggal Lahir Tersangka');
+                    checkInput('#tersangka_umur', 'Umur Tersangka');
+                    checkInput('#tersangka_kebangsaan', 'Kebangsaan Tersangka');
+                    checkInput('#tersangka_pekerjaan', 'Pekerjaan Tersangka');
+                    checkInput('#tersangka_alamat', 'Alamat Tersangka');
+                }
             } else if (tipe === 'A5') {
-                if (!($('input[name="a5_sprin_sidik"]').val() || '').trim()) 
-                    errors.push('A5: No. Sprin Sidik harus diisi');
-                if (!$('select[name="a5_alasan_sp3"]').val()) 
-                    errors.push('A5: Alasan SP3 harus dipilih');
+                checkInput('input[name="a5_sprin_sidik"]', 'Nomor Sprin Sidik');
+                checkSelect('select[name="a5_alasan_sp3"]', 'Alasan SP3');
             } else if (tipe === 'A6') {
-                if (!($('input[name="a6_nama_tersangka"]').val() || '').trim()) 
-                    errors.push('A6: Nama tersangka harus diisi');
-                if (!($('input[name="a6_nomor_kirim_berkas"]').val() || '').trim()) 
-                    errors.push('A6: No. Surat Kirim Berkas harus diisi');
-                if (!($('input[name="a6_tanggal_kirim"]').val() || '').trim()) 
-                    errors.push('A6: Tanggal pengiriman berkas harus diisi');
+                checkInput('input[name="a6_nama_tersangka"]', 'Nama Tersangka');
+                checkInput('input[name="a6_nomor_kirim_berkas"]', 'Nomor Surat Pengiriman Berkas');
+                checkInput('input[name="a6_tanggal_kirim"]', 'Tanggal Pengiriman Berkas');
+                checkSelect('select[name="a6_tujuan_kejaksaan"]', 'Tujuan Kejaksaan');
             } else if (tipe === 'A7') {
-                if (!($('input[name="a7_nama_tersangka"]').val() || '').trim()) 
-                    errors.push('A7: Nama tersangka harus diisi');
-                if (!($('input[name="a7_nomor_p21"]').val() || '').trim()) 
-                    errors.push('A7: No. P-21 harus diisi');
-                if (!($('input[name="a7_nomor_kirim_tahap2"]').val() || '').trim()) 
-                    errors.push('A7: No. Surat Pengiriman Tahap 2 harus diisi');
+                checkInput('input[name="a7_nama_tersangka"]', 'Nama Tersangka');
+                checkInput('input[name="a7_nomor_p21"]', 'Nomor Surat P-21');
+                checkInput('input[name="a7_tanggal_p21"]', 'Tanggal Surat P-21');
+                checkInput('input[name="a7_nomor_kirim_tahap2"]', 'Nomor Surat Pengiriman Tahap 2');
+                checkInput('input[name="a7_tanggal_serah_tahap2"]', 'Tanggal Penyerahan Tahap 2');
+                checkSelect('select[name="a7_tujuan_kejaksaan"]', 'Tujuan Kejaksaan');
             }
-            
-            // Show errors if any
-            if (errors.length > 0) {
-                let errorHtml = '<div class="alert alert-danger alert-dismissible fade show">';
-                errorHtml += '<button type="button" class="close" data-dismiss="alert">&times;</button>';
-                errorHtml += '<strong><i class="fas fa-exclamation-triangle"></i> Validasi Error!</strong><ul class="mt-2 mb-0">';
-                errors.forEach(err => errorHtml += '<li>' + err + '</li>');
-                errorHtml += '</ul></div>';
-                
-                $('.alert-sp2hp-reg').html(errorHtml);
-                $('html, body').animate({ scrollTop: 0 }, 500);
-                
-                return false;
-            }
-                        
-            // ========================================
-            // VALIDASI: MINIMAL 1 PENERIMA HARUS DITAMBAHKAN (HANYA UNTUK A1 DAN A4)
-            // ========================================
+
+            // Validasi: minimal 1 Penerima untuk A1 dan A4
             if (tipe === 'A1' || tipe === 'A4') {
                 const penerimaCount = $('#penerimaTable tbody tr').length;
                 if (penerimaCount === 0) {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Data Penerima Kosong',
-                            text: 'Anda harus menambahkan minimal 1 penerima SP2HP. Silakan isi form Data Penerima dan klik tombol "Tambah Penerima ke Daftar".',
-                            confirmButtonText: 'OK'
-                        });
-                    } else {
-                        alert('Data Penerima Kosong!\n\nAnda harus menambahkan minimal 1 penerima SP2HP. Silakan isi form Data Penerima dan klik tombol "Tambah Penerima ke Daftar".');
-                    }
-                    return false;
-                }                
+                    markError('#penerimaTable', 'Data Penerima SP2HP harus ditambahkan minimal 1 orang');
+                }
             }
-            
+
+            // Validasi: minimal 1 Penyidik untuk A1
+            if (tipe === 'A1') {
+                const personnelRows = $('#a1_personnelTable tbody tr').length;
+                if (personnelRows === 0) {
+                    markError('#a1_personnelTable', 'Data Penyidik harus ditambahkan minimal 1 orang');
+                }
+            }
+
+            // Validasi: Uraian Peristiwa & Lokasi Kejadian jika terlihat
+            if ($('#uraian-singkat').is(':visible')) {
+                checkInput('#uraian_peristiwa', 'Uraian Peristiwa');
+            }
+            if ($('#lokasi-kejadian').is(':visible')) {
+                checkInput('#lokasi_kejadian', 'Lokasi Kejadian');
+            }
+
+            // Validasi: Pasal jika terlihat
+            if ($('#card-pasal').is(':visible')) {
+                checkInput('textarea[name="pasal_diduga"]', 'Pasal yang Diduga');
+            }
+
+            // Validasi: Yang Menandatangani (Signatory) untuk semua tipe
+            if ($('#card-signatory-cc').is(':visible')) {
+                checkSelect('#signatory', 'Yang Menandatangani');
+            }
+
+            // Jika ada error di frontend, scroll ke field pertama
+            if (errors.length > 0) {
+                scrollToFirstError();
+                return false;
+            }
+
             // ========================================
             // AMBIL DATA PELAPOR DARI PENERIMA PERTAMA
             // ========================================
-            // Menggunakan data penerima pertama sebagai pelapor
             const firstPenerimaRow = $('#penerimaTable tbody tr:first');
             let pelapor_nama = '';
             let pelapor_alamat = '';
-            
+
             if (firstPenerimaRow.length > 0) {
-                // Ambil nama dari kolom kedua (index 1)
                 const namaElement = firstPenerimaRow.find('td:eq(1)');
                 pelapor_nama = (namaElement.text() || '').trim();
-                
-                // Ambil alamat dari hidden input di row
+
                 const alamatInput = firstPenerimaRow.find('input[name*="[alamat]"]');
                 pelapor_alamat = alamatInput.val() || '';
             }
-            
+
             // Set ke hidden fields
             if (pelapor_nama) {
                 $('#pelapor_nama').val(pelapor_nama);
-            } else {
-                console.warn('⚠ pelapor_nama is empty!');
             }
-            
             if (pelapor_alamat) {
                 $('#pelapor_alamat').val(pelapor_alamat);
-            } else {
-                console.warn('⚠ pelapor_alamat is empty!');
             }
-            
+
             // ========================================
             // AMBIL SEMUA DATA PENYIDIK DARI TABEL A1
             // ========================================
-            // Ambil SEMUA baris dari tabel personnel A1
             const personnelRows = $('#a1_personnelTable tbody tr');
-            
-            // Clear container dulu
             $('#penyidikHiddenContainer').empty();
-            
+
             if (personnelRows.length > 0) {
-                const penyidikArray = [];
-                
-                // Loop semua penyidik di tabel
                 personnelRows.each(function(index) {
                     const row = $(this);
                     const penyidikData = {
@@ -3820,10 +4047,7 @@
                         telp: (row.find('td:eq(3)').text() || '').trim(),
                         unit: row.data('unit') || ''
                     };
-                    
-                    penyidikArray.push(penyidikData);
-                    
-                    // Buat hidden inputs untuk setiap penyidik
+
                     $('#penyidikHiddenContainer').append(
                         '<input type="hidden" name="penyidik[' + index + '][nrp]" value="' + penyidikData.nrp + '">' +
                         '<input type="hidden" name="penyidik[' + index + '][pangkat]" value="' + penyidikData.pangkat + '">' +
@@ -3831,39 +4055,27 @@
                         '<input type="hidden" name="penyidik[' + index + '][telp]" value="' + penyidikData.telp + '">' +
                         '<input type="hidden" name="penyidik[' + index + '][unit]" value="' + penyidikData.unit + '">'
                     );
-                    
                 });
-            } else {
-                console.warn('⚠ Tidak ada penyidik yang dipilih di A1');
             }
-            
+
             // Disable submit button
             const $submitBtn = $('#suratPemberitahuanPerkembangnHasilPenyidikanFormSubmit');
             $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Menyimpan...');
-            
+
             // Submit via AJAX
             const formData = new FormData(this);
-            
-            // Remove pasal fields if empty (only submit if filled)
+
+            // Remove pasal fields if empty
             const pasalDiduga = formData.get('pasal_diduga');
             const a3PasalDiduga = formData.get('a3_pasal_diduga');
-            
+
             if (!pasalDiduga || (typeof pasalDiduga === 'string' && pasalDiduga.trim() === '')) {
                 formData.delete('pasal_diduga');
             }
             if (!a3PasalDiduga || (typeof a3PasalDiduga === 'string' && a3PasalDiduga.trim() === '')) {
                 formData.delete('a3_pasal_diduga');
             }
-            
-            // Debug: Log semua data yang akan dikirim
-            console.log('=== FORM DATA YANG AKAN DIKIRIM ===');
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
-            }
-            console.log('===================================');
-            
-            console.log('Form action URL:', $(this).attr('action'));
-            
+
             $.ajax({
                 url: $(this).attr('action'),
                 type: 'POST',
@@ -3871,49 +4083,31 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    console.log('AJAX success:', response);
                     if (response.success) {
-                        // Check if Swal is available
-                        if (typeof Swal !== 'undefined') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.message,
-                                showConfirmButton: false,
-                                timer: 1500
-                            }).then(() => {
-                                // Redirect to produktivitas accident page
-                                window.location.href = response.redirect;
-                            });
-                        } else {
-                            // Fallback to alert if Swal not available
-                            alert(response.message);
+                        Swal.fire({
+                            title: 'Berhasil',
+                            text: response.message || 'Dokumen berhasil disimpan',
+                            icon: 'success',
+                            confirmButtonText: 'Ok'
+                        }).then((result) => {
                             window.location.href = response.redirect;
-                        }
+                        });
                     }
                 },
                 error: function(xhr) {
-                    console.log('AJAX error:', xhr.status, xhr.responseJSON);
-                    $submitBtn.prop('disabled', false).html('<i class="fas fa-save"></i> Simpan SP2HP');
-                    
-                    if (xhr.status === 422) {
-                        // Validation errors
-                        const errors = xhr.responseJSON.errors;
-                        let errorHtml = '<div class="alert alert-danger alert-dismissible fade show">';
-                        errorHtml += '<button type="button" class="close" data-dismiss="alert">&times;</button>';
-                        errorHtml += '<strong><i class="fas fa-exclamation-triangle"></i> Validasi Error!</strong><ul class="mt-2 mb-0">';
-                        
-                        $.each(errors, function(key, value) {
-                            errorHtml += '<li>' + value[0] + '</li>';
+                    $submitBtn.prop('disabled', false).html('<i class="bi bi-save"></i> Simpan');
+
+                    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                        const serverErrors = xhr.responseJSON.errors;
+                        $.each(serverErrors, function(key, messages) {
+                            var $targetField = $('[name="' + key + '"], #' + key);
+                            if ($targetField.length) {
+                                markError($targetField, messages[0]);
+                            }
                         });
-                        
-                        errorHtml += '</ul></div>';
-                        $('.alert-sp2hp-reg').html(errorHtml);
+                        scrollToFirstError();
                     } else {
-                        // Other errors
                         const message = xhr.responseJSON?.message || 'Terjadi kesalahan saat menyimpan data';
-                        
-                        // Check if Swal is available
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 icon: 'error',
@@ -3921,15 +4115,11 @@
                                 text: message
                             });
                         } else {
-                            // Fallback to alert if Swal not available
                             alert('Error: ' + message);
                         }
                     }
-                    
-                    $('html, body').animate({ scrollTop: 0 }, 500);
                 }
             });
-            
         });
 
         // ========================================
@@ -4088,7 +4278,7 @@
             levels.forEach(function(level) {
                 let dropdownId = level + '_tempat_surat';
                 let placeholder = level === 'provinsi' ? 'Provinsi' : 
-                                level === 'kota' ? 'Kota/Kabupaten' : 'Kecamatan (Opsional)';
+                                level === 'kota' ? 'Kota/Kabupaten' : 'Kecamatan';
                 
                 $('#' + dropdownId).empty().append($('<option>', {
                     value: '',
@@ -4099,20 +4289,21 @@
 
         // Function: Update tempat_surat field based on selections
         function updateTempatSurat() {
-            const kecamatan = $('#kecamatan_tempat_surat option:selected').text();
-            const kota = $('#kota_tempat_surat option:selected').text();
+            const kecamatanVal = $('#kecamatan_tempat_surat').val();
+            const kecamatanText = ($('#kecamatan_tempat_surat option:selected').text() || '').trim();
             
-            // Only fill with Kecamatan if selected, otherwise use Kota
             let tempatSurat = '';
             
-            if (kecamatan && kecamatan !== '--Pilih Kecamatan (Opsional)--') {
-                tempatSurat = kecamatan;
-            } else if (kota && kota !== '--Pilih Kota/Kabupaten--') {
-                tempatSurat = kota;
+            // Tempat surat HANYA diisi dari Kecamatan
+            if (kecamatanVal && kecamatanText && !kecamatanText.startsWith('--Pilih')) {
+                tempatSurat = kecamatanText;
             }
             
             $('#tempat_surat').val(tempatSurat);
-            
+            if (tempatSurat && !tempatSurat.startsWith('--Pilih')) {
+                $('#tempat_surat').removeClass('is-invalid');
+                $('#tempat_surat').next('.frontend-error, .invalid-feedback').remove();
+            }
         }
 
         // ========================================
