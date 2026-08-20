@@ -56,14 +56,14 @@
         <div class="box-body">
             <form
                 action="{{ route('doc.surat-pemberitahuan-dimulainya-penyidikan-document.store', ['accident_id' => $accidentId]) }}"
-                method="POST" enctype="multipart/form-data" id="suratPemberitahuanDimulainyaPenyidikanForm">
+                method="POST" enctype="multipart/form-data" id="suratPemberitahuanDimulainyaPenyidikanForm" novalidate>
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
 		<input type="hidden" name="specialInfo" id="specialInfo" value="{{ $accident->special_info }}">
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="accidentNumber">Nomor LP</label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="accidentNumber" type="text"
                             class="form-control @error('accidentNumber') is-invalid @enderror font-weight-bold"
                             name="accidentNumber" value="{{ $accident->no_lp }}" required placeholder="" readonly>
@@ -77,7 +77,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="documentNumber">Nomor Dokumen<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="documentNumber" type="text"
                             class="form-control @error('documentNumber') is-invalid @enderror font-weight-bold"
                             name="documentNumber" value="{{ old('documentNumber') }}" required
@@ -93,7 +93,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="documentClassification">Klasifikasi<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <select class="form-control select2" name="documentClassification" id="documentClassification">
                             <option value="">--Pilih Klasifikasi--</option>
                             @foreach ($documentClassifications as $documentClassification)
@@ -112,7 +112,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="suratPerintahPenyidikanDocument">No SP Penyidikan<span class="text-danger fs-5">*</span>
                     </label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <select class="form-control select2" name="suratPerintahPenyidikanDocument"
                             id="suratPerintahPenyidikanDocument">
                             <option value="">--Pilih No Surat Perintah Penyidikan--</option>
@@ -133,7 +133,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Tanggal SP Penyidikan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input class="form-control" id="suratPerintahPenyidikanDocumentDate"
                             name="suratPerintahPenyidikanDocumentDate" placeholder="YYYY-MM-DD" autocomplete="off"
                             value="{{ old('suratPerintahPenyidikanDocumentDate') }}" readonly>
@@ -149,7 +149,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="suratPerintahTugasDocument">No SP Tugas Penyidikan<span class="text-danger fs-5">*</span>
                     </label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <select class="form-control select2" name="suratPerintahTugasDocument" id="suratPerintahTugasDocument">
                             <option value="">--Pilih No Surat Perintah Tugas--</option>
                             @foreach ($suratPerintahTugasDocuments as $suratPerintahTugasDocument)
@@ -168,7 +168,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Ada Tersangka?<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <div class="d-flex mb-3">
                             <div class="form-check m-2">
                                 <input class="form-check-input isSuspectExists" type="radio" id="suspectExists" name="isSuspectExists" value="true" checked>
@@ -205,7 +205,7 @@
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="suspects">Tersangka yang disebutkan di dalam SPDP
                             saat surat dikirimkan ke Kejaksaan <small class="text-danger">*)Jika Ada</small></label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                             <select class="form-control select2-multiple" name="suspects[]" id="suspects" multiple>
                                 @foreach ($suspects as $suspect)
                                     <option value="{{ $suspect->id }}">{{ 
@@ -246,7 +246,7 @@
 
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="informant">Pelapor</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                             <select class="form-control select2" name="informant" id="informant">
                                 <option value="">--Pilih Pelapor--</option>
                                 @foreach ($informants as $informant)
@@ -264,7 +264,7 @@
 
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="reportedPerson">Terlapor</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                             <select class="form-control select2" name="reportedPerson[]" id="reportedPerson" multiple>
                                 <option value="">--Pilih Terlapor--</option>
                                 @foreach ($reportedPersons as $reportedPerson)
@@ -283,7 +283,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="prosecutor">Nama Kejaksaan Penerima<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <select class="form-control select2" name="prosecutor" id="prosecutor">
                             <option value="">--Pilih Kejaksaan--</option>
                             @foreach ($prosecutors as $prosecutor)
@@ -301,7 +301,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="appendix">Lampiran<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="appendix" type="text"
                             class="form-control @error('appendix') is-invalid @enderror onlyIntegerInput" name="appendix"
                             value="{{ old('appendix') }}" required placeholder="Contoh : 1">
@@ -316,7 +316,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Tanggal Ditandatangani Dokumen<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input class="form-control" id="documentDate" name="documentDate"
                             placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('documentDate') }}"
                             data-provide="datepicker">
@@ -331,7 +331,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Penandatanganan Surat<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <select class="form-control select2" name="signatory" id="signatory">
                             <option value="">--Pilih Yang Menandatangani--</option>
                             @foreach ($authorizedSignatories as $data)
@@ -355,7 +355,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="court">Pengadilan sebagai Tembusan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <select class="form-control select2" name="court" id="court">
                             <option value="">--Pilih Pengadilan--</option>
                             @foreach ($courts as $court)
@@ -373,7 +373,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="carbonCopies">Tembusan Lainnya</label>
-                    <div class="col-lg-10 col-md-10 col-12 d-flex align-self-center">
+                    <div class="col-lg-10 col-md-10 col-12">
                         <div id="carbonCopiesContainer">
                         </div>
 
@@ -415,7 +415,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" defer></script>
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js" defer></script>
     <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
-    <script src="{{ asset('libs/bootstrap-duallistbox/jquery.bootstrap-duallistbox.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
 @if(strtotime($accident->report_date) < strtotime('2024-01-01') || $accident->police->is_whitelisted_document_legacy == true && strtotime($accident->police->start_date_whitelisted_document_legacy) <= strtotime($accident->report_date) && strtotime($accident->report_date) <= strtotime($accident->police->end_date_whitelisted_document_legacy))
@@ -431,7 +431,8 @@
             $('#documentDate').datepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: "true",
-                endDate: new Date()
+                orientation: 'auto bottom',
+                startDate: new Date()
             });
             $('#documentDate').keydown(function(e) {
                 e.preventDefault();
@@ -450,29 +451,6 @@
                 theme: 'bootstrap4',
                 width: '100%'
             });
-
-            /*$("#suspects").bootstrapDualListbox({
-                nonSelectedListLabel: 'Tersangka Belum Dipilih',
-                selectedListLabel: 'Tersangka Dipilih',
-                preserveSelectionOnMove: 'moved',
-                moveOnSelect: false,
-            });
-
-            $('#suspects').on('change', function() {
-                // Dapatkan nilai-nilai yang dipilih
-                var selectedValues = $(this).val();
-
-                // Dapatkan semua opsi dalam elemen input
-                var allOptions = $(this).find('option');
-
-                // Hapus atribut "selected" dari semua opsi
-                allOptions.removeAttr('selected');
-
-                // Tandai kembali opsi yang dipilih
-                selectedValues.forEach(function(value) {
-                    allOptions.filter('[value="' + value + '"]').attr('selected', 'selected');
-                });
-            });*/
         });
 
         $(document).ready(function() {
@@ -484,7 +462,6 @@
                 });
 
                 if (courtId) {
-                    //check is #carbonCopyCourt exist
                     var isCarbonCopyCourtExist = $('#carbonCopyCourt').length;
 
                     if (isCarbonCopyCourtExist) {
@@ -532,6 +509,11 @@
                     $('#suspectExistsSection').hide();
                     $('#suspectNotExistsSection').show();
                 }
+
+                // Clear error saat toggle
+                $('#suspects, #reportedPerson, #informant').removeClass('is-invalid');
+                $('#suspects, #reportedPerson, #informant').next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                $('#suspectExistsSection, #suspectNotExistsSection').find('.frontend-error, .invalid-feedback').remove();
             });
 
             $('.onlyIntegerInput').on('keypress', function(event) {
@@ -546,13 +528,186 @@
             $('#suratPerintahPenyidikanDocument').on('change', function() {
                 var documentDate = $(this).find(':selected').data('document-date');
                 $('#suratPerintahPenyidikanDocumentDate').val(documentDate);
+                if (documentDate) {
+                    clearFieldError($('#suratPerintahPenyidikanDocumentDate'));
+                }
             });   
         });
+
+        // Helper check field has value
+        function hasFieldValue($field) {
+            var raw = $field.val();
+            if (raw === null || raw === undefined) return false;
+            if (Array.isArray(raw)) return raw.length > 0;
+            var str = String(raw).trim();
+            return str !== '' && str !== '0';
+        }
+
+        // Helper clear single field error
+        function clearFieldError($field) {
+            $field.removeClass('is-invalid border border-danger');
+            if ($field.next('.select2-container').length) {
+                $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                $field.next('.select2-container').next('.frontend-error, .invalid-feedback').remove();
+            }
+            $field.next('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
+            $field.closest('.input-group, .mb-3, .col-lg-10, .col-md-10, div').find('.frontend-error, .invalid-feedback').remove();
+        }
+
+        // Auto-clear realtime saat user mengetik atau mengubah nilai field
+        $(document).on('input change changeDate dp.change keyup blur', 'input, textarea, select', function() {
+            var $field = $(this);
+            if (hasFieldValue($field)) {
+                clearFieldError($field);
+            }
+        });
+
+        $(document).on('select2:select select2:unselect change', 'select', function() {
+            var $field = $(this);
+            if (hasFieldValue($field)) {
+                clearFieldError($field);
+            }
+        });
+
+        // Continuous watcher untuk membersihkan highlight jika value sudah terisi
+        setInterval(function() {
+            $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
+                var $field = $(this);
+                if (hasFieldValue($field)) {
+                    clearFieldError($field);
+                }
+            });
+        }, 200);
+
+        // Helper scrollToFirstError
+        function scrollToFirstError() {
+            var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+            if (!$firstError.length) {
+                $firstError = $('.is-invalid, .border-danger').first();
+            }
+            if ($firstError && $firstError.length) {
+                var el = $firstError[0];
+                if (el && typeof el.scrollIntoView === 'function') {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                var topPos = $firstError.offset() ? $firstError.offset().top : 0;
+                $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                    scrollTop: Math.max(0, topPos - 140)
+                }, 400);
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
 
         // Validasi Submit Form
         $(document).ready(function() {
             $('#suratPemberitahuanDimulainyaPenyidikanFormSubmit').on('click', function(e) {
                 e.preventDefault();
+
+                // Bersihkan error sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.border.border-danger').removeClass('border border-danger');
+                $('.select2-selection').removeClass('border border-danger is-invalid');
+                $('.frontend-error').remove();
+                $('.invalid-feedback').remove();
+
+                let errors = [];
+
+                function markError(fieldSelector, message) {
+                    var $field = $(fieldSelector);
+                    if (!$field.length) return;
+
+                    if ($field.is('table')) {
+                        $field.addClass('border border-danger is-invalid');
+                        var $wrapper = $field.closest('.table-responsive, .input-group');
+                        var $container = $wrapper.length ? $wrapper : $field;
+                        $container.siblings('.frontend-error, .invalid-feedback').remove();
+                        $container.next('.frontend-error, .invalid-feedback').remove();
+                        $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                        errors.push(message);
+                        return;
+                    } else if ($field.is(':radio')) {
+                        $field.addClass('is-invalid');
+                        var $container = $field.closest('.d-flex, .form-check-group, .row');
+                        $container.siblings('.frontend-error, .invalid-feedback').remove();
+                        $container.next('.frontend-error, .invalid-feedback').remove();
+                        $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                        errors.push(message);
+                        return;
+                    } else {
+                        $field.addClass('is-invalid');
+                    }
+                    if ($field.next('.select2-container').length) {
+                        $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    }
+                    var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                    $target.siblings('.frontend-error, .invalid-feedback').remove();
+                    $target.next('.frontend-error, .invalid-feedback').remove();
+                    $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    errors.push(message);
+                }
+
+                function checkInput(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || !$field.is(':visible')) return;
+                    var raw = $field.val();
+                    var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                    if (!val || val === '') {
+                        markError(fieldSelector, label + ' harus diisi');
+                    }
+                }
+
+                function checkSelect(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                    var raw = $field.val();
+                    var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                    if (!hasVal) {
+                        markError(fieldSelector, label + ' harus dipilih');
+                    }
+                }
+
+                // 1. Validasi Field Utama Berbintang (*)
+                checkInput('#documentNumber', 'Nomor Dokumen');
+                checkSelect('#documentClassification', 'Klasifikasi Dokumen');
+                checkSelect('#suratPerintahPenyidikanDocument', 'No SP Penyidikan');
+                checkInput('#suratPerintahPenyidikanDocumentDate', 'Tanggal SP Penyidikan');
+                checkSelect('#suratPerintahTugasDocument', 'No SP Tugas Penyidikan');
+
+                // 2. Validasi Tersangka / Terlapor Berdasarkan Pilihan Radio (*)
+                var isSuspectExistsVal = $('input[name="isSuspectExists"]:checked').val();
+                if (isSuspectExistsVal === 'true') {
+                    checkSelect('#suspects', 'Tersangka yang disebutkan di dalam SPDP');
+                } else {
+                    var specialInfo = ($('#specialInfo').val() || '').trim();
+                    if (specialInfo !== 'TABRAK_LARI') {
+                        checkSelect('#reportedPerson', 'Terlapor');
+                    }
+                }
+
+                // 3. Validasi Kejaksaan, Lampiran, Tanggal, Penandatangan, dan Pengadilan (*)
+                checkSelect('#prosecutor', 'Nama Kejaksaan Penerima');
+                checkInput('#appendix', 'Lampiran');
+                checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
+                var docDateVal = ($('#documentDate').val() || '').trim();
+                if (docDateVal) {
+                    var selectedDate = new Date(docDateVal);
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    selectedDate.setHours(0, 0, 0, 0);
+                    if (selectedDate < today) {
+                        markError('#documentDate', 'Tanggal Ditandatangani Dokumen minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                    }
+                }
+                checkSelect('#signatory', 'Penandatanganan Surat');
+                checkSelect('#court', 'Pengadilan sebagai Tembusan');
+
+                // Jika ada error di frontend, scroll ke field pertama
+                if (errors.length > 0) {
+                    scrollToFirstError();
+                    return false;
+                }
 
                 // Lakukan validasi di sisi server menggunakan Ajax
                 $.ajax({
@@ -563,35 +718,44 @@
                     success: function(response) {
                         // Cek jika validasi berhasil di sisi server
                         if (response.success) {
-                            // sweetalert2 berhasil sebelum submit form
                             Swal.fire({
                                 title: 'Berhasil',
-                                text: response.message,
+                                text: response.message || 'Silahkan menunggu proses simpan data',
                                 icon: 'success',
                                 confirmButtonText: 'Ok'
                             }).then((result) => {
-                                // Submit form
-                                $('#suratPemberitahuanDimulainyaPenyidikanForm')
-                                .submit();
+                                $('#suratPemberitahuanDimulainyaPenyidikanForm')[0].submit();
                             });
                         }
                     },
                     error: function(xhr) {
-                        // Tangani error jika terjadi kesalahan saat melakukan validasi
-                        response = JSON.parse(xhr.responseText);
-
-                        if (response.code == '422') {
-                            var errorMessages = '';
-
-                            $.each(response.errors, function(key, value) {
-                                errorMessages += '- ' + value + '<br>';
-                            });
-
-                            return Swal.fire({
-                                icon: 'error',
-                                title: 'Mohon Periksa Kembali Isian Anda',
-                                html: errorMessages,
-                            });
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.code == '422' && response.errors) {
+                                $.each(response.errors, function(key, messages) {
+                                    var msg = Array.isArray(messages) ? messages[0] : messages;
+                                    var $target = $('#' + key + ', [name="' + key + '"]');
+                                    if ($target.length) {
+                                        markError($target, msg);
+                                    } else if (key === 'reportedPerson') {
+                                        markError('#reportedPerson', msg);
+                                    } else if (key === 'suspects') {
+                                        markError('#suspects', msg);
+                                    } else if (key === 'carbonCopies') {
+                                        markError('#court', msg);
+                                    }
+                                });
+                                scrollToFirstError();
+                            } else {
+                                var message = response.message || response.errors || 'Terjadi kesalahan saat memproses data.';
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Perhatian',
+                                    text: typeof message === 'string' ? message : JSON.stringify(message)
+                                });
+                            }
+                        } catch (e) {
+                            console.error(e);
                         }
                     }
                 });
