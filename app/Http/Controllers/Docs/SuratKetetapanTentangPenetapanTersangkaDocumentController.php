@@ -1303,8 +1303,8 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
                                 $fail('Nomor Kartu Keluarga (KK) harus berupa 16 digit angka.');
                             }
                         } elseif ($type == 13) { // SIM
-                            if (!preg_match('/^[0-9]{12}$/', $value)) {
-                                $fail('Nomor SIM harus berupa 12 digit angka.');
+                            if (!preg_match('/^([0-9]{12}|[0-9]{14}|[0-9]{16})$/', $value)) {
+                                $fail('Nomor SIM harus berupa 12, 14, atau 16 digit angka.');
                             }
                         } elseif ($type == 12) { // PASSPORT
                             if (!preg_match('/^[a-zA-Z0-9]{7,9}$/', $value)) {
