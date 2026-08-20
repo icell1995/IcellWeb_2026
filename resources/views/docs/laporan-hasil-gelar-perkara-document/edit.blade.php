@@ -1967,7 +1967,117 @@
                 $('#identityNumberFieldNewSuspect').prop('disabled', false);
                 $('#identityNumberFieldNewSuspect').val('');
             }
+            validateNewSuspectIdentityNumber();
         });
+
+        function validateNewSuspectIdentityNumber() {
+            var $field = $('#identityNumberFieldNewSuspect');
+            var identityTypeId = $('#identityTypeFieldNewSuspect').val();
+            var identityTypeName = ($('#identityTypeFieldNewSuspect').find(':selected').data('identity-type-name') || $('#identityTypeFieldNewSuspect').find(':selected').text() || '').toUpperCase();
+            var val = ($field.val() || '').trim();
+            var errorMsg = '';
+
+            if ($field.is(':disabled') || val === '') {
+                return null;
+            }
+
+            if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) { // KTP
+                if (!/^[0-9]+$/.test(val)) {
+                    errorMsg = 'Nomor KTP harus berupa angka saja.';
+                } else if (val.length !== 16) {
+                    errorMsg = 'Nomor KTP harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
+                }
+            } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) { // KK
+                if (!/^[0-9]+$/.test(val)) {
+                    errorMsg = 'Nomor Kartu Keluarga (KK) harus berupa angka saja.';
+                } else if (val.length !== 16) {
+                    errorMsg = 'Nomor Kartu Keluarga (KK) harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
+                }
+            } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) { // SIM
+                if (!/^[0-9]+$/.test(val)) {
+                    errorMsg = 'Nomor SIM harus berupa angka saja.';
+                } else if (val.length !== 12 && val.length !== 14 && val.length !== 16) {
+                    errorMsg = 'Nomor SIM harus 12, 14, atau 16 digit (saat ini: ' + val.length + ' digit).';
+                }
+            } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) { // Passport
+                if (!/^[a-zA-Z0-9]+$/.test(val)) {
+                    errorMsg = 'Nomor Passport harus alfanumerik (huruf dan angka saja).';
+                } else if (val.length < 7 || val.length > 9) {
+                    errorMsg = 'Nomor Passport harus 7 sampai 9 karakter (saat ini: ' + val.length + ' karakter).';
+                }
+            }
+
+            $field.next('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
+
+            if (errorMsg) {
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block frontend-error">' + errorMsg + '</div>');
+                return errorMsg;
+            } else {
+                $field.removeClass('is-invalid');
+                return null;
+            }
+        }
+
+        $('#identityNumberFieldNewSuspect').on('input keyup change blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '') {
+                validateNewSuspectIdentityNumber();
+            }
+        });
+
+        function validateNewSuspectPhoneAndEmail() {
+            // Phone validation
+            var $phoneField = $('#phoneNumberFieldNewSuspect');
+            var phoneVal = ($phoneField.val() || '').trim();
+            var isPhoneDisabled = $phoneField.is(':disabled');
+            var phoneError = '';
+
+            if (!isPhoneDisabled && phoneVal !== '') {
+                if (!/^[0-9]+$/.test(phoneVal)) {
+                    phoneError = 'Nomor telepon harus berupa angka saja.';
+                } else if (phoneVal.length < 10 || phoneVal.length > 13) {
+                    phoneError = 'Nomor telepon harus antara 10 sampai 13 digit (saat ini: ' + phoneVal.length + ' digit).';
+                }
+            }
+
+            $phoneField.next('.frontend-error, .invalid-feedback').remove();
+            $phoneField.siblings('.frontend-error, .invalid-feedback').remove();
+
+            if (phoneError) {
+                $phoneField.addClass('is-invalid');
+                $phoneField.after('<div class="invalid-feedback d-block frontend-error">' + phoneError + '</div>');
+            } else {
+                $phoneField.removeClass('is-invalid');
+            }
+
+            // Email validation
+            var $emailField = $('#emailFieldNewSuspect');
+            var emailVal = ($emailField.val() || '').trim();
+            var isEmailDisabled = $emailField.is(':disabled');
+            var emailError = '';
+
+            if (!isEmailDisabled && emailVal !== '') {
+                var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(emailVal)) {
+                    emailError = 'Format email tidak valid (contoh: nama@email.com).';
+                }
+            }
+
+            $emailField.next('.frontend-error, .invalid-feedback').remove();
+            $emailField.siblings('.frontend-error, .invalid-feedback').remove();
+
+            if (emailError) {
+                $emailField.addClass('is-invalid');
+                $emailField.after('<div class="invalid-feedback d-block frontend-error">' + emailError + '</div>');
+            } else {
+                $emailField.removeClass('is-invalid');
+            }
+        }
+
+        $('#phoneNumberFieldNewSuspect').on('input keyup', validateNewSuspectPhoneAndEmail);
+        $('#emailFieldNewSuspect').on('input keyup', validateNewSuspectPhoneAndEmail);
     });
 
     //phone and email
@@ -2125,6 +2235,10 @@
 
             // 2. Nomor Identitas
             checkModalInput('#identityNumberFieldNewSuspect', 'Nomor Identitas');
+            var idErr = validateNewSuspectIdentityNumber();
+            if (idErr) {
+                modalErrors.push(idErr);
+            }
 
             // 3. Nama
             checkModalInput('#nameFieldNewSuspect', 'Nama Lengkap');
@@ -2171,6 +2285,11 @@
                 markModalError('input[name="isExistsPhoneNumberFieldNewSuspect"]', 'Pilihan nomor telepon harus dipilih');
             } else if ($('input[name="isExistsPhoneNumberFieldNewSuspect"]:checked').val() === 'true') {
                 checkModalInput('#phoneNumberFieldNewSuspect', 'Nomor Telepon');
+                validateNewSuspectPhoneAndEmail();
+                if ($('#phoneNumberFieldNewSuspect').hasClass('is-invalid')) {
+                    var pErr = $('#phoneNumberFieldNewSuspect').next('.frontend-error').text() || 'Nomor telepon tidak valid';
+                    modalErrors.push(pErr);
+                }
             }
 
             // 16. Email Radio & Input
@@ -2178,11 +2297,16 @@
                 markModalError('input[name="isExistsEmailFieldNewSuspect"]', 'Pilihan email harus dipilih');
             } else if ($('input[name="isExistsEmailFieldNewSuspect"]:checked').val() === 'true') {
                 checkModalInput('#emailFieldNewSuspect', 'Email');
+                validateNewSuspectPhoneAndEmail();
+                if ($('#emailFieldNewSuspect').hasClass('is-invalid')) {
+                    var emErr = $('#emailFieldNewSuspect').next('.frontend-error').text() || 'Format email tidak valid';
+                    modalErrors.push(emErr);
+                }
             }
 
             // 17. Negara & Wilayah
             checkModalSelect('#countryFieldNewSuspect', 'Negara');
-            if ($('.countryChildrenLocationSectionNewSuspect').is(':visible')) {
+            if ($('.countryChildrenLocationSectionNewSuspect').is(':visible') || $('#countryFieldNewSuspect').val() === 'C101') {
                 checkModalSelect('#provinceFieldNewSuspect', 'Provinsi');
                 checkModalSelect('#regencyFieldNewSuspect', 'Kabupaten/Kota');
                 checkModalSelect('#districtFieldNewSuspect', 'Kecamatan');
