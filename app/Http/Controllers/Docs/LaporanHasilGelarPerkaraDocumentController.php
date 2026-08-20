@@ -740,6 +740,8 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             ->get();
 
         $caseDegreeTypes = CaseDegreeType::where('is_active', true)
+            ->where('id', '!=', 0)
+            ->whereRaw('UPPER(name) != ?', ['TIDAK DIKETAHUI'])
             ->orderBy('sort')
             ->get();
 
@@ -1580,7 +1582,11 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
 
     public function getCaseDegreeTypes()
     {
-        $caseDegreeTypes = CaseDegreeType::where('is_active', true)->orderBy('sort')->get();
+        $caseDegreeTypes = CaseDegreeType::where('is_active', true)
+            ->where('id', '!=', 0)
+            ->whereRaw('UPPER(name) != ?', ['TIDAK DIKETAHUI'])
+            ->orderBy('sort')
+            ->get();
 
         return response()->json([
             'status' => 'success',

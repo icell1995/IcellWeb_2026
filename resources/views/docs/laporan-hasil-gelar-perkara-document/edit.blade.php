@@ -56,7 +56,7 @@
 
         <div class="box-body">
             <form action="{{ route('doc.laporan-hasil-gelar-perkara-document.update', ['accident_id' => $accidentId, 'id'=> $laporanHasilGelarPerkaraDocumentId]) }}"
-                method="POST" enctype="multipart/form-data" id="laporanHasilGelarPerkaraForm">
+                method="POST" enctype="multipart/form-data" id="laporanHasilGelarPerkaraForm" novalidate>
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
 
@@ -138,7 +138,9 @@
                         <select class="form-control select2" name="caseDegreeType" id="caseDegreeType">
                             <option value="">--Pilih Jenis Gelar Perkara--</option>
                             @foreach($caseDegreeTypes as $caseDegreeType)
-                                <option value="{{$caseDegreeType->id}}" @if($laporanHasilGelarPerkaraDocument->case_degree_type_id == $caseDegreeType->id){{'selected'}}@endif>{{$caseDegreeType->name}}</option>
+                                @if($caseDegreeType->id != 0 && strtoupper($caseDegreeType->name) !== 'TIDAK DIKETAHUI')
+                                    <option value="{{$caseDegreeType->id}}" @if($laporanHasilGelarPerkaraDocument->case_degree_type_id == $caseDegreeType->id){{'selected'}}@endif>{{$caseDegreeType->name}}</option>
+                                @endif
                             @endforeach
                         </select>
 
@@ -156,7 +158,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Ref Surat Undangan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input class="form-control" id="caseDegreeInviteReference" name="caseDegreeInviteReference"
                             placeholder="No Surat Undangan" value="{{$laporanHasilGelarPerkaraDocument->case_degree_invite_reference}}">
 
@@ -169,7 +171,7 @@
                 </div>
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Tanggal Surat Undangan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input class="form-control" id="caseDegreeInviteDate" name="caseDegreeInviteDate"
                             placeholder="YYYY-MM-DD" autocomplete="off" value="{{$laporanHasilGelarPerkaraDocument->case_degree_invite_date}}"
                             data-provide="datepicker">
@@ -184,7 +186,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Tanggal Pelaksanaan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input class="form-control" id="date" name="date" placeholder="YYYY-MM-DD"
                             autocomplete="off" value="{{$laporanHasilGelarPerkaraDocument->date}}" data-provide="datepicker">
 
@@ -198,7 +200,7 @@
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Waktu Pelaksanaan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                    <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input class="form-control" id="time" name="time" placeholder="hh:mm"
                             autocomplete="off" value="{{$laporanHasilGelarPerkaraDocument->time}}">
 
@@ -452,7 +454,7 @@
                     $upperUnitLevelOfficerCountResult = $laporanHasilGelarPerkaraDocumentOfficers->where('class', 'SIGNATORY')->where('flag', 'UPPER_UNIT_LEVEL')->count();
                     $isUpperUnitLevelOfficer = $upperUnitLevelOfficerCountResult != 0 ? true : false;
                 @endphp
-                <div class="input-group row mb-3 ms-0">
+                {{-- <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-3 col-form-label" for="isUpperUnitDocument">Penandatangan Dokumen </label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <div class="form-check">
@@ -469,7 +471,7 @@
                             </span>
                         @enderror
                     </div>
-                </div>
+                </div> --}}
 
                 <div id="signatoryOfficer" @if($isUpperUnitLevelOfficer == true)style="display: none;"@endif>
                     <div class="input-group row mb-3 ms-0">
@@ -666,10 +668,10 @@
                         <input type="hidden" class="form-control" id="addNewSuspectFormMode" value="">
                         <input type="hidden" class="form-control" id="oldSuspectId" value="">
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="identityStatusFieldNewSuspect">Status
                                 Identitas<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-items-center">
                                 {{--<div class="form-check me-1">
                                     <input class="form-check-input" type="radio"
                                         id="identityStatusOnlyNameFieldNewSuspect" name="identityStatusFieldNewSuspect"
@@ -689,10 +691,10 @@
                             </div>
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="identityTypeFieldNewSuspect">Jenis
                                 Identitas<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <select class="form-control" id="identityTypeFieldNewSuspect">
                                     <option value="">--Pilih Jenis Identitas--</option>
                                     @foreach ($identityTypes as $identityType)
@@ -704,32 +706,32 @@
                             </div>
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="identityNumberFieldNewSuspect">Nomor
                                 Identitas<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <input type="text" class="form-control" id="identityNumberFieldNewSuspect"
                                     placeholder="Nomor Identitas">
                             </div>
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="nameFieldNewSuspect">Nama<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <input type="text" class="form-control" id="nameFieldNewSuspect"
                                     placeholder="Nama Lengkap">
                             </div>
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="genderFieldNewSuspect">Jenis Kelamin<span class="text-danger fs-5">*</span>
                             </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <select class="form-control" id="genderFieldNewSuspect">
                                     <option value="">--Pilih Jenis Kelamin--</option>
                                     @foreach ($genders as $gender)
                                         <option value="{{ $gender->id }}" data-gender-name="{{ $gender->name }}">
-                                            {{ $gender->name }}</option>
+                                             {{ $gender->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -744,10 +746,10 @@
                             </div>--}}
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="birthPlaceFieldNewSuspect">Tempat Lahir<span class="text-danger fs-5">*</span>
                             </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <input type="text" class="form-control" id="birthPlaceFieldNewSuspect"
                                     placeholder="Tempat Lahir">
                             </div>
@@ -762,10 +764,10 @@
                             </div>
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="birthDateFieldNewSuspect">Tanggal Lahir<span class="text-danger fs-5">*</span>
                             </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <input type="text" class="form-control" id="birthDateFieldNewSuspect"
                                     placeholder="YYYY-MM-DD" data-provide="datepicker">
                             </div>
@@ -780,10 +782,10 @@
                             </div>--}}
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="fatherFieldNewSuspect">Ayah Kandung
                             </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <input type="text" class="form-control" id="fatherFieldNewSuspect"
                                     placeholder="Nama Ayah Kandung">
                             </div>
@@ -797,10 +799,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="motherFieldNewSuspect">Ibu Kandung
                             </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <input type="text" class="form-control" id="motherFieldNewSuspect"
                                     placeholder="Nama Ibu Kandung">
                             </div>
@@ -814,10 +816,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="nationalityFieldNewSuspect">Kebangsaan<span class="text-danger fs-5">*</span>
                             </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <input type="text" class="form-control" id="nationalityFieldNewSuspect"
                                     placeholder="Kebangsaan">
                             </div>
@@ -831,9 +833,9 @@
                                 </div>
                             </div>--}}
                         </div>
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="ethnicFieldNewSuspect">Suku<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <select class="form-control" id="ethnicFieldNewSuspect">
                                     <option value="">--Pilih Suku--</option>
                                     @foreach ($ethnics as $ethnic)
@@ -843,9 +845,9 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="jobFieldNewSuspect">Pekerjaan<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <select class="form-control" id="jobFieldNewSuspect">
                                     <option value="">--Pilih Pekerjaan--</option>
                                     @foreach ($jobs as $job)
@@ -855,9 +857,9 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="religionFieldNewSuspect">Agama<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <select class="form-control" id="religionFieldNewSuspect">
                                     <option value="">--Pilih Agama--</option>
                                     @foreach ($religions as $religion)
@@ -867,10 +869,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="educationFieldNewSuspect">Pendidikan<span class="text-danger fs-5">*</span>
                             </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <select class="form-control" id="educationFieldNewSuspect">
                                     <option value="">--Pilih Pendidikan--</option>
                                     @foreach ($educations as $education)
@@ -880,10 +882,10 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="maritalStatusFieldNewSuspect">Status Kawin<span class="text-danger fs-5">*</span>
                             </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <select class="form-control" id="maritalStatusFieldNewSuspect">
                                     <option value="">--Pilih Status Kawin--</option>
                                     @foreach ($maritalStatuses as $maritalStatus)
@@ -904,7 +906,7 @@
                             </div>--}}
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="phoneNumberFieldNewSuspect">Nomor Telepon
                             </label>
                             <div class="col-lg-8 col-md-8 col-sm-12 col-12">
@@ -941,7 +943,7 @@
                             </div>
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="emailFieldNewSuspect">Email</label>
                             <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <div class="d-flex mb-3">
@@ -975,9 +977,9 @@
                             </div>
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="countryFieldNewSuspect">Negara<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <select class="form-control" id="countryFieldNewSuspect">
                                     <option value="">--Pilih Negara--</option>
                                     @foreach ($countries as $country)
@@ -989,37 +991,37 @@
                         </div>
 
                         <div class="countryChildrenLocationSectionNewSuspect" style="display:none;">
-                            <div class="input-group row mb-3 ms-0">
+                            <div class="row mb-3">
                                 <label class="fw-bold col-sm-2 col-form-label" for="provinceFieldNewSuspect">Provinsi<span class="text-danger fs-5">*</span>
                                 </label>
-                                <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                                <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                     <select class="form-control" id="provinceFieldNewSuspect">
                                         <option value="">--Pilih Provinsi--</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="input-group row mb-3 ms-0">
+                            <div class="row mb-3">
                                 <label class="fw-bold col-sm-2 col-form-label" for="regencyFieldNewSuspect">Kabupaten/Kota<span class="text-danger fs-5">*</span>
                                 </label>
-                                <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                                <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                     <select class="form-control" id="regencyFieldNewSuspect">
                                         <option value="">--Pilih Kabupaten/Kota--</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="input-group row mb-3 ms-0">
+                            <div class="row mb-3">
                                 <label class="fw-bold col-sm-2 col-form-label" for="districtFieldNewSuspect">Kecamatan<span class="text-danger fs-5">*</span>
                                 </label>
-                                <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                                <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                     <select class="form-control" id="districtFieldNewSuspect">
                                         <option value="">--Pilih Kecamatan--</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="input-group row mb-3 ms-0">
+                            <div class="row mb-3">
                                 <label class="fw-bold col-sm-2 col-form-label" for="villageFieldNewSuspect">Kelurahan/Desa<span class="text-danger fs-5">*</span>
                                 </label>
-                                <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                                <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                     <select class="form-control" id="villageFieldNewSuspect">
                                         <option value="">--Pilih Kelurahan/Desa--</option>
                                     </select>
@@ -1027,12 +1029,11 @@
                             </div>
                         </div>
 
-                        <div class="input-group row mb-3 ms-0">
+                        <div class="row mb-3">
                             <label class="fw-bold col-sm-2 col-form-label" for="addressFieldNewSuspect">Alamat<span class="text-danger fs-5">*</span> </label>
-                            <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                            <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                                 <input type="text" class="form-control" id="addressFieldNewSuspect"
                                     placeholder="Alamat">
-                            </div>
                             {{-- <div class="col-sm-2">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="isUnknownAddressFieldNewSuspect"
@@ -1224,7 +1225,7 @@
             format: 'yyyy-mm-dd',
             autoclose: "true",
             orientation: 'auto bottom',
-            endDate: new Date()
+            startDate: new Date()
         });
         $('#documentDate').keydown(function(e) {
             e.preventDefault();
@@ -1242,10 +1243,30 @@
             return false;
         });
 
-        $('#time').timepicker();
+        $('#time').timepicker({
+            showMeridian: false,
+            minuteStep: 1,
+            defaultTime: false
+        }).on('changeTime.timepicker change input hide.timepicker', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '') {
+                $(this).removeClass('is-invalid');
+                $(this).next('.frontend-error, .invalid-feedback').remove();
+                $(this).parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
         $('#time').keydown(function(e) {
             e.preventDefault();
             return false;
+        });
+
+        $('#date, #caseDegreeInviteDate, #documentDate').on('change changeDate input', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '') {
+                $(this).removeClass('is-invalid');
+                $(this).next('.frontend-error, .invalid-feedback').remove();
+                $(this).parent().find('.frontend-error, .invalid-feedback').remove();
+            }
         });
 
         $('#birthDateFieldNewSuspect').datepicker({
@@ -2049,27 +2070,135 @@
             var suspectSourceId = $('#suspectDeterminationDataSource').find(':selected').val();
             var suspectSourceName = $('#suspectDeterminationDataSource').find(':selected').text();
 
-            //form validation
-            if($('#identityStatusWithIdentityFieldNewSuspect').is(':checked')){
-                //isExistsPhoneNumberFieldNewSuspect was checked
-                if(!$('input[name="isExistsPhoneNumberFieldNewSuspect"]').is(':checked')) {
-                    // append small text error di bawah inputan
-                    var small = $('input[name="isExistsPhoneNumberFieldNewSuspect"]').parent().parent().find('small');
-                    if (small.length == 0) {
-                    $('input[name="isExistsPhoneNumberFieldNewSuspect"]').parent().parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
-                    }
-                    return false;
-                }
+            // Bersihkan error modal sebelumnya
+            $('#addNewSuspectModal .is-invalid').removeClass('is-invalid');
+            $('#addNewSuspectModal .select2-selection').removeClass('border border-danger is-invalid');
+            $('#addNewSuspectModal .frontend-error').remove();
+            $('#addNewSuspectModal .invalid-feedback').remove();
+            $('#addNewSuspectModal small.text-danger').remove();
 
-                //isExistsEmailFieldNewSuspect was checked
-                if(!$('input[name="isExistsEmailFieldNewSuspect"]').is(':checked')) {
-                    // append small text error di bawah inputan
-                    var small = $('input[name="isExistsEmailFieldNewSuspect"]').parent().parent().find('small');
-                    if (small.length == 0) {
-                    $('input[name="isExistsEmailFieldNewSuspect"]').parent().parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
+            var modalErrors = [];
+
+            function markModalError(fieldSelector, message) {
+                var $field = $(fieldSelector);
+                if ($field.is(':radio')) {
+                    $field.addClass('is-invalid');
+                    var $container = $field.closest('.d-flex');
+                    if ($container.next('.frontend-error').length === 0) {
+                        $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
                     }
-                    return false;
+                } else if ($field.next('.select2-container').length) {
+                    $field.addClass('is-invalid');
+                    $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    if ($field.next('.select2-container').next('.frontend-error').length === 0) {
+                        $field.next('.select2-container').after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    }
+                } else {
+                    $field.addClass('is-invalid');
+                    if ($field.next('.frontend-error').length === 0) {
+                        $field.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    }
                 }
+                modalErrors.push(message);
+            }
+
+            function checkModalInput(fieldSelector, label) {
+                var $field = $(fieldSelector);
+                if ($field.is(':disabled') || !$field.is(':visible')) return;
+                var val = ($field.val() || '').trim();
+                if (!val || val === '') {
+                    markModalError(fieldSelector, label + ' harus diisi');
+                }
+            }
+
+            function checkModalSelect(fieldSelector, label) {
+                var $field = $(fieldSelector);
+                if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                var val = $field.val();
+                if (!val || val === '' || val === null || val === '0') {
+                    markModalError(fieldSelector, label + ' harus dipilih');
+                }
+            }
+
+            // 1. Jenis Identitas
+            checkModalSelect('#identityTypeFieldNewSuspect', 'Jenis Identitas');
+
+            // 2. Nomor Identitas
+            checkModalInput('#identityNumberFieldNewSuspect', 'Nomor Identitas');
+
+            // 3. Nama
+            checkModalInput('#nameFieldNewSuspect', 'Nama Lengkap');
+
+            // 4. Jenis Kelamin
+            checkModalSelect('#genderFieldNewSuspect', 'Jenis Kelamin');
+
+            // 5. Tempat Lahir
+            checkModalInput('#birthPlaceFieldNewSuspect', 'Tempat Lahir');
+
+            // 6. Tanggal Lahir
+            checkModalInput('#birthDateFieldNewSuspect', 'Tanggal Lahir');
+
+            // 7. Ayah Kandung (jika tidak dicentang tidak tahu)
+            if (!$('#isUnknownFatherFieldNewSuspect').is(':checked')) {
+                checkModalInput('#fatherFieldNewSuspect', 'Nama Ayah Kandung');
+            }
+
+            // 8. Ibu Kandung (jika tidak dicentang tidak tahu)
+            if (!$('#isUnknownMotherFieldNewSuspect').is(':checked')) {
+                checkModalInput('#motherFieldNewSuspect', 'Nama Ibu Kandung');
+            }
+
+            // 9. Kebangsaan
+            checkModalInput('#nationalityFieldNewSuspect', 'Kebangsaan');
+
+            // 10. Suku
+            checkModalSelect('#ethnicFieldNewSuspect', 'Suku');
+
+            // 11. Pekerjaan
+            checkModalSelect('#jobFieldNewSuspect', 'Pekerjaan');
+
+            // 12. Agama
+            checkModalSelect('#religionFieldNewSuspect', 'Agama');
+
+            // 13. Pendidikan
+            checkModalSelect('#educationFieldNewSuspect', 'Pendidikan');
+
+            // 14. Status Kawin
+            checkModalSelect('#maritalStatusFieldNewSuspect', 'Status Kawin');
+
+            // 15. Nomor Telepon Radio & Input
+            if (!$('input[name="isExistsPhoneNumberFieldNewSuspect"]:checked').val()) {
+                markModalError('input[name="isExistsPhoneNumberFieldNewSuspect"]', 'Pilihan nomor telepon harus dipilih');
+            } else if ($('input[name="isExistsPhoneNumberFieldNewSuspect"]:checked').val() === 'true') {
+                checkModalInput('#phoneNumberFieldNewSuspect', 'Nomor Telepon');
+            }
+
+            // 16. Email Radio & Input
+            if (!$('input[name="isExistsEmailFieldNewSuspect"]:checked').val()) {
+                markModalError('input[name="isExistsEmailFieldNewSuspect"]', 'Pilihan email harus dipilih');
+            } else if ($('input[name="isExistsEmailFieldNewSuspect"]:checked').val() === 'true') {
+                checkModalInput('#emailFieldNewSuspect', 'Email');
+            }
+
+            // 17. Negara & Wilayah
+            checkModalSelect('#countryFieldNewSuspect', 'Negara');
+            if ($('.countryChildrenLocationSectionNewSuspect').is(':visible')) {
+                checkModalSelect('#provinceFieldNewSuspect', 'Provinsi');
+                checkModalSelect('#regencyFieldNewSuspect', 'Kabupaten/Kota');
+                checkModalSelect('#districtFieldNewSuspect', 'Kecamatan');
+                checkModalSelect('#villageFieldNewSuspect', 'Kelurahan/Desa');
+            }
+
+            // 18. Alamat
+            checkModalInput('#addressFieldNewSuspect', 'Alamat');
+
+            // Jika ada error di modal, scroll ke field pertama yang error di modal
+            if (modalErrors.length > 0) {
+                var $firstError = $('#addNewSuspectModal .is-invalid:visible, #addNewSuspectModal .frontend-error:visible').first();
+                if ($firstError.length && $firstError[0] && typeof $firstError[0].scrollIntoView === 'function') {
+                    $firstError[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
             }
 
             // save add new suspect
@@ -2182,12 +2311,14 @@
                         value: '',
                         text: '--Pilih Jenis Gelar Perkara--'
                     }));
-                    $.each(data, function(index, data) {
-                        caseDegreeType.append($('<option>', {
-                            value: data.id,
-                            text: data.name,
-                            'data-emp-id': data.emp_id
-                        }));
+                    $.each(data, function(index, item) {
+                        if (item.id != 0 && (item.name || '').toUpperCase() !== 'TIDAK DIKETAHUI') {
+                            caseDegreeType.append($('<option>', {
+                                value: item.id,
+                                text: item.name,
+                                'data-emp-id': item.emp_id
+                            }));
+                        }
                     });
                 },
                 error: function(xhr) {
@@ -2198,52 +2329,307 @@
         });
     });
 
-    // Validasi Submit Form
-    $(document).ready(function() {
-        $('#laporanHasilGelarPerkaraFormSubmit').on('click', function(e) {
-            e.preventDefault();
+        // Helper cek nilai field aman untuk array (select2 multiple) maupun string
+        function hasFieldValue($field) {
+            var raw = $field.val();
+            if (raw === null || raw === undefined) return false;
+            if (Array.isArray(raw)) return raw.length > 0;
+            var str = String(raw).trim();
+            return str !== '' && str !== '0';
+        }
 
-            // Lakukan validasi di sisi server menggunakan Ajax
-            $.ajax({
-                url: "{{ route('doc.laporan-hasil-gelar-perkara-document.api.validate-request-form', ['accident_id' => $accidentId]) }}",
-                type: 'POST',
-                dataType: 'json',
-                data: $('#laporanHasilGelarPerkaraForm').serialize(),
-                success: function(response) {
-                    // Cek jika validasi berhasil di sisi server
-                    if (response.success) {
-                        // sweetalert2 berhasil sebelum submit form
-                        Swal.fire({
-                            title: 'Berhasil',
-                            text: response.message,
-                            icon: 'success',
-                            confirmButtonText: 'Ok'
-                        }).then((result) => {
-                            // Submit form
-                            $('#laporanHasilGelarPerkaraForm').submit();
-                        });
+        // Auto-clear error merah ketika field diisi/diubah
+        $(document).on('input change changeTime.timepicker hide.timepicker changeDate', 'input, textarea, select', function() {
+            var $field = $(this);
+            if (hasFieldValue($field)) {
+                $field.removeClass('is-invalid');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                }
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+        // Untuk select2
+        $(document).on('select2:select select2:unselect change', 'select', function() {
+            var $field = $(this);
+            if (hasFieldValue($field)) {
+                $field.removeClass('is-invalid');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                }
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+        // Radio button auto clear
+        $(document).on('change', 'input[type="radio"]', function() {
+            var name = $(this).attr('name');
+            $('input[name="' + name + '"]').removeClass('is-invalid');
+            $('input[name="' + name + '"]').closest('.d-flex').next('.frontend-error, .invalid-feedback').remove();
+            $('input[name="' + name + '"]').closest('.d-flex').find('.frontend-error, .invalid-feedback').remove();
+        });
+        // Clear table error saat tersangka ditambah
+        $(document).on('click', '#suspectDeterminationOptionAddButtton, #saveAddNewSuspectForm', function() {
+            $('#suspectDeterminationTable').removeClass('is-invalid border border-danger');
+            $('#suspectDeterminationTable').next('.frontend-error, .invalid-feedback').remove();
+        });
+
+        // Continuous watcher untuk input yang diupdate oleh plugin popover (seperti timepicker)
+        setInterval(function() {
+            $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
+                var $field = $(this);
+                if (hasFieldValue($field)) {
+                    $field.removeClass('is-invalid');
+                    if ($field.next('.select2-container').length) {
+                        $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
                     }
-                },
-                error: function(xhr) {
-                    // Tangani error jika terjadi kesalahan saat melakukan validasi
-                    response = JSON.parse(xhr.responseText);
-                    console.log(response.errors);
-                    if(response.code == '422'){
-                        var errorMessages = '';
-
-                        $.each(response.errors, function(key, value) {
-                            errorMessages += '- ' + value + '<br>';
-                        });
-
-                        return Swal.fire({
-                            icon: 'error',
-                            title: 'Mohon Periksa Kembali Isian Anda',
-                            html: errorMessages,
-                        });
-                    }
+                    $field.next('.frontend-error, .invalid-feedback').remove();
+                    $field.siblings('.frontend-error, .invalid-feedback').remove();
+                    $field.parent().find('.frontend-error, .invalid-feedback').remove();
                 }
             });
+        }, 200);
+
+        // Validasi Submit Form
+        $(document).ready(function() {
+            $(document).on('click', '#laporanHasilGelarPerkaraFormSubmit', function(e) {
+                e.preventDefault();
+
+                // Bersihkan semua error sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.border.border-danger').removeClass('border border-danger');
+                $('.select2-selection').removeClass('border border-danger is-invalid');
+                $('.frontend-error').remove();
+                $('.invalid-feedback').remove();
+
+                var errors = [];
+
+                // Helper: tandai field merah dan kumpulkan error
+                function markError(fieldId, message) {
+                    var $field = $(fieldId);
+                    if ($field.is('table')) {
+                        $field.addClass('border border-danger is-invalid');
+                    } else if ($field.is(':radio')) {
+                        $field.addClass('is-invalid');
+                        var $container = $field.closest('.d-flex');
+                        if ($container.next('.frontend-error').length === 0) {
+                            $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                        }
+                        errors.push(message);
+                        return;
+                    } else {
+                        $field.addClass('is-invalid');
+                    }
+                    if ($field.next('.select2-container').length) {
+                        $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    }
+                    var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                    if ($target.next('.frontend-error').length === 0) {
+                        $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    }
+                    errors.push(message);
+                }
+
+                // Helper: cek select2 / select
+                function checkSelect(fieldId, label) {
+                    var $field = $(fieldId);
+                    if (!hasFieldValue($field)) {
+                        markError(fieldId, label + ' harus diisi');
+                    } else {
+                        $field.removeClass('is-invalid');
+                        if ($field.next('.select2-container').length) {
+                            $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                        }
+                        $field.next('.frontend-error, .invalid-feedback').remove();
+                        $field.siblings('.frontend-error, .invalid-feedback').remove();
+                        $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                    }
+                }
+
+                // Helper: cek input text
+                function checkInput(fieldId, label) {
+                    var $field = $(fieldId);
+                    if ($field.is(':disabled')) return;
+                    var raw = $field.val();
+                    var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                    if (!val || val === '') {
+                        markError(fieldId, label + ' harus diisi');
+                    } else {
+                        $field.removeClass('is-invalid');
+                        $field.next('.frontend-error, .invalid-feedback').remove();
+                        $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                    }
+                }
+
+                // 1. No Sprindik
+                checkSelect('#suratPerintahPenyidikanDocument', 'No Surat Perintah Penyidikan');
+
+                // 2. Jenis LHGP
+                if (!$('input[name="documentType"]:checked').val()) {
+                    markError('input[name="documentType"]', 'Jenis LHGP harus dipilih');
+                }
+
+                // 3. Jenis Gelar Perkara
+                checkSelect('#caseDegreeType', 'Jenis Gelar Perkara');
+
+                // 4. Ref Surat Undangan
+                checkInput('#caseDegreeInviteReference', 'No Surat Undangan Gelar Perkara');
+
+                // 5. Tanggal Surat Undangan
+                checkInput('#caseDegreeInviteDate', 'Tanggal Surat Undangan Gelar Perkara');
+
+                // 6. Tanggal Pelaksanaan
+                checkInput('#date', 'Tanggal Pelaksanaan');
+
+                // 7. Waktu Pelaksanaan
+                checkInput('#time', 'Waktu Pelaksanaan');
+
+                // 8. Zona Waktu
+                checkSelect('#timezone', 'Zona Waktu Pelaksanaan');
+
+                // 9. Tempat Pelaksanaan
+                checkInput('#place', 'Tempat Pelaksanaan');
+
+                // 10. Pimpinan Gelar Perkara
+                checkInput('#caseDegreeLeader', 'Pimpinan Gelar Perkara');
+
+                // 11. Jumlah Peserta
+                var attendeesVal = ($('#attendees').val() || '').trim();
+                if (!attendeesVal || isNaN(attendeesVal) || parseInt(attendeesVal) < 1) {
+                    markError('#attendees', 'Jumlah Peserta harus diisi minimal 1');
+                }
+
+                // 12. Rekomendasi Tersangka (Berdasarkan Jenis Gelar Perkara)
+                var caseDegreeTypeVal = $('#caseDegreeType').val();
+                if (caseDegreeTypeVal === '1') {
+                    if ($('#suspectDeterminationTable tbody tr').length === 0) {
+                        markError('#suspectDeterminationTable', 'Tersangka yang direkomendasikan untuk ditetapkan status tersangkanya harus diisi minimal 1');
+                    }
+                } else if (caseDegreeTypeVal === '4') {
+                    var arrestVal = $('#arrestSuspects').val();
+                    if (!arrestVal || arrestVal.length === 0) {
+                        markError('#arrestSuspects', 'Tersangka yang direkomendasikan untuk ditahan harus dipilih minimal 1');
+                    }
+                } else if (caseDegreeTypeVal === '16') {
+                    var revVal = $('#revocationSuspects').val();
+                    if (!revVal || revVal.length === 0) {
+                        markError('#revocationSuspects', 'Tersangka yang direkomendasikan untuk dicabut status tersangkanya harus dipilih minimal 1');
+                    }
+                }
+
+                // 13. Pembahasan
+                checkInput('#discussion', 'Pembahasan');
+
+                // 14. Kesimpulan
+                checkInput('#conclusion', 'Kesimpulan');
+
+                // 15. Penutup
+                checkInput('#closing', 'Penutup');
+
+                // 16. Tanggal Ditandatangani Dokumen
+                checkInput('#documentDate', 'Tanggal Dokumen LHGP');
+                var docDateVal = ($('#documentDate').val() || '').trim();
+                if (docDateVal) {
+                    var selectedDate = new Date(docDateVal);
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    selectedDate.setHours(0, 0, 0, 0);
+                    if (selectedDate < today) {
+                        markError('#documentDate', 'Tanggal Dokumen LHGP minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                    }
+                }
+
+                // 17. Penandatangan
+                if ($('#isUpperUnitDocument').is(':checked')) {
+                    checkInput('#upperUnitOfficerName', 'Nama Pejabat Satuan Atas');
+                    checkInput('#upperUnitOfficerRegisterNumber', 'NRP Pejabat Satuan Atas');
+                    checkSelect('#upperUnitOfficerRank', 'Pangkat Pejabat Satuan Atas');
+                    checkSelect('#upperUnitOfficerPosition', 'Jabatan Pejabat Satuan Atas');
+                    if ($('#isOnBehalfOfSuperiorOfficer').is(':checked')) {
+                        checkInput('#upperUnitSuperiorOfficerName', 'Atasan Pejabat Satuan Atas');
+                    }
+                } else {
+                    checkSelect('#signatory', 'Yang Menandatangani');
+                }
+
+                // Jika ada error, scroll ke field pertama yang error
+                if (errors.length > 0) {
+                    var $firstError = $('.is-invalid, .border-danger').first();
+                    var $target = null;
+                    if ($firstError && $firstError.length) {
+                        if ($firstError.is(':visible')) {
+                            $target = $firstError;
+                        } else if ($firstError.next('.select2-container').is(':visible')) {
+                            $target = $firstError.next('.select2-container');
+                        } else {
+                            $target = $firstError.closest(':visible');
+                        }
+                    }
+                    if (!$target || !$target.length || !$target.offset()) {
+                        $target = $('.frontend-error:visible, .is-invalid:visible, .border-danger:visible').first();
+                    }
+
+                    if ($target && $target.length) {
+                        if ($target[0] && typeof $target[0].scrollIntoView === 'function') {
+                            $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        if ($target.offset()) {
+                            $('html, body, .content-wrapper, .wrapper').animate({
+                                scrollTop: Math.max(0, $target.offset().top - 120)
+                            }, 400);
+                        }
+                    }
+                    return;
+                }
+
+                // Lakukan validasi di sisi server menggunakan Ajax
+                $.ajax({
+                    url: "{{ route('doc.laporan-hasil-gelar-perkara-document.api.validate-request-form', ['accident_id' => $accidentId]) }}",
+                    type: 'POST',
+                    dataType: 'json',
+                    data: $('#laporanHasilGelarPerkaraForm').serialize(),
+                    success: function(response) {
+                        // Cek jika validasi berhasil di sisi server
+                        if (response.success) {
+                            // sweetalert2 berhasil sebelum submit form
+                            Swal.fire({
+                                title: 'Berhasil',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'Ok'
+                            }).then((result) => {
+                                // Submit form
+                                $('#laporanHasilGelarPerkaraForm').submit();
+                            });
+                        }
+                    },
+                    error: function(xhr) {
+                        // Tangani error jika terjadi kesalahan saat melakukan validasi
+                        var response = {};
+                        try {
+                            response = JSON.parse(xhr.responseText);
+                        } catch(e) {
+                            response = { message: 'Terjadi kesalahan pada server.' };
+                        }
+
+                        if (response.code == '422') {
+                            var errorMessages = '';
+
+                            $.each(response.errors, function(key, value) {
+                                errorMessages += '- ' + value + '<br>';
+                            });
+
+                            return Swal.fire({
+                                icon: 'error',
+                                title: 'Mohon Periksa Kembali Isian Anda',
+                                html: errorMessages,
+                            });
+                        }
+                    }
+                });
+            });
         });
-    });
-</script>
+    </script>
 @endpush
