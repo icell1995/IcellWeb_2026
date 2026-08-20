@@ -619,49 +619,108 @@ function initializeLogin() {
                         setTimeout(() => {
                             startCountdown();
                         }, 500);
-                    } else if(data.status === 'invalid_format'){
+                    } else if (data.status === 'too_many_attempts') {
+                        let timerInterval;
+                        let secondsLeft = data.seconds;
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: data.message,
+                            icon: 'warning',
+                            title: 'Terlalu Banyak Percobaan',
+                            html: 'Anda telah melakukan terlalu banyak percobaan login.<br>Silakan tunggu <b>' + secondsLeft + '</b> detik sebelum mencoba kembali.',
+                            timer: secondsLeft * 1000,
+                            timerProgressBar: true,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
                             confirmButtonText: 'Tutup',
+                            didOpen: () => {
+                                Swal.showLoading();
+                                const timer = Swal.getHtmlContainer().querySelector('b');
+                                timerInterval = setInterval(() => {
+                                    secondsLeft--;
+                                    if (timer) timer.textContent = secondsLeft;
+                                    if (secondsLeft <= 0) {
+                                        clearInterval(timerInterval);
+                                    }
+                                }, 1000);
+                            },
+                            willClose: () => {
+                                clearInterval(timerInterval);
+                            }
                         });
-                    }else if(data.status === 'invalid_phone'){
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: data.message,
-                            confirmButtonText: 'Tutup',
-                        });
-                    }else if(data.status === 'unauthorized'){
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: data.message,
-                            confirmButtonText: 'Tutup',
-                        });
-                    } else if (data.status === 'errorCaptcha') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Captcha Salah',
-                            text: 'Captcha yang Anda masukkan salah. Silakan coba lagi.',
-                            confirmButtonText: 'Tutup',
-                            timerProgressBar: true
-                        });
-                    } else if (data.status === 'success') {
-                        showLoadingScreen();
-
-                        // No more unnecessary timeout, langsung gunakan adaptive loading
-                        const redirectUrl = data.redirect || '/home';
-                        adaptiveLoadingSteps(redirectUrl);
+                        
+                        // Clear and reload captcha automatically
+                        if (window.jQuery) {
+                            jQuery('#reload').trigger('click');
+                            jQuery('#captcha').val('');
+                        } else {
+                            const reloadBtn = document.getElementById('reload');
+                            if (reloadBtn) reloadBtn.click();
+                            const captchaInput = document.getElementById('captcha');
+                            if (captchaInput) captchaInput.value = '';
+                        }
+                        return;
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Login Gagal',
-                            html: data.message || 'Terjadi kesalahan.',
-                            confirmButtonText: 'Tutup',
-                            timerProgressBar: true
-                        });
+                        // Helper to refresh captcha image and clear input on failure
+                        const refreshCaptchaAndClear = () => {
+                            if (window.jQuery) {
+                                jQuery('#reload').trigger('click');
+                                jQuery('#captcha').val('');
+                            } else {
+                                const reloadBtn = document.getElementById('reload');
+                                if (reloadBtn) reloadBtn.click();
+                                const captchaInput = document.getElementById('captcha');
+                                if (captchaInput) captchaInput.value = '';
+                            }
+                        };
+
+                        if(data.status === 'invalid_format'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Kesalahan',
+                                text: data.message,
+                                confirmButtonText: 'Tutup',
+                            });
+                            refreshCaptchaAndClear();
+                        }else if(data.status === 'invalid_phone'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Kesalahan',
+                                text: data.message,
+                                confirmButtonText: 'Tutup',
+                            });
+                            refreshCaptchaAndClear();
+                        }else if(data.status === 'unauthorized'){
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Kesalahan',
+                                text: data.message,
+                                confirmButtonText: 'Tutup',
+                            });
+                            refreshCaptchaAndClear();
+                        } else if (data.status === 'errorCaptcha') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Captcha Salah',
+                                text: 'Captcha yang Anda masukkan salah. Silakan coba lagi.',
+                                confirmButtonText: 'Tutup',
+                                timerProgressBar: true
+                            });
+                            refreshCaptchaAndClear();
+                        } else if (data.status === 'success') {
+                            showLoadingScreen();
+
+                            // No more unnecessary timeout, langsung gunakan adaptive loading
+                            const redirectUrl = data.redirect || '/home';
+                            adaptiveLoadingSteps(redirectUrl);
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Login Gagal',
+                                html: data.message || 'Terjadi kesalahan.',
+                                confirmButtonText: 'Tutup',
+                                timerProgressBar: true
+                            });
+                            refreshCaptchaAndClear();
+                        }
                     }
                 })
                 .catch((error) => {
