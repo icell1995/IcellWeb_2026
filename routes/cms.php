@@ -297,3 +297,12 @@ Route::prefix('/integration-monitor')
         Route::get('/', [IntegrationMonitorController::class, 'index'])->name('index');
         Route::get('/data', [IntegrationMonitorController::class, 'getData'])->name('data');
     });
+
+// CMS FAQ Management routes
+Route::prefix('/faq')->name('cms.faq.')->group(function () {
+    Route::get('/', [App\Http\Controllers\TutorialController::class, 'cmsIndex'])->name('index');
+    Route::post('/generate', [App\Http\Controllers\TutorialController::class, 'generate'])->name('generate');
+    Route::post('/store', [App\Http\Controllers\TutorialController::class, 'store'])->name('store');
+    Route::post('/{id}/update', [App\Http\Controllers\TutorialController::class, 'update'])->name('update');
+    Route::delete('/{id}', [App\Http\Controllers\TutorialController::class, 'destroy'])->name('destroy');
+});
