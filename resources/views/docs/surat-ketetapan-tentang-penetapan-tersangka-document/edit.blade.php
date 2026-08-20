@@ -1752,16 +1752,19 @@
             $firstError = $('.is-invalid, .border-danger, .frontend-error').first();
         }
         if ($firstError && $firstError.length) {
-            var topPos = $firstError.offset() ? $firstError.offset().top : 0;
-            $('html, body, .content-wrapper, .wrapper, main').stop().animate({
-                scrollTop: Math.max(0, topPos - 140)
-            }, 400);
-            var el = $firstError[0];
-            if (el && typeof el.focus === 'function' && !$firstError.is('.select2-container')) {
-                try { el.focus(); } catch (e) {}
+            var targetEl = $firstError[0];
+            if (typeof targetEl.scrollIntoView === 'function') {
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-        } else {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if ($firstError.offset()) {
+                var topPos = $firstError.offset().top;
+                $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                    scrollTop: Math.max(0, topPos - 140)
+                }, 400);
+            }
+            if (targetEl && typeof targetEl.focus === 'function' && !$firstError.is('.select2-container')) {
+                try { targetEl.focus({ preventScroll: true }); } catch (e) {}
+            }
         }
     }
 
