@@ -587,7 +587,13 @@ function initializeLogin() {
                 },
                 body: formData
             })
-                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 429) {
+                        const retryAfter = res.headers.get('Retry-After') || 60;
+                        return { status: 'rate_limit', seconds: parseInt(retryAfter) };
+                    }
+                    return res.json();
+                })
                 .then(data => {
                     if (data.status === 'otp_required' || data.status === 'api_error' || data.status === 'saungwa_logout' || data.status === 'email_error') {
                         const modal = initOtpModal();
@@ -619,13 +625,13 @@ function initializeLogin() {
                         setTimeout(() => {
                             startCountdown();
                         }, 500);
-                    } else if (data.status === 'too_many_attempts') {
+                    } else if (data.status === 'rate_limit' || data.status === 'too_many_attempts') {
                         let timerInterval;
                         let secondsLeft = data.seconds;
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Terlalu Banyak Percobaan',
-                            html: 'Anda telah melakukan terlalu banyak percobaan login.<br>Silakan tunggu <b>' + secondsLeft + '</b> detik sebelum mencoba kembali.',
+                            title: 'Terlalu Banyak Percobaan Login',
+                            html: 'Anda telah melakukan terlalu banyak percobaan login yang gagal.<br>Silakan tunggu selama <b>' + secondsLeft + '</b> detik sebelum dapat mencoba kembali.',
                             timer: secondsLeft * 1000,
                             timerProgressBar: true,
                             allowOutsideClick: false,
@@ -644,6 +650,8 @@ function initializeLogin() {
                             },
                             willClose: () => {
                                 clearInterval(timerInterval);
+                                submitButton.disabled = false;
+                                submitButton.textContent = originalText;
                             }
                         });
                         
