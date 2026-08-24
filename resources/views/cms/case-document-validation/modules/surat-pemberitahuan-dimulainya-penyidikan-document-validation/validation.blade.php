@@ -49,7 +49,6 @@
                     </div>
                 </div>
             @endif
-
         </div>
 
         <div class="box-body">
@@ -504,8 +503,6 @@
                     @csrf
                     @method('POST')
                     <input type="hidden" name="isApproved" id="isApproved" value="true">
-                    {{-- Status saat halaman dibuka; dipakai controller untuk cek optimistic locking --}}
-                    <input type="hidden" name="currentStatusId" value="{{ $suratPemberitahuanDimulainyaPenyidikanDocument->status_id }}">
                     
                     <div class="form-group">
                         <div class="form-check">
@@ -528,7 +525,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary suratPemberitahuanDimulainyaPenyidikanApproveValidationFormSubmit" id="suratPemberitahuanDimulainyaPenyidikanApproveValidationFormSubmit">Validasi</button>
+                    <button type="submit" class="btn btn-primary" id="suratPemberitahuanDimulainyaPenyidikanApproveValidationFormSubmit">Validasi</button>
                 </div>
             </form>
         </div>
@@ -584,14 +581,6 @@
 <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
 <script type="text/javascript">
-    @if(session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal',
-            text: "{{ session('error') }}"
-        });
-    @endif
-
     $(document).ready(function() {
         setInterval(function() {
             $('#attentionBox').toggleClass('alert-danger alert-warning');
@@ -714,17 +703,24 @@
     $(document).ready(function() {
         $('.suratPemberitahuanDimulainyaPenyidikanApproveValidationFormSubmit').on('click', function(e) {
             e.preventDefault();
-            var $btn = $(this);
             var form = $('#approveValidationForm');
-
-            // Mencegah double klik
-            if ($btn.prop('disabled')) return;
-
             $('#isApproved').val('true');
 
-            // Langsung submit tanpa konfirmasi SweetAlert
-            $btn.prop('disabled', true).text('Memproses...');
-            form.submit();
+            //sweetalert confirm
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Anda akan menyetujui dokumen ini!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Setuju',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                console.log(result);
+                if (result.value) {
+                    form.submit();
+                }
+            });
         });
 
         $('#rejectStatusOption').on('change', function(e) {    
@@ -750,5 +746,154 @@
             }
         });
     });
+
+    $(document).ready(function() {
+        function notifyParentAndClose() {
+            var payload = {
+                action: 'document_validated',
+                timestamp: Date.now()
+            };
+
+            try {
+                if ('BroadcastChannel' in window) {
+                    var channel = new BroadcastChannel('mindik_validation_channel');
+                    channel.postMessage(payload);
+                }
+            } catch (e) {}
+
+            try {
+                localStorage.setItem('mindik_document_validated', JSON.stringify(payload));
+            } catch (e) {}
+
+            try {
+                if (window.opener && !window.opener.closed) {
+                    if (typeof window.opener.onMindikDocumentValidated === 'function') {
+                        window.opener.onMindikDocumentValidated(payload);
+                    }
+                }
+            } catch (e) {}
+
+            window.close();
+        }
+
+        // AJAX Submit for Approve Form
+        $("#approveValidationForm").on("submit", function(e) {
+            e.preventDefault();
+            var form = $(this);
+            
+            Swal.fire({
+                title: "Apakah Anda yakin?",
+                text: "Anda akan menyetujui dokumen ini!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Setuju",
+                cancelButtonText: "Batal",
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value || result.isConfirmed) {
+                    var btn = form.find("button[type='submit']");
+                    btn.prop("disabled", true);
+
+                    Swal.fire({
+                        title: "Sedang Memproses...",
+                        text: "Mohon tunggu sebentar, sistem sedang memproses validasi dokumen.",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    $.ajax({
+                        url: form.attr("action"),
+                        type: "POST",
+                        data: form.serialize(),
+                        success: function(response) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Berhasil",
+                                text: response.message || "Dokumen berhasil disetujui.",
+                                showConfirmButton: false,
+                                timer: 1500,
+                                timerProgressBar: true,
+                                allowOutsideClick: false,
+                                allowEscapeKey: false
+                            }).then(() => {
+                                notifyParentAndClose();
+                            });
+                        },
+                        error: function(xhr) {
+                            btn.prop("disabled", false);
+                            var msg = "Terjadi kesalahan saat menyetujui dokumen.";
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                msg = xhr.responseJSON.message;
+                            }
+                            Swal.fire({
+                                icon: "error",
+                                title: "Gagal",
+                                text: msg,
+                                confirmButtonText: "OK"
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        // AJAX Submit for Reject Form
+        $("#rejectValidationForm").on("submit", function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var btn = form.find("button[type='submit']");
+            btn.prop("disabled", true);
+            
+            $.ajax({
+                url: form.attr("action"),
+                type: "POST",
+                data: form.serialize(),
+                beforeSend: function() {
+                    Swal.fire({
+                        title: "Sedang Memproses...",
+                        text: "Mohon tunggu sebentar, sistem sedang memproses pengembalian dokumen.",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Berhasil",
+                        text: response.message || "Dokumen berhasil dikembalikan.",
+                        showConfirmButton: false,
+                        timer: 1500,
+                        timerProgressBar: true,
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    }).then(() => {
+                        notifyParentAndClose();
+                    });
+                },
+                error: function(xhr) {
+                    btn.prop("disabled", false);
+                    var msg = "Terjadi kesalahan saat mengembalikan dokumen.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    Swal.fire({
+                        icon: "error",
+                        title: "Gagal",
+                        text: msg,
+                        confirmButtonText: "OK"
+                    });
+                }
+            });
+        });
+    });
+
 </script>
 @endpush
