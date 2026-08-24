@@ -89,7 +89,7 @@ class LoginController extends Controller
         if (!in_array($user->officer->status, ['PRESENT', 'ASSISTANCE'])) {
             return response()->json(['status' => 'error', 'message' => 'Akun anda sedang tidak aktif, silahkan hubungi admin satker']);
         }
-        if (empty($user->officer->position_id) && $user->role_id != 1) {
+        if (empty($user->officer->position_id) && !in_array($user->role_id, [1, 2])) {
             return response()->json(['status' => 'error', 'message' => 'Akun anda sedang di nonaktifkan karena datanya belum lengkap, silahkan hubungi admin satker untuk melengkapi data anda']);
         }
 
@@ -99,6 +99,7 @@ class LoginController extends Controller
 
             switch ($user->role_id) {
                 case 1:
+                case 2:
                     $sendResult = $this->sendOTPViaWhatsapp($user, $otp);
 
                     if ($sendResult === 'saungwa_logout' || $sendResult === 'api_error' || $sendResult === 'unauthorized') {
@@ -194,6 +195,7 @@ class LoginController extends Controller
 
             switch ($user->role_id) {
                 case 1:
+                case 2:
                     $sendResult = $this->sendOTPViaWhatsapp($user, $otp);
 
                     if ($sendResult === true) {
@@ -241,6 +243,7 @@ class LoginController extends Controller
 
             switch ($user->role_id) {
                 case 1:
+                case 2:
                     Log::error('Resend OTP Error: ' . $e->getMessage());
                     return response()->json([
                         'success' => false,
@@ -267,6 +270,13 @@ class LoginController extends Controller
         if (!$phoneNumber || empty($phoneNumber)) {
             Log::warning("No phone number for user ID {$user->id}");
             return 'invalid_phone';
+        }
+
+        // Normalisasi otomatis: Ubah awalan '0' atau '+62' menjadi '62'
+        if (str_starts_with($phoneNumber, '0')) {
+            $phoneNumber = '62' . substr($phoneNumber, 1);
+        } else if (str_starts_with($phoneNumber, '+62')) {
+            $phoneNumber = substr($phoneNumber, 1);
         }
 
         if (!preg_match('/^62[0-9]{8,15}$/', $phoneNumber)) {
