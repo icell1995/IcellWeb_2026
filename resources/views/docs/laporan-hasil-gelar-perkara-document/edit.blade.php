@@ -1736,6 +1736,18 @@
             withIdentitySection();
         });
 
+        function clearModalFieldError($field) {
+            if (!$field || !$field.length) return;
+            $field.removeClass('is-invalid');
+            if ($field.next('.select2-container').length) {
+                $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+            }
+            $field.next('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
+            $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            $field.closest('.row, .form-group').find('.frontend-error, .invalid-feedback').remove();
+        }
+
         //tidak tahu checked
         $('#isUnknownGenderFieldNewSuspect').on('change', function(){
             if($(this).is(':checked')){
@@ -1744,6 +1756,7 @@
             }else{
                 $('#genderFieldNewSuspect').prop('disabled', false);
             }
+            clearModalFieldError($('#genderFieldNewSuspect'));
         });
         $('#isUnknownBirthPlaceFieldNewSuspect').on('change', function(){
             if($(this).is(':checked')){
@@ -1753,6 +1766,7 @@
                 $('#birthPlaceFieldNewSuspect').val('');
                 $('#birthPlaceFieldNewSuspect').prop('disabled', false);
             }
+            clearModalFieldError($('#birthPlaceFieldNewSuspect'));
         });
         $('#isUnknownBirthDateFieldNewSuspect').on('change', function(){
             if($(this).is(':checked')){
@@ -1761,6 +1775,7 @@
             }else{
                 $('#birthDateFieldNewSuspect').prop('disabled', false);
             }
+            clearModalFieldError($('#birthDateFieldNewSuspect'));
         });
         $('#isUnknownFatherFieldNewSuspect').on('change', function(){
             if($(this).is(':checked')){
@@ -1770,6 +1785,7 @@
                 $('#fatherFieldNewSuspect').val('');
                 $('#fatherFieldNewSuspect').prop('disabled', false);
             }
+            clearModalFieldError($('#fatherFieldNewSuspect'));
         });
         $('#isUnknownMotherFieldNewSuspect').on('change', function(){
             if($(this).is(':checked')){
@@ -1779,6 +1795,7 @@
                 $('#motherFieldNewSuspect').val('');
                 $('#motherFieldNewSuspect').prop('disabled', false);
             }
+            clearModalFieldError($('#motherFieldNewSuspect'));
         });
         $('#isUnknownNationalityFieldNewSuspect').on('change', function(){
             if($(this).is(':checked')){
@@ -1788,6 +1805,7 @@
                 $('#nationalityFieldNewSuspect').val('');
                 $('#nationalityFieldNewSuspect').prop('disabled', false);
             }
+            clearModalFieldError($('#nationalityFieldNewSuspect'));
         });
         $('#isUnknownMaritalStatusFieldNewSuspect').on('change', function(){
             if($(this).is(':checked')){
@@ -1796,6 +1814,7 @@
             }else{
                 $('#maritalStatusFieldNewSuspect').prop('disabled', false);
             }
+            clearModalFieldError($('#maritalStatusFieldNewSuspect'));
         });
         $('#isUnknownAddressFieldNewSuspect').on('change', function(){
             if($(this).is(':checked')){
@@ -1805,6 +1824,12 @@
                 $('#addressFieldNewSuspect').val('');
                 $('#addressFieldNewSuspect').prop('disabled', false);
             }
+            clearModalFieldError($('#addressFieldNewSuspect'));
+        });
+
+        $('#addNewSuspectModal').on('change', 'input[type="checkbox"]', function() {
+            var $row = $(this).closest('.row, .form-group');
+            clearModalFieldError($row.find('input, select, textarea'));
         });
 
         //province get from ajax
@@ -1967,16 +1992,82 @@
                 $('#identityNumberFieldNewSuspect').prop('disabled', false);
                 $('#identityNumberFieldNewSuspect').val('');
             }
-            validateNewSuspectIdentityNumber();
         });
+    });
 
-        function validateNewSuspectIdentityNumber() {
+    //phone and email
+    $('input[name="isExistsPhoneNumberFieldNewSuspect"]').on('change', function(){
+        var isExistsPhoneNumberFieldNewSuspect = $('input[name="isExistsPhoneNumberFieldNewSuspect"]:checked').val();
+        if(isExistsPhoneNumberFieldNewSuspect == 'true'){
+            $('#isAvailablePhoneNumberFieldNewSuspect').prop('disabled', false);
+            $('#isAvailablePhoneNumberFieldNewSuspect').prop('checked', true);
+            $('#phoneNumberFieldNewSuspect').prop('disabled', false);
+            $('#phoneNumberFieldNewSuspect').val('');
+        }else{
+            $('#isAvailablePhoneNumberFieldNewSuspect').prop('disabled', true);
+            $('#isAvailablePhoneNumberFieldNewSuspect').prop('checked', false);
+            $('#phoneNumberFieldNewSuspect').val('TIDAK ADA NOMOR TELEPON');
+            $('#phoneNumberFieldNewSuspect').prop('disabled', true);
+        }
+        clearModalFieldError($('#phoneNumberFieldNewSuspect'));
+        clearModalFieldError($('input[name="isExistsPhoneNumberFieldNewSuspect"]'));
+    });
+    $('#isAvailablePhoneNumberFieldNewSuspect').on('change', function(){
+        if($(this).is(':checked')){
+            $('#phoneNumberFieldNewSuspect').val('');
+            $('#phoneNumberFieldNewSuspect').prop('disabled', false);
+        }else{
+            $('#phoneNumberFieldNewSuspect').prop('disabled', true);
+            $('#phoneNumberFieldNewSuspect').val('TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON');
+        }
+        clearModalFieldError($('#phoneNumberFieldNewSuspect'));
+    });
+    $('input[name="isExistsEmailFieldNewSuspect"]').on('change', function(){
+        var isExistsEmailFieldNewSuspect = $('input[name="isExistsEmailFieldNewSuspect"]:checked').val();
+        if(isExistsEmailFieldNewSuspect == 'true'){
+            $('#isAvailableEmailFieldNewSuspect').prop('disabled', false);
+            $('#isAvailableEmailFieldNewSuspect').prop('checked', true);
+            $('#emailFieldNewSuspect').prop('disabled', false);
+            $('#emailFieldNewSuspect').val('');
+        }else{
+            $('#isAvailableEmailFieldNewSuspect').prop('disabled', true);
+            $('#isAvailableEmailFieldNewSuspect').prop('checked', false);
+            $('#emailFieldNewSuspect').val('TIDAK ADA EMAIL');
+            $('#emailFieldNewSuspect').prop('disabled', true);
+        }
+        clearModalFieldError($('#emailFieldNewSuspect'));
+        clearModalFieldError($('input[name="isExistsEmailFieldNewSuspect"]'));
+    });
+    $('#isAvailableEmailFieldNewSuspect').on('change', function(){
+        if($(this).is(':checked')){
+            $('#emailFieldNewSuspect').val('');
+            $('#emailFieldNewSuspect').prop('disabled', false);
+        }else{
+            $('#emailFieldNewSuspect').prop('disabled', true);
+            $('#emailFieldNewSuspect').val('TIDAK BERSEDIA MEMBERIKAN EMAIL');
+        }
+        clearModalFieldError($('#emailFieldNewSuspect'));
+    });
+
+    $('#countryFieldNewSuspect').on('change', function(){
+        var countryId = $(this).find(':selected').val();
+
+        //if indonesia show province, regency, district, village
+        if(countryId == 'C101'){
+            $('.countryChildrenLocationSectionNewSuspect').show();
+        }else{
+            $('.countryChildrenLocationSectionNewSuspect').hide();
+        }
+    });
+
+        function validateModalIdentityNumber() {
             var $field = $('#identityNumberFieldNewSuspect');
             var identityTypeId = $('#identityTypeFieldNewSuspect').val();
             var identityTypeName = ($('#identityTypeFieldNewSuspect').find(':selected').data('identity-type-name') || $('#identityTypeFieldNewSuspect').find(':selected').text() || '').toUpperCase();
             var val = ($field.val() || '').trim();
             var errorMsg = '';
 
+            // Skip validation if empty or disabled without wiping required error
             if ($field.is(':disabled') || val === '') {
                 return null;
             }
@@ -2023,121 +2114,180 @@
         $('#identityNumberFieldNewSuspect').on('input keyup change blur', function() {
             var val = ($(this).val() || '').trim();
             if (val !== '') {
-                validateNewSuspectIdentityNumber();
+                validateModalIdentityNumber();
+            }
+        });
+        $('#identityTypeFieldNewSuspect').on('change select2:select', function() {
+            var val = $('#identityNumberFieldNewSuspect').val() || '';
+            if (val !== '') {
+                validateModalIdentityNumber();
             }
         });
 
-        function validateNewSuspectPhoneAndEmail() {
-            // Phone validation
-            var $phoneField = $('#phoneNumberFieldNewSuspect');
-            var phoneVal = ($phoneField.val() || '').trim();
-            var isPhoneDisabled = $phoneField.is(':disabled');
-            var phoneError = '';
-
-            if (!isPhoneDisabled && phoneVal !== '') {
-                if (!/^[0-9]+$/.test(phoneVal)) {
-                    phoneError = 'Nomor telepon harus berupa angka saja.';
-                } else if (phoneVal.length < 10 || phoneVal.length > 13) {
-                    phoneError = 'Nomor telepon harus antara 10 sampai 13 digit (saat ini: ' + phoneVal.length + ' digit).';
-                }
+        function validateModalPhone() {
+            var $field = $('#phoneNumberFieldNewSuspect');
+            var val = ($field.val() || '').trim();
+            if ($field.is(':disabled') || val === 'TIDAK ADA NOMOR TELEPON' || val === 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON') {
+                $field.removeClass('is-invalid');
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                return null;
+            }
+            if (val === '') {
+                return null;
             }
 
-            $phoneField.next('.frontend-error, .invalid-feedback').remove();
-            $phoneField.siblings('.frontend-error, .invalid-feedback').remove();
+            var errorMsg = '';
+            if (!/^[0-9]+$/.test(val)) {
+                errorMsg = 'Nomor telepon harus berupa angka saja.';
+            } else if (val.length < 10 || val.length > 13) {
+                errorMsg = 'Nomor telepon harus antara 10 sampai 13 digit (saat ini: ' + val.length + ' digit).';
+            }
 
-            if (phoneError) {
-                $phoneField.addClass('is-invalid');
-                $phoneField.after('<div class="invalid-feedback d-block frontend-error">' + phoneError + '</div>');
+            $field.next('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
+
+            if (errorMsg) {
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block frontend-error">' + errorMsg + '</div>');
+                return errorMsg;
             } else {
-                $phoneField.removeClass('is-invalid');
+                $field.removeClass('is-invalid');
+                return null;
+            }
+        }
+
+        function validateModalEmail() {
+            var $field = $('#emailFieldNewSuspect');
+            var val = ($field.val() || '').trim();
+            if ($field.is(':disabled') || val === 'TIDAK ADA EMAIL' || val === 'TIDAK BERSEDIA MEMBERIKAN EMAIL') {
+                $field.removeClass('is-invalid');
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                return null;
+            }
+            if (val === '') {
+                return null;
             }
 
-            // Email validation
-            var $emailField = $('#emailFieldNewSuspect');
-            var emailVal = ($emailField.val() || '').trim();
-            var isEmailDisabled = $emailField.is(':disabled');
-            var emailError = '';
-
-            if (!isEmailDisabled && emailVal !== '') {
-                var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                if (!emailRegex.test(emailVal)) {
-                    emailError = 'Format email tidak valid (contoh: nama@email.com).';
-                }
+            var errorMsg = '';
+            var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(val)) {
+                errorMsg = 'Format email tidak valid (contoh: nama@email.com).';
             }
 
-            $emailField.next('.frontend-error, .invalid-feedback').remove();
-            $emailField.siblings('.frontend-error, .invalid-feedback').remove();
+            $field.next('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
 
-            if (emailError) {
-                $emailField.addClass('is-invalid');
-                $emailField.after('<div class="invalid-feedback d-block frontend-error">' + emailError + '</div>');
+            if (errorMsg) {
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block frontend-error">' + errorMsg + '</div>');
+                return errorMsg;
             } else {
-                $emailField.removeClass('is-invalid');
+                $field.removeClass('is-invalid');
+                return null;
             }
         }
 
-        $('#phoneNumberFieldNewSuspect').on('input keyup', validateNewSuspectPhoneAndEmail);
-        $('#emailFieldNewSuspect').on('input keyup', validateNewSuspectPhoneAndEmail);
-    });
+        function validateModalBirthDate() {
+            var $field = $('#birthDateFieldNewSuspect');
+            var val = ($field.val() || '').trim();
+            if ($field.is(':disabled')) {
+                $field.removeClass('is-invalid');
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                return null;
+            }
+            if (val === '') {
+                return null;
+            }
 
-    //phone and email
-    $('input[name="isExistsPhoneNumberFieldNewSuspect"]').on('change', function(){
-        var isExistsPhoneNumberFieldNewSuspect = $('input[name="isExistsPhoneNumberFieldNewSuspect"]:checked').val();
-        if(isExistsPhoneNumberFieldNewSuspect == 'true'){
-            $('#isAvailablePhoneNumberFieldNewSuspect').prop('disabled', false);
-            $('#isAvailablePhoneNumberFieldNewSuspect').prop('checked', true);
-            $('#phoneNumberFieldNewSuspect').prop('disabled', false);
-            $('#phoneNumberFieldNewSuspect').val('');
-        }else{
-            $('#isAvailablePhoneNumberFieldNewSuspect').prop('disabled', true);
-            $('#isAvailablePhoneNumberFieldNewSuspect').prop('checked', false);
-            $('#phoneNumberFieldNewSuspect').val('TIDAK ADA NOMOR TELEPON');
-            $('#phoneNumberFieldNewSuspect').prop('disabled', true);
-        }
-    });
-    $('#isAvailablePhoneNumberFieldNewSuspect').on('change', function(){
-        if($(this).is(':checked')){
-            $('#phoneNumberFieldNewSuspect').val('');
-            $('#phoneNumberFieldNewSuspect').prop('disabled', false);
-        }else{
-            $('#phoneNumberFieldNewSuspect').prop('disabled', true);
-            $('#phoneNumberFieldNewSuspect').val('TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON');
-        }
-    });
-    $('input[name="isExistsEmailFieldNewSuspect"]').on('change', function(){
-        var isExistsEmailFieldNewSuspect = $('input[name="isExistsEmailFieldNewSuspect"]:checked').val();
-        if(isExistsEmailFieldNewSuspect == 'true'){
-            $('#isAvailableEmailFieldNewSuspect').prop('disabled', false);
-            $('#isAvailableEmailFieldNewSuspect').prop('checked', true);
-            $('#emailFieldNewSuspect').prop('disabled', false);
-            $('#emailFieldNewSuspect').val('');
-        }else{
-            $('#isAvailableEmailFieldNewSuspect').prop('disabled', true);
-            $('#isAvailableEmailFieldNewSuspect').prop('checked', false);
-            $('#emailFieldNewSuspect').val('TIDAK ADA EMAIL');
-            $('#emailFieldNewSuspect').prop('disabled', true);
-        }
-    });
-    $('#isAvailableEmailFieldNewSuspect').on('change', function(){
-        if($(this).is(':checked')){
-            $('#emailFieldNewSuspect').val('');
-            $('#emailFieldNewSuspect').prop('disabled', false);
-        }else{
-            $('#emailFieldNewSuspect').prop('disabled', true);
-            $('#emailFieldNewSuspect').val('TIDAK BERSEDIA MEMBERIKAN EMAIL');
-        }
-    });
+            var errorMsg = '';
+            var bDate = new Date(val);
+            var today = new Date();
+            today.setHours(23, 59, 59, 999);
+            if (isNaN(bDate.getTime())) {
+                errorMsg = 'Format tanggal lahir tidak valid (YYYY-MM-DD).';
+            } else if (bDate > today) {
+                errorMsg = 'Tanggal lahir tidak boleh melebihi hari ini.';
+            }
 
-    $('#countryFieldNewSuspect').on('change', function(){
-        var countryId = $(this).find(':selected').val();
+            $field.next('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
 
-        //if indonesia show province, regency, district, village
-        if(countryId == 'C101'){
-            $('.countryChildrenLocationSectionNewSuspect').show();
-        }else{
-            $('.countryChildrenLocationSectionNewSuspect').hide();
+            if (errorMsg) {
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block frontend-error">' + errorMsg + '</div>');
+                return errorMsg;
+            } else {
+                $field.removeClass('is-invalid');
+                return null;
+            }
         }
-    });
+
+        $('#phoneNumberFieldNewSuspect').on('input keyup change blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '' && val !== 'TIDAK ADA NOMOR TELEPON' && val !== 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON') {
+                validateModalPhone();
+            }
+        });
+
+        $('#emailFieldNewSuspect').on('input keyup change blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '' && val !== 'TIDAK ADA EMAIL' && val !== 'TIDAK BERSEDIA MEMBERIKAN EMAIL') {
+                validateModalEmail();
+            }
+        });
+
+        $('#birthDateFieldNewSuspect').on('change changeDate input blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '') {
+                validateModalBirthDate();
+            }
+        });
+
+        // Auto-clear error realtime untuk field di dalam modal tersangka saat diisi
+        $('#addNewSuspectModal').on('input keyup change', 'input:not(#identityNumberFieldNewSuspect, #phoneNumberFieldNewSuspect, #emailFieldNewSuspect, #birthDateFieldNewSuspect), textarea', function() {
+            var $field = $(this);
+            if (($field.val() || '').trim() !== '') {
+                $field.removeClass('is-invalid');
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $('#addNewSuspectModal').on('change select2:select', 'select', function() {
+            var $field = $(this);
+            var val = $field.val();
+            if (val && val !== '' && val !== '0') {
+                $field.removeClass('is-invalid');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                }
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $('#addNewSuspectModal').on('change', 'input[type="radio"]', function() {
+            var name = $(this).attr('name');
+            $('#addNewSuspectModal input[name="' + name + '"]').removeClass('is-invalid');
+            $('#addNewSuspectModal input[name="' + name + '"]').closest('.d-flex').next('.frontend-error, .invalid-feedback').remove();
+            $('#addNewSuspectModal input[name="' + name + '"]').closest('.d-flex').find('.frontend-error, .invalid-feedback').remove();
+        });
+
+        $('#addNewSuspectModal').on('show.bs.modal', function (e) {
+            if (e.target !== this) return;
+            $('#addNewSuspectModal .is-invalid').removeClass('is-invalid');
+            $('#addNewSuspectModal .select2-selection').removeClass('border border-danger is-invalid');
+            $('#addNewSuspectModal .frontend-error, #addNewSuspectModal .invalid-feedback, #addNewSuspectModal small.text-danger').remove();
+            var modalEl = document.getElementById('addNewSuspectModal');
+            var modalBodyEl = document.querySelector('#addNewSuspectModal .modal-body');
+            if (modalEl) modalEl.scrollTop = 0;
+            if (modalBodyEl) modalBodyEl.scrollTop = 0;
+        });
 
     $(document).ready(function() {
         $('#saveAddNewSuspectForm').on('click', function(){
@@ -2183,9 +2333,7 @@
             // Bersihkan error modal sebelumnya
             $('#addNewSuspectModal .is-invalid').removeClass('is-invalid');
             $('#addNewSuspectModal .select2-selection').removeClass('border border-danger is-invalid');
-            $('#addNewSuspectModal .frontend-error').remove();
-            $('#addNewSuspectModal .invalid-feedback').remove();
-            $('#addNewSuspectModal small.text-danger').remove();
+            $('#addNewSuspectModal .frontend-error, #addNewSuspectModal .invalid-feedback, #addNewSuspectModal small.text-danger').remove();
 
             var modalErrors = [];
 
@@ -2209,12 +2357,14 @@
                         $field.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
                     }
                 }
-                modalErrors.push(message);
+                if (!modalErrors.includes(message)) {
+                    modalErrors.push(message);
+                }
             }
 
             function checkModalInput(fieldSelector, label) {
                 var $field = $(fieldSelector);
-                if ($field.is(':disabled') || !$field.is(':visible')) return;
+                if ($field.is(':disabled') || $field.closest('.row').is(':hidden')) return;
                 var val = ($field.val() || '').trim();
                 if (!val || val === '') {
                     markModalError(fieldSelector, label + ' harus diisi');
@@ -2223,7 +2373,7 @@
 
             function checkModalSelect(fieldSelector, label) {
                 var $field = $(fieldSelector);
-                if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                if ($field.is(':disabled') || $field.closest('.row').is(':hidden')) return;
                 var val = $field.val();
                 if (!val || val === '' || val === null || val === '0') {
                     markModalError(fieldSelector, label + ' harus dipilih');
@@ -2235,22 +2385,32 @@
 
             // 2. Nomor Identitas
             checkModalInput('#identityNumberFieldNewSuspect', 'Nomor Identitas');
-            var idErr = validateNewSuspectIdentityNumber();
+            var idErr = validateModalIdentityNumber();
             if (idErr) {
-                modalErrors.push(idErr);
+                markModalError('#identityNumberFieldNewSuspect', idErr);
             }
 
             // 3. Nama
             checkModalInput('#nameFieldNewSuspect', 'Nama Lengkap');
 
             // 4. Jenis Kelamin
-            checkModalSelect('#genderFieldNewSuspect', 'Jenis Kelamin');
+            if (!$('#isUnknownGenderFieldNewSuspect').is(':checked')) {
+                checkModalSelect('#genderFieldNewSuspect', 'Jenis Kelamin');
+            }
 
             // 5. Tempat Lahir
-            checkModalInput('#birthPlaceFieldNewSuspect', 'Tempat Lahir');
+            if (!$('#isUnknownBirthPlaceFieldNewSuspect').is(':checked')) {
+                checkModalInput('#birthPlaceFieldNewSuspect', 'Tempat Lahir');
+            }
 
             // 6. Tanggal Lahir
-            checkModalInput('#birthDateFieldNewSuspect', 'Tanggal Lahir');
+            if (!$('#isUnknownBirthDateFieldNewSuspect').is(':checked')) {
+                checkModalInput('#birthDateFieldNewSuspect', 'Tanggal Lahir');
+                var bDateErr = validateModalBirthDate();
+                if (bDateErr) {
+                    markModalError('#birthDateFieldNewSuspect', bDateErr);
+                }
+            }
 
             // 7. Ayah Kandung (jika tidak dicentang tidak tahu)
             if (!$('#isUnknownFatherFieldNewSuspect').is(':checked')) {
@@ -2263,7 +2423,9 @@
             }
 
             // 9. Kebangsaan
-            checkModalInput('#nationalityFieldNewSuspect', 'Kebangsaan');
+            if (!$('#isUnknownNationalityFieldNewSuspect').is(':checked')) {
+                checkModalInput('#nationalityFieldNewSuspect', 'Kebangsaan');
+            }
 
             // 10. Suku
             checkModalSelect('#ethnicFieldNewSuspect', 'Suku');
@@ -2278,29 +2440,31 @@
             checkModalSelect('#educationFieldNewSuspect', 'Pendidikan');
 
             // 14. Status Kawin
-            checkModalSelect('#maritalStatusFieldNewSuspect', 'Status Kawin');
+            if (!$('#isUnknownMaritalStatusFieldNewSuspect').is(':checked')) {
+                checkModalSelect('#maritalStatusFieldNewSuspect', 'Status Kawin');
+            }
 
             // 15. Nomor Telepon Radio & Input
-            if (!$('input[name="isExistsPhoneNumberFieldNewSuspect"]:checked').val()) {
+            var phoneRadioVal = $('input[name="isExistsPhoneNumberFieldNewSuspect"]:checked').val();
+            if (!phoneRadioVal) {
                 markModalError('input[name="isExistsPhoneNumberFieldNewSuspect"]', 'Pilihan nomor telepon harus dipilih');
-            } else if ($('input[name="isExistsPhoneNumberFieldNewSuspect"]:checked').val() === 'true') {
+            } else if (phoneRadioVal === 'true' && $('#isAvailablePhoneNumberFieldNewSuspect').is(':checked')) {
                 checkModalInput('#phoneNumberFieldNewSuspect', 'Nomor Telepon');
-                validateNewSuspectPhoneAndEmail();
-                if ($('#phoneNumberFieldNewSuspect').hasClass('is-invalid')) {
-                    var pErr = $('#phoneNumberFieldNewSuspect').next('.frontend-error').text() || 'Nomor telepon tidak valid';
-                    modalErrors.push(pErr);
+                var pErr = validateModalPhone();
+                if (pErr) {
+                    markModalError('#phoneNumberFieldNewSuspect', pErr);
                 }
             }
 
             // 16. Email Radio & Input
-            if (!$('input[name="isExistsEmailFieldNewSuspect"]:checked').val()) {
+            var emailRadioVal = $('input[name="isExistsEmailFieldNewSuspect"]:checked').val();
+            if (!emailRadioVal) {
                 markModalError('input[name="isExistsEmailFieldNewSuspect"]', 'Pilihan email harus dipilih');
-            } else if ($('input[name="isExistsEmailFieldNewSuspect"]:checked').val() === 'true') {
+            } else if (emailRadioVal === 'true' && $('#isAvailableEmailFieldNewSuspect').is(':checked')) {
                 checkModalInput('#emailFieldNewSuspect', 'Email');
-                validateNewSuspectPhoneAndEmail();
-                if ($('#emailFieldNewSuspect').hasClass('is-invalid')) {
-                    var emErr = $('#emailFieldNewSuspect').next('.frontend-error').text() || 'Format email tidak valid';
-                    modalErrors.push(emErr);
+                var emErr = validateModalEmail();
+                if (emErr) {
+                    markModalError('#emailFieldNewSuspect', emErr);
                 }
             }
 
@@ -2314,14 +2478,15 @@
             }
 
             // 18. Alamat
-            checkModalInput('#addressFieldNewSuspect', 'Alamat');
+            if (!$('#isUnknownAddressFieldNewSuspect').is(':checked')) {
+                checkModalInput('#addressFieldNewSuspect', 'Alamat');
+            }
 
-            // Jika ada error di modal, scroll ke field pertama yang error di modal
+            // Jika ada error di modal, scroll modal dengan halus ke paling atas
             if (modalErrors.length > 0) {
-                var $firstError = $('#addNewSuspectModal .is-invalid:visible, #addNewSuspectModal .frontend-error:visible').first();
-                if ($firstError.length && $firstError[0] && typeof $firstError[0].scrollIntoView === 'function') {
-                    $firstError[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
+                $('#addNewSuspectModal, #addNewSuspectModal .modal-body').stop().animate({
+                    scrollTop: 0
+                }, 400);
                 return false;
             }
 
@@ -2465,18 +2630,25 @@
         // Auto-clear error merah ketika field diisi/diubah
         $(document).on('input change changeTime.timepicker hide.timepicker changeDate', 'input, textarea, select', function() {
             var $field = $(this);
+            if ($field.closest('#addNewSuspectModal').length || $field.is('#identityNumberFieldNewSuspect, #phoneNumberFieldNewSuspect, #emailFieldNewSuspect, #birthDateFieldNewSuspect, #documentNumber')) {
+                return;
+            }
             if (hasFieldValue($field)) {
                 $field.removeClass('is-invalid');
                 if ($field.next('.select2-container').length) {
                     $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
                 }
                 $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
                 $field.parent().find('.frontend-error, .invalid-feedback').remove();
             }
         });
         // Untuk select2
         $(document).on('select2:select select2:unselect change', 'select', function() {
             var $field = $(this);
+            if ($field.closest('#addNewSuspectModal').length || $field.is('#identityNumberFieldNewSuspect, #phoneNumberFieldNewSuspect, #emailFieldNewSuspect, #birthDateFieldNewSuspect, #documentNumber')) {
+                return;
+            }
             if (hasFieldValue($field)) {
                 $field.removeClass('is-invalid');
                 if ($field.next('.select2-container').length) {
@@ -2504,6 +2676,9 @@
         setInterval(function() {
             $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
                 var $field = $(this);
+                if ($field.closest('#addNewSuspectModal').length || $field.is('#identityNumberFieldNewSuspect, #phoneNumberFieldNewSuspect, #emailFieldNewSuspect, #birthDateFieldNewSuspect, #documentNumber')) {
+                    return;
+                }
                 if (hasFieldValue($field)) {
                     $field.removeClass('is-invalid');
                     if ($field.next('.select2-container').length) {
