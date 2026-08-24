@@ -14,6 +14,8 @@ use App\Http\Controllers\Docs\P19DocumentController;
 use App\Http\Controllers\Docs\P21DocumentController;
 use App\Http\Controllers\Docs\Tahap2DocumentController;
 use App\Http\Controllers\Docs\Sp2hpDocumentController;
+use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
+use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
 
 Route::post('/create',[DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');
 Route::get('/type-document/{id}',[DocumentController::class, 'getTypeDocument'])->name('doc.getTypeDocument');
@@ -200,4 +202,38 @@ Route::prefix('/surat-pemberitahuan-perkembangan-hasil-penyidikan-document')->gr
     Route::get('/{id}/download', [Sp2hpDocumentController::class, 'download'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.download');
     
     Route::get('/api/locations', [Sp2hpDocumentController::class, 'getLocations'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.api.locations');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SPDP Pusiknas — DIK-10 (SPPT-TI)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/spdp-pusiknas-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SpdpPusiknasDocumentController::class, 'index'])->name('doc.spdp-pusiknas-document.index');
+    Route::get('/{id}/show', [SpdpPusiknasDocumentController::class, 'show'])->name('doc.spdp-pusiknas-document.show');
+    Route::get('/create', [SpdpPusiknasDocumentController::class, 'create'])->name('doc.spdp-pusiknas-document.create');
+    Route::post('/create', [SpdpPusiknasDocumentController::class, 'store'])->name('doc.spdp-pusiknas-document.store');
+    Route::get('/{id}/edit', [SpdpPusiknasDocumentController::class, 'edit'])->name('doc.spdp-pusiknas-document.edit');
+    Route::post('/{id}/edit', [SpdpPusiknasDocumentController::class, 'update'])->name('doc.spdp-pusiknas-document.update');
+    Route::delete('/{id}/delete', [SpdpPusiknasDocumentController::class, 'delete'])->name('doc.spdp-pusiknas-document.delete');
+    Route::get('/{id}/download', [SpdpPusiknasDocumentController::class, 'show'])->name('doc.spdp-pusiknas-document.download');
+
+    Route::post('/api/validate-request-form', [SpdpPusiknasDocumentController::class, 'validateRequestForm'])
+        ->name('doc.spdp-pusiknas-document.api.validate-request-form');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SP3 Pusiknas — DIK-40 (SPPT-TI)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/sp3-pusiknas-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [Sp3PusiknasDocumentController::class, 'index'])->name('doc.sp3-pusiknas-document.index');
+    Route::get('/{id}/show', [Sp3PusiknasDocumentController::class, 'show'])->name('doc.sp3-pusiknas-document.show');
+    Route::get('/create', [Sp3PusiknasDocumentController::class, 'create'])->name('doc.sp3-pusiknas-document.create');
+    Route::post('/create', [Sp3PusiknasDocumentController::class, 'store'])->name('doc.sp3-pusiknas-document.store');
+    Route::get('/{id}/edit', [Sp3PusiknasDocumentController::class, 'edit'])->name('doc.sp3-pusiknas-document.edit');
+    Route::post('/{id}/edit', [Sp3PusiknasDocumentController::class, 'update'])->name('doc.sp3-pusiknas-document.update');
+    Route::delete('/{id}/delete', [Sp3PusiknasDocumentController::class, 'delete'])->name('doc.sp3-pusiknas-document.delete');
+    Route::get('/{id}/download', [Sp3PusiknasDocumentController::class, 'show'])->name('doc.sp3-pusiknas-document.download');
+
+    Route::post('/api/validate-request-form', [Sp3PusiknasDocumentController::class, 'validateRequestForm'])
+        ->name('doc.sp3-pusiknas-document.api.validate-request-form');
 });
