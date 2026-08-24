@@ -25,7 +25,7 @@ use App\Http\Controllers\KPangkatController;
 Auth::routes();
 Route::get('search', [App\Http\Controllers\OfficerController::class, 'search'])->name('searchOfficer');
 Route::get('search_user', [App\Http\Controllers\PenggunaController::class, 'search_user'])->name('searchUser');
-Route::post('authenticate', [App\Http\Controllers\LoginController::class, 'authenticate'])->name('authenticate');
+Route::post('authenticate', [App\Http\Controllers\LoginController::class, 'authenticate'])->name('authenticate')->middleware('throttle:3,1');
 Route::post('verifyOtp', [App\Http\Controllers\LoginController::class, 'verifyOtp'])->name('verifyOtp');
 Route::post('resend-otp', [App\Http\Controllers\LoginController::class, 'resendOtp'])->name('resendOtp');
 Route::get('forget-password', [App\Http\Controllers\LoginController::class, 'forget_password'])->name('forget-password');
