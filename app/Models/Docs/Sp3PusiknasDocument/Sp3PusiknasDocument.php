@@ -9,7 +9,7 @@ use App\Traits\UuidTrait;
 
 class Sp3PusiknasDocument extends Model
 {
-    use HasFactory, SoftDeletes, UuidTrait;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'doc.sp3_pusiknas_documents';
     protected $keyType = 'string';

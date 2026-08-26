@@ -4,9 +4,8 @@ namespace App\Models\Docs\Sp3PusiknasDocument;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Lib\EnumBaseModel;
 
-class Sp3PusiknasDocumentAttachment extends EnumBaseModel
+class Sp3PusiknasDocumentAttachment extends Model
 {
     use HasFactory;
 

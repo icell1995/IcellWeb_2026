@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Lib\EnumBaseModel;
 
-class SpdpPusiknasDocumentOfficer extends EnumBaseModel
+class SpdpPusiknasDocumentOfficer extends Model
 {
     use HasFactory;
 
