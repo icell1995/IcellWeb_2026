@@ -73,6 +73,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-divtik-polri/get-divtik.php'));
 
+            Route::middleware('api-auth')
+                ->prefix('icell-services/api-pusiknasbareskrim/doc')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/icell-services/api-pusiknasbareskrim/doc.php'));
+
             Route::prefix('api')
                 ->middleware('api')
                 ->namespace($this->namespace)
