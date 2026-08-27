@@ -23,14 +23,6 @@
         </li>
 
         <li class="nav-item mb-2">
-            <a href="{{ route('cms.indeks-gakkum.index') }}"
-                class="nav-link parents-menu d-flex align-items-center {{ request()->routeIs('cms.indeks-gakkum.index') ? 'active' : '' }}">
-                <i class="bi bi-bar-chart-line text-white fs-4"></i>
-                <span class="ms-3 text-white fw-semibold">Indeks Gakkum</span>
-            </a>
-        </li>
-
-        <li class="nav-item mb-2">
             <a href="{{ route('cms.check-officer-data.index') }}"
                 class="nav-link parents-menu d-flex align-items-center">
                 <i class="bi bi-person-badge text-white fs-4"></i>
@@ -105,6 +97,25 @@
                 <i class="bi bi-inbox text-white fs-4"></i>
                 <span class="ms-3 text-white fw-semibold">Request Data</span>
             </a>
+        </li>
+
+        <li class="nav-item mb-2">
+            <a href="#integrationMonitor" class="nav-link parents-menu d-flex align-items-center" data-bs-toggle="collapse"
+                aria-current="page">
+                <i class="bi bi-activity text-white fs-4"></i>
+                <span class="ms-3 text-white fw-semibold">Monitor Integrasi</span>
+                <i class="bi bi-chevron-right text-white dropdown-arrow"></i>
+            </a>
+            <ul class="nav flex-column flex-nowrap collapse {{ request()->routeIs('cms.integration-monitor.*') ? 'show' : '' }}" id="integrationMonitor" data-bs-parent="#menu">
+                <li class="nav-item items-child my-1">
+                    <a href="{{ route('cms.integration-monitor.index') }}"
+                        class="nav-link child-menu text-decoration-none text-white ps-5 {{ request()->routeIs('cms.integration-monitor.index') || request()->routeIs('cms.integration-monitor.data') ? 'active' : '' }}">Monitor Integrasi</a>
+                </li>
+                <li class="nav-item items-child my-1">
+                    <a href="{{ route('cms.integration-monitor.monthly.index') }}"
+                        class="nav-link child-menu text-decoration-none text-white ps-5 {{ request()->routeIs('cms.integration-monitor.monthly.*') ? 'active' : '' }}">Monitor Integrasi Bulanan</a>
+                </li>
+            </ul>
         </li>
 
         <li class="nav-item mb-2">
@@ -197,13 +208,6 @@
                     </a>
                 </li>
             </ul>
-        </li>
-
-        <li class="nav-item mb-2">
-            <a href="{{ route('cms.integration-monitor.index') }}" class="nav-link parents-menu d-flex align-items-center {{ request()->routeIs('cms.integration-monitor.*') ? 'active' : '' }}">
-                <i class="bi bi-activity text-white fs-4"></i>
-                <span class="ms-3 text-white fw-semibold">Monitor Integrasi</span>
-            </a>
         </li>
 
         {{-- <li class="nav-item mb-2">
