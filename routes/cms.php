@@ -21,7 +21,6 @@ use App\Http\Controllers\CMS\ReturnedDocuments\DocumentReturnController;
 use App\Http\Controllers\CMS\RequestDataController;
 use App\Http\Controllers\CMS\IntegrationMonitorController;
 use App\Http\Controllers\CMS\MaintenanceModeController;
-use App\Http\Controllers\CMS\IndeksGakkumController;
 
 
 // Upload Surat Ketetapan - Hanya show (GET)
@@ -266,11 +265,6 @@ Route::prefix('/maintenance-mode')->group(function () {
     Route::get('/status', [MaintenanceModeController::class, 'status'])->name('cms.maintenance-mode.status');
 });
 
-// Indeks Gakkum routes
-Route::prefix('/indeks-gakkum')->group(function () {
-    Route::get('/', [IndeksGakkumController::class, 'index'])->name('cms.indeks-gakkum.index');
-});
-
 Route::prefix('/document-return')
     ->name('cms.document-return.')
     ->group(function () {
@@ -296,4 +290,11 @@ Route::prefix('/integration-monitor')
     ->group(function () {
         Route::get('/', [IntegrationMonitorController::class, 'index'])->name('index');
         Route::get('/data', [IntegrationMonitorController::class, 'getData'])->name('data');
+
+        Route::prefix('/monthly')
+            ->name('monthly.')
+            ->group(function () {
+                Route::get('/', [IntegrationMonitorController::class, 'monthlyIndex'])->name('index');
+                Route::get('/data', [IntegrationMonitorController::class, 'getMonthlyData'])->name('data');
+            });
     });
