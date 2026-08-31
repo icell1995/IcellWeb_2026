@@ -40,7 +40,7 @@ Route::get('/getDashPie', [App\Http\Controllers\DashboardicellController::class,
 Route::get('/updateContent', [App\Http\Controllers\DashboardicellController::class, 'updateContent'])->name('updateContent');
 // Route::get('/dashChartLine', [App\Http\Controllers\DashboardicellController::class, 'dashChartBar'])->name('dashChartLine');
 
-Route::get('/qr-codes', [App\Http\Controllers\QrCodeController::class, 'generateQRCode'])->name('generateQRCode');
+// Route::get('/qr-codes', [App\Http\Controllers\QrCodeController::class, 'generateQRCode'])->name('generateQRCode');
 // Route::get('/qr-codes', [App\Http\Controllers\QrCodeController::class, 'index'])->name('index');
 
 // SSO IRSMS
