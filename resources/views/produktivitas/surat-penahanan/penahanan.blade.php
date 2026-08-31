@@ -29,18 +29,19 @@
 
             <div class="item-list">
                 <span>Berita acara penahanan</span>
-                @if ($berita_acara_penahanan==null)
+                @if (empty($berita_acara_penahanan))
                 <i class="bi bi-pencil-square" id="surat_penahanan_2" name="surat_penahanan_2"></i>
                 @else
-                {{-- <a href=# class="" id="surat_penahanan_2" name="surat_penahanan_2">Edit</a> --}}
-                <a target="_blank" href="/berita-acara-penahanan/{{$id}}" id="">Lihat</a></span>
-                <form action="/berita-acara-penahanan/{{$id}}" method="post">
-                    @method('DELETE')
-                    @csrf
-                    <button type="submit" style="color: #007bff; border: none; background: none;
-                    font-weight: bold; padding: 10px;">DELETE</button>
-                </form>
-                {{-- <a href=# class="" id="delete" name="delete">Delete</a> --}}
+                <div class="d-inline-flex align-items-center">
+                    <a target="_blank" href="{{ route('doc.berita-acara-penahanan-document.show', ['id' => $berita_acara_penahanan[0]->id ?? $id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-primary fw-bold text-decoration-none p-0 me-2">Lihat</a>
+                    <a href="{{ route('doc.berita-acara-penahanan-document.edit', ['id' => $berita_acara_penahanan[0]->id ?? $id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-warning fw-bold text-decoration-none p-0 me-2">Edit</a>
+                    <a href="{{ route('doc.berita-acara-penahanan-document.download', ['id' => $berita_acara_penahanan[0]->id ?? $id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-success fw-bold text-decoration-none p-0 me-2">Unduh</a>
+                    <form action="{{ route('doc.berita-acara-penahanan-document.delete', ['id' => $berita_acara_penahanan[0]->id ?? $id, 'accident_id' => $id]) }}" method="post" class="d-inline m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                        @method('DELETE')
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-link text-danger fw-bold text-decoration-none border-0 bg-transparent p-0">Hapus</button>
+                    </form>
+                </div>
                 @endif
             </div>
 
