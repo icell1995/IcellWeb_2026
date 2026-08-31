@@ -329,7 +329,7 @@
                         columns: [0, 1, 2, 3, 4, 5],
                         format: {
                             body: function(data, row, column, node) {
-                                return data.replace(/<[^>]*>/g, '').trim();
+                                return (data !== null && data !== undefined ? data.toString() : '').replace(/<[^>]*>/g, '').trim();
                             }
                         }
                     }
@@ -347,7 +347,7 @@
                         columns: [0, 1, 2, 3, 4, 5],
                         format: {
                             body: function(data, row, column, node) {
-                                return data.replace(/<[^>]*>/g, '').trim();
+                                return (data !== null && data !== undefined ? data.toString() : '').replace(/<[^>]*>/g, '').trim();
                             }
                         }
                     }
@@ -364,7 +364,7 @@
                         columns: [0, 1, 2, 3, 4, 5],
                         format: {
                             body: function(data, row, column, node) {
-                                return data.replace(/<[^>]*>/g, '').trim();
+                                return (data !== null && data !== undefined ? data.toString() : '').replace(/<[^>]*>/g, '').trim();
                             }
                         }
                     }
