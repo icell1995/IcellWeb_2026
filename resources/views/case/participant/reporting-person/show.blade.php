@@ -107,7 +107,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownGender" name="isUnknownGender"
                             value="true" aria-label="..." @if(old('isUnknownGender', var_export($reportingPerson->is_unknown_gender, true)) == 'true') checked @endif>
@@ -115,7 +115,7 @@
                             Tidak Tahu
                         </label>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <div class="input-group row mb-3 ms-0">
@@ -125,7 +125,7 @@
                     <input type="text" class="form-control" id="birthPlace" name="birthPlace"
                         placeholder="Tempat Lahir" value="{{ old('birthPlace', $reportingPerson->birth_place) }}">
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownBirthPlace" name="isUnknownBirthPlace"
@@ -134,7 +134,7 @@
                             Tidak Tahu
                         </label>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <div class="input-group row mb-3 ms-0">
@@ -144,7 +144,7 @@
                     <input type="text" class="form-control" id="birthDate" name="birthDate"
                         placeholder="YYYY-MM-DD" data-provide="datepicker" value="{{ old('birthDate', $reportingPerson->birth_date) }}">
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownBirthDate" name="isUnknownBirthDate"
@@ -153,7 +153,7 @@
                             Tidak Tahu
                         </label>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <div class="input-group row mb-3 ms-0">
@@ -289,7 +289,7 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownMaritalStatus" name="isUnknownMaritalStatus"
@@ -298,7 +298,7 @@
                             Tidak Tahu
                         </label>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <div class="input-group row mb-3 ms-0">
