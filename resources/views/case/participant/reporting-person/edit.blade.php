@@ -970,6 +970,38 @@
         });
 
         // Helper validation functions
+        function sanitizeIdentityNumber() {
+            var $field = $('#identityNumber');
+            var identityTypeId = $('#identityType').val();
+            var identityTypeName = ($('#identityType').find(':selected').data('identity-type-name') || $('#identityType').find(':selected').text() || '').toUpperCase();
+            var val = $field.val() || '';
+
+            if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) {
+                $field.attr('maxlength', 9);
+                val = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                if (val.length > 9) val = val.slice(0, 9);
+            } else {
+                $field.removeAttr('maxlength');
+            }
+
+            if ($field.val() !== val) {
+                $field.val(val);
+            }
+            return val;
+        }
+
         function validateIdentityNumber() {
             var $field = $('#identityNumber');
             var val = ($field.val() || '').trim();
@@ -1134,6 +1166,37 @@
                 markError(fieldSelector, label + ' harus dipilih');
             }
         }
+
+        $('#identityNumber').on('input paste', function() {
+            var val = sanitizeIdentityNumber();
+            if (val !== '') {
+                validateIdentityNumber();
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $('#identityNumber').on('keyup change blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '') {
+                validateIdentityNumber();
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $('#identityType').on('change select2:select', function() {
+            sanitizeIdentityNumber();
+            var val = ($('#identityNumber').val() || '').trim();
+            if (val !== '') {
+                validateIdentityNumber();
+            } else {
+                $('#identityNumber').removeClass('is-invalid');
+                $('#identityNumber').parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
 
         function scrollToFirstError() {
             var $firstInvalid = $('.is-invalid:visible, .select2-selection.border-danger:visible, .frontend-error:visible').first();
