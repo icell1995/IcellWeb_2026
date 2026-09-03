@@ -538,6 +538,53 @@
             $('#jenisPihak').on('change select2:select', updateBtnLabel);
             updateBtnLabel(); // set on page load
 
+            // Listener perubahan Jenis Identitas untuk Maxlength
+            function updateIdentityNumberLimits() {
+                var idType = $('#identityType option:selected').data('identity-type-name') || '';
+                var $idNum = $('#identityNumber');
+                
+                if (idType.includes('KTP') || idType.includes('Kartu Keluarga')) {
+                    $idNum.attr('maxlength', 16);
+                } else if (idType.includes('SIM')) {
+                    $idNum.attr('maxlength', 16);
+                } else if (idType.includes('Paspor')) {
+                    $idNum.attr('maxlength', 9);
+                } else {
+                    $idNum.removeAttr('maxlength');
+                }
+
+                var max = $idNum.attr('maxlength');
+                if (max) {
+                    var val = $idNum.val();
+                    if (val && val.length > parseInt(max)) {
+                        $idNum.val(val.substring(0, parseInt(max)));
+                    }
+                }
+            }
+
+            $(document).on('change select2:select', '#identityType', function() {
+                updateIdentityNumberLimits();
+            });
+
+            $(document).on('input keyup paste', '#identityNumber', function() {
+                var idType = $('#identityType option:selected').data('identity-type-name') || '';
+                var val = $(this).val();
+
+                if (idType.includes('KTP') || idType.includes('Kartu Keluarga') || idType.includes('SIM')) {
+                    var cleanVal = val.replace(/\D/g, '');
+                    if (cleanVal !== val) {
+                        $(this).val(cleanVal);
+                    }
+                } else if (idType.includes('Paspor')) {
+                    var cleanVal = val.replace(/[^a-zA-Z0-9]/g, '');
+                    if (cleanVal !== val) {
+                        $(this).val(cleanVal);
+                    }
+                }
+            });
+
+            updateIdentityNumberLimits(); // set on page load
+
             // datepicker
             $('#birthDate').datepicker({
                 format: 'yyyy-mm-dd',
