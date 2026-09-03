@@ -1,5 +1,5 @@
 @php
-    $_title = 'Lihat Terlapor';
+    $_title = 'Tambah Pihak Terlibat';
 @endphp
 
 @extends('layouts.app')
@@ -8,7 +8,28 @@
     <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
-    <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+    <style>
+        .input-group > div.d-flex,
+        .input-group .d-flex.align-self-center {
+            flex-wrap: wrap !important;
+        }
+        .select2-container--bootstrap4 .select2-selection.border-danger,
+        .select2-container--bootstrap4.is-invalid .select2-selection,
+        .select2-selection.border-danger {
+            border: 1px solid #dc3545 !important;
+        }
+        .frontend-error {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+            color: #dc3545;
+            font-weight: 600;
+        }
+        .form-control.is-invalid {
+            border-color: #dc3545 !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -16,7 +37,7 @@
 
 <div class="box">
     <div class="box-header">
-        <h4 class="fw-bold text-blue-dark">Lihat Terlapor</h4>
+        <h4 class="fw-bold text-blue-dark">Tambah Pihak Terlibat</h4>
 
         <!-- error alert -->
         @if ($errors->any())
@@ -42,9 +63,23 @@
 
     <div class="boxy-body">
         <form
-            action="{{ route('case.participant.reported-person.update', ['id'=> $id, 'accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}"
-            method="POST" enctype="multipart/form-data" id="reportedPersonForm">
+            action="{{ route('case.participant.person.store', ['accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}"
+            method="POST" enctype="multipart/form-data" id="participantPersonForm">
             @csrf
+
+            <hr/>
+
+            {{-- PILIHAN JENIS PIHAK --}}
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="jenisPihak">Jenis Pihak<span class="text-danger fs-5">*</span></label>
+                <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
+                    <select class="form-control select2" id="jenisPihak" name="jenisPihak">
+                        <option value="">-- Pilih Jenis Pihak --</option>
+                        <option value="TERLAPOR" @if(old('jenisPihak') == 'TERLAPOR') selected @endif>Terlapor</option>
+                        <option value="PELAPOR"  @if(old('jenisPihak') == 'PELAPOR') selected @endif>Pelapor</option>
+                    </select>
+                </div>
+            </div>
 
             <hr/>
 
@@ -57,7 +92,7 @@
                         @foreach ($identityTypes as $identityType)
                             <option value="{{ $identityType->id }}"
                                 data-identity-type-name="{{ $identityType->name }}"
-                                @if(old('identityType', $reportedPerson->identity_type_id) == $identityType->id) selected @endif>
+                                @if(old('identityType') == $identityType->id) selected @endif>
                                 {{ $identityType->name }}
                             </option>
                         @endforeach
@@ -70,8 +105,9 @@
                     Identitas<span class="text-danger fs-5">*</span></label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="identityNumber" name="identityNumber"
-                        value="{{ old('identityNumber', $reportedPerson->identity_number) }}"
-                        placeholder="Nomor Identitas">
+                        value="{{ old('identityNumber') }}"
+                        placeholder="{{ empty(old('identityType')) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
+                        @if(empty(old('identityType'))) disabled @endif>
                 </div>
             </div>
 
@@ -79,7 +115,7 @@
                 <label class="fw-bold col-sm-2 col-form-label" for="name">Nama<span class="text-danger fs-5">*</span></label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="name" name="name"
-                        value="{{ old('name', $reportedPerson->name) }}"
+                        value="{{ old('name') }}"
                         placeholder="Nama Lengkap">
                 </div>
             </div>
@@ -89,7 +125,7 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="aliasName" name="aliasName"
-                        value="{{ old('aliasName', $reportedPerson->alias_name ?? $reportedPerson->name_alias) }}"
+                        value="{{ old('aliasName') }}"
                         placeholder="Nama Alias (Opsional)">
                 </div>
             </div>
@@ -102,7 +138,7 @@
                         <option value="">--Pilih Jenis Kelamin--</option>
                         @foreach ($genders as $gender)
                             <option value="{{ $gender->id }}" data-gender-name="{{ $gender->name }}"
-                                @if(old('gender', $reportedPerson->gender_id) == $gender->id) selected @endif>
+                                @if(old('gender') == $gender->id) selected @endif>
                                 {{ $gender->name }}</option>
                         @endforeach
                     </select>
@@ -110,7 +146,7 @@
                 {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownGender" name="isUnknownGender"
-                            value="true" aria-label="..." @if(old('isUnknownGender', var_export($reportedPerson->is_unknown_gender, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownGender') == 'true') checked @endif>
                         <label for="isUnknownGender">
                             Tidak Tahu
                         </label>
@@ -123,13 +159,13 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="birthPlace" name="birthPlace"
-                        placeholder="Tempat Lahir" value="{{ old('birthPlace', $reportedPerson->birth_place) }}">
+                        placeholder="Tempat Lahir" value="{{ old('birthPlace') }}">
                 </div>
                 {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownBirthPlace" name="isUnknownBirthPlace"
-                            value="true" aria-label="..." @if(old('isUnknownBirthPlace', var_export($reportedPerson->is_unknown_birth_place, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownBirthPlace') == 'true') checked @endif>
                         <label for="isUnknownBirthPlace">
                             Tidak Tahu
                         </label>
@@ -142,13 +178,13 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="birthDate" name="birthDate"
-                        placeholder="YYYY-MM-DD" data-provide="datepicker" value="{{ old('birthDate', $reportedPerson->birth_date) }}">
+                        placeholder="YYYY-MM-DD" data-provide="datepicker" value="{{ old('birthDate') }}">
                 </div>
                 {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownBirthDate" name="isUnknownBirthDate"
-                            value="true" aria-label="..." @if(old('isUnknownBirthDate', var_export($reportedPerson->is_unknown_birth_date, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownBirthDate') == 'true') checked @endif>
                         <label for="isUnknownBirthDate">
                             Tidak Tahu
                         </label>
@@ -161,12 +197,12 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="father" name="father"
-                        placeholder="Nama Ayah Kandung" value="{{ old('father', $reportedPerson->father_name) }}">
+                        placeholder="Nama Ayah Kandung" value="{{ old('father') }}">
                 </div>
                 <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownFather" name="isUnknownFather"
-                            value="true" aria-label="..." @if(old('isUnknownFather', var_export($reportedPerson->is_unknown_father, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownFather') == 'true') checked @endif>
                         <label for="isUnknownFather">
                             Tidak Tahu
                         </label>
@@ -179,12 +215,12 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="mother" name="mother"
-                        placeholder="Nama Ibu Kandung" value="{{ old('mother', $reportedPerson->mother_name) }}">
+                        placeholder="Nama Ibu Kandung" value="{{ old('mother') }}">
                 </div>
                 <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownMother" name="isUnknownMother"
-                            value="true" aria-label="..." @if(old('isUnknownMother', var_export($reportedPerson->is_unknown_mother, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownMother') == 'true') checked @endif>
                         <label for="isUnknownMother">
                             Tidak Tahu
                         </label>
@@ -201,7 +237,7 @@
                         @foreach ($nationalities as $nationality)
                             <option value="{{ $nationality->id }}"
                                 data-nationality-name="{{ $nationality->name }}"
-                                @if(old('nationality', $reportedPerson->nationality_id) == $nationality->id) selected @endif>
+                                @if(old('nationality') == $nationality->id) selected @endif>
                                 {{ $nationality->name }}</option>
                         @endforeach
                     </select>
@@ -224,7 +260,7 @@
                         <option value="">--Pilih Suku--</option>
                         @foreach ($ethnics as $ethnic)
                             <option value="{{ $ethnic->id }}" data-ethnic-name="{{ $ethnic->name }}" 
-                                @if(old('ethnic', $reportedPerson->ethnic_id) == $ethnic->id) selected @endif>
+                                @if(old('ethnic') == $ethnic->id) selected @endif>
                                 {{ $ethnic->name }}</option>
                         @endforeach
                     </select>
@@ -238,7 +274,7 @@
                         <option value="">--Pilih Pekerjaan--</option>
                         @foreach ($jobs as $job)
                             <option value="{{ $job->id }}" data-job-name="{{ $job->name }}"
-                                @if(old('job', $reportedPerson->job_id) == $job->id) selected @endif>
+                                @if(old('job') == $job->id) selected @endif>
                                 {{ $job->name }}</option>
                         @endforeach
                     </select>
@@ -252,7 +288,7 @@
                         <option value="">--Pilih Agama--</option>
                         @foreach ($religions as $religion)
                             <option value="{{ $religion->id }}" data-religion-name="{{ $religion->name }}"
-                                @if(old('religion', $reportedPerson->religion_id) == $religion->id) selected @endif>
+                                @if(old('religion') == $religion->id) selected @endif>
                                 {{ $religion->name }}</option>
                         @endforeach
                     </select>
@@ -268,7 +304,7 @@
                         @foreach ($educations as $education)
                             <option value="{{ $education->id }}"
                                 data-education-name="{{ $education->name }}"
-                                @if(old('education', $reportedPerson->education_id) == $education->id) selected @endif>
+                                @if(old('education') == $education->id) selected @endif>
                                 {{ $education->name }}</option>
                         @endforeach
                     </select>
@@ -284,7 +320,7 @@
                         @foreach ($maritalStatuses as $maritalStatus)
                             <option value="{{ $maritalStatus->id }}"
                                 data-marital-status-name="{{ $maritalStatus->name }}"
-                                @if(old('maritalStatus', $reportedPerson->marital_status_id) == $maritalStatus->id) selected @endif>
+                                @if(old('maritalStatus') == $maritalStatus->id) selected @endif>
                                 {{ $maritalStatus->name }}</option>
                         @endforeach
                     </select>
@@ -293,7 +329,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownMaritalStatus" name="isUnknownMaritalStatus"
-                            value="true" aria-label="..." @if(old('isUnknownMaritalStatus', var_export($reportedPerson->is_unknown_marital_status, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownMaritalStatus') == 'true') checked @endif>
                         <label for="isUnknownMaritalStatus">
                             Tidak Tahu
                         </label>
@@ -305,17 +341,11 @@
                 <label class="fw-bold col-sm-2 col-form-label" for="phoneNumber">Nomor Telepon
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12">
-                    @php
-                        $phoneVal = old('phoneNumber', $reportedPerson->phone_number);
-                        $hasPhoneNum = !empty($phoneVal) && $phoneVal !== 'TIDAK ADA NOMOR TELEPON';
-                        $isExistsPhone = old('isExistsPhoneNumber', ($reportedPerson->is_exists_phone_number !== null ? var_export((bool)$reportedPerson->is_exists_phone_number, true) : ($hasPhoneNum ? 'true' : 'false')));
-                        $isAvailPhone = old('isAvailablePhoneNumber', ($reportedPerson->is_available_phone_number !== null ? var_export((bool)$reportedPerson->is_available_phone_number, true) : ($phoneVal !== 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON' ? 'true' : 'false')));
-                    @endphp
                     <div class="d-flex mb-2">
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio"
                                 id="existsPhoneNumber"
-                                name="isExistsPhoneNumber" value="true" @if($isExistsPhone == 'true') checked @endif>
+                                name="isExistsPhoneNumber" value="true" @if(old('isExistsPhoneNumber') == 'true') checked @elseif(empty(old('isExistsPhoneNumber'))) checked @endif>
                             <label for="existsPhoneNumber">
                                 Ada Nomor Telepon
                             </label>
@@ -324,7 +354,7 @@
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio"
                                 id="notExistsPhoneNumber"
-                                name="isExistsPhoneNumber" value="false" @if($isExistsPhone == 'false') checked @endif>
+                                name="isExistsPhoneNumber" value="false" @if(old('isExistsPhoneNumber') == 'false') checked @endif>
                             <label for="notExistsPhoneNumber">
                                 Tidak ada Nomor Telepon
                             </label>
@@ -332,12 +362,12 @@
                     </div>
 
                     <input type="text" class="form-control mb-2" id="phoneNumber" name="phoneNumber"
-                        placeholder="Nomor Telepon" value="{{ $phoneVal }}">
+                        placeholder="Nomor Telepon" value="{{ old('phoneNumber') }}">
 
                     <div class="form-check m-1">
                         <input class="form-check-input" type="checkbox"
                             id="isAvailablePhoneNumber" name="isAvailablePhoneNumber" 
-                            value="true" aria-label="..." @if($isAvailPhone == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isAvailablePhoneNumber') == 'true') checked @elseif(empty(old('isAvailablePhoneNumber'))) checked @endif>
                         <label for="isAvailablePhoneNumber">
                             Bersedia memberikan nomor telepon?
                         </label>
@@ -348,16 +378,10 @@
             <div class="input-group row mb-3 ms-0">
                 <label class="fw-bold col-sm-2 col-form-label" for="email">Email</label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12">
-                    @php
-                        $emailVal = old('email', $reportedPerson->email);
-                        $hasEmailNum = !empty($emailVal) && $emailVal !== 'TIDAK ADA EMAIL';
-                        $isExistsEmailVal = old('isExistsEmail', ($reportedPerson->is_exists_email !== null ? var_export((bool)$reportedPerson->is_exists_email, true) : ($hasEmailNum ? 'true' : 'false')));
-                        $isAvailEmailVal = old('isAvailableEmail', ($reportedPerson->is_available_email !== null ? var_export((bool)$reportedPerson->is_available_email, true) : ($emailVal !== 'TIDAK BERSEDIA MEMBERIKAN EMAIL' ? 'true' : 'false')));
-                    @endphp
                     <div class="d-flex mb-3">
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio" id="existsEmail"
-                                name="isExistsEmail" value="true" @if($isExistsEmailVal == 'true') checked @endif>
+                                name="isExistsEmail" value="true" @if(old('isExistsEmail') == 'true') checked @elseif(empty(old('isExistsEmail'))) checked @endif>
                             <label for="existsEmail">
                                 Ada Email
                             </label>
@@ -365,7 +389,7 @@
 
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio" id="notExistsEmail"
-                                name="isExistsEmail" value="false" @if($isExistsEmailVal == 'false') checked @endif>
+                                name="isExistsEmail" value="false" @if(old('isExistsEmail') == 'false') checked @endif>
                             <label for="notExistsEmail">
                                 Tidak ada Email
                             </label>
@@ -373,12 +397,11 @@
                     </div>
 
                     <input type="text" class="form-control mb-2" id="email" name="email"
-                        placeholder="Email" value="{{ $emailVal }}">
+                        placeholder="Email" value="{{ old('email') }}">
 
                     <div class="form-check m-1">
-                        <input class="form-check-input" type="checkbox" 
-                            id="isAvailableEmail" name="isAvailableEmail"
-                            value="true" aria-label="..." @if($isAvailEmailVal == 'true') checked @endif>
+                        <input class="form-check-input" type="checkbox" id="isAvailableEmail" name="isAvailableEmail"
+                            value="true" aria-label="..." @if(old('isAvailableEmail') == 'true') checked @elseif(empty(old('isAvailableEmail'))) checked @endif>
                         <label for="isAvailableEmail">
                             Bersedia memberikan email?
                         </label>
@@ -392,15 +415,15 @@
                     <select class="form-control select2" id="country" name="country">
                         <option value="">--Pilih Negara--</option>
                         @foreach ($countries as $country)
-                            <option value="{{ $country->id }}" data-country-name="{{ $country->name }}" 
-                            @if(old('country', $reportedPerson->country_id) == $country->id) selected @endif>
+                            <option value="{{ $country->id }}" data-country-name="{{ $country->name }}"
+                             @if(old('country') == $country->id) selected @endif>
                                 {{ $country->name }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
 
-            <div class="countryChildrenLocationSection" @if($reportedPerson->country_id != 'C101') style="display:none;" @endif>
+            <div class="countryChildrenLocationSection" style="display:none;">
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="province">Provinsi<span class="text-danger fs-5">*</span>
                     </label>
@@ -442,7 +465,7 @@
                     <label class="fw-bold col-sm-2 col-form-label" for="subVillage">Kampung</label>
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                         <input type="text" class="form-control" id="subVillage" name="subVillage"
-                            placeholder="Kampung (Opsional)" value="{{ old('subVillage', $reportedPerson->sub_village) }}">
+                            placeholder="Kampung (Opsional)" value="{{ old('subVillage') }}">
                     </div>
                 </div>
             </div>
@@ -450,28 +473,30 @@
             <div class="input-group row mb-3 ms-0">
                 <label class="fw-bold col-sm-2 col-form-label" for="address">Alamat<span class="text-danger fs-5">*</span> </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
-                    <input type="text" class="form-control" id="address" name="address" placeholder="Alamat" value="{{ old('address', $reportedPerson->address) }}">
+                    <input type="text" class="form-control" id="address" name="address" placeholder="Alamat" value="{{ old('address') }}">
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownAddress" name="isUnknownAddress"
-                            value="true" aria-label="..." @if(old('isUnknownAddress', var_export($reportedPerson->is_unknown_address, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownAddress') == 'true') checked @endif>
                         <label for="isUnknownAddress">
                             Tidak Tahu
                         </label>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <br/>
-            <div class="row mb-3 ms-0">
-                <div class="col-sm-10 offset-sm-2">
-                    <a class="btn btn-secondary" href="{{route('view_produktivitas_accident', ['accident_id' => request()->query('accident_id'), 'page'=>'participants'])}}">
-                        <i class="bi bi-arrow-left"></i> Kembali ke Halaman Pihak Terlibat
-                    </a>
-                </div>
-            </div>
             <hr/>
+            
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary" id="participantPersonFormSubmit">
+                    <i class="bi bi-save"></i> <span id="btnSimpanLabel">Simpan</span>
+                </button>
+                <a href="{{route('view_produktivitas_accident', ['accident_id' => request()->query('accident_id'), 'page'=>'participants'])}}" class="btn btn-danger">
+                    <i class="bi bi-x-circle"></i> {{ __('Batal') }}
+                </a>
+            </div>
         </form>
 
     </div>
@@ -484,39 +509,20 @@
     <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
     <script type="text/javascript">
-        //first load initialize
-        $(document).ready(function(){
-            $('#policeDiktukEducationGraduateYear').on('input', function(e) {
-                var input = $(this).val();
-                var maxLength = 4; // Maksimal panjang karakter
+        // Update teks button Simpan saat dropdown Jenis Pihak berubah
+        function updateBtnLabel() {
+            var val = $('#jenisPihak').val();
+            if (val === 'PELAPOR') {
+                $('#btnSimpanLabel').text('Simpan Pelapor');
+            } else if (val === 'TERLAPOR') {
+                $('#btnSimpanLabel').text('Simpan Terlapor');
+            } else {
+                $('#btnSimpanLabel').text('Simpan');
+            }
+        }
 
-                // Menghapus karakter selain angka
-                input = input.replace(/[^0-9]/g, '');
-
-                // Memastikan panjang karakter tidak melebihi maxLength
-                if (input.length > maxLength) {
-                    input = input.slice(0, maxLength);
-                }
-
-                $(this).val(input);
-            });
-        });
-
-        //datepicker
         $(document).ready(function() {
-            $('#birthDate').datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: "true",
-                endDate: new Date(),
-            });
-            $('#birthDate').keydown(function(e) {
-                e.preventDefault();
-                return false;
-            });
-        });
-
-        // Select2 with Bootstrap4 theme
-        $(document).ready(function() {
+            // Select2 with Bootstrap4 theme
             $('.select2').select2({
                 theme: 'bootstrap4',
                 width: '100%'
@@ -527,6 +533,24 @@
             });
             $('.select2-input-group').select2({
                 theme: 'bootstrap4'
+            });
+
+            // Listener perubahan Jenis Pihak
+            $('#jenisPihak').on('change select2:select', updateBtnLabel);
+            updateBtnLabel(); // set on page load
+
+            // Inisialisasi batasan input nomor identitas saat load
+            sanitizeIdentityNumber();
+
+            // datepicker
+            $('#birthDate').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: "true",
+                endDate: new Date(),
+            });
+            $('#birthDate').keydown(function(e) {
+                e.preventDefault();
+                return false;
             });
         });
 
@@ -553,7 +577,7 @@
             var classCode = 'PROVINCE';
 
             $.ajax({
-                url: "{{ route('case.participant.reported-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
+                url: "{{ route('case.participant.person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -588,8 +612,7 @@
 
         $(document).on('change', '#province', function() {
             var parentId = $(this).find(':selected').val();
-            var regencyId = "{{ $reportedPerson->regency_id }}";
-            getRegency(parentId, regencyId);
+            getRegency(parentId);
         });
 
         function getRegency(parentId, regencyId = null) {
@@ -599,7 +622,7 @@
             var classCode = 'REGENCY';
 
             $.ajax({
-                url: "{{ route('case.participant.reported-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
+                url: "{{ route('case.participant.person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -634,8 +657,7 @@
 
         $(document).on('change', '#regency', function() {
             var parentId = $(this).find(':selected').val();
-            var districtId = "{{ $reportedPerson->district_id }}";
-            getDistrict(parentId, districtId);
+            getDistrict(parentId);
         });
 
         function getDistrict(parentId, districtId = null) {
@@ -645,7 +667,7 @@
             var classCode = 'DISTRICT';
 
             $.ajax({
-                url: "{{ route('case.participant.reported-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
+                url: "{{ route('case.participant.person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -680,8 +702,7 @@
 
         $(document).on('change', '#district', function() {
             var parentId = $(this).find(':selected').val();
-            var villageId = "{{ $reportedPerson->village_id }}";
-            getVillage(parentId, villageId);
+            getVillage(parentId);
         });
 
         function getVillage(parentId, villageId = null) {
@@ -691,7 +712,7 @@
             var classCode = 'VILLAGE';
 
             $.ajax({
-                url: "{{ route('case.participant.reported-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
+                url: "{{ route('case.participant.person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -724,67 +745,6 @@
             });
         }
 
-        $(document).ready(function() {
-            var countryId = "{{ $reportedPerson->country_id }}";
-            var provinceId = "{{ $reportedPerson->province_id }}";
-
-            getProvince(countryId, provinceId);
-
-            //trigger is unknown
-            $('#isUnknownGender').trigger('change');
-            $('#isUnknownBirthPlace').trigger('change');
-            $('#isUnknownBirthDate').trigger('change');
-            $('#isUnknownFather').trigger('change');
-            $('#isUnknownMother').trigger('change');
-            /*$('#isUnknownNationality').trigger('change');*/
-            $('#isUnknownMaritalStatus').trigger('change');
-            $('#isUnknownAddress').trigger('change');
-
-            var isAvailablePhoneNumber = "{{ $reportedPerson->is_available_phone_number }}";
-            var isAvailableEmail = "{{ $reportedPerson->is_available_email }}";
-
-            //trigger phone and email
-            $('input[name="isExistsPhoneNumber"]').trigger('change');
-            $('input[name="isExistsEmail"]').trigger('change');
-
-            if($('input[name="isExistsPhoneNumber"]').find(':checked').val() == 'true' && isAvailablePhoneNumber != 'true') {
-                $('#isAvailablePhoneNumber').prop('checked', false).trigger('change');
-            }
-            
-            if($('input[name="isExistsEmail"]').find(':checked').val() == 'true' && isAvailableEmail != 'true') {
-                $('#isAvailableEmail').prop('checked', false).trigger('change');
-            }
-            
-            var phoneNumberVal = "{{ $reportedPerson->phone_number }}";
-            var emailVal = "{{ $reportedPerson->email }}";
-
-            if(phoneNumberVal && phoneNumberVal !== '') {
-                $('#phoneNumber').val(phoneNumberVal);
-            }
-            if(emailVal && emailVal !== '') {
-                $('#email').val(emailVal);
-            }
-
-            var fatherVal = "{{ $reportedPerson->father_name }}";
-            var motherVal = "{{ $reportedPerson->mother_name }}";
-            var addressVal = "{{ $reportedPerson->address }}";
-            if (fatherVal && fatherVal !== '') $('#father').val(fatherVal);
-            if (motherVal && motherVal !== '') $('#mother').val(motherVal);
-            if (addressVal && addressVal !== '') $('#address').val(addressVal);
-
-            disableAllFields();
-        });
-
-        function disableAllFields() {
-            $('form input, form select, form textarea').prop('disabled', true);
-            $('.select2').prop('disabled', true);
-            $('input[type="checkbox"], input[type="radio"]').prop('disabled', true);
-        }
-
-        $(document).ajaxStop(function() {
-            disableAllFields();
-        });
-
         //tidak tahu checked
         $('#isUnknownGender').on('change', function() {
             if ($(this).is(':checked')) {
@@ -816,40 +776,27 @@
                 $('#father').val('TIDAK DIKETAHUI');
                 $('#father').prop('readonly', true);
             } else {
-                $('#father').val('');
+                if ($('#father').val() === 'TIDAK DIKETAHUI') {
+                    $('#father').val('');
+                }
                 $('#father').prop('readonly', false);
             }
+            $('#father').removeClass('is-invalid');
+            $('#father').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
         $('#isUnknownMother').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#mother').val('TIDAK DIKETAHUI');
                 $('#mother').prop('readonly', true);
             } else {
-                $('#mother').val('');
+                if ($('#mother').val() === 'TIDAK DIKETAHUI') {
+                    $('#mother').val('');
+                }
                 $('#mother').prop('readonly', false);
             }
+            $('#mother').removeClass('is-invalid');
+            $('#mother').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
-        /*$('#isUnknownNationality').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#nationality').val(3).trigger('change');
-                $('#nationality').select2({
-                    readonly: true,
-                    disabled: false,
-                });
-            } else {
-                $('#nationality').val('').trigger('change');
-                $('#nationality').select2({
-                    readonly: false,
-                    disabled: false,
-                });
-            }
-        });
-        $('#nationality').on('change', function() {
-            if ($(this).find(':selected').val() == 3) {
-                $('#isUnknownNationality').prop('checked', true);
-                $('#nationality').prop('disabled', true);
-            }
-        });*/
         $('#isUnknownMaritalStatus').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#maritalStatus').val('').trigger('change');
@@ -857,109 +804,568 @@
             } else {
                 $('#maritalStatus').prop('disabled', false);
             }
+            $('#maritalStatus').removeClass('is-invalid');
+            $('#maritalStatus').siblings('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+            $('#maritalStatus').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
         $('#isUnknownAddress').on('change', function() {
             if ($(this).is(':checked')) {
-                console.log('#address');
                 $('#address').val("TIDAK DIKETAHUI");
                 $('#address').prop('readonly', true);
             } else {
-                $('#address').val('');
+                if ($('#address').val() === 'TIDAK DIKETAHUI') {
+                    $('#address').val('');
+                }
                 $('#address').prop('readonly', false);
             }
+            $('#address').removeClass('is-invalid');
+            $('#address').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
 
         //phone and email
         $('input[name="isExistsPhoneNumber"]').on('change', function() {
-            var isExistsPhoneNumber = $('input[name="isExistsPhoneNumber"]:checked')
-                .val();
+            var isExistsPhoneNumber = $('input[name="isExistsPhoneNumber"]:checked').val();
             if (isExistsPhoneNumber == 'true') {
                 $('#isAvailablePhoneNumber').prop('disabled', false);
-                $('#isAvailablePhoneNumber').prop('checked', true);
                 $('#phoneNumber').prop('readonly', false);
-                $('#phoneNumber').val('');
+                if ($('#phoneNumber').val() === 'TIDAK ADA NOMOR TELEPON') {
+                    $('#phoneNumber').val('');
+                }
             } else {
                 $('#isAvailablePhoneNumber').prop('disabled', true);
                 $('#isAvailablePhoneNumber').prop('checked', false);
                 $('#phoneNumber').val('TIDAK ADA NOMOR TELEPON');
                 $('#phoneNumber').prop('readonly', true);
             }
+            $('input[name="isExistsPhoneNumber"]').removeClass('is-invalid');
+            $('#phoneNumber').removeClass('is-invalid');
+            $('#phoneNumber').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
         $('#isAvailablePhoneNumber').on('change', function() {
             if ($(this).is(':checked')) {
-                $('#phoneNumber').val('');
+                if ($('#phoneNumber').val() === 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON') {
+                    $('#phoneNumber').val('');
+                }
                 $('#phoneNumber').prop('readonly', false);
             } else {
                 $('#phoneNumber').prop('readonly', true);
                 $('#phoneNumber').val('TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON');
             }
+            $('#phoneNumber').removeClass('is-invalid');
+            $('#phoneNumber').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
         $('input[name="isExistsEmail"]').on('change', function() {
             var isExistsEmail = $('input[name="isExistsEmail"]:checked').val();
             if (isExistsEmail == 'true') {
                 $('#isAvailableEmail').prop('disabled', false);
-                $('#isAvailableEmail').prop('checked', true);
                 $('#email').prop('readonly', false);
-                $('#email').val('');
+                if ($('#email').val() === 'TIDAK ADA EMAIL') {
+                    $('#email').val('');
+                }
             } else {
                 $('#isAvailableEmail').prop('disabled', true);
                 $('#isAvailableEmail').prop('checked', false);
                 $('#email').val('TIDAK ADA EMAIL');
                 $('#email').prop('readonly', true);
             }
+            $('input[name="isExistsEmail"]').removeClass('is-invalid');
+            $('#email').removeClass('is-invalid');
+            $('#email').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
         $('#isAvailableEmail').on('change', function() {
             if ($(this).is(':checked')) {
-                $('#email').val('');
+                if ($('#email').val() === 'TIDAK BERSEDIA MEMBERIKAN EMAIL') {
+                    $('#email').val('');
+                }
                 $('#email').prop('readonly', false);
             } else {
                 $('#email').prop('readonly', true);
                 $('#email').val('TIDAK BERSEDIA MEMBERIKAN EMAIL');
             }
+            $('#email').removeClass('is-invalid');
+            $('#email').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
 
-        // Validasi Submit Form
+        // ==========================================
+        // VALIDASI FORMAT & FIELD (PERSIS SEPERTI LHGP)
+        // ==========================================
+        function sanitizeIdentityNumber() {
+            var $field = $('#identityNumber');
+            var identityTypeId = $('#identityType').val();
+            var identityTypeName = ($('#identityType').find(':selected').data('identity-type-name') || $('#identityType').find(':selected').text() || '').toUpperCase();
+            var val = $field.val() || '';
+
+            if (!identityTypeId || identityTypeId === '') {
+                $field.prop('disabled', true);
+                $field.attr('placeholder', 'Pilih Jenis Identitas terlebih dahulu');
+                $field.val('');
+                $field.removeAttr('maxlength');
+                $field.removeClass('is-invalid');
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                return '';
+            } else {
+                $field.prop('disabled', false);
+                $field.attr('placeholder', 'Nomor Identitas');
+            }
+
+            if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) {
+                $field.attr('maxlength', 9);
+                val = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                if (val.length > 9) val = val.slice(0, 9);
+            } else {
+                $field.removeAttr('maxlength');
+            }
+
+            if ($field.val() !== val) {
+                $field.val(val);
+            }
+            return val;
+        }
+
+        function validateIdentityNumber() {
+            var $field = $('#identityNumber');
+            var identityTypeId = $('#identityType').val();
+            var identityTypeName = ($('#identityType').find(':selected').data('identity-type-name') || $('#identityType').find(':selected').text() || '').toUpperCase();
+            var val = ($field.val() || '').trim();
+            var errorMsg = '';
+
+            if ($field.is(':disabled') || val === '') {
+                return null;
+            }
+
+            if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
+                if (!/^[0-9]+$/.test(val)) {
+                    errorMsg = 'Nomor KTP harus berupa angka saja.';
+                } else if (val.length !== 16) {
+                    errorMsg = 'Nomor KTP harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
+                }
+            } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) {
+                if (!/^[0-9]+$/.test(val)) {
+                    errorMsg = 'Nomor Kartu Keluarga (KK) harus berupa angka saja.';
+                } else if (val.length !== 16) {
+                    errorMsg = 'Nomor Kartu Keluarga (KK) harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
+                }
+            } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) {
+                if (!/^[0-9]+$/.test(val)) {
+                    errorMsg = 'Nomor SIM harus berupa angka saja.';
+                } else if (val.length !== 12 && val.length !== 14 && val.length !== 16) {
+                    errorMsg = 'Nomor SIM harus 12, 14, atau 16 digit (saat ini: ' + val.length + ' digit).';
+                }
+            } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) {
+                if (!/^[a-zA-Z0-9]+$/.test(val)) {
+                    errorMsg = 'Nomor Passport harus alfanumerik (huruf dan angka saja).';
+                } else if (val.length < 7 || val.length > 9) {
+                    errorMsg = 'Nomor Passport harus 7 sampai 9 karakter (saat ini: ' + val.length + ' karakter).';
+                }
+            }
+
+            $field.parent().find('.frontend-error, .invalid-feedback').remove();
+
+            if (errorMsg) {
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block frontend-error font-weight-bold mt-1 text-danger">' + errorMsg + '</div>');
+                return errorMsg;
+            } else {
+                $field.removeClass('is-invalid');
+                return null;
+            }
+        }
+
+        function validatePhone() {
+            var $field = $('#phoneNumber');
+            var val = ($field.val() || '').trim();
+            if ($field.is(':disabled') || val === 'TIDAK ADA NOMOR TELEPON' || val === 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON') {
+                $field.removeClass('is-invalid');
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                return null;
+            }
+            if (val === '') {
+                return null;
+            }
+
+            var errorMsg = '';
+            if (!/^[0-9]+$/.test(val)) {
+                errorMsg = 'Nomor telepon harus berupa angka saja.';
+            } else if (val.length < 10 || val.length > 13) {
+                errorMsg = 'Nomor telepon harus antara 10 sampai 13 digit (saat ini: ' + val.length + ' digit).';
+            }
+
+            $field.parent().find('.frontend-error, .invalid-feedback').remove();
+
+            if (errorMsg) {
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block frontend-error font-weight-bold mt-1 text-danger">' + errorMsg + '</div>');
+                return errorMsg;
+            } else {
+                $field.removeClass('is-invalid');
+                return null;
+            }
+        }
+
+        function validateEmail() {
+            var $field = $('#email');
+            var val = ($field.val() || '').trim();
+            if ($field.is(':disabled') || val === 'TIDAK ADA EMAIL' || val === 'TIDAK BERSEDIA MEMBERIKAN EMAIL') {
+                $field.removeClass('is-invalid');
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                return null;
+            }
+            if (val === '') {
+                return null;
+            }
+
+            var errorMsg = '';
+            var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(val)) {
+                errorMsg = 'Format email tidak valid (contoh: nama@email.com).';
+            }
+
+            $field.parent().find('.frontend-error, .invalid-feedback').remove();
+
+            if (errorMsg) {
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block frontend-error font-weight-bold mt-1 text-danger">' + errorMsg + '</div>');
+                return errorMsg;
+            } else {
+                $field.removeClass('is-invalid');
+                return null;
+            }
+        }
+
+        function validateBirthDate() {
+            var $field = $('#birthDate');
+            if ($field.is(':disabled')) {
+                $field.removeClass('is-invalid');
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                return null;
+            }
+
+            var val = ($field.val() || '').trim();
+            var errorMsg = '';
+
+            if (val === '') {
+                errorMsg = 'Tanggal Lahir harus diisi.';
+            } else {
+                var bDate = new Date(val);
+                var today = new Date();
+                today.setHours(23, 59, 59, 999);
+                if (isNaN(bDate.getTime())) {
+                    errorMsg = 'Format tanggal lahir tidak valid (YYYY-MM-DD).';
+                } else if (bDate > today) {
+                    errorMsg = 'Tanggal lahir tidak boleh melebihi hari ini.';
+                }
+            }
+
+            $field.parent().find('.frontend-error, .invalid-feedback').remove();
+
+            if (errorMsg) {
+                markError('#birthDate', errorMsg);
+                return errorMsg;
+            } else {
+                $field.removeClass('is-invalid');
+                return null;
+            }
+        }
+
+        var formErrors = [];
+
+        function markError(fieldSelector, message) {
+            var $field = $(fieldSelector);
+            if (!$field.length) return;
+
+            $field.addClass('is-invalid');
+            var $parentCol = $field.closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12');
+            if ($parentCol.length) {
+                $parentCol.addClass('flex-wrap');
+                $parentCol.find('.frontend-error, .invalid-feedback').remove();
+            }
+
+            var errorHtml = '<div class="invalid-feedback d-block frontend-error font-weight-bold mt-1 text-danger" style="width: 100%; font-size: 0.85rem;">' + message + '</div>';
+
+            if ($field.is(':radio')) {
+                var $container = $field.closest('.d-flex');
+                if ($container.next('.frontend-error').length === 0) {
+                    $container.after(errorHtml);
+                }
+            } else if ($field.siblings('.select2-container').length) {
+                $field.siblings('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                if ($field.siblings('.select2-container').next('.frontend-error').length === 0) {
+                    $field.siblings('.select2-container').after(errorHtml);
+                }
+            } else {
+                if ($field.next('.frontend-error').length === 0) {
+                    $field.after(errorHtml);
+                }
+            }
+
+            if (!formErrors.includes(message)) {
+                formErrors.push(message);
+            }
+        }
+
+        function checkInput(fieldSelector, label) {
+            var $field = $(fieldSelector);
+            if (!$field.length || $field.is(':disabled') || $field.closest('.row, .input-group').is(':hidden')) return;
+            var val = ($field.val() || '').trim();
+            if (!val || val === '') {
+                markError(fieldSelector, label + ' harus diisi');
+            }
+        }
+
+        function checkSelect(fieldSelector, label) {
+            var $field = $(fieldSelector);
+            if (!$field.length || $field.is(':disabled') || $field.closest('.row, .input-group').is(':hidden')) return;
+            var val = $field.val();
+            if (!val || val === '' || val === null || val === '0') {
+                markError(fieldSelector, label + ' harus dipilih');
+            }
+        }
+
+        // Realtime event listeners format
+        $('#identityNumber').on('input paste', function() {
+            var val = sanitizeIdentityNumber();
+            if (val !== '') {
+                validateIdentityNumber();
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $('#identityNumber').on('keyup change blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '') {
+                validateIdentityNumber();
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $('#identityType').on('change select2:select', function() {
+            sanitizeIdentityNumber();
+            var val = ($('#identityNumber').val() || '').trim();
+            if (val !== '') {
+                validateIdentityNumber();
+            } else {
+                $('#identityNumber').removeClass('is-invalid');
+                $('#identityNumber').parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $('#phoneNumber').on('input keyup change blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '' && val !== 'TIDAK ADA NOMOR TELEPON' && val !== 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON') {
+                validatePhone();
+            }
+        });
+
+        $('#email').on('input keyup change blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '' && val !== 'TIDAK ADA EMAIL' && val !== 'TIDAK BERSEDIA MEMBERIKAN EMAIL') {
+                validateEmail();
+            }
+        });
+
+        $('#birthDate').on('change changeDate input blur', function() {
+            var val = ($(this).val() || '').trim();
+            if (val !== '') {
+                validateBirthDate();
+            }
+        });
+
+        // Auto-clear realtime saat user mengisi field
+        $(document).on('input keyup change', 'input:not(#identityNumber, #phoneNumber, #email, #birthDate), textarea', function() {
+            var $field = $(this);
+            if (($field.val() || '').trim() !== '') {
+                $field.removeClass('is-invalid');
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $(document).on('change select2:select', 'select', function() {
+            var $field = $(this);
+            var val = $field.val();
+            if (val && val !== '' && val !== '0') {
+                $field.removeClass('is-invalid');
+                $field.siblings('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $(document).on('change', 'input[type="radio"]', function() {
+            var name = $(this).attr('name');
+            $('input[name="' + name + '"]').removeClass('is-invalid');
+            $('input[name="' + name + '"]').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
+        });
+
+        function scrollToFirstError() {
+            var $firstInvalid = $('.is-invalid:visible, .select2-selection.border-danger:visible, .frontend-error:visible').first();
+            if (!$firstInvalid.length) {
+                $firstInvalid = $('.frontend-error').first();
+            }
+
+            if ($firstInvalid.length) {
+                var elem = $firstInvalid[0];
+
+                // 1. Native scrollIntoView agar otomatis mencari container yang scrollable
+                try {
+                    elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (e) {
+                    elem.scrollIntoView(true);
+                }
+
+                // 2. Animate container .content (karena style3x.css memakai .content overflow: auto)
+                var $content = $('.content');
+                if ($content.length) {
+                    var currentScroll = $content.scrollTop();
+                    var contentTop = $content.offset().top;
+                    var elemTop = $firstInvalid.offset().top;
+                    var targetScroll = currentScroll + (elemTop - contentTop) - 80;
+                    if (targetScroll < 0) targetScroll = 0;
+
+                    $content.stop().animate({ scrollTop: targetScroll }, 350);
+                }
+                $('html, body').stop().animate({ scrollTop: Math.max(0, $firstInvalid.offset().top - 80) }, 350);
+
+                // 3. Fokuskan kursor ke input yang salah
+                setTimeout(function() {
+                    if (typeof elem.focus === 'function' && !$firstInvalid.hasClass('select2-selection') && !$firstInvalid.hasClass('frontend-error')) {
+                        try { elem.focus({ preventScroll: true }); } catch (err) {}
+                    } else if ($firstInvalid.hasClass('select2-selection')) {
+                        $firstInvalid.closest('.select2-container').prev('select').select2('open');
+                    }
+                }, 150);
+            }
+        }
+
+        // Submit Form Handler
         $(document).ready(function() {
-            $('#reportedPersonFormSubmit').on('click', function(e) {
+            $('#participantPersonFormSubmit').on('click', function(e) {
                 e.preventDefault();
 
-                // Lakukan validasi di sisi server menggunakan Ajax
+                // 1. Bersihkan error sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.select2-selection').removeClass('border border-danger is-invalid');
+                $('.frontend-error, .invalid-feedback, small.text-danger').remove();
+                formErrors = [];
+
+                // 2. Validasi Jenis Pihak
+                checkSelect('#jenisPihak', 'Jenis Pihak');
+
+                // 3. Jenis & Nomor Identitas
+                checkSelect('#identityType', 'Jenis Identitas');
+                checkInput('#identityNumber', 'Nomor Identitas');
+                var idErr = validateIdentityNumber();
+                if (idErr) markError('#identityNumber', idErr);
+
+                // 4. Nama Lengkap
+                checkInput('#name', 'Nama Lengkap');
+
+                // 5. Jenis Kelamin
+                checkSelect('#gender', 'Jenis Kelamin');
+
+                // 6. Tempat Lahir
+                checkInput('#birthPlace', 'Tempat Lahir');
+
+                // 7. Tanggal Lahir
+                validateBirthDate();
+
+                // 8. Ayah Kandung
+                if (!$('#isUnknownFather').is(':checked')) {
+                    checkInput('#father', 'Nama Ayah Kandung');
+                }
+
+                // 9. Ibu Kandung
+                if (!$('#isUnknownMother').is(':checked')) {
+                    checkInput('#mother', 'Nama Ibu Kandung');
+                }
+
+                // 10. Data Pelengkap
+                checkSelect('#nationality', 'Kewarganegaraan');
+                checkSelect('#ethnic', 'Suku');
+                checkSelect('#job', 'Pekerjaan');
+                checkSelect('#religion', 'Agama');
+                checkSelect('#education', 'Pendidikan');
+                checkSelect('#maritalStatus', 'Status Perkawinan');
+
+                // 11. Nomor Telepon
+                var phoneRadioVal = $('input[name="isExistsPhoneNumber"]:checked').val();
+                if (!phoneRadioVal) {
+                    markError('input[name="isExistsPhoneNumber"]', 'Pilihan nomor telepon harus dipilih');
+                } else if (phoneRadioVal === 'true' && $('#isAvailablePhoneNumber').is(':checked')) {
+                    checkInput('#phoneNumber', 'Nomor Telepon');
+                    var phErr = validatePhone();
+                    if (phErr) markError('#phoneNumber', phErr);
+                }
+
+                // 12. Email
+                var emailRadioVal = $('input[name="isExistsEmail"]:checked').val();
+                if (!emailRadioVal) {
+                    markError('input[name="isExistsEmail"]', 'Pilihan email harus dipilih');
+                } else if (emailRadioVal === 'true' && $('#isAvailableEmail').is(':checked')) {
+                    checkInput('#email', 'Email');
+                    var emErr = validateEmail();
+                    if (emErr) markError('#email', emErr);
+                }
+
+                // 13. Negara & Wilayah
+                checkSelect('#country', 'Negara');
+                if ($('.countryChildrenLocationSection').is(':visible') || $('#country').val() === 'C101') {
+                    checkSelect('#province', 'Provinsi');
+                    checkSelect('#regency', 'Kabupaten/Kota');
+                    checkSelect('#district', 'Kecamatan');
+                    checkSelect('#village', 'Kelurahan/Desa');
+                }
+
+                // 14. Alamat
+                if (!$('#isUnknownAddress').is(':checked')) {
+                    checkInput('#address', 'Alamat');
+                }
+
+                // 15. Scroll ke error pertama jika ada error
+                if (formErrors.length > 0) {
+                    scrollToFirstError();
+                    return false;
+                }
+
+                // 16. Server-side validation via AJAX
                 $.ajax({
-                    url: "{{ route('case.participant.reported-person.api.validate-request-form', ['accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}",
+                    url: "{{ route('case.participant.person.api.validate-request-form', ['accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}",
                     type: 'POST',
                     dataType: 'json',
-                    data: $('#reportedPersonForm').serialize(),
+                    data: $('#participantPersonForm').serialize(),
                     success: function(response) {
-                        // Cek jika validasi berhasil di sisi server
                         if (response.success) {
-                            // sweetalert2 berhasil sebelum submit form
-                            Swal.fire({
-                                title: 'Berhasil',
-                                text: response.message,
-                                icon: 'success',
-                                confirmButtonText: 'Ok'
-                            }).then((result) => {
-                                // Submit form
-                                $('#reportedPersonForm').submit();
-                            });
+                            $('#participantPersonForm').submit();
                         }
                     },
                     error: function(xhr) {
-                        // Tangani error jika terjadi kesalahan saat melakukan validasi
-                        response = JSON.parse(xhr.responseText);
+                        var response = {};
+                        try { response = JSON.parse(xhr.responseText); } catch(e) {}
 
-                        if (response.code == '422') {
-                            var errorMessages = '';
-
-                            $.each(response.errors, function(key, value) {
-                                errorMessages += '- ' + value + '<br>';
+                        if (xhr.status === 422 || (response && response.code == '422')) {
+                            var errors = response.errors || {};
+                            $.each(errors, function(key, messages) {
+                                var msg = Array.isArray(messages) ? messages[0] : messages;
+                                var fieldSelector = '#' + key;
+                                if (!$(fieldSelector).length) fieldSelector = '[name="' + key + '"]';
+                                markError(fieldSelector, msg);
                             });
 
-                            return Swal.fire({
-                                icon: 'error',
-                                title: 'Mohon Periksa Kembali Isian Anda',
-                                html: errorMessages,
-                            });
+                            scrollToFirstError();
                         }
                     }
                 });

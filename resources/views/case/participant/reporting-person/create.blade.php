@@ -1,5 +1,5 @@
 @php
-    $_title = 'Lihat Terlapor';
+    $_title = 'Tambah Pelapor';
 @endphp
 
 @extends('layouts.app')
@@ -16,7 +16,7 @@
 
 <div class="box">
     <div class="box-header">
-        <h4 class="fw-bold text-blue-dark">Lihat Terlapor</h4>
+        <h4 class="fw-bold text-blue-dark">Tambah Pelapor</h4>
 
         <!-- error alert -->
         @if ($errors->any())
@@ -42,8 +42,8 @@
 
     <div class="boxy-body">
         <form
-            action="{{ route('case.participant.reported-person.update', ['id'=> $id, 'accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}"
-            method="POST" enctype="multipart/form-data" id="reportedPersonForm">
+            action="{{ route('case.participant.reporting-person.store', ['accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}"
+            method="POST" enctype="multipart/form-data" id="reportingPersonForm">
             @csrf
 
             <hr/>
@@ -57,7 +57,7 @@
                         @foreach ($identityTypes as $identityType)
                             <option value="{{ $identityType->id }}"
                                 data-identity-type-name="{{ $identityType->name }}"
-                                @if(old('identityType', $reportedPerson->identity_type_id) == $identityType->id) selected @endif>
+                                @if(old('identityType') == $identityType->id) selected @endif>
                                 {{ $identityType->name }}
                             </option>
                         @endforeach
@@ -70,7 +70,7 @@
                     Identitas<span class="text-danger fs-5">*</span></label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="identityNumber" name="identityNumber"
-                        value="{{ old('identityNumber', $reportedPerson->identity_number) }}"
+                        value="{{ old('identityNumber') }}"
                         placeholder="Nomor Identitas">
                 </div>
             </div>
@@ -79,7 +79,7 @@
                 <label class="fw-bold col-sm-2 col-form-label" for="name">Nama<span class="text-danger fs-5">*</span></label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="name" name="name"
-                        value="{{ old('name', $reportedPerson->name) }}"
+                        value="{{ old('name') }}"
                         placeholder="Nama Lengkap">
                 </div>
             </div>
@@ -89,7 +89,7 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="aliasName" name="aliasName"
-                        value="{{ old('aliasName', $reportedPerson->alias_name ?? $reportedPerson->name_alias) }}"
+                        value="{{ old('aliasName') }}"
                         placeholder="Nama Alias (Opsional)">
                 </div>
             </div>
@@ -102,7 +102,7 @@
                         <option value="">--Pilih Jenis Kelamin--</option>
                         @foreach ($genders as $gender)
                             <option value="{{ $gender->id }}" data-gender-name="{{ $gender->name }}"
-                                @if(old('gender', $reportedPerson->gender_id) == $gender->id) selected @endif>
+                                @if(old('gender') == $gender->id) selected @endif>
                                 {{ $gender->name }}</option>
                         @endforeach
                     </select>
@@ -110,7 +110,7 @@
                 {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownGender" name="isUnknownGender"
-                            value="true" aria-label="..." @if(old('isUnknownGender', var_export($reportedPerson->is_unknown_gender, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownGender') == 'true') checked @endif>
                         <label for="isUnknownGender">
                             Tidak Tahu
                         </label>
@@ -123,13 +123,13 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="birthPlace" name="birthPlace"
-                        placeholder="Tempat Lahir" value="{{ old('birthPlace', $reportedPerson->birth_place) }}">
+                        placeholder="Tempat Lahir" value="{{ old('birthPlace') }}">
                 </div>
                 {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownBirthPlace" name="isUnknownBirthPlace"
-                            value="true" aria-label="..." @if(old('isUnknownBirthPlace', var_export($reportedPerson->is_unknown_birth_place, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownBirthPlace') == 'true') checked @endif>
                         <label for="isUnknownBirthPlace">
                             Tidak Tahu
                         </label>
@@ -142,13 +142,13 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="birthDate" name="birthDate"
-                        placeholder="YYYY-MM-DD" data-provide="datepicker" value="{{ old('birthDate', $reportedPerson->birth_date) }}">
+                        placeholder="YYYY-MM-DD" data-provide="datepicker" value="{{ old('birthDate') }}">
                 </div>
                 {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownBirthDate" name="isUnknownBirthDate"
-                            value="true" aria-label="..." @if(old('isUnknownBirthDate', var_export($reportedPerson->is_unknown_birth_date, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownBirthDate') == 'true') checked @endif>
                         <label for="isUnknownBirthDate">
                             Tidak Tahu
                         </label>
@@ -161,12 +161,12 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="father" name="father"
-                        placeholder="Nama Ayah Kandung" value="{{ old('father', $reportedPerson->father_name) }}">
+                        placeholder="Nama Ayah Kandung" value="{{ old('father') }}">
                 </div>
                 <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownFather" name="isUnknownFather"
-                            value="true" aria-label="..." @if(old('isUnknownFather', var_export($reportedPerson->is_unknown_father, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownFather') == 'true') checked @endif>
                         <label for="isUnknownFather">
                             Tidak Tahu
                         </label>
@@ -179,12 +179,12 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="mother" name="mother"
-                        placeholder="Nama Ibu Kandung" value="{{ old('mother', $reportedPerson->mother_name) }}">
+                        placeholder="Nama Ibu Kandung" value="{{ old('mother') }}">
                 </div>
                 <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownMother" name="isUnknownMother"
-                            value="true" aria-label="..." @if(old('isUnknownMother', var_export($reportedPerson->is_unknown_mother, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownMother') == 'true') checked @endif>
                         <label for="isUnknownMother">
                             Tidak Tahu
                         </label>
@@ -201,7 +201,7 @@
                         @foreach ($nationalities as $nationality)
                             <option value="{{ $nationality->id }}"
                                 data-nationality-name="{{ $nationality->name }}"
-                                @if(old('nationality', $reportedPerson->nationality_id) == $nationality->id) selected @endif>
+                                @if(old('nationality') == $nationality->id) selected @endif>
                                 {{ $nationality->name }}</option>
                         @endforeach
                     </select>
@@ -224,7 +224,7 @@
                         <option value="">--Pilih Suku--</option>
                         @foreach ($ethnics as $ethnic)
                             <option value="{{ $ethnic->id }}" data-ethnic-name="{{ $ethnic->name }}" 
-                                @if(old('ethnic', $reportedPerson->ethnic_id) == $ethnic->id) selected @endif>
+                                @if(old('ethnic') == $ethnic->id) selected @endif>
                                 {{ $ethnic->name }}</option>
                         @endforeach
                     </select>
@@ -238,7 +238,7 @@
                         <option value="">--Pilih Pekerjaan--</option>
                         @foreach ($jobs as $job)
                             <option value="{{ $job->id }}" data-job-name="{{ $job->name }}"
-                                @if(old('job', $reportedPerson->job_id) == $job->id) selected @endif>
+                                @if(old('job') == $job->id) selected @endif>
                                 {{ $job->name }}</option>
                         @endforeach
                     </select>
@@ -252,7 +252,7 @@
                         <option value="">--Pilih Agama--</option>
                         @foreach ($religions as $religion)
                             <option value="{{ $religion->id }}" data-religion-name="{{ $religion->name }}"
-                                @if(old('religion', $reportedPerson->religion_id) == $religion->id) selected @endif>
+                                @if(old('religion') == $religion->id) selected @endif>
                                 {{ $religion->name }}</option>
                         @endforeach
                     </select>
@@ -268,7 +268,7 @@
                         @foreach ($educations as $education)
                             <option value="{{ $education->id }}"
                                 data-education-name="{{ $education->name }}"
-                                @if(old('education', $reportedPerson->education_id) == $education->id) selected @endif>
+                                @if(old('education') == $education->id) selected @endif>
                                 {{ $education->name }}</option>
                         @endforeach
                     </select>
@@ -284,7 +284,7 @@
                         @foreach ($maritalStatuses as $maritalStatus)
                             <option value="{{ $maritalStatus->id }}"
                                 data-marital-status-name="{{ $maritalStatus->name }}"
-                                @if(old('maritalStatus', $reportedPerson->marital_status_id) == $maritalStatus->id) selected @endif>
+                                @if(old('maritalStatus') == $maritalStatus->id) selected @endif>
                                 {{ $maritalStatus->name }}</option>
                         @endforeach
                     </select>
@@ -293,7 +293,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox"
                             id="isUnknownMaritalStatus" name="isUnknownMaritalStatus"
-                            value="true" aria-label="..." @if(old('isUnknownMaritalStatus', var_export($reportedPerson->is_unknown_marital_status, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownMaritalStatus') == 'true') checked @endif>
                         <label for="isUnknownMaritalStatus">
                             Tidak Tahu
                         </label>
@@ -305,17 +305,11 @@
                 <label class="fw-bold col-sm-2 col-form-label" for="phoneNumber">Nomor Telepon
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12">
-                    @php
-                        $phoneVal = old('phoneNumber', $reportedPerson->phone_number);
-                        $hasPhoneNum = !empty($phoneVal) && $phoneVal !== 'TIDAK ADA NOMOR TELEPON';
-                        $isExistsPhone = old('isExistsPhoneNumber', ($reportedPerson->is_exists_phone_number !== null ? var_export((bool)$reportedPerson->is_exists_phone_number, true) : ($hasPhoneNum ? 'true' : 'false')));
-                        $isAvailPhone = old('isAvailablePhoneNumber', ($reportedPerson->is_available_phone_number !== null ? var_export((bool)$reportedPerson->is_available_phone_number, true) : ($phoneVal !== 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON' ? 'true' : 'false')));
-                    @endphp
                     <div class="d-flex mb-2">
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio"
                                 id="existsPhoneNumber"
-                                name="isExistsPhoneNumber" value="true" @if($isExistsPhone == 'true') checked @endif>
+                                name="isExistsPhoneNumber" value="true" @if(old('isExistsPhoneNumber') == 'true') checked @elseif(empty(old('isExistsPhoneNumber'))) checked @endif>
                             <label for="existsPhoneNumber">
                                 Ada Nomor Telepon
                             </label>
@@ -324,7 +318,7 @@
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio"
                                 id="notExistsPhoneNumber"
-                                name="isExistsPhoneNumber" value="false" @if($isExistsPhone == 'false') checked @endif>
+                                name="isExistsPhoneNumber" value="false" @if(old('isExistsPhoneNumber') == 'false') checked @endif>
                             <label for="notExistsPhoneNumber">
                                 Tidak ada Nomor Telepon
                             </label>
@@ -332,12 +326,12 @@
                     </div>
 
                     <input type="text" class="form-control mb-2" id="phoneNumber" name="phoneNumber"
-                        placeholder="Nomor Telepon" value="{{ $phoneVal }}">
+                        placeholder="Nomor Telepon" value="{{ old('phoneNumber') }}">
 
                     <div class="form-check m-1">
                         <input class="form-check-input" type="checkbox"
                             id="isAvailablePhoneNumber" name="isAvailablePhoneNumber" 
-                            value="true" aria-label="..." @if($isAvailPhone == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isAvailablePhoneNumber') == 'true') checked @elseif(empty(old('isAvailablePhoneNumber'))) checked @endif>
                         <label for="isAvailablePhoneNumber">
                             Bersedia memberikan nomor telepon?
                         </label>
@@ -348,16 +342,10 @@
             <div class="input-group row mb-3 ms-0">
                 <label class="fw-bold col-sm-2 col-form-label" for="email">Email</label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12">
-                    @php
-                        $emailVal = old('email', $reportedPerson->email);
-                        $hasEmailNum = !empty($emailVal) && $emailVal !== 'TIDAK ADA EMAIL';
-                        $isExistsEmailVal = old('isExistsEmail', ($reportedPerson->is_exists_email !== null ? var_export((bool)$reportedPerson->is_exists_email, true) : ($hasEmailNum ? 'true' : 'false')));
-                        $isAvailEmailVal = old('isAvailableEmail', ($reportedPerson->is_available_email !== null ? var_export((bool)$reportedPerson->is_available_email, true) : ($emailVal !== 'TIDAK BERSEDIA MEMBERIKAN EMAIL' ? 'true' : 'false')));
-                    @endphp
                     <div class="d-flex mb-3">
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio" id="existsEmail"
-                                name="isExistsEmail" value="true" @if($isExistsEmailVal == 'true') checked @endif>
+                                name="isExistsEmail" value="true" @if(old('isExistsEmail') == 'true') checked @elseif(empty(old('isExistsEmail'))) checked @endif>
                             <label for="existsEmail">
                                 Ada Email
                             </label>
@@ -365,7 +353,7 @@
 
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio" id="notExistsEmail"
-                                name="isExistsEmail" value="false" @if($isExistsEmailVal == 'false') checked @endif>
+                                name="isExistsEmail" value="false" @if(old('isExistsEmail') == 'false') checked @endif>
                             <label for="notExistsEmail">
                                 Tidak ada Email
                             </label>
@@ -373,12 +361,11 @@
                     </div>
 
                     <input type="text" class="form-control mb-2" id="email" name="email"
-                        placeholder="Email" value="{{ $emailVal }}">
+                        placeholder="Email" value="{{ old('email') }}">
 
                     <div class="form-check m-1">
-                        <input class="form-check-input" type="checkbox" 
-                            id="isAvailableEmail" name="isAvailableEmail"
-                            value="true" aria-label="..." @if($isAvailEmailVal == 'true') checked @endif>
+                        <input class="form-check-input" type="checkbox" id="isAvailableEmail" name="isAvailableEmail"
+                            value="true" aria-label="..." @if(old('isAvailableEmail') == 'true') checked @elseif(empty(old('isAvailableEmail'))) checked @endif>
                         <label for="isAvailableEmail">
                             Bersedia memberikan email?
                         </label>
@@ -392,15 +379,15 @@
                     <select class="form-control select2" id="country" name="country">
                         <option value="">--Pilih Negara--</option>
                         @foreach ($countries as $country)
-                            <option value="{{ $country->id }}" data-country-name="{{ $country->name }}" 
-                            @if(old('country', $reportedPerson->country_id) == $country->id) selected @endif>
+                            <option value="{{ $country->id }}" data-country-name="{{ $country->name }}"
+                             @if(old('country') == $country->id) selected @endif>
                                 {{ $country->name }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
 
-            <div class="countryChildrenLocationSection" @if($reportedPerson->country_id != 'C101') style="display:none;" @endif>
+            <div class="countryChildrenLocationSection" style="display:none;">
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="province">Provinsi<span class="text-danger fs-5">*</span>
                     </label>
@@ -442,7 +429,7 @@
                     <label class="fw-bold col-sm-2 col-form-label" for="subVillage">Kampung</label>
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                         <input type="text" class="form-control" id="subVillage" name="subVillage"
-                            placeholder="Kampung (Opsional)" value="{{ old('subVillage', $reportedPerson->sub_village) }}">
+                            placeholder="Kampung (Opsional)" value="{{ old('subVillage') }}">
                     </div>
                 </div>
             </div>
@@ -450,28 +437,30 @@
             <div class="input-group row mb-3 ms-0">
                 <label class="fw-bold col-sm-2 col-form-label" for="address">Alamat<span class="text-danger fs-5">*</span> </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
-                    <input type="text" class="form-control" id="address" name="address" placeholder="Alamat" value="{{ old('address', $reportedPerson->address) }}">
+                    <input type="text" class="form-control" id="address" name="address" placeholder="Alamat" value="{{ old('address') }}">
                 </div>
-                <div class="col-sm-2">
+                {{-- <div class="col-sm-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="isUnknownAddress" name="isUnknownAddress"
-                            value="true" aria-label="..." @if(old('isUnknownAddress', var_export($reportedPerson->is_unknown_address, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if(old('isUnknownAddress') == 'true') checked @endif>
                         <label for="isUnknownAddress">
                             Tidak Tahu
                         </label>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <br/>
-            <div class="row mb-3 ms-0">
-                <div class="col-sm-10 offset-sm-2">
-                    <a class="btn btn-secondary" href="{{route('view_produktivitas_accident', ['accident_id' => request()->query('accident_id'), 'page'=>'participants'])}}">
-                        <i class="bi bi-arrow-left"></i> Kembali ke Halaman Pihak Terlibat
-                    </a>
-                </div>
-            </div>
             <hr/>
+            
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary" id="reportingPersonFormSubmit">
+                    <i class="bi bi-save"></i> {{ __('Simpan') }}
+                </button>
+                <a href="{{route('view_produktivitas_accident', ['accident_id' => request()->query('accident_id'), 'page'=>'participants'])}}" class="btn btn-danger">
+                    <i class="bi bi-x-circle"></i> {{ __('Batal') }}
+                </a>
+            </div>
         </form>
 
     </div>
@@ -553,7 +542,7 @@
             var classCode = 'PROVINCE';
 
             $.ajax({
-                url: "{{ route('case.participant.reported-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
+                url: "{{ route('case.participant.reporting-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -588,8 +577,7 @@
 
         $(document).on('change', '#province', function() {
             var parentId = $(this).find(':selected').val();
-            var regencyId = "{{ $reportedPerson->regency_id }}";
-            getRegency(parentId, regencyId);
+            getRegency(parentId);
         });
 
         function getRegency(parentId, regencyId = null) {
@@ -599,7 +587,7 @@
             var classCode = 'REGENCY';
 
             $.ajax({
-                url: "{{ route('case.participant.reported-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
+                url: "{{ route('case.participant.reporting-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -634,8 +622,7 @@
 
         $(document).on('change', '#regency', function() {
             var parentId = $(this).find(':selected').val();
-            var districtId = "{{ $reportedPerson->district_id }}";
-            getDistrict(parentId, districtId);
+            getDistrict(parentId);
         });
 
         function getDistrict(parentId, districtId = null) {
@@ -645,7 +632,7 @@
             var classCode = 'DISTRICT';
 
             $.ajax({
-                url: "{{ route('case.participant.reported-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
+                url: "{{ route('case.participant.reporting-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -680,8 +667,7 @@
 
         $(document).on('change', '#district', function() {
             var parentId = $(this).find(':selected').val();
-            var villageId = "{{ $reportedPerson->village_id }}";
-            getVillage(parentId, villageId);
+            getVillage(parentId);
         });
 
         function getVillage(parentId, villageId = null) {
@@ -691,7 +677,7 @@
             var classCode = 'VILLAGE';
 
             $.ajax({
-                url: "{{ route('case.participant.reported-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
+                url: "{{ route('case.participant.reporting-person.api.locations', ['accident_id' => $accidentId, 'accidentId' => $accidentId]) }}", // Replace with your backend URL
                 type: 'GET',
                 dataType: 'json',
                 data: {
@@ -723,67 +709,6 @@
                 }
             });
         }
-
-        $(document).ready(function() {
-            var countryId = "{{ $reportedPerson->country_id }}";
-            var provinceId = "{{ $reportedPerson->province_id }}";
-
-            getProvince(countryId, provinceId);
-
-            //trigger is unknown
-            $('#isUnknownGender').trigger('change');
-            $('#isUnknownBirthPlace').trigger('change');
-            $('#isUnknownBirthDate').trigger('change');
-            $('#isUnknownFather').trigger('change');
-            $('#isUnknownMother').trigger('change');
-            /*$('#isUnknownNationality').trigger('change');*/
-            $('#isUnknownMaritalStatus').trigger('change');
-            $('#isUnknownAddress').trigger('change');
-
-            var isAvailablePhoneNumber = "{{ $reportedPerson->is_available_phone_number }}";
-            var isAvailableEmail = "{{ $reportedPerson->is_available_email }}";
-
-            //trigger phone and email
-            $('input[name="isExistsPhoneNumber"]').trigger('change');
-            $('input[name="isExistsEmail"]').trigger('change');
-
-            if($('input[name="isExistsPhoneNumber"]').find(':checked').val() == 'true' && isAvailablePhoneNumber != 'true') {
-                $('#isAvailablePhoneNumber').prop('checked', false).trigger('change');
-            }
-            
-            if($('input[name="isExistsEmail"]').find(':checked').val() == 'true' && isAvailableEmail != 'true') {
-                $('#isAvailableEmail').prop('checked', false).trigger('change');
-            }
-            
-            var phoneNumberVal = "{{ $reportedPerson->phone_number }}";
-            var emailVal = "{{ $reportedPerson->email }}";
-
-            if(phoneNumberVal && phoneNumberVal !== '') {
-                $('#phoneNumber').val(phoneNumberVal);
-            }
-            if(emailVal && emailVal !== '') {
-                $('#email').val(emailVal);
-            }
-
-            var fatherVal = "{{ $reportedPerson->father_name }}";
-            var motherVal = "{{ $reportedPerson->mother_name }}";
-            var addressVal = "{{ $reportedPerson->address }}";
-            if (fatherVal && fatherVal !== '') $('#father').val(fatherVal);
-            if (motherVal && motherVal !== '') $('#mother').val(motherVal);
-            if (addressVal && addressVal !== '') $('#address').val(addressVal);
-
-            disableAllFields();
-        });
-
-        function disableAllFields() {
-            $('form input, form select, form textarea').prop('disabled', true);
-            $('.select2').prop('disabled', true);
-            $('input[type="checkbox"], input[type="radio"]').prop('disabled', true);
-        }
-
-        $(document).ajaxStop(function() {
-            disableAllFields();
-        });
 
         //tidak tahu checked
         $('#isUnknownGender').on('change', function() {
@@ -920,15 +845,15 @@
 
         // Validasi Submit Form
         $(document).ready(function() {
-            $('#reportedPersonFormSubmit').on('click', function(e) {
+            $('#reportingPersonFormSubmit').on('click', function(e) {
                 e.preventDefault();
 
                 // Lakukan validasi di sisi server menggunakan Ajax
                 $.ajax({
-                    url: "{{ route('case.participant.reported-person.api.validate-request-form', ['accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}",
+                    url: "{{ route('case.participant.reporting-person.api.validate-request-form', ['accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}",
                     type: 'POST',
                     dataType: 'json',
-                    data: $('#reportedPersonForm').serialize(),
+                    data: $('#reportingPersonForm').serialize(),
                     success: function(response) {
                         // Cek jika validasi berhasil di sisi server
                         if (response.success) {
@@ -940,7 +865,7 @@
                                 confirmButtonText: 'Ok'
                             }).then((result) => {
                                 // Submit form
-                                $('#reportedPersonForm').submit();
+                                $('#reportingPersonForm').submit();
                             });
                         }
                     },
