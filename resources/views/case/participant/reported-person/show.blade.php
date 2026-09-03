@@ -89,7 +89,7 @@
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="aliasName" name="aliasName"
-                        value="{{ old('aliasName', $reportedPerson->alias_name) }}"
+                        value="{{ old('aliasName', $reportedPerson->alias_name ?? $reportedPerson->name_alias) }}"
                         placeholder="Nama Alias (Opsional)">
                 </div>
             </div>

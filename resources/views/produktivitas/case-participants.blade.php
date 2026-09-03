@@ -55,7 +55,10 @@
                             @foreach ($reportingPersons as $reportingPerson)
                                 <tr>
                                     <td class="text-center align-middle">
-                                        {{ $reportingPerson->name }} {{ (!empty($reportingPerson->alias_name)) ? ' (' . $reportingPerson->alias_name . ')' : '' }}
+                                        @php
+                                            $repAlias = $reportingPerson->alias_name ?? $reportingPerson->name_alias;
+                                        @endphp
+                                        {{ $reportingPerson->name }} {{ (!empty($repAlias)) ? ' (' . $repAlias . ')' : '' }}
                                     </td>
                                     <td class="text-center align-middle">
                                         {{ $reportingPerson->gender->name ?? '-' }}
@@ -96,7 +99,10 @@
                             @foreach ($reportedPersons as $reportedPerson)
                                 <tr>
                                     <td class="text-center align-middle">
-                                        {{ $reportedPerson->name }} {{ (!empty($reportedPerson->alias_name)) ? ' (' . $reportedPerson->alias_name . ')' : '' }}
+                                        @php
+                                            $rpdAlias = $reportedPerson->alias_name ?? $reportedPerson->name_alias;
+                                        @endphp
+                                        {{ $reportedPerson->name }} {{ (!empty($rpdAlias)) ? ' (' . $rpdAlias . ')' : '' }}
                                     </td>
                                     <td class="text-center align-middle">
                                         {{ $reportedPerson->gender->name ?? '-' }}

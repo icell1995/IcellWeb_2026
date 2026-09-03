@@ -99,6 +99,7 @@ class ParticipantPersonController extends Controller
             'identity_number'          => $identityNumber,
             'name'                     => $name,
             'alias_name'               => $aliasName,
+            'name_alias'               => $aliasName,
             'gender_id'                => $gender,
             'is_unknown_gender'        => $isUnknownGender,
             'birth_place'              => $birthPlace,
