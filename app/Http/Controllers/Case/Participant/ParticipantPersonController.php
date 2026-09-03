@@ -98,6 +98,7 @@ class ParticipantPersonController extends Controller
             'identity_type_id'         => $identityType,
             'identity_number'          => $identityNumber,
             'name'                     => $name,
+            'alias_name'               => $aliasName,
             'gender_id'                => $gender,
             'is_unknown_gender'        => $isUnknownGender,
             'birth_place'              => $birthPlace,
@@ -135,12 +136,8 @@ class ParticipantPersonController extends Controller
         try {
             // Simpan ke tabel sesuai pilihan
             if ($jenisPihak === 'PELAPOR') {
-                $payload['alias_name'] = $aliasName;
-                unset($payload['name_alias']);
                 ReportingPerson::create($payload);
             } else {
-                $payload['name_alias'] = $aliasName;
-                unset($payload['alias_name']);
                 ReportedPerson::create($payload);
             }
 

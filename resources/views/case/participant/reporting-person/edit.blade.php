@@ -1312,14 +1312,7 @@
                     data: $('#reportingPersonForm').serialize(),
                     success: function(response) {
                         if (response.success) {
-                            Swal.fire({
-                                title: 'Berhasil',
-                                text: response.message,
-                                icon: 'success',
-                                confirmButtonText: 'Ok'
-                            }).then((result) => {
-                                $('#reportingPersonForm').submit();
-                            });
+                            $('#reportingPersonForm').submit();
                         }
                     },
                     error: function(xhr) {
