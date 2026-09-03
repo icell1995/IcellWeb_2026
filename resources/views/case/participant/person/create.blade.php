@@ -106,7 +106,8 @@
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12 d-flex align-self-center">
                     <input type="text" class="form-control" id="identityNumber" name="identityNumber"
                         value="{{ old('identityNumber') }}"
-                        placeholder="Nomor Identitas">
+                        placeholder="{{ empty(old('identityType')) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
+                        @if(empty(old('identityType'))) disabled @endif>
                 </div>
             </div>
 
@@ -893,6 +894,19 @@
             var identityTypeId = $('#identityType').val();
             var identityTypeName = ($('#identityType').find(':selected').data('identity-type-name') || $('#identityType').find(':selected').text() || '').toUpperCase();
             var val = $field.val() || '';
+
+            if (!identityTypeId || identityTypeId === '') {
+                $field.prop('disabled', true);
+                $field.attr('placeholder', 'Pilih Jenis Identitas terlebih dahulu');
+                $field.val('');
+                $field.removeAttr('maxlength');
+                $field.removeClass('is-invalid');
+                $field.parent().find('.frontend-error, .invalid-feedback').remove();
+                return '';
+            } else {
+                $field.prop('disabled', false);
+                $field.attr('placeholder', 'Nomor Identitas');
+            }
 
             if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
                 $field.attr('maxlength', 16);
