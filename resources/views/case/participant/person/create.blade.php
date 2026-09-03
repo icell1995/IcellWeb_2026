@@ -772,7 +772,9 @@
                 $('#father').val('TIDAK DIKETAHUI');
                 $('#father').prop('readonly', true);
             } else {
-                $('#father').val('');
+                if ($('#father').val() === 'TIDAK DIKETAHUI') {
+                    $('#father').val('');
+                }
                 $('#father').prop('readonly', false);
             }
             $('#father').removeClass('is-invalid');
@@ -783,33 +785,14 @@
                 $('#mother').val('TIDAK DIKETAHUI');
                 $('#mother').prop('readonly', true);
             } else {
-                $('#mother').val('');
+                if ($('#mother').val() === 'TIDAK DIKETAHUI') {
+                    $('#mother').val('');
+                }
                 $('#mother').prop('readonly', false);
             }
             $('#mother').removeClass('is-invalid');
             $('#mother').closest('.col-lg-8, .col-md-8, .col-sm-12, .col-12').find('.frontend-error, .invalid-feedback').remove();
         });
-        /*$('#isUnknownNationality').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#nationality').val(3).trigger('change');
-                $('#nationality').select2({
-                    readonly: true,
-                    disabled: false,
-                });
-            } else {
-                $('#nationality').val('').trigger('change');
-                $('#nationality').select2({
-                    readonly: false,
-                    disabled: false,
-                });
-            }
-        });
-        $('#nationality').on('change', function() {
-            if ($(this).find(':selected').val() == 3) {
-                $('#isUnknownNationality').prop('checked', true);
-                $('#nationality').prop('disabled', true);
-            }
-        });*/
         $('#isUnknownMaritalStatus').on('change', function() {
             if ($(this).is(':checked')) {
                 $('#maritalStatus').val('').trigger('change');
@@ -826,7 +809,9 @@
                 $('#address').val("TIDAK DIKETAHUI");
                 $('#address').prop('readonly', true);
             } else {
-                $('#address').val('');
+                if ($('#address').val() === 'TIDAK DIKETAHUI') {
+                    $('#address').val('');
+                }
                 $('#address').prop('readonly', false);
             }
             $('#address').removeClass('is-invalid');
@@ -835,13 +820,13 @@
 
         //phone and email
         $('input[name="isExistsPhoneNumber"]').on('change', function() {
-            var isExistsPhoneNumber = $('input[name="isExistsPhoneNumber"]:checked')
-                .val();
+            var isExistsPhoneNumber = $('input[name="isExistsPhoneNumber"]:checked').val();
             if (isExistsPhoneNumber == 'true') {
                 $('#isAvailablePhoneNumber').prop('disabled', false);
-                $('#isAvailablePhoneNumber').prop('checked', true);
                 $('#phoneNumber').prop('readonly', false);
-                $('#phoneNumber').val('');
+                if ($('#phoneNumber').val() === 'TIDAK ADA NOMOR TELEPON') {
+                    $('#phoneNumber').val('');
+                }
             } else {
                 $('#isAvailablePhoneNumber').prop('disabled', true);
                 $('#isAvailablePhoneNumber').prop('checked', false);
@@ -854,7 +839,9 @@
         });
         $('#isAvailablePhoneNumber').on('change', function() {
             if ($(this).is(':checked')) {
-                $('#phoneNumber').val('');
+                if ($('#phoneNumber').val() === 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON') {
+                    $('#phoneNumber').val('');
+                }
                 $('#phoneNumber').prop('readonly', false);
             } else {
                 $('#phoneNumber').prop('readonly', true);
@@ -867,9 +854,10 @@
             var isExistsEmail = $('input[name="isExistsEmail"]:checked').val();
             if (isExistsEmail == 'true') {
                 $('#isAvailableEmail').prop('disabled', false);
-                $('#isAvailableEmail').prop('checked', true);
                 $('#email').prop('readonly', false);
-                $('#email').val('');
+                if ($('#email').val() === 'TIDAK ADA EMAIL') {
+                    $('#email').val('');
+                }
             } else {
                 $('#isAvailableEmail').prop('disabled', true);
                 $('#isAvailableEmail').prop('checked', false);
@@ -882,7 +870,9 @@
         });
         $('#isAvailableEmail').on('change', function() {
             if ($(this).is(':checked')) {
-                $('#email').val('');
+                if ($('#email').val() === 'TIDAK BERSEDIA MEMBERIKAN EMAIL') {
+                    $('#email').val('');
+                }
                 $('#email').prop('readonly', false);
             } else {
                 $('#email').prop('readonly', true);

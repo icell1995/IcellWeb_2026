@@ -739,12 +739,22 @@
             var phoneNumber = "{{ $reportingPerson->phone_number }}";
             var email = "{{ $reportingPerson->email }}";
 
-            if($('input[name="isExistsPhoneNumber"]').find(':checked').val() == 'true' && isAvailablePhoneNumber == 'true') {
-                $('#phoneNumber').val(phoneNumber);
+            if(phoneNumberVal && phoneNumberVal !== '') {
+                $('#phoneNumber').val(phoneNumberVal);
             }
-            if($('input[name="isExistsEmail"]').find(':checked').val() == 'true' && isAvailableEmail == 'true') {
-                $('#email').val(email);
+            if(emailVal && emailVal !== '') {
+                $('#email').val(emailVal);
             }
+
+            var fatherVal = "{{ $reportingPerson->father_name }}";
+            var motherVal = "{{ $reportingPerson->mother_name }}";
+            var addressVal = "{{ $reportingPerson->address }}";
+            if (fatherVal && fatherVal !== '') $('#father').val(fatherVal);
+            if (motherVal && motherVal !== '') $('#mother').val(motherVal);
+            if (addressVal && addressVal !== '') $('#address').val(addressVal);
+
+            // Disable all input fields on show page
+            $('form input, form select, form textarea, form button').prop('disabled', true);
         });
 
         //tidak tahu checked
