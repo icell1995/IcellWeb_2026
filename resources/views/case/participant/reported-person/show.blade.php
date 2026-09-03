@@ -452,6 +452,13 @@
             </div>
 
             <br/>
+            <div class="row mb-3 ms-0">
+                <div class="col-sm-10 offset-sm-2">
+                    <a class="btn btn-secondary" href="{{route('view_produktivitas_accident', ['accident_id' => request()->query('accident_id'), 'page'=>'participants'])}}">
+                        <i class="bi bi-arrow-left"></i> Kembali ke Halaman Pihak Terlibat
+                    </a>
+                </div>
+            </div>
             <hr/>
         </form>
 
@@ -753,8 +760,17 @@
             if (motherVal && motherVal !== '') $('#mother').val(motherVal);
             if (addressVal && addressVal !== '') $('#address').val(addressVal);
 
-            // Disable all input fields on show page
-            $('form input, form select, form textarea, form button').prop('disabled', true);
+            disableAllFields();
+        });
+
+        function disableAllFields() {
+            $('form input, form select, form textarea').prop('disabled', true);
+            $('.select2').prop('disabled', true);
+            $('input[type="checkbox"], input[type="radio"]').prop('disabled', true);
+        }
+
+        $(document).ajaxStop(function() {
+            disableAllFields();
         });
 
         //tidak tahu checked
