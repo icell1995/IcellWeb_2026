@@ -538,65 +538,8 @@
             $('#jenisPihak').on('change select2:select', updateBtnLabel);
             updateBtnLabel(); // set on page load
 
-            // Listener perubahan Jenis Identitas untuk Maxlength
-            function updateIdentityNumberLimits() {
-                var $selected = $('#identityType').find('option:selected');
-                var idType = (($selected.data('identity-type-name') || '') + ' ' + ($selected.text() || '')).toUpperCase();
-                var $idNum = $('#identityNumber');
-                
-                var max = null;
-                if (idType.includes('KTP') || idType.includes('KARTU KELUARGA') || idType.includes('KK')) {
-                    max = 16;
-                } else if (idType.includes('SIM')) {
-                    max = 16;
-                } else if (idType.includes('PASPOR') || idType.includes('PASSPORT')) {
-                    max = 9;
-                }
-
-                if (max) {
-                    $idNum.attr('maxlength', max);
-                } else {
-                    $idNum.removeAttr('maxlength');
-                }
-
-                var val = $idNum.val();
-                if (max && val && val.length > max) {
-                    $idNum.val(val.substring(0, max));
-                }
-            }
-
-            $(document).on('change select2:select', '#identityType', function() {
-                updateIdentityNumberLimits();
-                $('#identityNumber').trigger('input');
-            });
-
-            $(document).on('input keyup paste change', '#identityNumber', function() {
-                var $selected = $('#identityType').find('option:selected');
-                var idType = (($selected.data('identity-type-name') || '') + ' ' + ($selected.text() || '')).toUpperCase();
-                var val = $(this).val() || '';
-
-                var max = null;
-                if (idType.includes('KTP') || idType.includes('KARTU KELUARGA') || idType.includes('KK')) {
-                    max = 16;
-                    val = val.replace(/\D/g, '');
-                } else if (idType.includes('SIM')) {
-                    max = 16;
-                    val = val.replace(/\D/g, '');
-                } else if (idType.includes('PASPOR') || idType.includes('PASSPORT')) {
-                    max = 9;
-                    val = val.replace(/[^a-zA-Z0-9]/g, '');
-                }
-
-                if (max && val.length > max) {
-                    val = val.substring(0, max);
-                }
-
-                if ($(this).val() !== val) {
-                    $(this).val(val);
-                }
-            });
-
-            updateIdentityNumberLimits(); // set on page load
+            // Inisialisasi batasan input nomor identitas saat load
+            sanitizeIdentityNumber();
 
             // datepicker
             $('#birthDate').datepicker({
@@ -945,6 +888,38 @@
         // ==========================================
         // VALIDASI FORMAT & FIELD (PERSIS SEPERTI LHGP)
         // ==========================================
+        function sanitizeIdentityNumber() {
+            var $field = $('#identityNumber');
+            var identityTypeId = $('#identityType').val();
+            var identityTypeName = ($('#identityType').find(':selected').data('identity-type-name') || $('#identityType').find(':selected').text() || '').toUpperCase();
+            var val = $field.val() || '';
+
+            if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) {
+                $field.attr('maxlength', 9);
+                val = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                if (val.length > 9) val = val.slice(0, 9);
+            } else {
+                $field.removeAttr('maxlength');
+            }
+
+            if ($field.val() !== val) {
+                $field.val(val);
+            }
+            return val;
+        }
+
         function validateIdentityNumber() {
             var $field = $('#identityNumber');
             var identityTypeId = $('#identityType').val();
@@ -1145,7 +1120,17 @@
         }
 
         // Realtime event listeners format
-        $('#identityNumber').on('input keyup change blur', function() {
+        $('#identityNumber').on('input paste', function() {
+            var val = sanitizeIdentityNumber();
+            if (val !== '') {
+                validateIdentityNumber();
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+        });
+
+        $('#identityNumber').on('keyup change blur', function() {
             var val = ($(this).val() || '').trim();
             if (val !== '') {
                 validateIdentityNumber();
@@ -1156,9 +1141,13 @@
         });
 
         $('#identityType').on('change select2:select', function() {
-            var val = $('#identityNumber').val() || '';
+            sanitizeIdentityNumber();
+            var val = ($('#identityNumber').val() || '').trim();
             if (val !== '') {
                 validateIdentityNumber();
+            } else {
+                $('#identityNumber').removeClass('is-invalid');
+                $('#identityNumber').parent().find('.frontend-error, .invalid-feedback').remove();
             }
         });
 
