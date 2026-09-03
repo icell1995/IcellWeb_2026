@@ -76,7 +76,7 @@
                                         {{ $reportingPerson->phone_number }}
                                     </td>
                                     <td class="text-center align-middle">
-                                        <span class="badge bg-primary">Pelapor</span>
+                                        PELAPOR
                                     </td>
                                     <td class="text-center align-middle">
                                         <a href="{{ route('case.participant.reporting-person.show', ['id' => $reportingPerson->id, 'accidentId' => $id, 'accident_id' => $id]) }}"
@@ -120,7 +120,7 @@
                                         {{ $reportedPerson->phone_number }}
                                     </td>
                                     <td class="text-center align-middle">
-                                        <span class="badge bg-danger">Terlapor</span>
+                                        TERLAPOR
                                     </td>
                                     <td class="text-center align-middle">
                                         <a href="{{ route('case.participant.reported-person.show', ['id' => $reportedPerson->id, 'accidentId' => $id, 'accident_id' => $id]) }}"
