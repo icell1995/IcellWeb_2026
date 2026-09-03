@@ -43,7 +43,7 @@
     <div class="boxy-body">
         <form
             action="{{ route('case.participant.reporting-person.store', ['accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}"
-            method="POST" enctype="multipart/form-data" id="reportedPersonForm">
+            method="POST" enctype="multipart/form-data" id="reportingPersonForm">
             @csrf
 
             <hr/>
@@ -454,7 +454,7 @@
             <hr/>
             
             <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary" id="reportedPersonFormSubmit">
+                <button type="submit" class="btn btn-primary" id="reportingPersonFormSubmit">
                     <i class="bi bi-save"></i> {{ __('Simpan') }}
                 </button>
                 <a href="{{route('view_produktivitas_accident', ['accident_id' => request()->query('accident_id'), 'page'=>'participants'])}}" class="btn btn-danger">
@@ -845,7 +845,7 @@
 
         // Validasi Submit Form
         $(document).ready(function() {
-            $('#reportedPersonFormSubmit').on('click', function(e) {
+            $('#reportingPersonFormSubmit').on('click', function(e) {
                 e.preventDefault();
 
                 // Lakukan validasi di sisi server menggunakan Ajax
@@ -853,7 +853,7 @@
                     url: "{{ route('case.participant.reporting-person.api.validate-request-form', ['accidentId' => $accidentId, 'accident_id' => request()->query('accident_id')]) }}",
                     type: 'POST',
                     dataType: 'json',
-                    data: $('#reportedPersonForm').serialize(),
+                    data: $('#reportingPersonForm').serialize(),
                     success: function(response) {
                         // Cek jika validasi berhasil di sisi server
                         if (response.success) {
@@ -865,7 +865,7 @@
                                 confirmButtonText: 'Ok'
                             }).then((result) => {
                                 // Submit form
-                                $('#reportedPersonForm').submit();
+                                $('#reportingPersonForm').submit();
                             });
                         }
                     },

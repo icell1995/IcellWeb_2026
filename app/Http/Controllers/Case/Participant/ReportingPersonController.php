@@ -39,10 +39,12 @@ class ReportingPersonController extends Controller
     public function show($accidentId, $id)
     {
         $libData = $this->getLibData();
-        $reportedPerson = ReportingPerson::find($id);
+
+        $reportingPerson = ReportingPerson::find($id);
+
         $viewData = [
             'id' => $id,
-            'reportedPerson' => $reportedPerson,
+            'reportingPerson' => $reportingPerson,
             'accidentId' => $accidentId,
             'identityTypes' => $libData['identityTypes'],
             'genders' => $libData['genders'],
@@ -54,12 +56,14 @@ class ReportingPersonController extends Controller
             'countries' => $libData['countries'],
             'nationalities' => $libData['nationalities'],
         ];
+
         return view('case.participant.reporting-person.show', $viewData);
-    }
+    }    
 
     public function create($accidentId)
-    {
+    {   
         $libData = $this->getLibData();
+
         $viewData = [
             'accidentId' => $accidentId,
             'identityTypes' => $libData['identityTypes'],
@@ -72,15 +76,20 @@ class ReportingPersonController extends Controller
             'countries' => $libData['countries'],
             'nationalities' => $libData['nationalities'],
         ];
+
         return view('case.participant.reporting-person.create', $viewData);
     }
 
     public function store(Request $request, $accidentId)
     {
+        // Validation
         $validator = $this->validateForm($request);
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
+
+        $accidentId = $accidentId;
 
         $identityType = htmlspecialchars($request->identityType);
         $identityNumber = htmlspecialchars($request->identityNumber);
@@ -119,10 +128,9 @@ class ReportingPersonController extends Controller
         $isUnknownAddress = filter_var($request->isUnknownAddress, FILTER_VALIDATE_BOOLEAN);
 
         DB::beginTransaction();
-        try {
+        try{
             ReportingPerson::create([
                 'accident_id' => $accidentId,
-                
                 'identity_type_id' => $identityType,
                 'identity_number' => $identityNumber,
                 'name' => $name,
@@ -161,21 +169,24 @@ class ReportingPersonController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page' => 'participants'])->with('success', 'Data berhasil disimpan');
-        } catch (\Exception $e) {
+
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page'=>'participants'])->with('success','Data berhasil disimpan');
+        } catch(\Exception $e){
             DB::rollBack();
-            Log::error('ReporterPersonController : ', [$e->getMessage()]);
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data');
+            Log::error('ReportingPersonController : ', [$e->getMessage()]);
+            return redirect()->back()->with('error','Terjadi kesalahan saat menyimpan data');
         }
     }
 
     public function edit($accidentId, $id)
     {
         $libData = $this->getLibData();
-        $reportedPerson = ReportingPerson::find($id);
+
+        $reportingPerson = ReportingPerson::find($id);
+
         $viewData = [
             'id' => $id,
-            'reportedPerson' => $reportedPerson,
+            'reportingPerson' => $reportingPerson,
             'accidentId' => $accidentId,
             'identityTypes' => $libData['identityTypes'],
             'genders' => $libData['genders'],
@@ -187,15 +198,20 @@ class ReportingPersonController extends Controller
             'countries' => $libData['countries'],
             'nationalities' => $libData['nationalities'],
         ];
+
         return view('case.participant.reporting-person.edit', $viewData);
     }
 
     public function update(Request $request, $accidentId, $id)
     {
+        // Validation
         $validator = $this->validateForm($request);
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
+
+        $accidentId = $accidentId;
 
         $identityType = htmlspecialchars($request->identityType);
         $identityNumber = htmlspecialchars($request->identityNumber);
@@ -234,10 +250,9 @@ class ReportingPersonController extends Controller
         $isUnknownAddress = filter_var($request->isUnknownAddress, FILTER_VALIDATE_BOOLEAN);
 
         DB::beginTransaction();
-        try {
+        try{
             ReportingPerson::where('id', $id)->update([
                 'accident_id' => $accidentId,
-                
                 'identity_type_id' => $identityType,
                 'identity_number' => $identityNumber,
                 'name' => $name,
@@ -276,50 +291,77 @@ class ReportingPersonController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page' => 'participants'])->with('success', 'Data berhasil diubah');
-        } catch (\Exception $e) {
+
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page'=>'participants'])->with('success','Data berhasil diubah');
+        } catch(\Exception $e){
             DB::rollBack();
-            Log::error('ReporterPersonController : ', [$e->getMessage()]);
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengubah data');
+            Log::error('ReportingPersonController : ', [$e->getMessage()]);
+            return redirect()->back()->with('error','Terjadi kesalahan saat mengubah data');
         }
     }
 
     public function delete($accidentId, $id)
     {
+        $accidentId = $accidentId;
+        $id = $id;
+        
         DB::beginTransaction();
-        try {
-            $reportedPerson = ReportingPerson::find($id);
-            $reportedPerson->delete();
+        try{
+            $reportingPerson = ReportingPerson::find($id);
+            $reportingPerson->delete();
+
             DB::commit();
-            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page' => 'participants'])->with('success', 'Data berhasil dihapus');
-        } catch (\Exception $e) {
+
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page'=>'participants'])->with('success','Data berhasil dihapus');
+        } catch(\Exception $e){
             DB::rollBack();
-            Log::error('ReporterPersonController : ', [$e->getMessage()]);
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus data');
+            Log::error('ReportingPersonController : ', [$e->getMessage()]);
+            return redirect()->back()->with('error','Terjadi kesalahan saat menghapus data');
         }
+
     }
 
     public function getLocations(Request $request, $accidentId)
     {
         $class = $request->class;
         $parent_id = $request->parent_id;
+
         $locations = Location::where('is_active', true)
                         ->where('parent_id', $parent_id)
                         ->where('class', $class)
                         ->get();
-        return response()->json(['status' => 'success', 'code' => 200, 'data' => $locations], 200);
+
+        return response()->json([
+            'status' => 'success',
+            'code' => 200,
+            'data' => $locations
+        ], 200);
     }
 
     public function validateRequestForm(Request $request, $accidentId)
     {
-        try {
+        try{
             $validator = $this->validateForm($request);
+
             if ($validator->fails()) {
-                return response()->json(['success' => false, 'code' => 422, 'errors' => $validator->errors()], 422);
+                return response()->json([
+                    'success' => false,
+                    'code' => 422,
+                    'errors' => $validator->errors()
+                ], 422);
             }
-            return response()->json(['success' => true, 'code' => 200, 'message' => 'Silahkan menunggu proses simpan data'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'errors' => 'Terjadi kesalahan pada sistem.', 'code' => 500], 500);
+
+            return response()->json([
+                'success' => true,
+                'code' => 200,
+                'message' => 'Silahkan menunggu proses simpan data',
+            ], 200);
+        }catch(\Exception $e){
+            return response()->json([
+                'success' => false, 
+                'errors' => 'Terjadi kesalahan pada sistem.',
+                'code' => 500,
+            ], 500);
         }
     }
 
@@ -327,57 +369,79 @@ class ReportingPersonController extends Controller
     {
         return Validator::make($request->all(), [
             'identityType' => 'required',
-            'identityNumber' => 'required|max:255',
-            'name' => 'required|max:255',
+            'identityNumber' => 'required | max:255',
+            'name' => 'required | max:255',
             'aliasName' => 'max:255',
             'gender' => 'required_unless:isUnknownGender,true',
-            'birthPlace' => 'required|max:255',
+            'birthPlace' => 'required | max:255',
             'birthDate' => 'required_unless:isUnknownBirthDate,true',
-            'father' => 'required|max:255',
-            'mother' => 'required|max:255',
+            'father' => 'required | max:255',
+            'mother' => 'required | max:255',
             'nationality' => 'required',
             'ethnic' => 'required',
             'job' => 'required',
             'religion' => 'required',
             'education' => 'required',
             'maritalStatus' => 'required_unless:isUnknownMaritalStatus,true',
-            'phoneNumber' => 'required|max:255',
-            'email' => 'required|max:255',
+            'phoneNumber' => 'required | max:255',
+            'email' => 'required | max:255',
             'country' => 'required',
             'province' => 'required_if:country,C101',
             'regency' => 'required_if:country,C101',
             'district' => 'required_if:country,C101',
             'village' => 'required_if:country,C101',
             'subVillage' => 'max:255',
-            'address' => 'required|max:255',
+            'address' => 'required | max:255',
         ], [
             'identityType.required' => 'Jenis Identitas harus diisi',
+
             'identityNumber.required' => 'No Identitas harus diisi',
             'identityNumber.max' => 'No Identitas maksimal 255 karakter',
+
             'name.required' => 'Nama harus diisi',
             'name.max' => 'Nama maksimal 255 karakter',
+
             'gender.required_unless' => 'Jenis Kelamin harus diisi',
+
             'birthPlace.required' => 'Tempat Lahir harus diisi',
             'birthPlace.max' => 'Tempat Lahir maksimal 255 karakter',
+
             'birthDate.required_unless' => 'Tgl. Lahir harus diisi',
+
             'nationality.required' => 'Kewarganegaraan harus diisi',
+
             'father.required' => 'Ayah harus diisi',
             'father.max' => 'Ayah maksimal 255 karakter',
+
             'mother.required' => 'Ibu harus diisi',
             'mother.max' => 'Ibu maksimal 255 karakter',
+
             'ethnic.required' => 'Suku harus diisi',
+
             'job.required' => 'Pekerjaan harus diisi',
+
             'religion.required' => 'Agama harus diisi',
+
             'education.required' => 'Pendidikan harus diisi',
+
             'maritalStatus.required_unless' => 'Status Perkawinan harus diisi',
+
             'phoneNumber.required' => 'No. Telepon harus diisi',
+
             'email.required' => 'Email harus diisi',
+
             'country.required' => 'Negara harus diisi',
+
             'province.required_if' => 'Provinsi harus diisi',
+
             'regency.required_if' => 'Kabupaten/Kota harus diisi',
+
             'district.required_if' => 'Kecamatan harus diisi',
+
             'village.required_if' => 'Desa/Kelurahan harus diisi',
+
             'subVillage.max' => 'Sub Desa/Kelurahan maksimal 255 karakter',
+
             'address.required' => 'Alamat harus diisi',
             'address.max' => 'Alamat maksimal 255 karakter',
         ]);
