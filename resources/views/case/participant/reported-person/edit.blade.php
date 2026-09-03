@@ -533,46 +533,59 @@
 
             // Listener perubahan Jenis Identitas untuk Maxlength
             function updateIdentityNumberLimits() {
-                var idType = $('#identityType option:selected').data('identity-type-name') || '';
+                var $selected = $('#identityType').find('option:selected');
+                var idType = (($selected.data('identity-type-name') || '') + ' ' + ($selected.text() || '')).toUpperCase();
                 var $idNum = $('#identityNumber');
                 
-                if (idType.includes('KTP') || idType.includes('Kartu Keluarga')) {
-                    $idNum.attr('maxlength', 16);
+                var max = null;
+                if (idType.includes('KTP') || idType.includes('KARTU KELUARGA') || idType.includes('KK')) {
+                    max = 16;
                 } else if (idType.includes('SIM')) {
-                    $idNum.attr('maxlength', 16);
-                } else if (idType.includes('Paspor')) {
-                    $idNum.attr('maxlength', 9);
+                    max = 16;
+                } else if (idType.includes('PASPOR') || idType.includes('PASSPORT')) {
+                    max = 9;
+                }
+
+                if (max) {
+                    $idNum.attr('maxlength', max);
                 } else {
                     $idNum.removeAttr('maxlength');
                 }
 
-                var max = $idNum.attr('maxlength');
-                if (max) {
-                    var val = $idNum.val();
-                    if (val && val.length > parseInt(max)) {
-                        $idNum.val(val.substring(0, parseInt(max)));
-                    }
+                var val = $idNum.val();
+                if (max && val && val.length > max) {
+                    $idNum.val(val.substring(0, max));
                 }
             }
 
             $(document).on('change select2:select', '#identityType', function() {
                 updateIdentityNumberLimits();
+                $('#identityNumber').trigger('input');
             });
 
-            $(document).on('input keyup paste', '#identityNumber', function() {
-                var idType = $('#identityType option:selected').data('identity-type-name') || '';
-                var val = $(this).val();
+            $(document).on('input keyup paste change', '#identityNumber', function() {
+                var $selected = $('#identityType').find('option:selected');
+                var idType = (($selected.data('identity-type-name') || '') + ' ' + ($selected.text() || '')).toUpperCase();
+                var val = $(this).val() || '';
 
-                if (idType.includes('KTP') || idType.includes('Kartu Keluarga') || idType.includes('SIM')) {
-                    var cleanVal = val.replace(/\D/g, '');
-                    if (cleanVal !== val) {
-                        $(this).val(cleanVal);
-                    }
-                } else if (idType.includes('Paspor')) {
-                    var cleanVal = val.replace(/[^a-zA-Z0-9]/g, '');
-                    if (cleanVal !== val) {
-                        $(this).val(cleanVal);
-                    }
+                var max = null;
+                if (idType.includes('KTP') || idType.includes('KARTU KELUARGA') || idType.includes('KK')) {
+                    max = 16;
+                    val = val.replace(/\D/g, '');
+                } else if (idType.includes('SIM')) {
+                    max = 16;
+                    val = val.replace(/\D/g, '');
+                } else if (idType.includes('PASPOR') || idType.includes('PASSPORT')) {
+                    max = 9;
+                    val = val.replace(/[^a-zA-Z0-9]/g, '');
+                }
+
+                if (max && val.length > max) {
+                    val = val.substring(0, max);
+                }
+
+                if ($(this).val() !== val) {
+                    $(this).val(val);
                 }
             });
 
