@@ -305,11 +305,17 @@
                 <label class="fw-bold col-sm-2 col-form-label" for="phoneNumber">Nomor Telepon
                 </label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12">
+                    @php
+                        $phoneVal = old('phoneNumber', $reportingPerson->phone_number);
+                        $hasPhoneNum = !empty($phoneVal) && $phoneVal !== 'TIDAK ADA NOMOR TELEPON';
+                        $isExistsPhone = old('isExistsPhoneNumber', ($reportingPerson->is_exists_phone_number !== null ? var_export((bool)$reportingPerson->is_exists_phone_number, true) : ($hasPhoneNum ? 'true' : 'false')));
+                        $isAvailPhone = old('isAvailablePhoneNumber', ($reportingPerson->is_available_phone_number !== null ? var_export((bool)$reportingPerson->is_available_phone_number, true) : ($phoneVal !== 'TIDAK BERSEDIA MEMBERIKAN NOMOR TELEPON' ? 'true' : 'false')));
+                    @endphp
                     <div class="d-flex mb-2">
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio"
                                 id="existsPhoneNumber"
-                                name="isExistsPhoneNumber" value="true" @if(old('isExistsPhoneNumber', var_export($reportingPerson->is_exists_phone_number, true)) == 'true') checked @endif>
+                                name="isExistsPhoneNumber" value="true" @if($isExistsPhone == 'true') checked @endif>
                             <label for="existsPhoneNumber">
                                 Ada Nomor Telepon
                             </label>
@@ -318,7 +324,7 @@
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio"
                                 id="notExistsPhoneNumber"
-                                name="isExistsPhoneNumber" value="false" @if(old('isExistsPhoneNumber', var_export($reportingPerson->is_exists_phone_number, true)) == 'false') checked @endif>
+                                name="isExistsPhoneNumber" value="false" @if($isExistsPhone == 'false') checked @endif>
                             <label for="notExistsPhoneNumber">
                                 Tidak ada Nomor Telepon
                             </label>
@@ -326,12 +332,12 @@
                     </div>
 
                     <input type="text" class="form-control mb-2" id="phoneNumber" name="phoneNumber"
-                        placeholder="Nomor Telepon" value="{{ old('phoneNumber', $reportingPerson->phone_number) }}">
+                        placeholder="Nomor Telepon" value="{{ $phoneVal }}">
 
                     <div class="form-check m-1">
                         <input class="form-check-input" type="checkbox"
                             id="isAvailablePhoneNumber" name="isAvailablePhoneNumber" 
-                            value="true" aria-label="..." @if(old('isAvailablePhoneNumber', var_export($reportingPerson->is_available_phone_number, true)) == 'true') checked @endif>
+                            value="true" aria-label="..." @if($isAvailPhone == 'true') checked @endif>
                         <label for="isAvailablePhoneNumber">
                             Bersedia memberikan nomor telepon?
                         </label>
@@ -342,10 +348,16 @@
             <div class="input-group row mb-3 ms-0">
                 <label class="fw-bold col-sm-2 col-form-label" for="email">Email</label>
                 <div class="col-lg-8 col-md-8 col-sm-12 col-12">
+                    @php
+                        $emailVal = old('email', $reportingPerson->email);
+                        $hasEmailNum = !empty($emailVal) && $emailVal !== 'TIDAK ADA EMAIL';
+                        $isExistsEmailVal = old('isExistsEmail', ($reportingPerson->is_exists_email !== null ? var_export((bool)$reportingPerson->is_exists_email, true) : ($hasEmailNum ? 'true' : 'false')));
+                        $isAvailEmailVal = old('isAvailableEmail', ($reportingPerson->is_available_email !== null ? var_export((bool)$reportingPerson->is_available_email, true) : ($emailVal !== 'TIDAK BERSEDIA MEMBERIKAN EMAIL' ? 'true' : 'false')));
+                    @endphp
                     <div class="d-flex mb-3">
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio" id="existsEmail"
-                                name="isExistsEmail" value="true" @if(old('isExistsEmail', var_export($reportingPerson->is_exists_email, true)) == 'true') checked @endif>
+                                name="isExistsEmail" value="true" @if($isExistsEmailVal == 'true') checked @endif>
                             <label for="existsEmail">
                                 Ada Email
                             </label>
@@ -353,7 +365,7 @@
 
                         <div class="form-check m-1">
                             <input class="form-check-input" type="radio" id="notExistsEmail"
-                                name="isExistsEmail" value="false" @if(old('isExistsEmail', var_export($reportingPerson->is_exists_email, true)) == 'false') checked @endif>
+                                name="isExistsEmail" value="false" @if($isExistsEmailVal == 'false') checked @endif>
                             <label for="notExistsEmail">
                                 Tidak ada Email
                             </label>
@@ -361,12 +373,12 @@
                     </div>
 
                     <input type="text" class="form-control mb-2" id="email" name="email"
-                        placeholder="Email" value="{{ old('email', $reportingPerson->email) }}">
+                        placeholder="Email" value="{{ $emailVal }}">
 
                     <div class="form-check m-1">
                         <input class="form-check-input" type="checkbox" 
                             id="isAvailableEmail" name="isAvailableEmail"
-                            value="true" aria-label="..." @if(old('isAvailableEmail', var_export($reportingPerson->is_available_email, true)) == "true") checked @endif>
+                            value="true" aria-label="..." @if($isAvailEmailVal == 'true') checked @endif>
                         <label for="isAvailableEmail">
                             Bersedia memberikan email?
                         </label>
