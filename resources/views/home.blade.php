@@ -2771,7 +2771,10 @@
 
             window.modernBarChart = echarts.init(document.getElementById('modernChartBar'));
             var barOption = {
-                color: ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#f97316', '#6366f1', '#14b8a6', '#0284c7', '#4f46e5'],
+                // Warna Lama:
+                // color: ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#f97316', '#6366f1', '#14b8a6', '#0284c7', '#4f46e5'],
+                // Warna Baru (Harmonisasi Seimbang dengan #222577):
+                color: ['#222577', '#198754', '#ca8a04', '#6f42c1', '#0891b2', '#c2410c', '#1d4ed8', '#15803d', '#d97706', '#5b21b6', '#0e7490', '#991b1b'],
                 title: {
                     text: 'Jumlah LP Ditindaklanjuti Per-Bulan',
                     textStyle: {
@@ -2944,24 +2947,30 @@
                     get_percentage.push([data[0].jumlah_selra[x].percentage]);
                 }
 
-                // --- Map data untuk ECharts Donut dengan warna persis seperti Daftar Produktivitas tapi diturunkan 5% dari neon pekat
+                // --- Map data untuk ECharts Donut dengan palet warna harmonis & berbobot gelap-terang seimbang dengan #222577 (Navy Base)
                 var echartsPieData = data[0].jumlah_selra.map(function(item) {
-                    var color = '#e6e600'; // Default: Kuning Terang Muted
+                    // var color = '#e6e600'; // Warna Lama: Default Kuning Terang Muted
+                    var color = '#ca8a04';    // Warna Baru: Muted Warm Gold
                     var nameUpper = item.name.toUpperCase();
                     if (nameUpper.indexOf('SP2LID') !== -1) {
-                        color = '#0000e6'; // Biru Terang Muted (S0103)
+                        // color = '#0000e6'; // Warna Lama: Biru Terang Muted (S0103)
+                        color = '#222577';    // Warna Baru: Navy Base / Sidebar (#222577)
                     } else if (nameUpper.indexOf('P21') !== -1) {
-                        color = '#00e600'; // Hijau Terang Muted (S0101)
+                        // color = '#00e600'; // Warna Lama: Hijau Terang Muted (S0101)
+                        color = '#198754';    // Warna Baru: Emerald Forest Green
                     } else if (nameUpper.indexOf('SP3') !== -1) {
-                        color = '#00e6e6'; // Cyan Terang Muted (S0102)
+                        // color = '#00e6e6'; // Warna Lama: Cyan Terang Muted (S0102)
+                        color = '#0891b2';    // Warna Baru: Deep Ocean Teal / Cyan
                     } else if (nameUpper.indexOf('DIVERSI') !== -1) {
-                        color = '#e600e6'; // Magenta Terang Muted (S0104)
+                        // color = '#e600e6'; // Warna Lama: Magenta Terang Muted (S0104)
+                        color = '#6f42c1';    // Warna Baru: Royal Purple / Violet
                     } else if (nameUpper.indexOf('POM') !== -1 || nameUpper.indexOf('TNI') !== -1) {
-                        color = '#e68a00'; // Oranye Terang Muted (S0108)
+                        // color = '#e68a00'; // Warna Lama: Oranye Terang Muted (S0108)
+                        color = '#c2410c';    // Warna Baru: Terracotta / Burnt Orange
                     } else {
-                        color = '#e6e600'; // Kuning Terang Muted (S0106 / Lainnya)
-                    }
-                    return { 
+                        // color = '#e6e600'; // Warna Lama: Kuning Terang Muted (S0106 / Lainnya)
+                        color = '#ca8a04';    // Warna Baru: Muted Warm Gold (S0106 / Lainnya)
+return { 
                         name: item.name, 
                         value: Number(item.percentage),
                         itemStyle: { color: color }
