@@ -20,9 +20,7 @@
                         </div>
                     </div>
                     <div class="card-footer d-grid gap-2 border-0">
-                        <button class="viewdata">
-                            <a class="view-data" href="{{ route('produktivitas') }}">Lihat</a>
-                        </button>
+                        <a class="card-action-btn" href="{{ route('produktivitas') }}">Lihat</a>
                     </div>
                 </div>
             </div>
@@ -38,9 +36,7 @@
                         </div>
                     </div>
                     <div class="card-footer d-grid gap-2 border-0">
-                        <button class="viewdata">
-                            <a class="view-data" href="{{ route('index_dpo') }}">Lihat</a>
-                        </button>
+                        <a class="card-action-btn" href="{{ route('index_dpo') }}">Lihat</a>
                     </div>
                 </div>
             </div>
@@ -56,9 +52,7 @@
                         </div>
                     </div>
                     <div class="card-footer d-grid gap-2 border-0">
-                        <button class="viewdata">
-                            <a class="view-data" href="{{ route('index_dpb') }}">Lihat</a>
-                        </button>
+                        <a class="card-action-btn" href="{{ route('index_dpb') }}">Lihat</a>
                     </div>
                 </div>
             </div>
@@ -1180,10 +1174,37 @@
           });
   
           // Resize handler untuk menjaga responsiveness ECharts saat viewport berubah
-          window.addEventListener('resize', function() {
-              if (window.modernBarChart) window.modernBarChart.resize();
-              if (window.modernPieChart) window.modernPieChart.resize();
-          });
-          // Build the chart
-      </script>
+        window.addEventListener('resize', function() {
+            if (window.modernBarChart) window.modernBarChart.resize();
+            if (window.modernPieChart) window.modernPieChart.resize();
+        });
+
+        // UX: Indikator Loading & Pencegahan Double/Multi Click pada Tombol Lihat Card
+        document.querySelectorAll('.card-action-btn').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                // Biarkan membuka tab baru jika pengguna klik dengan Ctrl/Cmd/Shift/Middle Click
+                if (e.ctrlKey || e.metaKey || e.shiftKey || e.which === 2) {
+                    return;
+                }
+
+                // Cegah klik berulang saat sedang proses memuat
+                if (this.classList.contains('is-loading')) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Berikan feedback visual langsung (loading spinner) dan disable klik berikutnya
+                this.classList.add('is-loading');
+                this.innerHTML = '<span class="btn-spinner"></span> Memuat...';
+            });
+        });
+
+        // Reset state tombol jika pengguna kembali dari riwayat navigasi browser (BFCache)
+        window.addEventListener('pageshow', function() {
+            document.querySelectorAll('.card-action-btn').forEach(function(button) {
+                button.classList.remove('is-loading');
+                button.innerHTML = 'Lihat';
+            });
+        });
+    </script>
 @endpush

@@ -184,3 +184,52 @@
     min-height: 400px;
     width: 100%;
 }
+
+/* Card Action Button with Loading UX */
+.card-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background: rgb(34, 37, 119) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none !important;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: none;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.card-action-btn:hover {
+    background: rgb(45, 49, 159) !important;
+    color: #ffffff !important;
+}
+
+.card-action-btn.is-loading {
+    opacity: 0.8;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.card-action-btn .btn-spinner {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: btn-spin 0.75s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes btn-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
