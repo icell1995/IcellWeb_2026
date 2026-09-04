@@ -1,181 +1,7 @@
 @extends('layouts.app')
 
 @push('style')
-    <style>
-        .regional-police-table-row-bg-color-01 {
-            background-color: #FFEECC;
-        }
-
-        .regional-police-table-row-bg-color-02 {
-            background-color: #CCFFEE;
-        }
-
-        .regional-police-table-row-bg-color-03 {
-            background-color: #FFCCCC;
-        }
-
-        .regional-police-table-row-bg-color-04 {
-            background-color: #CCFFCC;
-        }
-
-        .regional-police-table-row-bg-color-05 {
-            background-color: #CCE5FF;
-        }
-
-        .regional-police-table-row-bg-color-06 {
-            background-color: #FFF3CD;
-        }
-
-        .regional-police-table-row-bg-color-07 {
-            background-color: #D1E7DD;
-        }
-
-        .regional-police-table-row-bg-color-08 {
-            background-color: #F8D7DA;
-        }
-
-        .regional-police-table-row-bg-color-09 {
-            background-color: #E2E3E5;
-        }
-
-        .regional-police-table-row-bg-color-10 {
-            background-color: #CFE2FF;
-        }
-
-        .regional-police-table-row-bg-color-11 {
-            background-color: #FFDDC1;
-        }
-
-        .regional-police-table-row-bg-color-12 {
-            background-color: #E1FFE7;
-        }
-
-        .regional-police-table-row-bg-color-13 {
-            background-color: #FFF9C4;
-        }
-
-        .regional-police-table-row-bg-color-14 {
-            background-color: #FFCCFF;
-        }
-
-        .regional-police-table-row-bg-color-15 {
-            background-color: #D0E1F9;
-        }
-
-        .regional-police-table-row-bg-color-16 {
-            background-color: #FDE9D9;
-        }
-
-        .regional-police-table-row-bg-color-17 {
-            background-color: #CCFFFF;
-        }
-
-        .regional-police-table-row-bg-color-18 {
-            background-color: #FFFFCC;
-        }
-
-        .regional-police-table-row-bg-color-19 {
-            background-color: #FFC1CC;
-        }
-
-        .regional-police-table-row-bg-color-20 {
-            background-color: #E6FFCC;
-        }
-
-        .regional-police-table-row-bg-color-21 {
-            background-color: #FFD1DC;
-        }
-
-        .regional-police-table-row-bg-color-22 {
-            background-color: #FFEBCC;
-        }
-
-        .regional-police-table-row-bg-color-23 {
-            background-color: #F1E4FF;
-        }
-
-        .regional-police-table-row-bg-color-24 {
-            background-color: #FFEECC;
-        }
-
-        .regional-police-table-row-bg-color-25 {
-            background-color: #CCE5FF;
-        }
-
-        .regional-police-table-row-bg-color-26 {
-            background-color: #FFCCFF;
-        }
-
-        .regional-police-table-row-bg-color-27 {
-            background-color: #FFCCCC;
-        }
-
-        .regional-police-table-row-bg-color-28 {
-            background-color: #CCFFEE;
-        }
-
-        .regional-police-table-row-bg-color-29 {
-            background-color: #FFFF99;
-        }
-
-        .regional-police-table-row-bg-color-30 {
-            background-color: #FFDDC1;
-        }
-
-        .regional-police-table-row-bg-color-31 {
-            background-color: #E1FFE7;
-        }
-
-        .regional-police-table-row-bg-color-32 {
-            background-color: #FFF3CD;
-        }
-
-        .regional-police-table-row-bg-color-33 {
-            background-color: #CCFFCC;
-        }
-
-        .regional-police-table-row-bg-color-34 {
-            background-color: #FFD1DC;
-        }
-
-        .header {
-            position: sticky;
-            top: 0;
-        }
-
-        .table-responsive {
-            overflow-y: scroll;
-            height: 85vh;
-        }
-
-        .marked-column {
-            transition: background-color 1s ease, color 1s ease;
-            /* Smooth transition for background and text color */
-        }
-
-        .marquee-container {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            color: white;
-
-        }
-
-        .marquee-text {
-            display: inline-block;
-            animation: marquee 15s linear infinite alternate;
-        }
-
-        @keyframes marquee {
-            from {
-                transform: translateX(0%);
-            }
-
-            to {
-                transform: translateX(-200%);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/home-dashboard.css') }}">
 @endpush
 
 @section('content')
@@ -258,12 +84,12 @@
         <div class="row">
             <div class="col-lg-7 col-md-7 col-sm-12 col-12 mb-2">
                 <div class="card shadow rounded-4 p-3 border-0 bg-white">
-                    <div id="modernChartBar" style="height: calc(100vh - 290px); min-height: 400px; width: 100%;"></div>
+                    <div id="modernChartBar" class="modern-chart-container"></div>
                 </div>
             </div>
             <div class="col-lg-5 col-md-5 col-sm-12 col-12 mb-2">
                 <div class="card shadow rounded-4 p-3 border-0 bg-white">
-                    <div id="modernChartPie" style="height: calc(100vh - 290px); min-height: 400px; width: 100%;"></div>
+                    <div id="modernChartPie" class="modern-chart-container"></div>
                 </div>
             </div>
         </div>
