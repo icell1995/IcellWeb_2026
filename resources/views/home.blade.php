@@ -2,53 +2,155 @@
 
 @push('style')
     <style>
-        .regional-police-table-row-bg-color-01 { background-color: #FFEECC; }
-        .regional-police-table-row-bg-color-02 { background-color: #CCFFEE; }
-        .regional-police-table-row-bg-color-03 { background-color: #FFCCCC; }
-        .regional-police-table-row-bg-color-04 { background-color: #CCFFCC; }
-        .regional-police-table-row-bg-color-05 { background-color: #CCE5FF; }
-        .regional-police-table-row-bg-color-06 { background-color: #FFF3CD; }
-        .regional-police-table-row-bg-color-07 { background-color: #D1E7DD; }
-        .regional-police-table-row-bg-color-08 { background-color: #F8D7DA; }
-        .regional-police-table-row-bg-color-09 { background-color: #E2E3E5; }
-        .regional-police-table-row-bg-color-10 { background-color: #CFE2FF; }
-        .regional-police-table-row-bg-color-11 { background-color: #FFDDC1; }
-        .regional-police-table-row-bg-color-12 { background-color: #E1FFE7; }
-        .regional-police-table-row-bg-color-13 { background-color: #FFF9C4; }
-        .regional-police-table-row-bg-color-14 { background-color: #FFCCFF; }
-        .regional-police-table-row-bg-color-15 { background-color: #D0E1F9; }
-        .regional-police-table-row-bg-color-16 { background-color: #FDE9D9; }
-        .regional-police-table-row-bg-color-17 { background-color: #CCFFFF; }
-        .regional-police-table-row-bg-color-18 { background-color: #FFFFCC; }
-        .regional-police-table-row-bg-color-19 { background-color: #FFC1CC; }
-        .regional-police-table-row-bg-color-20 { background-color: #E6FFCC; }
-        .regional-police-table-row-bg-color-21 { background-color: #FFD1DC; }
-        .regional-police-table-row-bg-color-22 { background-color: #FFEBCC; }
-        .regional-police-table-row-bg-color-23 { background-color: #F1E4FF; }
-        .regional-police-table-row-bg-color-24 { background-color: #FFEECC; }
-        .regional-police-table-row-bg-color-25 { background-color: #CCE5FF; }
-        .regional-police-table-row-bg-color-26 { background-color: #FFCCFF; }
-        .regional-police-table-row-bg-color-27 { background-color: #FFCCCC; }
-        .regional-police-table-row-bg-color-28 { background-color: #CCFFEE; }
-        .regional-police-table-row-bg-color-29 { background-color: #FFFF99; }
-        .regional-police-table-row-bg-color-30 { background-color: #FFDDC1; }
-        .regional-police-table-row-bg-color-31 { background-color: #E1FFE7; }
-        .regional-police-table-row-bg-color-32 { background-color: #FFF3CD; }
-        .regional-police-table-row-bg-color-33 { background-color: #CCFFCC; }
-        .regional-police-table-row-bg-color-34 { background-color: #FFD1DC; }
-
-        .header{
-            position:sticky;
-            top: 0 ;
+        .regional-police-table-row-bg-color-01 {
+            background-color: #FFEECC;
         }
 
-        .table-responsive{
+        .regional-police-table-row-bg-color-02 {
+            background-color: #CCFFEE;
+        }
+
+        .regional-police-table-row-bg-color-03 {
+            background-color: #FFCCCC;
+        }
+
+        .regional-police-table-row-bg-color-04 {
+            background-color: #CCFFCC;
+        }
+
+        .regional-police-table-row-bg-color-05 {
+            background-color: #CCE5FF;
+        }
+
+        .regional-police-table-row-bg-color-06 {
+            background-color: #FFF3CD;
+        }
+
+        .regional-police-table-row-bg-color-07 {
+            background-color: #D1E7DD;
+        }
+
+        .regional-police-table-row-bg-color-08 {
+            background-color: #F8D7DA;
+        }
+
+        .regional-police-table-row-bg-color-09 {
+            background-color: #E2E3E5;
+        }
+
+        .regional-police-table-row-bg-color-10 {
+            background-color: #CFE2FF;
+        }
+
+        .regional-police-table-row-bg-color-11 {
+            background-color: #FFDDC1;
+        }
+
+        .regional-police-table-row-bg-color-12 {
+            background-color: #E1FFE7;
+        }
+
+        .regional-police-table-row-bg-color-13 {
+            background-color: #FFF9C4;
+        }
+
+        .regional-police-table-row-bg-color-14 {
+            background-color: #FFCCFF;
+        }
+
+        .regional-police-table-row-bg-color-15 {
+            background-color: #D0E1F9;
+        }
+
+        .regional-police-table-row-bg-color-16 {
+            background-color: #FDE9D9;
+        }
+
+        .regional-police-table-row-bg-color-17 {
+            background-color: #CCFFFF;
+        }
+
+        .regional-police-table-row-bg-color-18 {
+            background-color: #FFFFCC;
+        }
+
+        .regional-police-table-row-bg-color-19 {
+            background-color: #FFC1CC;
+        }
+
+        .regional-police-table-row-bg-color-20 {
+            background-color: #E6FFCC;
+        }
+
+        .regional-police-table-row-bg-color-21 {
+            background-color: #FFD1DC;
+        }
+
+        .regional-police-table-row-bg-color-22 {
+            background-color: #FFEBCC;
+        }
+
+        .regional-police-table-row-bg-color-23 {
+            background-color: #F1E4FF;
+        }
+
+        .regional-police-table-row-bg-color-24 {
+            background-color: #FFEECC;
+        }
+
+        .regional-police-table-row-bg-color-25 {
+            background-color: #CCE5FF;
+        }
+
+        .regional-police-table-row-bg-color-26 {
+            background-color: #FFCCFF;
+        }
+
+        .regional-police-table-row-bg-color-27 {
+            background-color: #FFCCCC;
+        }
+
+        .regional-police-table-row-bg-color-28 {
+            background-color: #CCFFEE;
+        }
+
+        .regional-police-table-row-bg-color-29 {
+            background-color: #FFFF99;
+        }
+
+        .regional-police-table-row-bg-color-30 {
+            background-color: #FFDDC1;
+        }
+
+        .regional-police-table-row-bg-color-31 {
+            background-color: #E1FFE7;
+        }
+
+        .regional-police-table-row-bg-color-32 {
+            background-color: #FFF3CD;
+        }
+
+        .regional-police-table-row-bg-color-33 {
+            background-color: #CCFFCC;
+        }
+
+        .regional-police-table-row-bg-color-34 {
+            background-color: #FFD1DC;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+        }
+
+        .table-responsive {
             overflow-y: scroll;
             height: 85vh;
         }
 
         .marked-column {
-            transition: background-color 1s ease, color 1s ease; /* Smooth transition for background and text color */
+            transition: background-color 1s ease, color 1s ease;
+            /* Smooth transition for background and text color */
         }
 
         .marquee-container {
@@ -56,15 +158,22 @@
             overflow: hidden;
             white-space: nowrap;
             color: white;
-           
+
         }
+
         .marquee-text {
             display: inline-block;
             animation: marquee 15s linear infinite alternate;
         }
+
         @keyframes marquee {
-            from { transform: translateX(0%); }
-            to { transform: translateX(-200%); }
+            from {
+                transform: translateX(0%);
+            }
+
+            to {
+                transform: translateX(-200%);
+            }
         }
     </style>
 @endpush
@@ -74,7 +183,7 @@
 
         <div class="row mb-3">
             <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-2">
-                <div class="card shadow rounded-4 text-bg-lgiht">
+                <div class="card shadow rounded-4 border-0 bg-white">
                     <div class="d-flex flex-wrap p-3">
                         <div
                             class="count-total text-center border-end border-3 border-blue col-lg-5 col-md-5 col-sm-12 col-12">
@@ -92,7 +201,7 @@
                 </div>
             </div>
             <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-2">
-                <div class="card shadow rounded-4 text-bg-lgiht">
+                <div class="card shadow rounded-4 border-0 bg-white">
                     <div class="d-flex flex-wrap p-3">
                         <div
                             class="count-total text-center border-end border-3 border-blue col-lg-5 col-md-5 col-sm-12 col-12">
@@ -104,13 +213,13 @@
                     </div>
                     <div class="card-footer d-grid gap-2 border-0">
                         <button class="viewdata">
-                            <a class="view-data" href="{{route('index_dpo')}}">Lihat</a>
+                            <a class="view-data" href="{{ route('index_dpo') }}">Lihat</a>
                         </button>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-2">
-                <div class="card shadow rounded-4 text-bg-lgiht">
+                <div class="card shadow rounded-4 border-0 bg-white">
                     <div class="d-flex flex-wrap p-3">
                         <div
                             class="count-total text-center border-end border-3 border-blue col-lg-5 col-md-5 col-sm-12 col-12">
@@ -122,25 +231,39 @@
                     </div>
                     <div class="card-footer d-grid gap-2 border-0">
                         <button class="viewdata">
-                            <a class="view-data" href="{{route('index_dpb')}}">Lihat</a>
+                            <a class="view-data" href="{{ route('index_dpb') }}">Lihat</a>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row">
+        {{-- Chart Highcharts Lama (di-comment, diganti ECharts Modern) --}}
+        {{-- <div class="row">
             <div class="col-lg-7 col-md-7 col-sm-12 col-12 mb-2">
                 <div class="card shadow rounded-4 p-3">
                     <div id="chartBar">
                     </div>
-                </div> 
+                </div>
             </div>
             <div class="col-lg-5 col-md-5 col-sm-12 col-12 mb-2">
                 <div class="card shadow rounded-4 p-3">
                     <div id="chartPie">
 
                     </div>
+                </div>
+            </div>
+        </div> --}}
+
+        <div class="row">
+            <div class="col-lg-7 col-md-7 col-sm-12 col-12 mb-2">
+                <div class="card shadow rounded-4 p-3 border-0 bg-white">
+                    <div id="modernChartBar" style="height: calc(100vh - 290px); min-height: 400px; width: 100%;"></div>
+                </div>
+            </div>
+            <div class="col-lg-5 col-md-5 col-sm-12 col-12 mb-2">
+                <div class="card shadow rounded-4 p-3 border-0 bg-white">
+                    <div id="modernChartPie" style="height: calc(100vh - 290px); min-height: 400px; width: 100%;"></div>
                 </div>
             </div>
         </div>
@@ -159,7 +282,7 @@
                         <h4 class="fw-bold float-end text-danger mb-4 marquee-text">(AKAN DIUMUMKAN PADA SAAT RAKERNIS FUNGSI LALU LINTAS 2025)</h3>
                     </div>
                     <h3 class="fw-bold text-blue-dark mb-4">Kategori 1: Jumlah kasus lebih dari 5000 per tahun</h3>
-                    
+
                     <h6 class="fw-bold text-blue-dark mb-2 mt-2"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recapLombaBeginDate, $recapLombaLimitDate) }}</h6>
                     <h6 class="fw-bold text-blue-dark mb-2 mt-2"><i class="bi bi-pin-angle-fill"></i> Penilaian Ditutup H-1 Rakernis Fungsi Lalu Lintas</h6>
 
@@ -202,7 +325,7 @@
                                                     $recapLombaKategori1LeaderboardItemsPolda = $recapLombaKategori1LeaderboardItemsPolda->where('accident_total', '>', 5000);
                                                     $recapLombaKategori1LeaderboardItemsPolda = $recapLombaKategori1LeaderboardItemsPolda->sortBy('selra_total_weight_percentage')->reverse();
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -213,7 +336,7 @@
                                                         $leaderboardItems->push($specialItem);
                                                     }*/
                                                 @endphp
-                                              
+
                                                 @foreach ($recapLombaKategori1LeaderboardItemsPolda as $leaderboardItemPolda)
                                                      @php
                                                         $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'];
@@ -223,10 +346,10 @@
                                                         <th scope="row" class="text-center">
                                                             {{$loop->iteration}}
                                                         </th>
-                                                        <th scope="row" class="text-center">                                                      
+                                                        <th scope="row" class="text-center">
                                                             {{$leaderboardItemPolda['polda_name']}}
                                                         </th>
-        
+
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['accident_new_total'], 0, ',', '.')}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['p21_total'], 0, ',', '.')}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['p21_total_weight_percentage'], 2) . '%'}}</td>
@@ -238,7 +361,7 @@
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['sp2lid_total_weight_percentage'], 2) . '%'}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['selra_total_weight_percentage'], 2) . '%'}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['pom_tni_total'], 0, ',', '.')}}</td>
-                                                    </tr>    
+                                                    </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -269,9 +392,9 @@
                     <div class="marquee-container">
                         <h4 class="fw-bold float-end text-danger mb-4 marquee-text">(AKAN DIUMUMKAN PADA SAAT RAKERNIS FUNGSI LALU LINTAS 2025)</h3>
                     </div>
-                    
+
                     <h3 class="fw-bold text-blue-dark mb-4">Kategori 2: Jumlah kasus 1500 s/d 5000 per tahun</h3>
-                    
+
                     <h6 class="fw-bold text-blue-dark mb-2 mt-2"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recapLombaBeginDate, $recapLombaLimitDate) }}</h6>
                     <h6 class="fw-bold text-blue-dark mb-2 mt-2"><i class="bi bi-pin-angle-fill"></i> Penilaian Ditutup H-1 Rakernis Fungsi Lalu Lintas</h6>
 
@@ -314,7 +437,7 @@
                                                     $recapLombaKategori2LeaderboardItemsPolda = $recapLombaKategori2LeaderboardItemsPolda->whereBetween('accident_total', [1500, 5000]);
                                                     $recapLombaKategori2LeaderboardItemsPolda = $recapLombaKategori2LeaderboardItemsPolda->sortBy('selra_total_weight_percentage')->reverse();
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -325,7 +448,7 @@
                                                         $leaderboardItems->push($specialItem);
                                                     }*/
                                                 @endphp
-                                              
+
                                                 @foreach ($recapLombaKategori2LeaderboardItemsPolda as $leaderboardItemPolda)
                                                      @php
                                                         $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'];
@@ -335,10 +458,10 @@
                                                         <th scope="row" class="text-center">
                                                             {{$loop->iteration}}
                                                         </th>
-                                                        <th scope="row" class="text-center">                                                      
+                                                        <th scope="row" class="text-center">
                                                             {{$leaderboardItemPolda['polda_name']}}
                                                         </th>
-        
+
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['accident_new_total'], 0, ',', '.')}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['p21_total'], 0, ',', '.')}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['p21_total_weight_percentage'], 2) . '%'}}</td>
@@ -350,7 +473,7 @@
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['sp2lid_total_weight_percentage'], 2) . '%'}}</td>
                                                         <td class="text-center">{{ number_format($leaderboardItemPolda['selra_total_weight_percentage'], 2) . '%'}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['pom_tni_total'], 0, ',', '.')}}</td>
-                                                    </tr>    
+                                                    </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -384,9 +507,9 @@
                     <div class="marquee-container">
                         <h4 class="fw-bold float-end text-danger mb-4 marquee-text">(AKAN DIUMUMKAN PADA SAAT RAKERNIS FUNGSI LALU LINTAS 2025)</h3>
                     </div>
-                    
+
                     <h3 class="fw-bold text-blue-dark mb-4">Kategori 3: Jumlah kasus kurang dari 1500 per tahun</h3>
-                    
+
                     <h6 class="fw-bold text-blue-dark mb-2 mt-2"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recapLombaBeginDate, $recapLombaLimitDate) }}</h6>
                     <h6 class="fw-bold text-blue-dark mb-2 mt-2"><i class="bi bi-pin-angle-fill"></i> Penilaian Ditutup H-1 Rakernis Fungsi Lalu Lintas</h6>
 
@@ -429,7 +552,7 @@
                                                     $recapLombaKategori3LeaderboardItemsPolda = $recapLombaKategori3LeaderboardItemsPolda->where('accident_total', '<', 1500);
                                                     $recapLombaKategori3LeaderboardItemsPolda = $recapLombaKategori3LeaderboardItemsPolda->sortBy('selra_total_weight_percentage')->reverse();
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -440,7 +563,7 @@
                                                         $leaderboardItems->push($specialItem);
                                                     }*/
                                                 @endphp
-                                              
+
                                                 @foreach ($recapLombaKategori3LeaderboardItemsPolda as $leaderboardItemPolda)
                                                      @php
                                                         $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'];
@@ -450,10 +573,10 @@
                                                         <th scope="row" class="text-center">
                                                             {{$loop->iteration}}
                                                         </th>
-                                                        <th scope="row" class="text-center">                                                      
+                                                        <th scope="row" class="text-center">
                                                             {{$leaderboardItemPolda['polda_name']}}
                                                         </th>
-        
+
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['accident_new_total'], 0, ',', '.')}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['p21_total'], 0, ',', '.')}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['p21_total_weight_percentage'], 2) . '%'}}</td>
@@ -465,7 +588,7 @@
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['sp2lid_total_weight_percentage'], 2) . '%'}}</td>
                                                         <td class="text-center">{{ number_format($leaderboardItemPolda['selra_total_weight_percentage'], 2) . '%'}}</td>
                                                         <td class="text-center">{{number_format($leaderboardItemPolda['pom_tni_total'], 0, ',', '.')}}</td>
-                                                    </tr>    
+                                                    </tr>
                                                 @endforeach
                                             </tbody>
                                         </table>
@@ -488,16 +611,20 @@
     </div> --}}
 
     <!-- Modal Polda 2026 -->
-    <div class="modal fade" id="leaderboard2026Polda" data-bs-backdrop="static" data-bs-keyboard="false"aria-hidden="true" aria-labelledby="leaderboard2026PoldaLabel" tabindex="-1">
+    <div class="modal fade" id="leaderboard2026Polda" data-bs-backdrop="static" data-bs-keyboard="false"aria-hidden="true"
+        aria-labelledby="leaderboard2026PoldaLabel" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="leaderboard2026PoldaLabel">Rekapitulasi Selra Laka 2026</h1>
                 </div>
                 <div class="modal-body">
-                    <h3 class="fw-bold text-blue-dark mb-4">Rekapitulasi Selra Laka {{ Carbon\Carbon::parse($recap2026BeginDate)->locale('id')->translatedFormat('Y') }}</h3>
+                    <h3 class="fw-bold text-blue-dark mb-4">Rekapitulasi Selra Laka
+                        {{ Carbon\Carbon::parse($recap2026BeginDate)->locale('id')->translatedFormat('Y') }}</h3>
                     {{-- <h5 class="fw-bold text-blue-dark mb-4 mt-4">*( DITUTUP H-2 ACARA SYUKURAN HUT LANTAS ke-69 </h5> --}}
-                    <h6 class="fw-bold marked-text text-blue-dark mb-4 mt-4"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recap2026BeginDate, $recap2026LimitDate) }}</h6>
+                    <h6 class="fw-bold marked-text text-blue-dark mb-4 mt-4"><i class="bi bi-pin-angle-fill"></i> Dihitung
+                        Periode LP dari
+                        {{ App\Helpers\FormatDateHelper::formatDateRange($recap2026BeginDate, $recap2026LimitDate) }}</h6>
                     {{-- <h6 class="fw-bold text-blue-dark mb-4 mt-4">*( Untuk LP dengan tercantum selra RJ mohon untuk di update agar masuk ke dalam perhitungan </h6> --}}
 
                     <div class="row">
@@ -508,47 +635,78 @@
                                         <table class="table table-bordered">
                                             <thead class="header">
                                                 <tr>
-                                                    <th scope="col" rowspan="2" class="text-center" style="background-color: #fd7e14">No</th>
-                                                    <th scope="col" rowspan="2" class="text-center bg-warning">Polda</th>
+                                                    <th scope="col" rowspan="2" class="text-center"
+                                                        style="background-color: #fd7e14">No</th>
+                                                    <th scope="col" rowspan="2" class="text-center bg-warning">Polda
+                                                    </th>
                                                     {{-- <th scope="col" rowspan="2" class="text-center text-white" style="background-color:rgb(240, 13, 145)">Tunggakan 2024</th> --}}
-                                                    <th scope="col" rowspan="2" class="text-center" style="background-color: #0dcaf0">Jumlah LP <br/> (LP - Limpah)</th>
-                                                    <th scope="col" colspan="2" class="text-center text-white" style="background-color: #d63384">P21</th>
-                                                    <th scope="col" colspan="2" class="text-center text-white" style="background-color: #6610f2">SP3</th>
-                                                    <th scope="col" colspan="2" class="text-center text-white" style="background-color: #6f42c1">SP2LID</th>
-                                                    <th scope="col" colspan="2" class="text-center text-white bg-secondary">Diversi</th>
-                                                    <th scope="col" colspan="2" class="text-center bg-primary text-white">Total</th>
-                                                    <th scope="col" colspan="4" class="text-center bg-danger marked-column text-white">Tunggakan</th>
-                                                    <th scope="col" rowspan="2" class="text-center bg-secondary text-white">Limpah POM/TNI <br/> (Mengurangi Kasus)</th>
+                                                    <th scope="col" rowspan="2" class="text-center"
+                                                        style="background-color: #0dcaf0">Jumlah LP <br /> (LP - Limpah)
+                                                    </th>
+                                                    <th scope="col" colspan="2" class="text-center text-white"
+                                                        style="background-color: #d63384">P21</th>
+                                                    <th scope="col" colspan="2" class="text-center text-white"
+                                                        style="background-color: #6610f2">SP3</th>
+                                                    <th scope="col" colspan="2" class="text-center text-white"
+                                                        style="background-color: #6f42c1">SP2LID</th>
+                                                    <th scope="col" colspan="2"
+                                                        class="text-center text-white bg-secondary">Diversi</th>
+                                                    <th scope="col" colspan="2"
+                                                        class="text-center bg-primary text-white">Total</th>
+                                                    <th scope="col" colspan="4"
+                                                        class="text-center bg-danger marked-column text-white">Tunggakan
+                                                    </th>
+                                                    <th scope="col" rowspan="2"
+                                                        class="text-center bg-secondary text-white">Limpah POM/TNI <br />
+                                                        (Mengurangi Kasus)</th>
                                                 </tr>
                                                 <tr>
-                                                    <th scope="col" class="text-center text-white" style="background-color: #d63384">Jumlah</th>
-                                                    <th scope="col" class="text-center text-white" style="background-color: #d63384">%</th>
-                                                    
-                                                    <th scope="col" class="text-center text-white" style="background-color: #6610f2">Jumlah</th>
-                                                    <th scope="col" class="text-center text-white" style="background-color: #6610f2">%</th>
-                                                    
-                                                    <th scope="col" class="text-center text-white" style="background-color: #6f42c1">Jumlah</th>
-                                                    <th scope="col" class="text-center text-white" style="background-color: #6f42c1">%</th>
-                                                    
-                                                    <th scope="col" class="text-center text-white bg-secondary">Jumlah</th>
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #d63384">Jumlah</th>
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #d63384">%</th>
+
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #6610f2">Jumlah</th>
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #6610f2">%</th>
+
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #6f42c1">Jumlah</th>
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #6f42c1">%</th>
+
+                                                    <th scope="col" class="text-center text-white bg-secondary">Jumlah
+                                                    </th>
                                                     <th scope="col" class="text-center text-white bg-secondary">%</th>
-                                                    
-                                                    <th scope="col" class="text-center bg-primary text-white">Jumlah</th>
+
+                                                    <th scope="col" class="text-center bg-primary text-white">Jumlah
+                                                    </th>
                                                     <th scope="col" class="text-center bg-primary text-white">%</th>
 
-                                                    <th scope="col" class="text-center bg-danger marked-column text-white">Dalam Proses</th>
-                                                    <th scope="col" class="text-center bg-danger marked-column text-white">Tabrak Lari</th>
-                                                    <th scope="col" class="text-center bg-danger marked-column text-white">Jumlah</th>
-                                                    <th scope="col" class="text-center bg-danger marked-column text-white">%</th>
+                                                    <th scope="col"
+                                                        class="text-center bg-danger marked-column text-white">Dalam Proses
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="text-center bg-danger marked-column text-white">Tabrak Lari
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="text-center bg-danger marked-column text-white">Jumlah</th>
+                                                    <th scope="col"
+                                                        class="text-center bg-danger marked-column text-white">%</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @php
                                                     // Move the item with polres = 1114 to the end of the array
-                                                    $recap2026LeaderboardItemsPolda = collect($recap2026LeaderboardItems);
-                                                    $recap2026LeaderboardItemsPolda = $recap2026LeaderboardItemsPolda->sortBy('total_total_percentage')->reverse();
+                                                    $recap2026LeaderboardItemsPolda = collect(
+                                                        $recap2026LeaderboardItems,
+                                                    );
+                                                    $recap2026LeaderboardItemsPolda = $recap2026LeaderboardItemsPolda
+                                                        ->sortBy('total_total_percentage')
+                                                        ->reverse();
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -579,151 +737,246 @@
                                                     $totalTotalPercentage = 0;
                                                     $onProgressTotalPercentage = 0;
                                                 @endphp
-                                              
+
                                                 @foreach ($recap2026LeaderboardItemsPolda as $leaderboardItemPolda)
                                                     @php
-                                                        $accidentTotal = $accidentTotal + ($leaderboardItemPolda['accident_total'] ?? 0);
-                                                        $p21Total = $p21Total + ($leaderboardItemPolda['p21_total'] ?? 0);
-                                                        $sp3Total = $sp3Total + ($leaderboardItemPolda['sp3_total'] ?? 0);
-                                                        $sp2lidTotal = $sp2lidTotal + ($leaderboardItemPolda['sp2lid_total'] ?? 0);
-                                                        $diversiTotal = $diversiTotal + ($leaderboardItemPolda['diversi_total'] ?? 0);
-                                                        $totalTotal = $totalTotal + ($leaderboardItemPolda['total_total'] ?? 0);
-                                                        $onProgressTotal = $onProgressTotal + ($leaderboardItemPolda['on_progress_total'] ?? 0);
-                                                        $inTheProcessTotal = $inTheProcessTotal + ($leaderboardItemPolda['in_the_process_total'] ?? 0);
-                                                        $hitAndRunTotal = $hitAndRunTotal + ($leaderboardItemPolda['hit_and_run_total'] ?? 0);
-                                                        $newEntryCrimeClearanceTotal = $newEntryCrimeClearanceTotal + ($leaderboardItemPolda['new_entry_crime_clearance_total'] ?? 0);
-                                                        $pomTniTotal = $pomTniTotal + ($leaderboardItemPolda['pom_tni_total'] ?? 0);
-                                                        $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'];
+                                                        $accidentTotal =
+                                                            $accidentTotal +
+                                                            ($leaderboardItemPolda['accident_total'] ?? 0);
+                                                        $p21Total =
+                                                            $p21Total + ($leaderboardItemPolda['p21_total'] ?? 0);
+                                                        $sp3Total =
+                                                            $sp3Total + ($leaderboardItemPolda['sp3_total'] ?? 0);
+                                                        $sp2lidTotal =
+                                                            $sp2lidTotal + ($leaderboardItemPolda['sp2lid_total'] ?? 0);
+                                                        $diversiTotal =
+                                                            $diversiTotal +
+                                                            ($leaderboardItemPolda['diversi_total'] ?? 0);
+                                                        $totalTotal =
+                                                            $totalTotal + ($leaderboardItemPolda['total_total'] ?? 0);
+                                                        $onProgressTotal =
+                                                            $onProgressTotal +
+                                                            ($leaderboardItemPolda['on_progress_total'] ?? 0);
+                                                        $inTheProcessTotal =
+                                                            $inTheProcessTotal +
+                                                            ($leaderboardItemPolda['in_the_process_total'] ?? 0);
+                                                        $hitAndRunTotal =
+                                                            $hitAndRunTotal +
+                                                            ($leaderboardItemPolda['hit_and_run_total'] ?? 0);
+                                                        $newEntryCrimeClearanceTotal =
+                                                            $newEntryCrimeClearanceTotal +
+                                                            ($leaderboardItemPolda['new_entry_crime_clearance_total'] ??
+                                                                0);
+                                                        $pomTniTotal =
+                                                            $pomTniTotal +
+                                                            ($leaderboardItemPolda['pom_tni_total'] ?? 0);
+                                                        $cellColor =
+                                                            'regional-police-table-row-bg-color-' .
+                                                            $leaderboardItemPolda['polda'];
                                                     @endphp
 
-                                                    <tr class="{{'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda']}}">
+                                                    <tr
+                                                        class="{{ 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'] }}">
                                                         <th scope="row" class="text-center">
-                                                            {{$loop->iteration}}
+                                                            {{ $loop->iteration }}
                                                         </th>
                                                         <th scope="row" class="text-center">
-                                                            <button type="button" class="btn btn-sm btn-primary float-start regional-police-2026-table-row-button" id="{{'polda-' . $leaderboardItemPolda['polda']}}">
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-primary float-start regional-police-2026-table-row-button"
+                                                                id="{{ 'polda-' . $leaderboardItemPolda['polda'] }}">
                                                                 <i class="bi bi-chevron-expand"></i>
                                                             </button>
-                                                            
-                                                            {{$leaderboardItemPolda['polda_name']}}
 
-                                                            @if($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
-                                                                <button type="button" class="btn btn-sm btn-success float-end rounded-pill">
-                                                                    {{$leaderboardItemPolda['new_entry_crime_clearance_total']}}
+                                                            {{ $leaderboardItemPolda['polda_name'] }}
+
+                                                            @if ($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-success float-end rounded-pill">
+                                                                    {{ $leaderboardItemPolda['new_entry_crime_clearance_total'] }}
                                                                 </button>
                                                             @endif
                                                         </th>
                                                         {{-- <td class="text-center">-</td> --}}
-                                                        <td class="text-center">{{$leaderboardItemPolda['accident_total']}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['p21_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['p21_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['sp3_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['sp3_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['sp2lid_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['sp2lid_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['diversi_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['diversi_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['total_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['total_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['in_the_process_total']}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['hit_and_run_total']}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['on_progress_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['on_progress_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['pom_tni_total']}}</td> 
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['accident_total'] }}</td>
+                                                        <td class="text-center">{{ $leaderboardItemPolda['p21_total'] }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['p21_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">{{ $leaderboardItemPolda['sp3_total'] }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['sp3_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['sp2lid_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['sp2lid_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['diversi_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['diversi_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">{{ $leaderboardItemPolda['total_total'] }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['total_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['in_the_process_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['hit_and_run_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['on_progress_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['on_progress_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['pom_tni_total'] }}</td>
                                                     </tr>
 
                                                     @php
-                                                        $leaderboardItemPolres = collect($leaderboardItemPolda['polres']);
-                                                        $leaderboardItemPolres = $leaderboardItemPolres->sortBy('percentage_total')->reverse();
+                                                        $leaderboardItemPolres = collect(
+                                                            $leaderboardItemPolda['polres'],
+                                                        );
+                                                        $leaderboardItemPolres = $leaderboardItemPolres
+                                                            ->sortBy('percentage_total')
+                                                            ->reverse();
                                                     @endphp
-                    
+
                                                     @foreach ($leaderboardItemPolres as $leaderboardItem)
-                                                        @if(isset($leaderboardItem['polres']))
-                                                            @if(!in_array($leaderboardItem['polres'], ['1605']))
+                                                        @if (isset($leaderboardItem['polres']))
+                                                            @if (!in_array($leaderboardItem['polres'], ['1605']))
                                                                 @php
-                                                                    $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItem['polda'];
+                                                                    $cellColor =
+                                                                        'regional-police-table-row-bg-color-' .
+                                                                        $leaderboardItem['polda'];
                                                                 @endphp
 
-                                                                <tr class="{{$cellColor}} {{'resort-police-2026-table-row-polda-' . $leaderboardItem['polda']}}" style="display:none;">
-                                                                    <th scope="row" class="text-center">{{$loop->iteration}}</th>
+                                                                <tr class="{{ $cellColor }} {{ 'resort-police-2025-table-row-polda-' . $leaderboardItem['polda'] }}"
+                                                                    style="display:none;">
+                                                                    <th scope="row" class="text-center">
+                                                                        {{ $loop->iteration }}</th>
                                                                     <td>
-                                                                        {{$leaderboardItem['polres_name'] ?? ''}} ({{$leaderboardItem['polda_name'] ?? ''}})
+                                                                        {{ $leaderboardItem['polres_name'] ?? '' }}
+                                                                        ({{ $leaderboardItem['polda_name'] ?? '' }})
 
-                                                                        @if($leaderboardItem['new_entry_crime_clearance'] > 0)
-                                                                            <button type="button" class="btn btn-sm btn-success float-end rounded-pill">
-                                                                                {{$leaderboardItem['new_entry_crime_clearance']}}
+                                                                        @if ($leaderboardItem['new_entry_crime_clearance'] > 0)
+                                                                            <button type="button"
+                                                                                class="btn btn-sm btn-success float-end rounded-pill">
+                                                                                {{ $leaderboardItem['new_entry_crime_clearance'] }}
                                                                             </button>
-                                                                        @endif 
+                                                                        @endif
                                                                     </td>
                                                                     {{-- <td class="text-center">-</td> --}}
-                                                                    <td class="text-center">{{$leaderboardItem['jumlah_laka'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['p21'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_p21'])) ? number_format($leaderboardItem['percentage_p21'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['sp3'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_sp3'])) ? number_format($leaderboardItem['percentage_sp3'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['sp2lid'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_sp2lid'])) ? number_format($leaderboardItem['percentage_sp2lid'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['diversi'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_diversi'])) ? number_format($leaderboardItem['percentage_diversi'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['total'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_total'])) ? number_format($leaderboardItem['percentage_total'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['in_the_process'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['hit_and_run'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['on_progress'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_total'])) ? number_format($leaderboardItem['percentage_on_progress'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['pom_tni'] ?? '-'}}</td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['jumlah_laka'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['p21'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_p21']) ? number_format($leaderboardItem['percentage_p21'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['sp3'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_sp3']) ? number_format($leaderboardItem['percentage_sp3'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['sp2lid'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_sp2lid']) ? number_format($leaderboardItem['percentage_sp2lid'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['diversi'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_diversi']) ? number_format($leaderboardItem['percentage_diversi'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['total'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_total']) ? number_format($leaderboardItem['percentage_total'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['in_the_process'] ?? '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['hit_and_run'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['on_progress'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_total']) ? number_format($leaderboardItem['percentage_on_progress'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['pom_tni'] ?? '-' }}</td>
                                                                 </tr>
                                                             @endif
                                                         @endif
-                                                    @endforeach 
+                                                    @endforeach
                                                 @endforeach
                                                 @php
-                                                    $p21TotalPercentage = ($accidentTotal != 0) ? ($p21Total / $accidentTotal) * 100 : 0;
-                                                    $sp3TotalPercentage = ($accidentTotal != 0) ? ($sp3Total / $accidentTotal) * 100 : 0;
-                                                    $sp2lidTotalPercentage = ($accidentTotal != 0) ? ($sp2lidTotal / $accidentTotal) * 100 : 0;
-                                                    $diversiTotalPercentage = ($accidentTotal != 0) ? ($diversiTotal / $accidentTotal) * 100 : 0;
-                                                    $totalTotalPercentage = ($accidentTotal != 0) ? ($totalTotal / $accidentTotal) * 100 : 0;
-                                                    $onProgressTotalPercentage = ($accidentTotal != 0) ? ($onProgressTotal / $accidentTotal) * 100 : 0;
+                                                    $p21TotalPercentage =
+                                                        $accidentTotal != 0 ? ($p21Total / $accidentTotal) * 100 : 0;
+                                                    $sp3TotalPercentage =
+                                                        $accidentTotal != 0 ? ($sp3Total / $accidentTotal) * 100 : 0;
+                                                    $sp2lidTotalPercentage =
+                                                        $accidentTotal != 0 ? ($sp2lidTotal / $accidentTotal) * 100 : 0;
+                                                    $diversiTotalPercentage =
+                                                        $accidentTotal != 0
+                                                            ? ($diversiTotal / $accidentTotal) * 100
+                                                            : 0;
+                                                    $totalTotalPercentage =
+                                                        $accidentTotal != 0 ? ($totalTotal / $accidentTotal) * 100 : 0;
+                                                    $onProgressTotalPercentage =
+                                                        $accidentTotal != 0
+                                                            ? ($onProgressTotal / $accidentTotal) * 100
+                                                            : 0;
                                                 @endphp
                                                 <tr>
-                                                    <th scope="row" colspan="2" class="text-center bg-secondary text-white">
+                                                    <th scope="row" colspan="2"
+                                                        class="text-center bg-secondary text-white">
                                                         Total
 
-                                                        @if($newEntryCrimeClearanceTotal > 0)
-                                                            <button type="button" class="btn btn-sm btn-warning float-end rounded-pill">
-                                                                {{$newEntryCrimeClearanceTotal}}
+                                                        @if ($newEntryCrimeClearanceTotal > 0)
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-warning float-end rounded-pill">
+                                                                {{ $newEntryCrimeClearanceTotal }}
                                                             </button>
                                                         @endif
                                                     </th>
                                                     {{-- <td class="text-center bg-secondary text-white">-</td> --}}
-                                                    <td class="text-center bg-secondary text-white">{{$accidentTotal}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$p21Total}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{ number_format($p21TotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$sp3Total}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{ number_format($sp3TotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$sp2lidTotal}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{ number_format($sp2lidTotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$diversiTotal}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{ number_format($diversiTotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-primary text-white">{{$totalTotal}}</td>
-                                                    <td class="text-center bg-primary text-white">{{ number_format($totalTotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-danger marked-column text-white">{{$inTheProcessTotal}}</td>
-                                                    <td class="text-center bg-danger marked-column text-white">{{$hitAndRunTotal}}</td>
-                                                    <td class="text-center bg-danger marked-column text-white">{{$onProgressTotal}}</td>
-                                                    <td class="text-center bg-danger marked-column text-white">{{ number_format($onProgressTotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$pomTniTotal}}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $accidentTotal }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">{{ $p21Total }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">
+                                                        {{ number_format($p21TotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $sp3Total }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">
+                                                        {{ number_format($sp3TotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $sp2lidTotal }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">
+                                                        {{ number_format($sp2lidTotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $diversiTotal }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">
+                                                        {{ number_format($diversiTotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-primary text-white">{{ $totalTotal }}</td>
+                                                    <td class="text-center bg-primary text-white">
+                                                        {{ number_format($totalTotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-danger marked-column text-white">
+                                                        {{ $inTheProcessTotal }}</td>
+                                                    <td class="text-center bg-danger marked-column text-white">
+                                                        {{ $hitAndRunTotal }}</td>
+                                                    <td class="text-center bg-danger marked-column text-white">
+                                                        {{ $onProgressTotal }}</td>
+                                                    <td class="text-center bg-danger marked-column text-white">
+                                                        {{ number_format($onProgressTotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $pomTniTotal }}
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -735,7 +988,7 @@
                 </div>
                 <div class="modal-footer">
                     {{-- <button class="btn btn-danger" data-bs-target="#lombaKategori3" data-bs-toggle="modal">
-                        <i class="bi bi-arrow-left"></i> Kembali 
+                        <i class="bi bi-arrow-left"></i> Kembali
                     </button> --}}
                     <button class="btn btn-primary" data-bs-target="#leaderboard2025Polda" data-bs-toggle="modal">
                         Lanjut <i class="bi bi-arrow-right"></i>
@@ -746,16 +999,20 @@
     </div>
 
     <!-- Modal Polda 2025 -->
-    <div class="modal fade" id="leaderboard2025Polda" data-bs-backdrop="static" data-bs-keyboard="false"aria-hidden="true" aria-labelledby="leaderboard2025PoldaLabel" tabindex="-1">
+    <div class="modal fade" id="leaderboard2025Polda" data-bs-backdrop="static"
+        data-bs-keyboard="false"aria-hidden="true" aria-labelledby="leaderboard2025PoldaLabel" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-fullscreen">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="leaderboard2025PoldaLabel">Rekapitulasi Selra Laka 2025</h1>
                 </div>
                 <div class="modal-body">
-                    <h3 class="fw-bold text-blue-dark mb-4">Rekapitulasi Selra Laka {{ Carbon\Carbon::parse($recap2025BeginDate)->locale('id')->translatedFormat('Y') }}</h3>
+                    <h3 class="fw-bold text-blue-dark mb-4">Rekapitulasi Selra Laka
+                        {{ Carbon\Carbon::parse($recap2025BeginDate)->locale('id')->translatedFormat('Y') }}</h3>
                     {{-- <h5 class="fw-bold text-blue-dark mb-4 mt-4">*( DITUTUP H-2 ACARA SYUKURAN HUT LANTAS ke-69 </h5> --}}
-                    <h6 class="fw-bold marked-text text-blue-dark mb-4 mt-4"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recap2025BeginDate, $recap2025LimitDate) }}</h6>
+                    <h6 class="fw-bold marked-text text-blue-dark mb-4 mt-4"><i class="bi bi-pin-angle-fill"></i> Dihitung
+                        Periode LP dari
+                        {{ App\Helpers\FormatDateHelper::formatDateRange($recap2025BeginDate, $recap2025LimitDate) }}</h6>
                     {{-- <h6 class="fw-bold text-blue-dark mb-4 mt-4">*( Untuk LP dengan tercantum selra RJ mohon untuk di update agar masuk ke dalam perhitungan </h6> --}}
 
                     <div class="row">
@@ -766,47 +1023,78 @@
                                         <table class="table table-bordered">
                                             <thead class="header">
                                                 <tr>
-                                                    <th scope="col" rowspan="2" class="text-center" style="background-color: #fd7e14">No</th>
-                                                    <th scope="col" rowspan="2" class="text-center bg-warning">Polda</th>
+                                                    <th scope="col" rowspan="2" class="text-center"
+                                                        style="background-color: #fd7e14">No</th>
+                                                    <th scope="col" rowspan="2" class="text-center bg-warning">
+                                                        Polda</th>
                                                     {{-- <th scope="col" rowspan="2" class="text-center text-white" style="background-color:rgb(240, 13, 145)">Tunggakan 2024</th> --}}
-                                                    <th scope="col" rowspan="2" class="text-center" style="background-color: #0dcaf0">Jumlah LP <br/> (LP - Limpah)</th>
-                                                    <th scope="col" colspan="2" class="text-center text-white" style="background-color: #d63384">P21</th>
-                                                    <th scope="col" colspan="2" class="text-center text-white" style="background-color: #6610f2">SP3</th>
-                                                    <th scope="col" colspan="2" class="text-center text-white" style="background-color: #6f42c1">SP2LID</th>
-                                                    <th scope="col" colspan="2" class="text-center text-white bg-secondary">Diversi</th>
-                                                    <th scope="col" colspan="2" class="text-center bg-primary text-white">Total</th>
-                                                    <th scope="col" colspan="4" class="text-center bg-danger marked-column text-white">Tunggakan</th>
-                                                    <th scope="col" rowspan="2" class="text-center bg-secondary text-white">Limpah POM/TNI <br/> (Mengurangi Kasus)</th>
+                                                    <th scope="col" rowspan="2" class="text-center"
+                                                        style="background-color: #0dcaf0">Jumlah LP <br /> (LP - Limpah)
+                                                    </th>
+                                                    <th scope="col" colspan="2" class="text-center text-white"
+                                                        style="background-color: #d63384">P21</th>
+                                                    <th scope="col" colspan="2" class="text-center text-white"
+                                                        style="background-color: #6610f2">SP3</th>
+                                                    <th scope="col" colspan="2" class="text-center text-white"
+                                                        style="background-color: #6f42c1">SP2LID</th>
+                                                    <th scope="col" colspan="2"
+                                                        class="text-center text-white bg-secondary">Diversi</th>
+                                                    <th scope="col" colspan="2"
+                                                        class="text-center bg-primary text-white">Total</th>
+                                                    <th scope="col" colspan="4"
+                                                        class="text-center bg-danger marked-column text-white">Tunggakan
+                                                    </th>
+                                                    <th scope="col" rowspan="2"
+                                                        class="text-center bg-secondary text-white">Limpah POM/TNI <br />
+                                                        (Mengurangi Kasus)</th>
                                                 </tr>
                                                 <tr>
-                                                    <th scope="col" class="text-center text-white" style="background-color: #d63384">Jumlah</th>
-                                                    <th scope="col" class="text-center text-white" style="background-color: #d63384">%</th>
-                                                    
-                                                    <th scope="col" class="text-center text-white" style="background-color: #6610f2">Jumlah</th>
-                                                    <th scope="col" class="text-center text-white" style="background-color: #6610f2">%</th>
-                                                    
-                                                    <th scope="col" class="text-center text-white" style="background-color: #6f42c1">Jumlah</th>
-                                                    <th scope="col" class="text-center text-white" style="background-color: #6f42c1">%</th>
-                                                    
-                                                    <th scope="col" class="text-center text-white bg-secondary">Jumlah</th>
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #d63384">Jumlah</th>
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #d63384">%</th>
+
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #6610f2">Jumlah</th>
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #6610f2">%</th>
+
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #6f42c1">Jumlah</th>
+                                                    <th scope="col" class="text-center text-white"
+                                                        style="background-color: #6f42c1">%</th>
+
+                                                    <th scope="col" class="text-center text-white bg-secondary">Jumlah
+                                                    </th>
                                                     <th scope="col" class="text-center text-white bg-secondary">%</th>
-                                                    
-                                                    <th scope="col" class="text-center bg-primary text-white">Jumlah</th>
+
+                                                    <th scope="col" class="text-center bg-primary text-white">Jumlah
+                                                    </th>
                                                     <th scope="col" class="text-center bg-primary text-white">%</th>
 
-                                                    <th scope="col" class="text-center bg-danger marked-column text-white">Dalam Proses</th>
-                                                    <th scope="col" class="text-center bg-danger marked-column text-white">Tabrak Lari</th>
-                                                    <th scope="col" class="text-center bg-danger marked-column text-white">Jumlah</th>
-                                                    <th scope="col" class="text-center bg-danger marked-column text-white">%</th>
+                                                    <th scope="col"
+                                                        class="text-center bg-danger marked-column text-white">Dalam Proses
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="text-center bg-danger marked-column text-white">Tabrak Lari
+                                                    </th>
+                                                    <th scope="col"
+                                                        class="text-center bg-danger marked-column text-white">Jumlah</th>
+                                                    <th scope="col"
+                                                        class="text-center bg-danger marked-column text-white">%</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @php
                                                     // Move the item with polres = 1114 to the end of the array
-                                                    $recap2025LeaderboardItemsPolda = collect($recap2025LeaderboardItems);
-                                                    $recap2025LeaderboardItemsPolda = $recap2025LeaderboardItemsPolda->sortBy('total_total_percentage')->reverse();
+                                                    $recap2025LeaderboardItemsPolda = collect(
+                                                        $recap2025LeaderboardItems,
+                                                    );
+                                                    $recap2025LeaderboardItemsPolda = $recap2025LeaderboardItemsPolda
+                                                        ->sortBy('total_total_percentage')
+                                                        ->reverse();
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -837,151 +1125,247 @@
                                                     $totalTotalPercentage = 0;
                                                     $onProgressTotalPercentage = 0;
                                                 @endphp
-                                              
+
                                                 @foreach ($recap2025LeaderboardItemsPolda as $leaderboardItemPolda)
                                                     @php
-                                                        $accidentTotal = $accidentTotal + ($leaderboardItemPolda['accident_total'] ?? 0);
-                                                        $p21Total = $p21Total + ($leaderboardItemPolda['p21_total'] ?? 0);
-                                                        $sp3Total = $sp3Total + ($leaderboardItemPolda['sp3_total'] ?? 0);
-                                                        $sp2lidTotal = $sp2lidTotal + ($leaderboardItemPolda['sp2lid_total'] ?? 0);
-                                                        $diversiTotal = $diversiTotal + ($leaderboardItemPolda['diversi_total'] ?? 0);
-                                                        $totalTotal = $totalTotal + ($leaderboardItemPolda['total_total'] ?? 0);
-                                                        $onProgressTotal = $onProgressTotal + ($leaderboardItemPolda['on_progress_total'] ?? 0);
-                                                        $inTheProcessTotal = $inTheProcessTotal + ($leaderboardItemPolda['in_the_process_total'] ?? 0);
-                                                        $hitAndRunTotal = $hitAndRunTotal + ($leaderboardItemPolda['hit_and_run_total'] ?? 0);
-                                                        $newEntryCrimeClearanceTotal = $newEntryCrimeClearanceTotal + ($leaderboardItemPolda['new_entry_crime_clearance_total'] ?? 0);
-                                                        $pomTniTotal = $pomTniTotal + ($leaderboardItemPolda['pom_tni_total'] ?? 0);
-                                                        $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'];
+                                                        $accidentTotal =
+                                                            $accidentTotal +
+                                                            ($leaderboardItemPolda['accident_total'] ?? 0);
+                                                        $p21Total =
+                                                            $p21Total + ($leaderboardItemPolda['p21_total'] ?? 0);
+                                                        $sp3Total =
+                                                            $sp3Total + ($leaderboardItemPolda['sp3_total'] ?? 0);
+                                                        $sp2lidTotal =
+                                                            $sp2lidTotal + ($leaderboardItemPolda['sp2lid_total'] ?? 0);
+                                                        $diversiTotal =
+                                                            $diversiTotal +
+                                                            ($leaderboardItemPolda['diversi_total'] ?? 0);
+                                                        $totalTotal =
+                                                            $totalTotal + ($leaderboardItemPolda['total_total'] ?? 0);
+                                                        $onProgressTotal =
+                                                            $onProgressTotal +
+                                                            ($leaderboardItemPolda['on_progress_total'] ?? 0);
+                                                        $inTheProcessTotal =
+                                                            $inTheProcessTotal +
+                                                            ($leaderboardItemPolda['in_the_process_total'] ?? 0);
+                                                        $hitAndRunTotal =
+                                                            $hitAndRunTotal +
+                                                            ($leaderboardItemPolda['hit_and_run_total'] ?? 0);
+                                                        $newEntryCrimeClearanceTotal =
+                                                            $newEntryCrimeClearanceTotal +
+                                                            ($leaderboardItemPolda['new_entry_crime_clearance_total'] ??
+                                                                0);
+                                                        $pomTniTotal =
+                                                            $pomTniTotal +
+                                                            ($leaderboardItemPolda['pom_tni_total'] ?? 0);
+                                                        $cellColor =
+                                                            'regional-police-table-row-bg-color-' .
+                                                            $leaderboardItemPolda['polda'];
                                                     @endphp
 
-                                                    <tr class="{{'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda']}}">
+                                                    <tr
+                                                        class="{{ 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'] }}">
                                                         <th scope="row" class="text-center">
-                                                            {{$loop->iteration}}
+                                                            {{ $loop->iteration }}
                                                         </th>
                                                         <th scope="row" class="text-center">
-                                                            <button type="button" class="btn btn-sm btn-primary float-start regional-police-2025-table-row-button" id="{{'polda-' . $leaderboardItemPolda['polda']}}">
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-primary float-start regional-police-2025-table-row-button"
+                                                                id="{{ 'polda-' . $leaderboardItemPolda['polda'] }}">
                                                                 <i class="bi bi-chevron-expand"></i>
                                                             </button>
-                                                            
-                                                            {{$leaderboardItemPolda['polda_name']}}
 
-                                                            @if($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
-                                                                <button type="button" class="btn btn-sm btn-success float-end rounded-pill">
-                                                                    {{$leaderboardItemPolda['new_entry_crime_clearance_total']}}
+                                                            {{ $leaderboardItemPolda['polda_name'] }}
+
+                                                            @if ($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-success float-end rounded-pill">
+                                                                    {{ $leaderboardItemPolda['new_entry_crime_clearance_total'] }}
                                                                 </button>
                                                             @endif
                                                         </th>
                                                         {{-- <td class="text-center">-</td> --}}
-                                                        <td class="text-center">{{$leaderboardItemPolda['accident_total']}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['p21_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['p21_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['sp3_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['sp3_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['sp2lid_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['sp2lid_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['diversi_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['diversi_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['total_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['total_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['in_the_process_total']}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['hit_and_run_total']}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['on_progress_total']}}</td>
-                                                        <td class="text-center">{{ number_format($leaderboardItemPolda['on_progress_total_percentage'], 2) . '%'}}</td>
-                                                        <td class="text-center">{{$leaderboardItemPolda['pom_tni_total']}}</td> 
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['accident_total'] }}</td>
+                                                        <td class="text-center">{{ $leaderboardItemPolda['p21_total'] }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['p21_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">{{ $leaderboardItemPolda['sp3_total'] }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['sp3_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['sp2lid_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['sp2lid_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['diversi_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['diversi_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">{{ $leaderboardItemPolda['total_total'] }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['total_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['in_the_process_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['hit_and_run_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['on_progress_total'] }}</td>
+                                                        <td class="text-center">
+                                                            {{ number_format($leaderboardItemPolda['on_progress_total_percentage'], 2) . '%' }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            {{ $leaderboardItemPolda['pom_tni_total'] }}</td>
                                                     </tr>
 
                                                     @php
-                                                        $leaderboardItemPolres = collect($leaderboardItemPolda['polres']);
-                                                        $leaderboardItemPolres = $leaderboardItemPolres->sortBy('percentage_total')->reverse();
+                                                        $leaderboardItemPolres = collect(
+                                                            $leaderboardItemPolda['polres'],
+                                                        );
+                                                        $leaderboardItemPolres = $leaderboardItemPolres
+                                                            ->sortBy('percentage_total')
+                                                            ->reverse();
                                                     @endphp
-                    
+
                                                     @foreach ($leaderboardItemPolres as $leaderboardItem)
-                                                        @if(isset($leaderboardItem['polres']))
-                                                            @if(!in_array($leaderboardItem['polres'], ['1605']))
+                                                        @if (isset($leaderboardItem['polres']))
+                                                            @if (!in_array($leaderboardItem['polres'], ['1605']))
                                                                 @php
-                                                                    $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItem['polda'];
+                                                                    $cellColor =
+                                                                        'regional-police-table-row-bg-color-' .
+                                                                        $leaderboardItem['polda'];
                                                                 @endphp
 
-                                                                <tr class="{{$cellColor}} {{'resort-police-2025-table-row-polda-' . $leaderboardItem['polda']}}" style="display:none;">
-                                                                    <th scope="row" class="text-center">{{$loop->iteration}}</th>
+                                                                <tr class="{{ $cellColor }} {{ 'resort-police-2025-table-row-polda-' . $leaderboardItem['polda'] }}"
+                                                                    style="display:none;">
+                                                                    <th scope="row" class="text-center">
+                                                                        {{ $loop->iteration }}</th>
                                                                     <td>
-                                                                        {{$leaderboardItem['polres_name'] ?? ''}} ({{$leaderboardItem['polda_name'] ?? ''}})
+                                                                        {{ $leaderboardItem['polres_name'] ?? '' }}
+                                                                        ({{ $leaderboardItem['polda_name'] ?? '' }})
 
-                                                                        @if($leaderboardItem['new_entry_crime_clearance'] > 0)
-                                                                            <button type="button" class="btn btn-sm btn-success float-end rounded-pill">
-                                                                                {{$leaderboardItem['new_entry_crime_clearance']}}
+                                                                        @if ($leaderboardItem['new_entry_crime_clearance'] > 0)
+                                                                            <button type="button"
+                                                                                class="btn btn-sm btn-success float-end rounded-pill">
+                                                                                {{ $leaderboardItem['new_entry_crime_clearance'] }}
                                                                             </button>
-                                                                        @endif 
+                                                                        @endif
                                                                     </td>
                                                                     {{-- <td class="text-center">-</td> --}}
-                                                                    <td class="text-center">{{$leaderboardItem['jumlah_laka'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['p21'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_p21'])) ? number_format($leaderboardItem['percentage_p21'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['sp3'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_sp3'])) ? number_format($leaderboardItem['percentage_sp3'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['sp2lid'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_sp2lid'])) ? number_format($leaderboardItem['percentage_sp2lid'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['diversi'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_diversi'])) ? number_format($leaderboardItem['percentage_diversi'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['total'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_total'])) ? number_format($leaderboardItem['percentage_total'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['in_the_process'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['hit_and_run'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['on_progress'] ?? '-'}}</td>
-                                                                    <td class="text-center">{{
-                                                                        (isset($leaderboardItem['percentage_total'])) ? number_format($leaderboardItem['percentage_on_progress'], 2) . '%' : '-'
-                                                                    }}</td>
-                                                                    <td class="text-center">{{$leaderboardItem['pom_tni'] ?? '-'}}</td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['jumlah_laka'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['p21'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_p21']) ? number_format($leaderboardItem['percentage_p21'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['sp3'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_sp3']) ? number_format($leaderboardItem['percentage_sp3'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['sp2lid'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_sp2lid']) ? number_format($leaderboardItem['percentage_sp2lid'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['diversi'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_diversi']) ? number_format($leaderboardItem['percentage_diversi'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['total'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_total']) ? number_format($leaderboardItem['percentage_total'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['in_the_process'] ?? '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['hit_and_run'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['on_progress'] ?? '-' }}</td>
+                                                                    <td class="text-center">
+                                                                        {{ isset($leaderboardItem['percentage_total']) ? number_format($leaderboardItem['percentage_on_progress'], 2) . '%' : '-' }}
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        {{ $leaderboardItem['pom_tni'] ?? '-' }}</td>
                                                                 </tr>
                                                             @endif
                                                         @endif
-                                                    @endforeach 
+                                                    @endforeach
                                                 @endforeach
                                                 @php
-                                                    $p21TotalPercentage = ($accidentTotal != 0) ? ($p21Total / $accidentTotal) * 100 : 0;
-                                                    $sp3TotalPercentage = ($accidentTotal != 0) ? ($sp3Total / $accidentTotal) * 100 : 0;
-                                                    $sp2lidTotalPercentage = ($accidentTotal != 0) ? ($sp2lidTotal / $accidentTotal) * 100 : 0;
-                                                    $diversiTotalPercentage = ($accidentTotal != 0) ? ($diversiTotal / $accidentTotal) * 100 : 0;
-                                                    $totalTotalPercentage = ($accidentTotal != 0) ? ($totalTotal / $accidentTotal) * 100 : 0;
-                                                    $onProgressTotalPercentage = ($accidentTotal != 0) ? ($onProgressTotal / $accidentTotal) * 100 : 0;
+                                                    $p21TotalPercentage =
+                                                        $accidentTotal != 0 ? ($p21Total / $accidentTotal) * 100 : 0;
+                                                    $sp3TotalPercentage =
+                                                        $accidentTotal != 0 ? ($sp3Total / $accidentTotal) * 100 : 0;
+                                                    $sp2lidTotalPercentage =
+                                                        $accidentTotal != 0 ? ($sp2lidTotal / $accidentTotal) * 100 : 0;
+                                                    $diversiTotalPercentage =
+                                                        $accidentTotal != 0
+                                                            ? ($diversiTotal / $accidentTotal) * 100
+                                                            : 0;
+                                                    $totalTotalPercentage =
+                                                        $accidentTotal != 0 ? ($totalTotal / $accidentTotal) * 100 : 0;
+                                                    $onProgressTotalPercentage =
+                                                        $accidentTotal != 0
+                                                            ? ($onProgressTotal / $accidentTotal) * 100
+                                                            : 0;
                                                 @endphp
                                                 <tr>
-                                                    <th scope="row" colspan="2" class="text-center bg-secondary text-white">
+                                                    <th scope="row" colspan="2"
+                                                        class="text-center bg-secondary text-white">
                                                         Total
 
-                                                        @if($newEntryCrimeClearanceTotal > 0)
-                                                            <button type="button" class="btn btn-sm btn-warning float-end rounded-pill">
-                                                                {{$newEntryCrimeClearanceTotal}}
+                                                        @if ($newEntryCrimeClearanceTotal > 0)
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-warning float-end rounded-pill">
+                                                                {{ $newEntryCrimeClearanceTotal }}
                                                             </button>
                                                         @endif
                                                     </th>
                                                     {{-- <td class="text-center bg-secondary text-white">-</td> --}}
-                                                    <td class="text-center bg-secondary text-white">{{$accidentTotal}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$p21Total}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{ number_format($p21TotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$sp3Total}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{ number_format($sp3TotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$sp2lidTotal}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{ number_format($sp2lidTotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$diversiTotal}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{ number_format($diversiTotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-primary text-white">{{$totalTotal}}</td>
-                                                    <td class="text-center bg-primary text-white">{{ number_format($totalTotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-danger marked-column text-white">{{$inTheProcessTotal}}</td>
-                                                    <td class="text-center bg-danger marked-column text-white">{{$hitAndRunTotal}}</td>
-                                                    <td class="text-center bg-danger marked-column text-white">{{$onProgressTotal}}</td>
-                                                    <td class="text-center bg-danger marked-column text-white">{{ number_format($onProgressTotalPercentage, 2) . '%'}}</td>
-                                                    <td class="text-center bg-secondary text-white">{{$pomTniTotal}}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $accidentTotal }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">{{ $p21Total }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">
+                                                        {{ number_format($p21TotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $sp3Total }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">
+                                                        {{ number_format($sp3TotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $sp2lidTotal }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">
+                                                        {{ number_format($sp2lidTotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $diversiTotal }}
+                                                    </td>
+                                                    <td class="text-center bg-secondary text-white">
+                                                        {{ number_format($diversiTotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-primary text-white">{{ $totalTotal }}
+                                                    </td>
+                                                    <td class="text-center bg-primary text-white">
+                                                        {{ number_format($totalTotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-danger marked-column text-white">
+                                                        {{ $inTheProcessTotal }}</td>
+                                                    <td class="text-center bg-danger marked-column text-white">
+                                                        {{ $hitAndRunTotal }}</td>
+                                                    <td class="text-center bg-danger marked-column text-white">
+                                                        {{ $onProgressTotal }}</td>
+                                                    <td class="text-center bg-danger marked-column text-white">
+                                                        {{ number_format($onProgressTotalPercentage, 2) . '%' }}</td>
+                                                    <td class="text-center bg-secondary text-white">{{ $pomTniTotal }}
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -993,7 +1377,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-danger" data-bs-target="#leaderboard2026Polda" data-bs-toggle="modal">
-                        <i class="bi bi-arrow-left"></i> Kembali 
+                        <i class="bi bi-arrow-left"></i> Kembali
                     </button>
                     <button class="btn btn-primary" data-bs-target="#infoBoard" data-bs-toggle="modal">
                         Lanjut <i class="bi bi-arrow-right"></i>
@@ -1013,7 +1397,7 @@
                 <div class="modal-body">
                     <h3 class="fw-bold text-blue-dark mb-4">Rekapitulasi Selra Laka {{ Carbon\Carbon::parse($recap2025BeginDate)->locale('id')->translatedFormat('Y') }}</h3>
                     <h6 class="fw-bold marked-text text-blue-dark mb-4 mt-4"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recap2025BeginDate, $recap2025LimitDate) }}</h6>
-                    
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card mb-4">
@@ -1036,16 +1420,16 @@
                                                 <tr>
                                                     <th scope="col" class="text-center text-white" style="background-color: #d63384">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #d63384">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white" style="background-color: #6610f2">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #6610f2">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white" style="background-color: #6f42c1">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #6f42c1">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white bg-secondary">Jumlah</th>
                                                     <th scope="col" class="text-center text-white bg-secondary">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center bg-primary text-white">Jumlah</th>
                                                     <th scope="col" class="text-center bg-primary text-white">%</th>
 
@@ -1060,7 +1444,7 @@
                                                     // Move the item with polres = 1114 to the end of the array
                                                     $recap2025LeaderboardItems = collect($recap2025LeaderboardItems);
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -1091,7 +1475,7 @@
                                                     $totalTotalPercentage = 0;
                                                     $onProgressTotalPercentage = 0;
                                                 @endphp
-                                              
+
                                                 @foreach ($recap2025LeaderboardItems as $leaderboardItemPolda)
                                                     @php
                                                         $leaderboardItemPolres = collect($leaderboardItemPolda['polres']);
@@ -1099,9 +1483,9 @@
                                                     @endphp
 
                                                     @foreach ($leaderboardItemPolres as $leaderboardItem)
-                                    
-                                                        @if(isset($leaderboardItem['polres']))
-                                                            @if(!in_array($leaderboardItem['polres'], ['1605']))
+
+                                                        @if (isset($leaderboardItem['polres']))
+                                                            @if (!in_array($leaderboardItem['polres'], ['1605']))
                                                                 @php
                                                                     $accidentTotal = $accidentTotal + ($leaderboardItem['jumlah_laka'] ?? 0);
                                                                     $p21Total = $p21Total + ($leaderboardItem['p21'] ?? 0);
@@ -1122,7 +1506,7 @@
                                                                     <td>
                                                                         {{$leaderboardItem['polres_name'] ?? ''}} ({{$leaderboardItem['polda_name'] ?? ''}})
 
-                                                                        @if($leaderboardItem['new_entry_crime_clearance'] > 0)
+                                                                        @if ($leaderboardItem['new_entry_crime_clearance'] > 0)
                                                                             <button type="button" class="btn btn-sm btn-success float-end rounded-pill">
                                                                                 {{$leaderboardItem['new_entry_crime_clearance']}}
                                                                             </button>
@@ -1164,7 +1548,7 @@
                                                         <th scope="row" colspan="2" class="text-center bg-success text-white">
                                                             Total ({{$leaderboardItemPolda['polda_name']}})
 
-                                                            @if($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
+                                                            @if ($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
                                                                 <button type="button" class="btn btn-sm btn-warning float-end rounded-pill">
                                                                     {{$leaderboardItemPolda['new_entry_crime_clearance_total']}}
                                                                 </button>
@@ -1200,7 +1584,7 @@
                                                     <th scope="row" colspan="2" class="text-center bg-secondary text-white">
                                                         Total
 
-                                                        @if($newEntryCrimeClearanceTotal > 0)
+                                                        @if ($newEntryCrimeClearanceTotal > 0)
                                                             <button type="button" class="btn btn-sm btn-warning float-end rounded-pill">
                                                                 {{$newEntryCrimeClearanceTotal}}
                                                             </button>
@@ -1233,7 +1617,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-danger" data-bs-target="#leaderboard2025Polda" data-bs-toggle="modal">
-                        <i class="bi bi-arrow-left"></i> Kembali 
+                        <i class="bi bi-arrow-left"></i> Kembali
                     </button>
                     <button class="btn btn-primary" data-bs-target="#leaderboard2025Compare" data-bs-toggle="modal">
                         Lanjut <i class="bi bi-arrow-right"></i>
@@ -1253,7 +1637,7 @@
                 <div class="modal-body">
                     <h3 class="fw-bold text-blue-dark mb-4">Perkembangan Selra Laka {{ Carbon\Carbon::parse($recap2025BeginDate)->locale('id')->translatedFormat('Y') }}</h3>
                     <h6 class="fw-bold marked-text text-blue-dark mb-4 mt-4"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recap2025BeginDate, $recap2025LimitDate) }}</h6>
-                   
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card mb-4">
@@ -1276,7 +1660,7 @@
                                                     <th scope="col" class="text-center bg-primary text-white">SP2LID</th>
                                                     <th scope="col" class="text-center bg-primary text-white">Jumlah</th>
                                                     <th scope="col" class="text-center bg-primary text-white">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center bg-success text-white">P21</th>
                                                     <th scope="col" class="text-center bg-success text-white">SP3</th>
                                                     <th scope="col" class="text-center bg-success text-white">Diversi</th>
@@ -1298,7 +1682,7 @@
                                                     $recap2025LeaderboardItemsPolda = collect($recap2025LeaderboardItems);
                                                     $recap2025LeaderboardItemsPolda = $recap2025LeaderboardItemsPolda->sortBy('total_total_percentage')->reverse();
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -1318,7 +1702,7 @@
                                                     $sp2lidTotal = 0;
                                                     $totalTotal = 0;
                                                     $totalTotalPercentage = 0;
-                                            
+
                                                     $p21ExceptEntryTotal = 0;
                                                     $sp3ExceptEntryTotal = 0;
                                                     $diversiExceptEntryTotal = 0;
@@ -1333,7 +1717,7 @@
                                                     $beforeEvalCrimeClearanceTotal = 0;
                                                     $beforeEvalCrimeClearanceTotalPercentage = 0;
                                                 @endphp
-                                              
+
                                                 @foreach ($recap2025LeaderboardItemsPolda as $leaderboardItemPolda)
                                                     @php
                                                         $accidentTotal = $accidentTotal + ($leaderboardItemPolda['accident_total'] ?? 0);
@@ -1349,13 +1733,13 @@
                                                         $diversiTotal = $diversiTotal + ($leaderboardItemPolda['diversi_total'] ?? 0);
                                                         $sp2lidTotal = $sp2lidTotal + ($leaderboardItemPolda['sp2lid_total'] ?? 0);
                                                         $totalTotal = $totalTotal + ($leaderboardItemPolda['total_total'] ?? 0);
-                                                        
+
                                                         $p21ExceptEntryTotal = $p21ExceptEntryTotal + ($leaderboardItemPolda['p21_except_entry_total'] ?? 0);
                                                         $sp3ExceptEntryTotal = $sp3ExceptEntryTotal + ($leaderboardItemPolda['sp3_except_entry_total'] ?? 0);
                                                         $diversiExceptEntryTotal = $diversiExceptEntryTotal + ($leaderboardItemPolda['diversi_except_entry_total'] ?? 0);
                                                         $sp2lidExceptEntryTotal = $sp2lidExceptEntryTotal + ($leaderboardItemPolda['sp2lid_except_entry_total'] ?? 0);
                                                         $exceptEntryCrimeClearanceTotal = $exceptEntryCrimeClearanceTotal + ($leaderboardItemPolda['except_entry_crime_clearance_total'] ?? 0);
-                                                        
+
                                                         $newEntryCrimeClearanceTotal = $newEntryCrimeClearanceTotal + ($leaderboardItemPolda['new_entry_crime_clearance_total'] ?? 0);
                                                         $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'];
                                                     @endphp
@@ -1370,7 +1754,7 @@
                                                             {{$leaderboardItemPolda['polda_name']}}
                                                         </th>
                                                         <td class="text-center">{{$leaderboardItemPolda['accident_total']}}</td>
-    
+
                                                         <td class="text-center">{{$leaderboardItemPolda['before_eval_p21_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['before_eval_sp3_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['before_eval_diversi_total']}}</td>
@@ -1384,7 +1768,7 @@
                                                         <td class="text-center">{{$leaderboardItemPolda['sp2lid_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['total_total']}}</td>
                                                         <td class="text-center">{{ number_format($leaderboardItemPolda['total_total_percentage'], 2) . '%'}}</td>
-                                                        
+
                                                         <td class="text-center">{{$leaderboardItemPolda['p21_except_entry_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['sp3_except_entry_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['diversi_except_entry_total']}}</td>
@@ -1398,10 +1782,10 @@
                                                         $leaderboardItemPolres = collect($leaderboardItemPolda['polres']);
                                                         $leaderboardItemPolres = $leaderboardItemPolres->sortBy('percentage_total')->reverse();
                                                     @endphp
-                    
+
                                                     @foreach ($leaderboardItemPolres as $leaderboardItem)
-                                                        @if(isset($leaderboardItem['polres']))
-                                                            @if(!in_array($leaderboardItem['polres'], ['1605']))
+                                                        @if (isset($leaderboardItem['polres']))
+                                                            @if (!in_array($leaderboardItem['polres'], ['1605']))
                                                                 @php
                                                                     $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItem['polda'];
                                                                 @endphp
@@ -1412,7 +1796,7 @@
                                                                         {{$leaderboardItem['polres_name'] ?? ''}} ({{$leaderboardItem['polda_name'] ?? ''}})
                                                                     </td>
                                                                     <td class="text-center">{{$leaderboardItem['jumlah_laka'] ?? '-'}}</td>
-                                                                                                                                            
+
                                                                     <td class="text-center">{{$leaderboardItem['before_eval_p21'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['before_eval_sp3'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['before_eval_diversi'] ?? '-'}}</td>
@@ -1421,7 +1805,7 @@
                                                                     <td class="text-center">{{
                                                                         (isset($leaderboardItem['before_eval_crime_clearance_percentage'])) ? number_format($leaderboardItem['before_eval_crime_clearance_percentage'], 2) . '%' : '-'
                                                                     }}</td>
-                                                                    
+
                                                                     <td class="text-center">{{$leaderboardItem['p21'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['sp3'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['diversi'] ?? '-'}}</td>
@@ -1430,7 +1814,7 @@
                                                                     <td class="text-center">{{
                                                                         (isset($leaderboardItem['percentage_total'])) ? number_format($leaderboardItem['percentage_total'], 2) . '%' : '-'
                                                                     }}</td>
-                                                                    
+
                                                                     <td class="text-center">{{$leaderboardItem['p21_except_entry'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['sp3_except_entry'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['diversi_except_entry'] ?? '-'}}</td>
@@ -1454,21 +1838,21 @@
                                                         Total
                                                     </th>
                                                     <td class="text-center bg-secondary text-white">{{$accidentTotal}}</td>
-                                                    
+
                                                     <td class="text-center bg-secondary text-white">{{$beforeEvalP21Total}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$beforeEvalSp3Total}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$beforeEvalDiversiTotal}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$beforeEvalSp2lidTotal}}</td>
                                                     <td class="text-center bg-primary text-white">{{$beforeEvalCrimeClearanceTotal}}</td>
                                                     <td class="text-center bg-primary text-white">{{ number_format($beforeEvalCrimeClearanceTotalPercentage, 2) . '%'}}</td>
-                                                    
+
                                                     <td class="text-center bg-secondary text-white">{{$p21Total}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$sp3Total}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$diversiTotal}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$sp2lidTotal}}</td>
                                                     <td class="text-center bg-primary text-white">{{$totalTotal}}</td>
                                                     <td class="text-center bg-primary text-white">{{ number_format($totalTotalPercentage, 2) . '%'}}</td>
-                                                    
+
                                                     <td class="text-center bg-secondary text-white">{{$p21ExceptEntryTotal}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$sp3ExceptEntryTotal}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$diversiExceptEntryTotal}}</td>
@@ -1486,7 +1870,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-danger" data-bs-target="#leaderboard2025Polda" data-bs-toggle="modal">
-                        <i class="bi bi-arrow-left"></i> Kembali 
+                        <i class="bi bi-arrow-left"></i> Kembali
                     </button>
                     <button class="btn btn-primary" data-bs-target="#leaderboardPolda" data-bs-toggle="modal">
                         Lanjut <i class="bi bi-arrow-right"></i>
@@ -1529,16 +1913,16 @@
                                                 <tr>
                                                     <th scope="col" class="text-center text-white" style="background-color: #d63384">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #d63384">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white" style="background-color: #6610f2">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #6610f2">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white" style="background-color: #6f42c1">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #6f42c1">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white bg-secondary">Jumlah</th>
                                                     <th scope="col" class="text-center text-white bg-secondary">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center bg-primary text-white">Jumlah</th>
                                                     <th scope="col" class="text-center bg-primary text-white">%</th>
 
@@ -1553,7 +1937,7 @@
                                                     // Move the item with polres = 1114 to the end of the array
                                                     $recapLeaderboardItemsPolda = collect($recapLeaderboardItems);
                                                     $recapLeaderboardItemsPolda = $recapLeaderboardItemsPolda->sortBy('total_total_percentage')->reverse();
-                                                    
+
 
                                                     $accidentTotal = 0;
                                                     $p21Total = 0;
@@ -1575,7 +1959,7 @@
                                                     $totalTotalPercentage = 0;
                                                     $onProgressTotalPercentage = 0;
                                                 @endphp
-                                              
+
                                                 @foreach ($recapLeaderboardItemsPolda as $leaderboardItemPolda)
                                                     @php
                                                         $accidentTotal = $accidentTotal + ($leaderboardItemPolda['accident_total'] ?? 0);
@@ -1601,7 +1985,7 @@
 
                                                             {{$leaderboardItemPolda['polda_name']}}
 
-                                                            @if($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
+                                                            @if ($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
                                                                 <button type="button" class="btn btn-sm btn-success float-end rounded-pill">
                                                                     {{$leaderboardItemPolda['new_entry_crime_clearance_total']}}
                                                                 </button>
@@ -1629,10 +2013,10 @@
                                                         $leaderboardItemPolres = collect($leaderboardItemPolda['polres']);
                                                         $leaderboardItemPolres = $leaderboardItemPolres->sortBy('percentage_total')->reverse();
                                                     @endphp
-                    
+
                                                     @foreach ($leaderboardItemPolres as $leaderboardItem)
-                                                        @if(isset($leaderboardItem['polres']))
-                                                            @if(!in_array($leaderboardItem['polres'], ['1605']))
+                                                        @if (isset($leaderboardItem['polres']))
+                                                            @if (!in_array($leaderboardItem['polres'], ['1605']))
                                                                 @php
                                                                     $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItem['polda'];
                                                                 @endphp
@@ -1642,7 +2026,7 @@
                                                                     <td>
                                                                         {{$leaderboardItem['polres_name'] ?? ''}} ({{$leaderboardItem['polda_name'] ?? ''}})
 
-                                                                        @if($leaderboardItem['new_entry_crime_clearance'] > 0)
+                                                                        @if ($leaderboardItem['new_entry_crime_clearance'] > 0)
                                                                             <button type="button" class="btn btn-sm btn-success float-end rounded-pill">
                                                                                 {{$leaderboardItem['new_entry_crime_clearance']}}
                                                                             </button>
@@ -1693,7 +2077,7 @@
                                                     <th scope="row" colspan="2" class="text-center bg-secondary text-white">
                                                         Total
 
-                                                        @if($newEntryCrimeClearanceTotal > 0)
+                                                        @if ($newEntryCrimeClearanceTotal > 0)
                                                             <button type="button" class="btn btn-sm btn-warning float-end rounded-pill">
                                                                 {{$newEntryCrimeClearanceTotal}}
                                                             </button>
@@ -1726,7 +2110,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-danger" data-bs-target="#leaderboard2025Polda" data-bs-toggle="modal">
-                        <i class="bi bi-arrow-left"></i> Kembali 
+                        <i class="bi bi-arrow-left"></i> Kembali
                     </button>
                     <button class="btn btn-primary" data-bs-target="#infoBoard" data-bs-toggle="modal">
                         Lanjut <i class="bi bi-arrow-right"></i>
@@ -1746,7 +2130,7 @@
                 <div class="modal-body">
                     <h3 class="fw-bold text-blue-dark mb-4">Rekapitulasi Selra Laka {{ Carbon\Carbon::parse($recapBeginDate)->locale('id')->translatedFormat('Y') }}</h3>
                     <h6 class="fw-bold marked-text text-blue-dark mb-4 mt-4"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recapBeginDate, $recapLimitDate) }}</h6>
-                    
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card mb-4">
@@ -1769,16 +2153,16 @@
                                                 <tr>
                                                     <th scope="col" class="text-center text-white" style="background-color: #d63384">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #d63384">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white" style="background-color: #6610f2">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #6610f2">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white" style="background-color: #6f42c1">Jumlah</th>
                                                     <th scope="col" class="text-center text-white" style="background-color: #6f42c1">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center text-white bg-secondary">Jumlah</th>
                                                     <th scope="col" class="text-center text-white bg-secondary">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center bg-primary text-white">Jumlah</th>
                                                     <th scope="col" class="text-center bg-primary text-white">%</th>
 
@@ -1793,7 +2177,7 @@
                                                     // Move the item with polres = 1114 to the end of the array
                                                     $recapLeaderboardItems = collect($recapLeaderboardItems);
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -1824,7 +2208,7 @@
                                                     $totalTotalPercentage = 0;
                                                     $onProgressTotalPercentage = 0;
                                                 @endphp
-                                              
+
                                                 @foreach ($recapLeaderboardItems as $leaderboardItemPolda)
                                                     @php
                                                         $leaderboardItemPolres = collect($leaderboardItemPolda['polres']);
@@ -1832,9 +2216,9 @@
                                                     @endphp
 
                                                     @foreach ($leaderboardItemPolres as $leaderboardItem)
-                                    
-                                                        @if(isset($leaderboardItem['polres']))
-                                                            @if(!in_array($leaderboardItem['polres'], ['1605']))
+
+                                                        @if (isset($leaderboardItem['polres']))
+                                                            @if (!in_array($leaderboardItem['polres'], ['1605']))
                                                                 @php
                                                                     $accidentTotal = $accidentTotal + ($leaderboardItem['jumlah_laka'] ?? 0);
                                                                     $p21Total = $p21Total + ($leaderboardItem['p21'] ?? 0);
@@ -1855,7 +2239,7 @@
                                                                     <td>
                                                                         {{$leaderboardItem['polres_name'] ?? ''}} ({{$leaderboardItem['polda_name'] ?? ''}})
 
-                                                                        @if($leaderboardItem['new_entry_crime_clearance'] > 0)
+                                                                        @if ($leaderboardItem['new_entry_crime_clearance'] > 0)
                                                                             <button type="button" class="btn btn-sm btn-success float-end rounded-pill">
                                                                                 {{$leaderboardItem['new_entry_crime_clearance']}}
                                                                             </button>
@@ -1897,7 +2281,7 @@
                                                         <th scope="row" colspan="2" class="text-center bg-success text-white">
                                                             Total ({{$leaderboardItemPolda['polda_name']}})
 
-                                                            @if($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
+                                                            @if ($leaderboardItemPolda['new_entry_crime_clearance_total'] > 0)
                                                                 <button type="button" class="btn btn-sm btn-warning float-end rounded-pill">
                                                                     {{$leaderboardItemPolda['new_entry_crime_clearance_total']}}
                                                                 </button>
@@ -1933,7 +2317,7 @@
                                                     <th scope="row" colspan="2" class="text-center bg-secondary text-white">
                                                         Total
 
-                                                        @if($newEntryCrimeClearanceTotal > 0)
+                                                        @if ($newEntryCrimeClearanceTotal > 0)
                                                             <button type="button" class="btn btn-sm btn-warning float-end rounded-pill">
                                                                 {{$newEntryCrimeClearanceTotal}}
                                                             </button>
@@ -1966,7 +2350,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-danger" data-bs-target="#leaderboardPolda" data-bs-toggle="modal">
-                        <i class="bi bi-arrow-left"></i> Kembali 
+                        <i class="bi bi-arrow-left"></i> Kembali
                     </button>
                     <button class="btn btn-primary" data-bs-target="#leaderboardCompare" data-bs-toggle="modal">
                         Lanjut <i class="bi bi-arrow-right"></i>
@@ -1986,7 +2370,7 @@
                 <div class="modal-body">
                     <h3 class="fw-bold text-blue-dark mb-4">Perkembangan Selra Laka {{ Carbon\Carbon::parse($recapBeginDate)->locale('id')->translatedFormat('Y') }}</h3>
                     <h6 class="fw-bold marked-text text-blue-dark mb-4 mt-4"><i class="bi bi-pin-angle-fill"></i> Dihitung Periode LP dari {{ App\Helpers\FormatDateHelper::formatDateRange($recapBeginDate, $recapLimitDate) }}</h6>
-                   
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card mb-4">
@@ -2009,7 +2393,7 @@
                                                     <th scope="col" class="text-center bg-primary text-white">SP2LID</th>
                                                     <th scope="col" class="text-center bg-primary text-white">Jumlah</th>
                                                     <th scope="col" class="text-center bg-primary text-white">%</th>
-                                                    
+
                                                     <th scope="col" class="text-center bg-success text-white">P21</th>
                                                     <th scope="col" class="text-center bg-success text-white">SP3</th>
                                                     <th scope="col" class="text-center bg-success text-white">Diversi</th>
@@ -2031,7 +2415,7 @@
                                                     $recapLeaderboardItemsPolda = collect($recapLeaderboardItems);
                                                     $recapLeaderboardItemsPolda = $recapLeaderboardItemsPolda->sortBy('total_total_percentage')->reverse();
                                                     /*$specialItem = $leaderboardItems->where('polres', '1114')->first();
-                                                    
+
                                                     if ($specialItem) {
                                                         // Remove the special item from the original position
                                                         $leaderboardItems = $leaderboardItems->reject(function ($item) {
@@ -2051,7 +2435,7 @@
                                                     $sp2lidTotal = 0;
                                                     $totalTotal = 0;
                                                     $totalTotalPercentage = 0;
-                                            
+
                                                     $p21ExceptEntryTotal = 0;
                                                     $sp3ExceptEntryTotal = 0;
                                                     $diversiExceptEntryTotal = 0;
@@ -2066,7 +2450,7 @@
                                                     $beforeEvalCrimeClearanceTotal = 0;
                                                     $beforeEvalCrimeClearanceTotalPercentage = 0;
                                                 @endphp
-                                              
+
                                                 @foreach ($recapLeaderboardItemsPolda as $leaderboardItemPolda)
                                                     @php
                                                         $accidentTotal = $accidentTotal + ($leaderboardItemPolda['accident_total'] ?? 0);
@@ -2082,13 +2466,13 @@
                                                         $diversiTotal = $diversiTotal + ($leaderboardItemPolda['diversi_total'] ?? 0);
                                                         $sp2lidTotal = $sp2lidTotal + ($leaderboardItemPolda['sp2lid_total'] ?? 0);
                                                         $totalTotal = $totalTotal + ($leaderboardItemPolda['total_total'] ?? 0);
-                                                        
+
                                                         $p21ExceptEntryTotal = $p21ExceptEntryTotal + ($leaderboardItemPolda['p21_except_entry_total'] ?? 0);
                                                         $sp3ExceptEntryTotal = $sp3ExceptEntryTotal + ($leaderboardItemPolda['sp3_except_entry_total'] ?? 0);
                                                         $diversiExceptEntryTotal = $diversiExceptEntryTotal + ($leaderboardItemPolda['diversi_except_entry_total'] ?? 0);
                                                         $sp2lidExceptEntryTotal = $sp2lidExceptEntryTotal + ($leaderboardItemPolda['sp2lid_except_entry_total'] ?? 0);
                                                         $exceptEntryCrimeClearanceTotal = $exceptEntryCrimeClearanceTotal + ($leaderboardItemPolda['except_entry_crime_clearance_total'] ?? 0);
-                                                        
+
                                                         $newEntryCrimeClearanceTotal = $newEntryCrimeClearanceTotal + ($leaderboardItemPolda['new_entry_crime_clearance_total'] ?? 0);
                                                         $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItemPolda['polda'];
                                                     @endphp
@@ -2103,7 +2487,7 @@
                                                             {{$leaderboardItemPolda['polda_name']}}
                                                         </th>
                                                         <td class="text-center">{{$leaderboardItemPolda['accident_total']}}</td>
-    
+
                                                         <td class="text-center">{{$leaderboardItemPolda['before_eval_p21_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['before_eval_sp3_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['before_eval_diversi_total']}}</td>
@@ -2117,7 +2501,7 @@
                                                         <td class="text-center">{{$leaderboardItemPolda['sp2lid_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['total_total']}}</td>
                                                         <td class="text-center">{{ number_format($leaderboardItemPolda['total_total_percentage'], 2) . '%'}}</td>
-                                                        
+
                                                         <td class="text-center">{{$leaderboardItemPolda['p21_except_entry_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['sp3_except_entry_total']}}</td>
                                                         <td class="text-center">{{$leaderboardItemPolda['diversi_except_entry_total']}}</td>
@@ -2131,10 +2515,10 @@
                                                         $leaderboardItemPolres = collect($leaderboardItemPolda['polres']);
                                                         $leaderboardItemPolres = $leaderboardItemPolres->sortBy('percentage_total')->reverse();
                                                     @endphp
-                    
+
                                                     @foreach ($leaderboardItemPolres as $leaderboardItem)
-                                                        @if(isset($leaderboardItem['polres']))
-                                                            @if(!in_array($leaderboardItem['polres'], ['1605']))
+                                                        @if (isset($leaderboardItem['polres']))
+                                                            @if (!in_array($leaderboardItem['polres'], ['1605']))
                                                                 @php
                                                                     $cellColor = 'regional-police-table-row-bg-color-' . $leaderboardItem['polda'];
                                                                 @endphp
@@ -2145,7 +2529,7 @@
                                                                         {{$leaderboardItem['polres_name'] ?? ''}} ({{$leaderboardItem['polda_name'] ?? ''}})
                                                                     </td>
                                                                     <td class="text-center">{{$leaderboardItem['jumlah_laka'] ?? '-'}}</td>
-                                                                                                                                            
+
                                                                     <td class="text-center">{{$leaderboardItem['before_eval_p21'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['before_eval_sp3'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['before_eval_diversi'] ?? '-'}}</td>
@@ -2154,7 +2538,7 @@
                                                                     <td class="text-center">{{
                                                                         (isset($leaderboardItem['before_eval_crime_clearance_percentage'])) ? number_format($leaderboardItem['before_eval_crime_clearance_percentage'], 2) . '%' : '-'
                                                                     }}</td>
-                                                                    
+
                                                                     <td class="text-center">{{$leaderboardItem['p21'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['sp3'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['diversi'] ?? '-'}}</td>
@@ -2163,7 +2547,7 @@
                                                                     <td class="text-center">{{
                                                                         (isset($leaderboardItem['percentage_total'])) ? number_format($leaderboardItem['percentage_total'], 2) . '%' : '-'
                                                                     }}</td>
-                                                                    
+
                                                                     <td class="text-center">{{$leaderboardItem['p21_except_entry'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['sp3_except_entry'] ?? '-'}}</td>
                                                                     <td class="text-center">{{$leaderboardItem['diversi_except_entry'] ?? '-'}}</td>
@@ -2187,21 +2571,21 @@
                                                         Total
                                                     </th>
                                                     <td class="text-center bg-secondary text-white">{{$accidentTotal}}</td>
-                                                    
+
                                                     <td class="text-center bg-secondary text-white">{{$beforeEvalP21Total}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$beforeEvalSp3Total}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$beforeEvalDiversiTotal}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$beforeEvalSp2lidTotal}}</td>
                                                     <td class="text-center bg-primary text-white">{{$beforeEvalCrimeClearanceTotal}}</td>
                                                     <td class="text-center bg-primary text-white">{{ number_format($beforeEvalCrimeClearanceTotalPercentage, 2) . '%'}}</td>
-                                                    
+
                                                     <td class="text-center bg-secondary text-white">{{$p21Total}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$sp3Total}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$diversiTotal}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$sp2lidTotal}}</td>
                                                     <td class="text-center bg-primary text-white">{{$totalTotal}}</td>
                                                     <td class="text-center bg-primary text-white">{{ number_format($totalTotalPercentage, 2) . '%'}}</td>
-                                                    
+
                                                     <td class="text-center bg-secondary text-white">{{$p21ExceptEntryTotal}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$sp3ExceptEntryTotal}}</td>
                                                     <td class="text-center bg-secondary text-white">{{$diversiExceptEntryTotal}}</td>
@@ -2219,7 +2603,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-danger" data-bs-target="#leaderboardPolda" data-bs-toggle="modal">
-                        <i class="bi bi-arrow-left"></i> Kembali 
+                        <i class="bi bi-arrow-left"></i> Kembali
                     </button>
                     <button class="btn btn-primary" data-bs-target="#infoBoard" data-bs-toggle="modal">
                         Lanjut <i class="bi bi-arrow-right"></i>
@@ -2229,7 +2613,8 @@
         </div>
     </div> --}}
 
-    <div class="modal fade" id="infoBoard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="infoBoardLabel" aria-hidden="true">
+    <div class="modal fade" id="infoBoard" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="infoBoardLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -2238,15 +2623,22 @@
                 </div>
                 <div class="modal-body">
                     <div class="d-flex align-items-start">
-                        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist"
+                            aria-orientation="vertical">
                             {{-- <button class="nav-link active" id="info-4-tab" data-bs-toggle="pill" data-bs-target="#info-4-content" type="button" role="tab" aria-controls="info-4-content" aria-selected="true">Gangguan Layanan PDN</button> --}}
-                            <button class="nav-link active" id="info-1-tab" data-bs-toggle="pill" data-bs-target="#info-1-content" type="button" role="tab" aria-controls="info-1-content" aria-selected="true">Alur Pendaftaran TTE</button>
-                            <button class="nav-link" id="info-2-tab" data-bs-toggle="pill" data-bs-target="#info-2-content" type="button" role="tab" aria-controls="info-2-content" aria-selected="false">Aktivasi BSrE</button>
-                            <button class="nav-link" id="info-3-tab" data-bs-toggle="pill" data-bs-target="#info-3-content" type="button" role="tab" aria-controls="info-3-content" aria-selected="false">TR Syarat Daftar TTE</button>
+                            <button class="nav-link active" id="info-1-tab" data-bs-toggle="pill"
+                                data-bs-target="#info-1-content" type="button" role="tab"
+                                aria-controls="info-1-content" aria-selected="true">Alur Pendaftaran TTE</button>
+                            <button class="nav-link" id="info-2-tab" data-bs-toggle="pill"
+                                data-bs-target="#info-2-content" type="button" role="tab"
+                                aria-controls="info-2-content" aria-selected="false">Aktivasi BSrE</button>
+                            <button class="nav-link" id="info-3-tab" data-bs-toggle="pill"
+                                data-bs-target="#info-3-content" type="button" role="tab"
+                                aria-controls="info-3-content" aria-selected="false">TR Syarat Daftar TTE</button>
                         </div>
 
                         <div class="tab-content" id="v-pills-tabContent">
-                            {{--<div class="tab-pane fade show active" id="info-4-content" role="tabpanel" aria-labelledby="info-4-tab">
+                            {{-- <div class="tab-pane fade show active" id="info-4-content" role="tabpanel" aria-labelledby="info-4-tab">
                                 <h3 class="fw-bold text-blue-dark mb-4 mt-4">Pemberitahuan Gangguan Layanan Pusat Data Nasional</h3>
 
                                 <p class="fs-5">
@@ -2270,35 +2662,43 @@
                                 <div class="embed-responsive embed-responsive-16by1">
                                     <iframe style="top:0; left:0; width:900px; height:1024px;" class="embed-responsive-item" src="{{ asset('file/B_697_Pemberitahuan_Gangguan_Layanan_Pusat_Data_Nasional_20_Juni.pdf') }}" allowfullscreen></iframe>
                                 </div>
-                            </div>--}}
+                            </div> --}}
 
-                            <div class="tab-pane fade show active" id="info-1-content" role="tabpanel" aria-labelledby="info-1-tab">
+                            <div class="tab-pane fade show active" id="info-1-content" role="tabpanel"
+                                aria-labelledby="info-1-tab">
                                 <h4 class="fw-bold text-blue-dark mb-4 mt-4">Alur Pendaftaran Akun BSrE Untuk TTE</h4>
 
                                 <a href="{{ asset('images/AlurPendaftaranTTE.png') }}">
-                                    <img src="{{ asset('images/AlurPendaftaranTTE.png') }}" class="img-fluid" alt="Responsive image" >
+                                    <img src="{{ asset('images/AlurPendaftaranTTE.png') }}" class="img-fluid"
+                                        alt="Responsive image">
                                 </a>
                             </div>
-                            
+
                             <div class="tab-pane fade" id="info-2-content" role="tabpanel" aria-labelledby="info-2-tab">
-                                <h4 class="fw-bold text-blue-dark mb-4 mt-4">Prosedur Aktivasi Akun BSrE (Jika Sudah Mendaftarakan Ke Robinops Bareskrim)</h4>
-                                
-                                <a href="{{ asset('file/PPT_PENERBITAN_TTE_BSrE.pdf') }}" class="btn btn-primary mb-4 btn-lg" role="button" target="_blank">
+                                <h4 class="fw-bold text-blue-dark mb-4 mt-4">Prosedur Aktivasi Akun BSrE (Jika Sudah
+                                    Mendaftarakan Ke Robinops Bareskrim)</h4>
+
+                                <a href="{{ asset('file/PPT_PENERBITAN_TTE_BSrE.pdf') }}"
+                                    class="btn btn-primary mb-4 btn-lg" role="button" target="_blank">
                                     <i class="bi bi-download"></i> Download
                                 </a>
                                 <div class="embed-responsive embed-responsive-16by1">
-                                    <iframe style="top:0;left:0;width:100%;height:1024px;" class="embed-responsive-item" src="{{ asset('file/PPT_PENERBITAN_TTE_BSrE.pdf') }}" allowfullscreen></iframe>
+                                    <iframe style="top:0;left:0;width:100%;height:1024px;" class="embed-responsive-item"
+                                        src="{{ asset('file/PPT_PENERBITAN_TTE_BSrE.pdf') }}" allowfullscreen></iframe>
                                 </div>
                             </div>
-                            
+
                             <div class="tab-pane fade" id="info-3-content" role="tabpanel" aria-labelledby="info-3-tab">
                                 <h4 class="fw-bold text-blue-dark mb-4 mt-4">TR Syarat Pendaftaran TTE</h4>
 
-                                <a href="{{ asset('file/TR_SYARAT_DAFTAR_TTE.pdf') }}" class="btn btn-primary mb-4 btn-lg" role="button" target="_blank">
+                                <a href="{{ asset('file/TR_SYARAT_DAFTAR_TTE.pdf') }}"
+                                    class="btn btn-primary mb-4 btn-lg" role="button" target="_blank">
                                     <i class="bi bi-download"></i> Download
                                 </a>
                                 <div class="embed-responsive embed-responsive-16by1">
-                                    <iframe style="top:0; left:0; width:900px; height:1024px;" class="embed-responsive-item" src="{{ asset('file/TR_SYARAT_DAFTAR_TTE.pdf') }}" allowfullscreen></iframe>
+                                    <iframe style="top:0; left:0; width:900px; height:1024px;"
+                                        class="embed-responsive-item" src="{{ asset('file/TR_SYARAT_DAFTAR_TTE.pdf') }}"
+                                        allowfullscreen></iframe>
                                 </div>
                             </div>
                         </div>
@@ -2306,7 +2706,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                    <i class="bi bi-x"></i> Tutup
+                        <i class="bi bi-x"></i> Tutup
                     </button>
                 </div>
             </div>
@@ -2323,10 +2723,12 @@
                 timer: 5000
             });
         </script>
-    @endif
+    @endif
 @endsection
 
 @push('script')
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
     <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
@@ -2336,25 +2738,97 @@
         setInterval(function() {
             $('.marked-column').toggleClass('bg-white bg-danger text-white text-black');
         }, 2000);
-        
+
         setInterval(function() {
             $('.marked-text').toggleClass('text-danger text-success');
         }, 1500);
 
-        $('.regional-police-2026-table-row-button').click(function() {
-            var id = $(this).attr('id');
-            console.log(id);
-            $('.resort-police-2026-table-row-' + id).toggle();
-        });
-        
         $('.regional-police-2025-table-row-button').click(function() {
             var id = $(this).attr('id');
             console.log(id);
             $('.resort-police-2025-table-row-' + id).toggle();
         });
+
+        $('.regional-police-2024-table-row-button').click(function() {
+            var id = $(this).attr('id');
+            console.log(id);
+            $('.resort-police-2024-table-row-' + id).toggle();
+        });
     </script>
 
     <script type="text/javascript">
+        window.modernChartData = {
+            dates: [],
+            counts: []
+        };
+
+        function drawECharts2D() {
+            var dates = window.modernChartData.dates;
+            var counts = window.modernChartData.counts;
+            if (!dates || !dates.length) return;
+
+            echarts.dispose(document.getElementById('modernChartBar'));
+
+            window.modernBarChart = echarts.init(document.getElementById('modernChartBar'));
+            var barOption = {
+                // Warna Lama:
+                // color: ['#2563eb', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#f97316', '#6366f1', '#14b8a6', '#0284c7', '#4f46e5'],
+                // Warna Baru (Harmonisasi Seimbang dengan #222577):
+                color: ['#222577', '#198754', '#ca8a04', '#6f42c1', '#0891b2', '#c2410c', '#1d4ed8', '#15803d', '#d97706', '#5b21b6', '#0e7490', '#991b1b'],
+                title: {
+                    text: 'Jumlah LP Ditindaklanjuti Per-Bulan',
+                    textStyle: {
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        color: '#222577'
+                    },
+                    left: 10,
+                    top: 10
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '18%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates,
+                    axisLine: { lineStyle: { color: '#cbd5e1' } },
+                    axisLabel: { color: '#64748b', fontSize: 11, interval: 0, rotate: 45 }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { show: false },
+                    splitLine: { lineStyle: { color: '#f1f5f9' } },
+                    axisLabel: { color: '#64748b', fontSize: 11 }
+                },
+                series: [{
+                    name: 'Jumlah Laka Lantas Sedang Ditindak Lanjuti',
+                    type: 'bar',
+                    barWidth: '50%',
+                    colorBy: 'data',
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#64748b',
+                        fontSize: 10,
+                        fontWeight: 'bold'
+                    },
+                    itemStyle: {
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    data: counts
+                }]
+            };
+            window.modernBarChart.setOption(barOption);
+        }
+
         // window.onload = function(){
 
         $.ajax({
@@ -2369,8 +2843,17 @@
                     get_date.push([data[x].date]);
                     get_count.push([data[x].count]);
                 }
+
+                // --- Simpan data ke global state untuk toggle
+                window.modernChartData.dates = data.map(function(item) { return item.date; });
+                window.modernChartData.counts = data.map(function(item) { return Number(item.count); });
+
+                // Render default 2D
+                drawECharts2D();
                 // alert(get_date);
 
+                // --- Highcharts Bar Chart Lama (di-comment, diganti ECharts Modern) ---
+                /*
                 Highcharts.chart('chartBar', {
                     chart: {
                         height: 358,
@@ -2390,13 +2873,6 @@
                             fontSize: '20px'
                         }
                     },
-                    // subtitle: {
-                    //     text: 'Jumlah Laka Sidik',
-                    //     style: {
-                    //         fontWeight: 'bold',
-                    //         fontSize: '14px'
-                    //     }
-                    // },
                     accessibility: {
                         announceNewData: {
                             enabled: true
@@ -2409,7 +2885,6 @@
                         title: {
                             text: 'Jumlah'
                         }
-
                     },
                     legend: {
                         enabled: false
@@ -2422,95 +2897,33 @@
                             }
                         }
                     },
-
                     tooltip: {
                         headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
                         pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y}</b><br/>'
                     },
-
                     series: [{
                         name: "Jumlah Laka Lantas Sedang Ditindak Lanjuti",
                         colorByPoint: true,
-                        data: [{
-                                name: get_date[0],
-                                y: parseInt(get_count[0])
-                                // y: 20
-                            },
-                            {
-                                name: get_date[1],
-                                y: parseInt(get_count[1])
-                                // y: 12
-                            },
-                            {
-                                name: get_date[2],
-                                y: parseInt(get_count[2])
-                                // y: 4
-                            },
-                            {
-                                name: get_date[3],
-                                y: parseInt(get_count[3])
-                                // y: 15
-                            },
-                            {
-                                name: get_date[4],
-                                y: parseInt(get_count[4])
-                                // y: 25
-                            },
-                            {
-                                name: get_date[5],
-                                y: parseInt(get_count[5])
-                                // y: 22
-                            },
-                            {
-                                name: get_date[6],
-                                y: parseInt(get_count[6])
-                                // y: 9
-                            },
-                            {
-                                name: get_date[7],
-                                y: parseInt(get_count[7])
-                                // y: 16
-                            },
-                            {
-                                name: get_date[8],
-                                y: parseInt(get_count[8])
-                                // y: 26
-                            },
-                            {
-                                name: get_date[9],
-                                y: parseInt(get_count[9])
-                                // y: 14
-                            },
-                            {
-                                name: get_date[10],
-                                y: parseInt(get_count[10])
-                                // y: 5
-                            },
-                            {
-                                name: get_date[11],
-                                y: parseInt(get_count[11])
-                                // y: 2
-                            },
-                        ]
+                        data: []
                     }]
                 });
 
                 Highcharts.setOptions({
-                    colors: Highcharts.map(Highcharts.getOptions().colors, function(color) {
+                    colors: [
+                        '#7cb5ec', '#434348', '#90ed7d', '#f7a35c',
+                        '#8085e9', '#f15c80', '#e4d354', '#2b908f',
+                        '#f45b5b', '#91e8e1'
+                    ].map(function(color) {
                         return {
-                            radialGradient: {
-                                cx: 0.5,
-                                cy: 0.3,
-                                r: 0.7
-                            },
+                            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
                             stops: [
                                 [0, color],
-                                [1, Highcharts.color(color).brighten(-0.3).get(
-                                    'rgb')] // darken
+                                [1, Highcharts.color(color).brighten(-0.3).get('rgb')]
                             ]
                         };
                     })
                 });
+                */
 
             }
         });
@@ -2533,105 +2946,165 @@
                     get_selra.push([data[0].jumlah_selra[x].name]);
                     get_percentage.push([data[0].jumlah_selra[x].percentage]);
                 }
-                // for(x=0; x< a; x++){
-                // get_date.push([data[x].date]);
-                // get_percentage.push([data[x].percentage]);
-                get_month.push([data[0].date_month]);
-                get_year.push([data[0].date_year]);
-                get_jumlah.push([data[0].jumlah_laka]);
-                // }
-                Highcharts.chart('chartPie', {
-                    chart: {
-                        height: 358,
-                        plotBackgroundColor: null,
-                        plotBorderWidth: null,
-                        plotShadow: false,
-                        type: 'pie',
-                        options3d: {
-                            enabled: true,
-                            alpha: 50,
-                            beta: 0
-                        }
-                    },
+
+                // --- Map data untuk ECharts Donut dengan palet warna harmonis & berbobot gelap-terang seimbang dengan #222577 (Navy Base)
+                var echartsPieData = data[0].jumlah_selra.map(function(item) {
+                    // var color = '#e6e600'; // Warna Lama: Default Kuning Terang Muted
+                    var color = '#ca8a04';    // Warna Baru: Muted Warm Gold
+                    var nameUpper = item.name.toUpperCase();
+                    if (nameUpper.indexOf('SP2LID') !== -1) {
+                        // color = '#0000e6'; // Warna Lama: Biru Terang Muted (S0103)
+                        color = '#222577';    // Warna Baru: Navy Base / Sidebar (#222577)
+                    } else if (nameUpper.indexOf('P21') !== -1) {
+                        // color = '#00e600'; // Warna Lama: Hijau Terang Muted (S0101)
+                        color = '#198754';    // Warna Baru: Emerald Forest Green
+                    } else if (nameUpper.indexOf('SP3') !== -1) {
+                        // color = '#00e6e6'; // Warna Lama: Cyan Terang Muted (S0102)
+                        color = '#0891b2';    // Warna Baru: Deep Ocean Teal / Cyan
+                    } else if (nameUpper.indexOf('DIVERSI') !== -1) {
+                        // color = '#e600e6'; // Warna Lama: Magenta Terang Muted (S0104)
+                        color = '#6f42c1';    // Warna Baru: Royal Purple / Violet
+                    } else if (nameUpper.indexOf('POM') !== -1 || nameUpper.indexOf('TNI') !== -1) {
+                        // color = '#e68a00'; // Warna Lama: Oranye Terang Muted (S0108)
+                        color = '#c2410c';    // Warna Baru: Terracotta / Burnt Orange
+                    } else {
+                        // color = '#e6e600'; // Warna Lama: Kuning Terang Muted (S0106 / Lainnya)
+                        color = '#ca8a04';    // Warna Baru: Muted Warm Gold (S0106 / Lainnya)
+                    }
+                    return { 
+                        name: item.name, 
+                        value: Number(item.percentage),
+                        itemStyle: { color: color }
+                    };
+                });
+
+                window.modernPieChart = echarts.init(document.getElementById('modernChartPie'));
+                var pieOption = {
                     title: {
-                        // text: 'Jumlah Laka Sidik Bulan '+get_date[0]+' sampai '+get_date[11]+' sebanyak : '+get_jumlah[0]+' laka'
-                        //text: 'Jumlah SELRA Bulan Januari '+get_year[0]+' sampai '+get_month[0]+' '+get_year[0]+' sebanyak : '+get_jumlah[0]+' laka',
-                        text: 'Jumlah SELRA Tahun ' + get_year[0] + ' sebanyak : ' + get_jumlah[0] +
-                            ' LP',
-                        style: {
-                            fontWeight: 'bold'
-                        }
-                    },
-                    subtitle: {
-                        text: '( Berdasarkan Tanggal Tindak Lanjut Tahun ' + get_year[0] + ' )',
-                        style: {
+                        text: 'Jumlah SELRA Tahun ' + data[0].date_year + ' sebanyak : ' + data[0].jumlah_laka + ' LP',
+                        subtext: '( Berdasarkan Tanggal Tindak Lanjut Tahun ' + data[0].date_year + ' )',
+                        textStyle: {
+                            fontSize: 16,
                             fontWeight: 'bold',
-                            fontSize: '14px'
-                        }
+                            color: '#222577'
+                        },
+                        subtextStyle: {
+                            fontWeight: 'bold',
+                            fontSize: 11,
+                            color: '#64748b'
+                        },
+                        left: 10,
+                        top: 10
                     },
                     tooltip: {
-                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        trigger: 'item',
+                        formatter: '{b}: {c} LP ({d}%)'
                     },
-                    accessibility: {
-                        point: {
-                            valueSuffix: '%'
-                        }
+                    legend: {
+                        bottom: '5%',
+                        left: 'center',
+                        textStyle: { fontSize: 11, color: '#64748b' }
                     },
-                    plotOptions: {
-                        pie: {
-                            allowPointSelect: true,
-                            cursor: 'pointer',
-                            depth: 35,
-                            dataLabels: {
-                                enabled: true,
-                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                                connectorColor: 'silver'
-                            }
-                        }
-                    },
-                    series: [{
-                        name: 'Persentase',
-                        data: [{
-                                name: get_selra[0],
-                                y: parseFloat(get_percentage[0])
-                                // y: 30
+                    series: [
+                        {
+                            name: 'Persentase',
+                            type: 'pie',
+                            radius: ['35%', '60%'],
+                            avoidLabelOverlap: true,
+                            minAngle: 5,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#fff',
+                                borderWidth: 2
                             },
-                            {
-                                name: get_selra[1],
-                                y: parseFloat(get_percentage[1])
-                                // y: 24
+                            label: {
+                                show: true,
+                                position: 'outer',
+                                alignTo: 'edge',
+                                margin: 15,
+                                formatter: '{b}\n{d}%',
+                                fontSize: 10,
+                                color: '#475569'
                             },
-                            {
-                                name: get_selra[2],
-                                y: parseFloat(get_percentage[2])
-                                // y: 11
+                            labelLine: {
+                                length: 15,
+                                length2: 10
                             },
-                            {
-                                name: get_selra[3],
-                                y: parseFloat(get_percentage[3])
-                                // y: 17
-                            },
-                            {
-                                name: get_selra[4],
-                                y: parseFloat(get_percentage[4])
-                                // y: 6
-                            },
-                            {
-                                name: get_selra[5],
-                                y: parseFloat(get_percentage[5])
-                                // y: 25
-                            },
-                            // {
-                            //     name: get_selra[6],
-                            //     y: parseFloat(get_percentage[6])
-                            //     // y: 34
-                            // },
-                        ]
-
-                    }]
-                });
-            }
-        });
-        // Build the chart
-    </script>
+                            labelLayout: {
+                                moveOverlap: 'shiftY'
+                              },
+                              emphasis: {
+                                  label: {
+                                      show: true,
+                                      fontSize: 14,
+                                      fontWeight: 'bold'
+                                  }
+                              },
+                              data: echartsPieData
+                          }
+                      ]
+                  };
+                  window.modernPieChart.setOption(pieOption);
+  
+                  // for(x=0; x< a; x++){
+                  // get_date.push([data[x].date]);
+                  // get_percentage.push([data[x].percentage]);
+                  get_month.push([data[0].date_month]);
+                  get_year.push([data[0].date_year]);
+                  get_jumlah.push([data[0].jumlah_laka]);
+                  // }
+                  // --- Highcharts Pie Chart Lama (di-comment, diganti ECharts Modern) ---
+                  /*
+                  Highcharts.chart('chartPie', {
+                      chart: {
+                          height: 358,
+                          plotBackgroundColor: null,
+                          plotBorderWidth: null,
+                          plotShadow: false,
+                          type: 'pie',
+                          options3d: {
+                              enabled: true,
+                              alpha: 50,
+                              beta: 0
+                          }
+                      },
+                      title: {
+                          text: 'Jumlah SELRA Tahun ' + get_year[0] + ' sebanyak : ' + get_jumlah[0] + ' LP',
+                          style: { fontWeight: 'bold' }
+                      },
+                      subtitle: {
+                          text: '( Berdasarkan Tanggal Tindak Lanjut Tahun ' + get_year[0] + ' )',
+                          style: { fontWeight: 'bold', fontSize: '14px' }
+                      },
+                      tooltip: {
+                          pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                      },
+                      plotOptions: {
+                          pie: {
+                              allowPointSelect: true,
+                              cursor: 'pointer',
+                              depth: 35,
+                              dataLabels: {
+                                  enabled: true,
+                                  format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                  connectorColor: 'silver'
+                              }
+                          }
+                      },
+                      series: [{
+                          name: 'Persentase',
+                          data: []
+                      }]
+                  });
+                  */
+              }
+          });
+  
+          // Resize handler untuk menjaga responsiveness ECharts saat viewport berubah
+          window.addEventListener('resize', function() {
+              if (window.modernBarChart) window.modernBarChart.resize();
+              if (window.modernPieChart) window.modernPieChart.resize();
+          });
+          // Build the chart
+      </script>
 @endpush
