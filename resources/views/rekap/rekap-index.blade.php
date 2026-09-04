@@ -17,11 +17,11 @@
           {{-- Tanggal (dd-mm-yyyy) --}}
           <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
             <label class="form-label">Dari Tanggal</label>
-            <input class="form-control" type="text" id="date_from" name="date_from" placeholder="Dari Tanggal (Tanggal Kejadian)" autocomplete="off">
+            <input class="form-control" type="text" id="date_from" name="date_from" placeholder="Dari Tanggal" autocomplete="off">
           </div>
           <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
             <label class="form-label">Hingga Tanggal</label>
-            <input class="form-control" type="text" id="date_to" name="date_to" placeholder="Hingga Tanggal (Tanggal Kejadian)" autocomplete="off">
+            <input class="form-control" type="text" id="date_to" name="date_to" placeholder="Hingga Tanggal" autocomplete="off">
           </div>
 
           {{-- Status --}}
@@ -81,6 +81,15 @@
             @endif
           </div>
 
+          {{-- Berdasarkan --}}
+          <div class="col-lg-4 col-md-4 col-sm-12 col-12 mb-3">
+            <label class="form-label">Berdasarkan</label>
+            <select id="date_type" name="date_type" class="form-select">
+              <option value="accident_date">Tanggal Kejadian</option>
+              <option value="report_date">Tanggal Dilaporkan</option>
+            </select>
+          </div>
+
           <div class="m-2 text-center">
             <button type="submit" id="btn-search" class="btn btn-dark-blue">Search</button>
             <button type="button" id="btn-reset" class="btn btn-secondary">Reset</button>
@@ -103,6 +112,7 @@
                 <th class="text-center" style="width:70px">No</th>
                 <th class="text-center">No LP</th>
                 <th class="text-center">Tanggal Kejadian</th>
+                <th class="text-center">Tanggal Dilaporkan</th>
                 <th class="text-center">Tanggal Tindak Lanjut</th>
                 <th class="text-center">Proses Selama</th>
                 <th class="text-center">Status</th>
@@ -172,6 +182,7 @@
       const polresEl = document.querySelector('#polres') ?? document.querySelector('input[name="polres"]');
       return {
         no_lp:     $('#no_LP').val() || '',
+        date_type: $('#date_type').val() || 'accident_date',
         date_from: toYMD($('#date_from').val()),
         date_to:   toYMD($('#date_to').val()),
         status:    $('#status').val() || '',
@@ -210,6 +221,7 @@
           { data: null, className:'text-center', render: (d,t,r,m) => m.row + 1 },
           { data: 'no_lp', className:'text-wrap' },
           { data: 'accident_date', className:'text-center' },
+          { data: 'report_date', className:'text-center', render: (d) => d || '-' },
           { data: 'accident_tindak_lanjut', className:'text-center' },
           { data: 'accident_proses', className:'text-center' },
           { data: 'selra_flag', className:'text-center',
@@ -225,8 +237,8 @@
         dom: 'Bfrtip',
         buttons: [
           { extend: 'copyHtml5',  title: 'Daftar Rekap' },
-          { extend: 'excelHtml5', title: 'Daftar Rekap', exportOptions: { columns: [1,2,3,4,5] } },
-          { extend: 'pdfHtml5',   title: 'Daftar Rekap', exportOptions: { columns: [1,2,3,4,5] }, orientation:'landscape', pageSize:'A4' }
+          { extend: 'excelHtml5', title: 'Daftar Rekap', exportOptions: { columns: [1,2,3,4,5,6] } },
+          { extend: 'pdfHtml5',   title: 'Daftar Rekap', exportOptions: { columns: [1,2,3,4,5,6] }, orientation:'landscape', pageSize:'A4' }
         ]
       });
 
