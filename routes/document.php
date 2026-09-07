@@ -16,6 +16,21 @@ use App\Http\Controllers\Docs\Tahap2DocumentController;
 use App\Http\Controllers\Docs\Sp2hpDocumentController;
 use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
 use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
+use App\Http\Controllers\Docs\SuratPemberitahuanUpayaDiversiDocumentController;
+
+// Surat Pemberitahuan Upaya Diversi (SPUD) Routes
+Route::prefix('/surat-pemberitahuan-upaya-diversi-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'index'])->name('doc.surat-pemberitahuan-upaya-diversi-document.index');
+    Route::get('/create', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'create'])->name('doc.surat-pemberitahuan-upaya-diversi-document.create');
+    Route::post('/create', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'store'])->name('doc.surat-pemberitahuan-upaya-diversi-document.store');
+    Route::get('/{id}/show', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'show'])->name('doc.surat-pemberitahuan-upaya-diversi-document.show');
+    Route::get('/{id}/edit', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'edit'])->name('doc.surat-pemberitahuan-upaya-diversi-document.edit');
+    Route::post('/{id}/edit', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'update'])->name('doc.surat-pemberitahuan-upaya-diversi-document.update');
+    Route::delete('/{id}/delete', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'delete'])->name('doc.surat-pemberitahuan-upaya-diversi-document.delete');
+    Route::get('/{id}/download', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'download'])->name('doc.surat-pemberitahuan-upaya-diversi-document.download');
+    Route::post('/generate-word', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'generateWord'])->name('doc.surat-pemberitahuan-upaya-diversi-document.generate-word');
+    Route::post('/api/validate-request-form', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'apiValidateRequestForm'])->name('doc.surat-pemberitahuan-upaya-diversi-document.api.validate-request-form');
+});
 
 Route::post('/create',[DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');
 Route::get('/type-document/{id}',[DocumentController::class, 'getTypeDocument'])->name('doc.getTypeDocument');

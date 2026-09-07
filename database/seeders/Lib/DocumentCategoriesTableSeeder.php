@@ -20,6 +20,7 @@ use App\Models\Doc\P21Document\P21Document;
 use App\Models\Doc\P19Document\P19Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument;
+use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
 
 class DocumentCategoriesTableSeeder extends Seeder
 {
@@ -392,10 +393,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '02',
                 'name' => 'SURAT PEMBERITAHUAN UPAYA DIVERSI',
                 'category' => $categoryType,
-                'route' => NULL,
-                'base_route' => NULL,
+                'route' => 'doc.surat-pemberitahuan-upaya-diversi-document.create',
+                'base_route' => 'doc.surat-pemberitahuan-upaya-diversi-document',
                 'is_digital_signature' => false,
-                'model_class' => NULL,
+                'model_class' => get_class(new SuratPemberitahuanUpayaDiversiDocument()) . '::class',
                 'alt_code' => 'surat-pemberitahuan-upaya-diversi-document',
                 'is_case_finish' => false,
             ],
