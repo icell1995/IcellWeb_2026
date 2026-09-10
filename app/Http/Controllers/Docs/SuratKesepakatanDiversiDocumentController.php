@@ -15,11 +15,12 @@ use App\Traits\DocsOfficersTraits;
 use App\Models\Accident;
 use App\Models\Officer;
 use App\Models\Suspect;
-use App\Models\InvolvedPeople;
 
 use App\Models\Lib\Gender;
 use App\Models\Lib\Religion;
 use App\Models\Lib\Job;
+use App\Models\Lib\Nationality;
+use App\Models\Lib\IdentityType;
 
 class SuratKesepakatanDiversiDocumentController extends Controller
 {
@@ -62,25 +63,23 @@ class SuratKesepakatanDiversiDocumentController extends Controller
             ->where('flag', Suspect::getEnumOption('flag', 'TERSANGKA'))
             ->get();
 
-        // Korban / Orang yang terlibat pada perkara ini
-        $involvedPeoples = InvolvedPeople::withRelated()
-            ->where('accident_id', $accidentId)
-            ->get();
-
         // Master data
+        $identityTypes = IdentityType::active()->get();
         $genders = Gender::where('is_active', true)->get();
         $religions = Religion::where('is_active', true)->get();
         $jobs = Job::where('is_active', true)->orderBy('name')->get();
+        $nationalities = Nationality::active()->orderBy('sort')->get();
 
         $viewData = [
             'accidentId'            => $accidentId,
             'accident'              => $accident,
             'authorizedSignatories' => $authorizedSignatories,
             'suspects'              => $suspects,
-            'involvedPeoples'       => $involvedPeoples,
+            'identityTypes'         => $identityTypes,
             'genders'               => $genders,
             'religions'             => $religions,
             'jobs'                  => $jobs,
+            'nationalities'         => $nationalities,
         ];
 
         return view('docs.surat-kesepakatan-diversi-document.create', $viewData);

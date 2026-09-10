@@ -8,7 +8,6 @@
     <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('libs/bootstrap-duallistbox/bootstrap-duallistbox.css') }}" rel="stylesheet">
 @endpush
 
 @section('content')
@@ -18,6 +17,17 @@
     <div class="box">
         <div class="box-header">
             <h5 class="fw-bold text-blue-dark">Tambah Surat Kesepakatan Diversi</h5>
+
+            <div class="alert alert-danger" id="attentionBox">
+                <div class="text-center">
+                    <b>
+                        PERHATIAN !<br />
+                        <br />
+                        PASTIKAN PROSES DIVERSI TELAH DILAKSANAKAN DAN MENCAPAI KESEPAKATAN ANTARA PIHAK ANAK DAN PIHAK KORBAN
+                        SEBELUM MEMBUAT DOKUMEN INI.
+                    </b>
+                </div>
+            </div>
 
             <!-- error alert -->
             @if ($errors->any())
@@ -97,32 +107,46 @@
 
                 {{-- ─── WAKTU DAN TEMPAT PELAKSANAAN MUSYAWARAH DIVERSI ─── --}}
                 <hr>
-                <h6 class="fw-bold text-blue-dark mb-3">Waktu dan Tempat Pelaksanaan Musyawarah Diversi</h6>
+                <h5 class="fw-bold text-blue-dark">Waktu dan Tempat Pelaksanaan Musyawarah Diversi</h5>
 
-                {{-- Tanggal & Hari Musyawarah --}}
+                {{-- Tanggal Musyawarah --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="diversionDate">Waktu Musyawarah<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12">
+                    <label class="fw-bold col-sm-2 col-form-label" for="diversionDate">Tanggal Musyawarah<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input class="form-control" id="diversionDate" name="diversionDate"
-                            placeholder="Tanggal Musyawarah (YYYY-MM-DD)" autocomplete="off" value="{{ old('diversionDate') }}"
+                            placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('diversionDate') }}"
                             data-provide="datepicker">
-                    </div>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" id="diversionDay" name="diversionDay"
-                            placeholder="Hari (Contoh: Senin)" value="{{ old('diversionDay') }}">
+
+                        @error('diversionDate')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
                     </div>
                 </div>
 
-                {{-- Ruang & Jalan/Tempat Musyawarah --}}
+                {{-- Tempat Pelaksanaan Musyawarah (Ruang & Alamat) --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="diversionRoom">Tempat Musyawarah<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
                         <input type="text" class="form-control" id="diversionRoom" name="diversionRoom"
-                            placeholder="Ruang (Contoh: Ruang Riksa / Ruang Diversi)" value="{{ old('diversionRoom') }}">
+                            placeholder="Ruang Musyawarah (Contoh: Ruang Mediasi)" value="{{ old('diversionRoom') }}">
+
+                        @error('diversionRoom')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
                     </div>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
                         <input type="text" class="form-control" id="diversionStreet" name="diversionStreet"
-                            placeholder="Jalan / Alamat Tempat Pelaksanaan" value="{{ old('diversionStreet') }}">
+                            placeholder="Jalan / Alamat Tempat Pelaksanaan Musyawarah" value="{{ old('diversionStreet') }}">
+
+                        @error('diversionStreet')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
                     </div>
                 </div>
 
@@ -141,7 +165,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <small class="text-muted">(*Penyidik / Penyidik Pembantu yang bertindak sebagai Fasilitator Diversi)</small>
+                        <small class="text-muted">(*Apabila daftar yang menandatangani kosong silahkan hubungi Helpdesk untuk mendapat bantuan)</small>
 
                         @error('facilitatorOfficer')
                             <span class="invalid-feedback" role="alert">
@@ -153,44 +177,91 @@
 
                 {{-- ─── IDENTITAS PIHAK I (ANAK & PENDAMPING) ─── --}}
                 <hr>
-                <h6 class="fw-bold text-blue-dark mb-3">Identitas Pihak I (Anak yang Berkonflik dengan Hukum)</h6>
+                <h5 class="fw-bold text-blue-dark">Identitas Pihak I (Anak yang Berkonflik dengan Hukum)</h5>
 
                 {{-- Pilih Tersangka Anak --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="suspectId">Tersangka Anak<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="suspectId" id="suspectId">
                             <option value="">--Pilih Tersangka Anak--</option>
                             @foreach ($suspects as $suspect)
                                 @php
-                                    $suspectAge = 'Umur tidak diketahui';
-                                    if (!empty($suspect->birth_date)) {
+                                    $suspectAgeYear = '';
+                                    $suspectAgeMonth = '';
+                                    $suspectAgeDay = '';
+                                    $suspectAgeText = 'Umur tidak diketahui';
+                                    $birthDateRaw = $suspect->birth_date ?? $suspect->date_of_birth;
+                                    if (!empty($birthDateRaw)) {
                                         try {
-                                            $birth = \Carbon\Carbon::parse($suspect->birth_date);
+                                            $birth = \Carbon\Carbon::parse($birthDateRaw);
                                             $diff = $birth->diff(\Carbon\Carbon::now());
-                                            $suspectAge = "{$diff->y} tahun {$diff->m} bulan {$diff->d} hari";
+                                            $suspectAgeYear = $diff->y;
+                                            $suspectAgeMonth = $diff->m;
+                                            $suspectAgeDay = $diff->d;
+                                            $suspectAgeText = "{$diff->y} tahun {$diff->m} bulan {$diff->d} hari";
                                         } catch (\Exception $e) {
-                                            $suspectAge = 'Umur tidak diketahui';
+                                            $suspectAgeText = 'Umur tidak diketahui';
                                         }
                                     } elseif (!empty($suspect->age)) {
-                                        $suspectAge = $suspect->age . ' tahun';
+                                        $suspectAgeYear = $suspect->age;
+                                        $suspectAgeText = $suspect->age . ' tahun';
+                                    }
+
+                                    $suspectNatId = '';
+                                    $natRaw = trim($suspect->nationality ?? '');
+                                    $natUpper = strtoupper($natRaw);
+                                    if (!empty($natRaw)) {
+                                        if (
+                                            str_contains($natUpper, 'INDO') ||
+                                            str_contains($natUpper, 'WNI') ||
+                                            str_contains($natUpper, 'WARGA NEGARA INDONESIA') ||
+                                            $natUpper === '1'
+                                        ) {
+                                            $suspectNatId = '1';
+                                        } elseif (
+                                            str_contains($natUpper, 'WNA') ||
+                                            str_contains($natUpper, 'ASING') ||
+                                            str_contains($natUpper, 'RUSIA') ||
+                                            str_contains($natUpper, 'CHINA') ||
+                                            str_contains($natUpper, 'CINA') ||
+                                            str_contains($natUpper, 'INGGERIS') ||
+                                            str_contains($natUpper, 'INGGRIS') ||
+                                            str_contains($natUpper, 'PRANCIS') ||
+                                            str_contains($natUpper, 'ARAB') ||
+                                            str_contains($natUpper, 'CEKO') ||
+                                            $natUpper === '2'
+                                        ) {
+                                            $suspectNatId = '2';
+                                        } elseif (
+                                            str_contains($natUpper, 'TIDAK') ||
+                                            str_contains($natUpper, 'UNKNOWN') ||
+                                            $natUpper === '3'
+                                        ) {
+                                            $suspectNatId = '3';
+                                        }
+                                    } elseif (!empty($suspect->country_id)) {
+                                        $suspectNatId = ($suspect->country_id === 'C101') ? '1' : '2';
+                                    } elseif (!empty($suspect->country_short_name) && strtoupper($suspect->country_short_name) === 'IDN') {
+                                        $suspectNatId = '1';
                                     }
                                 @endphp
                                 <option value="{{ $suspect->id }}"
-                                    data-name="{{ $suspect->name }}"
+                                    data-identity-type="{{ $suspect->identity_type_id }}"
                                     data-identity="{{ $suspect->identity_number }}"
-                                    data-nationality="{{ $suspect->nationality ?? 'WNI' }}"
+                                    data-name="{{ $suspect->name }}"
                                     data-gender="{{ $suspect->gender_id }}"
-                                    data-birthplace="{{ $suspect->birth_place }}"
-                                    data-birthdate="{{ $suspect->birth_date }}"
-                                    data-age-year="{{ isset($diff) ? $diff->y : $suspect->age }}"
-                                    data-age-month="{{ isset($diff) ? $diff->m : 0 }}"
-                                    data-age-day="{{ isset($diff) ? $diff->d : 0 }}"
+                                    data-birthplace="{{ $suspect->birth_place ?? $suspect->place_of_birth }}"
+                                    data-birthdate="{{ $birthDateRaw ? \Carbon\Carbon::parse($birthDateRaw)->format('Y-m-d') : '' }}"
+                                    data-age-year="{{ $suspectAgeYear }}"
+                                    data-age-month="{{ $suspectAgeMonth }}"
+                                    data-age-day="{{ $suspectAgeDay }}"
+                                    data-nationality="{{ $suspectNatId }}"
                                     data-job="{{ $suspect->job_id }}"
                                     data-religion="{{ $suspect->religion_id }}"
                                     data-address="{{ $suspect->address ?? ($suspect->properties['address'] ?? '') }}"
                                     {{ old('suspectId') == $suspect->id ? 'selected' : '' }}>
-                                    {{ $suspect->name }} ({{ $suspectAge }})
+                                    {{ $suspect->name }} ({{ $suspectAgeText }})
                                 </option>
                             @endforeach
                         </select>
@@ -200,34 +271,41 @@
                     </div>
                 </div>
 
-                {{-- Nama Anak --}}
+                {{-- Jenis Identitas Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childName">Nama Lengkap Anak<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="childName" type="text" class="form-control" name="childName" value="{{ old('childName') }}" required placeholder="Nama lengkap anak">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childIdentityType">Jenis Identitas<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <select class="form-control select2" id="childIdentityType" name="childIdentityType">
+                            <option value="">--Pilih Jenis Identitas--</option>
+                            @foreach ($identityTypes as $identityType)
+                                <option value="{{ $identityType->id }}" {{ old('childIdentityType') == $identityType->id ? 'selected' : '' }}>
+                                    {{ $identityType->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
                 {{-- Nomor Identitas Anak --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childIdentityNumber">Nomor Identitas<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="childIdentityNumber" type="text" class="form-control" name="childIdentityNumber" value="{{ old('childIdentityNumber') }}" placeholder="NIK / KIA / Paspor">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="childIdentityNumber" type="text" class="form-control" name="childIdentityNumber" value="{{ old('childIdentityNumber') }}" placeholder="Nomor Identitas">
                     </div>
                 </div>
 
-                {{-- Kewarganegaraan Anak --}}
+                {{-- Nama Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childNationality">Kewarganegaraan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="childNationality" type="text" class="form-control" name="childNationality" value="{{ old('childNationality', 'WNI') }}">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childName">Nama<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="childName" type="text" class="form-control" name="childName" value="{{ old('childName') }}" required placeholder="Nama Lengkap">
                     </div>
                 </div>
 
                 {{-- Jenis Kelamin Anak --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childGender">Jenis Kelamin<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="childGender" id="childGender">
                             <option value="">--Pilih Jenis Kelamin--</option>
                             @foreach ($genders as $gender)
@@ -237,20 +315,25 @@
                     </div>
                 </div>
 
-                {{-- Tempat / Tanggal Lahir Anak --}}
+                {{-- Tempat Lahir Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childBirthPlace">Tempat & Tanggal Lahir<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childBirthPlace">Tempat Lahir<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <input id="childBirthPlace" type="text" class="form-control" name="childBirthPlace" value="{{ old('childBirthPlace') }}" placeholder="Tempat Lahir">
                     </div>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input id="childBirthDate" type="text" class="form-control calculate-age" data-target-prefix="childAge" name="childBirthDate" value="{{ old('childBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
+                </div>
+
+                {{-- Tanggal Lahir Anak --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childBirthDate">Tanggal Lahir<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="childBirthDate" type="text" class="form-control" name="childBirthDate" value="{{ old('childBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
                     </div>
                 </div>
 
                 {{-- Umur Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label">Umur Anak<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label">Umur<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <div class="row">
                             <div class="col-4">
@@ -261,13 +344,13 @@
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="11" class="form-control" id="childAgeMonth" name="childAgeMonth" value="{{ old('childAgeMonth', 0) }}" placeholder="0">
+                                    <input type="number" min="0" max="11" class="form-control" id="childAgeMonth" name="childAgeMonth" value="{{ old('childAgeMonth') }}" placeholder="0">
                                     <div class="input-group-append"><span class="input-group-text">Bulan</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="31" class="form-control" id="childAgeDay" name="childAgeDay" value="{{ old('childAgeDay', 0) }}" placeholder="0">
+                                    <input type="number" min="0" max="31" class="form-control" id="childAgeDay" name="childAgeDay" value="{{ old('childAgeDay') }}" placeholder="0">
                                     <div class="input-group-append"><span class="input-group-text">Hari</span></div>
                                 </div>
                             </div>
@@ -275,14 +358,29 @@
                     </div>
                 </div>
 
+                {{-- Kewarganegaraan Anak --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childNationality">Kewarganegaraan<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <select class="form-control select2" name="childNationality" id="childNationality">
+                            <option value="">--Pilih Kewarganegaraan--</option>
+                            @foreach ($nationalities as $nationality)
+                                <option value="{{ $nationality->id }}" {{ old('childNationality') == $nationality->id ? 'selected' : '' }}>
+                                    {{ $nationality->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
                 {{-- Pekerjaan Anak --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childJob">Pekerjaan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="childJob" id="childJob">
                             <option value="">--Pilih Pekerjaan--</option>
                             @foreach ($jobs as $job)
-                                <option value="{{ $job->id }}" {{ old('childJob') == $job->id ? 'selected' : (str_contains(strtolower($job->name), 'pelajar') ? 'selected' : '') }}>{{ $job->name }}</option>
+                                <option value="{{ $job->id }}" {{ old('childJob') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -291,7 +389,7 @@
                 {{-- Agama Anak --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childReligion">Agama<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="childReligion" id="childReligion">
                             <option value="">--Pilih Agama--</option>
                             @foreach ($religions as $religion)
@@ -303,56 +401,78 @@
 
                 {{-- Alamat Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childAddress">Alamat Lengkap<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <textarea id="childAddress" class="form-control" name="childAddress" rows="2" placeholder="Alamat domisili anak">{{ old('childAddress') }}</textarea>
+                    <label class="fw-bold col-sm-2 col-form-label" for="childAddress">Alamat<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <textarea id="childAddress" class="form-control" name="childAddress" rows="2" placeholder="Alamat">{{ old('childAddress') }}</textarea>
                     </div>
+                </div>
+
+                {{-- ─── IDENTITAS PENDAMPING ANAK ─── --}}
+                <div class="mt-4 mb-3">
+                    <h6 class="fw-bold text-blue-dark">Identitas Pendamping Anak</h6>
                 </div>
 
                 {{-- Pendamping Anak Dari --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childGuardianFrom">Pendamping Anak Dari<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="childGuardianFrom" type="text" class="form-control" name="childGuardianFrom" value="{{ old('childGuardianFrom', 'Orang Tua') }}" placeholder="Contoh: Orang Tua / Wali / Pendamping BAPAS">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <select class="form-control select2" name="childGuardianFrom" id="childGuardianFrom">
+                            <option value="">--Pilih Pendamping Dari--</option>
+                            @foreach(['Orang Tua', 'Wali', 'Balai Pemasyarakatan (BAPAS)', 'Pekerja Sosial (PEKSOS)', 'Penasihat Hukum / Advokat', 'Lainnya'] as $opt)
+                                <option value="{{ $opt }}" {{ old('childGuardianFrom') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
                 {{-- Hubungan Keluarga Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childGuardianRelation">Hubungan Keluarga<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="childGuardianRelation" type="text" class="form-control" name="childGuardianRelation" value="{{ old('childGuardianRelation', 'Ayah Kandung') }}" placeholder="Contoh: Ayah Kandung / Ibu Kandung / Wali">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <select class="form-control select2" name="childGuardianRelation" id="childGuardianRelation">
+                            <option value="">--Pilih Hubungan Keluarga--</option>
+                            @foreach(['Ayah Kandung', 'Ibu Kandung', 'Kakek / Nenek', 'Paman / Bibi', 'Kakak Kandung', 'Wali', 'Penasihat Hukum', 'Lainnya'] as $opt)
+                                <option value="{{ $opt }}" {{ old('childGuardianRelation') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
-                {{-- Nama Pendamping Anak --}}
+                {{-- Jenis Identitas Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianName">Nama Pendamping Anak<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="childGuardianName" type="text" class="form-control" name="childGuardianName" value="{{ old('childGuardianName') }}" placeholder="Nama lengkap pendamping anak">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianIdentityType">Jenis Identitas<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <select class="form-control select2" id="childGuardianIdentityType" name="childGuardianIdentityType">
+                            <option value="">--Pilih Jenis Identitas--</option>
+                            @foreach ($identityTypes as $identityType)
+                                <option value="{{ $identityType->id }}" {{ old('childGuardianIdentityType') == $identityType->id ? 'selected' : '' }}>
+                                    {{ $identityType->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
                 {{-- Nomor Identitas Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianIdentity">Nomor Identitas Pendamping<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="childGuardianIdentity" type="text" class="form-control" name="childGuardianIdentity" value="{{ old('childGuardianIdentity') }}" placeholder="NIK KTP pendamping anak">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianIdentity">Nomor Identitas<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="childGuardianIdentity" type="text" class="form-control" name="childGuardianIdentity" value="{{ old('childGuardianIdentity') }}" placeholder="Nomor Identitas">
                     </div>
                 </div>
 
-                {{-- Kewarganegaraan Pendamping Anak --}}
+                {{-- Nama Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianNationality">Kewarganegaraan Pendamping<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="childGuardianNationality" type="text" class="form-control" name="childGuardianNationality" value="{{ old('childGuardianNationality', 'WNI') }}" placeholder="WNI / WNA">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianName">Nama<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="childGuardianName" type="text" class="form-control" name="childGuardianName" value="{{ old('childGuardianName') }}" placeholder="Nama Lengkap">
                     </div>
                 </div>
 
                 {{-- Jenis Kelamin Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianGender">Jenis Kelamin Pendamping<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianGender">Jenis Kelamin<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="childGuardianGender" id="childGuardianGender">
                             <option value="">--Pilih Jenis Kelamin--</option>
                             @foreach ($genders as $gender)
@@ -362,21 +482,41 @@
                     </div>
                 </div>
 
-                {{-- Tempat & Tanggal Lahir Pendamping Anak --}}
+                {{-- Tempat Lahir Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianBirthPlace">Tempat & Tanggal Lahir<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input id="childGuardianBirthPlace" type="text" class="form-control" name="childGuardianBirthPlace" value="{{ old('childGuardianBirthPlace') }}" placeholder="Tempat Lahir Pendamping">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianBirthPlace">Tempat Lahir<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="childGuardianBirthPlace" type="text" class="form-control" name="childGuardianBirthPlace" value="{{ old('childGuardianBirthPlace') }}" placeholder="Tempat Lahir">
                     </div>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12">
+                </div>
+
+                {{-- Tanggal Lahir Pendamping Anak --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianBirthDate">Tanggal Lahir<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <input id="childGuardianBirthDate" type="text" class="form-control" name="childGuardianBirthDate" value="{{ old('childGuardianBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
+                    </div>
+                </div>
+
+                {{-- Kewarganegaraan Pendamping Anak --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianNationality">Kewarganegaraan<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <select class="form-control select2" name="childGuardianNationality" id="childGuardianNationality">
+                            <option value="">--Pilih Kewarganegaraan--</option>
+                            @foreach ($nationalities as $nationality)
+                                <option value="{{ $nationality->id }}" {{ old('childGuardianNationality') == $nationality->id ? 'selected' : '' }}>
+                                    {{ $nationality->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
                 {{-- Pekerjaan Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianJob">Pekerjaan Pendamping<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianJob">Pekerjaan<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="childGuardianJob" id="childGuardianJob">
                             <option value="">--Pilih Pekerjaan--</option>
                             @foreach ($jobs as $job)
@@ -388,8 +528,8 @@
 
                 {{-- Agama Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianReligion">Agama Pendamping<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianReligion">Agama<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="childGuardianReligion" id="childGuardianReligion">
                             <option value="">--Pilih Agama--</option>
                             @foreach ($religions as $religion)
@@ -401,87 +541,51 @@
 
                 {{-- Alamat Pendamping Anak --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianAddress">Alamat Pendamping Anak<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <textarea id="childGuardianAddress" class="form-control" name="childGuardianAddress" rows="2" placeholder="Alamat domisili pendamping anak">{{ old('childGuardianAddress') }}</textarea>
+                    <label class="fw-bold col-sm-2 col-form-label" for="childGuardianAddress">Alamat<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <textarea id="childGuardianAddress" class="form-control" name="childGuardianAddress" rows="2" placeholder="Alamat">{{ old('childGuardianAddress') }}</textarea>
                     </div>
                 </div>
 
                 {{-- ─── IDENTITAS PIHAK II (KORBAN & PENDAMPING) ─── --}}
                 <hr>
-                <h6 class="fw-bold text-blue-dark mb-3">Identitas Pihak II (Korban)</h6>
+                <h5 class="fw-bold text-blue-dark">Identitas Pihak II (Korban)</h5>
 
-                {{-- Pilih Korban --}}
+                {{-- Jenis Identitas Korban --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="victimId">Pilih Korban</label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <select class="form-control select2" name="victimId" id="victimId">
-                            <option value="">--Pilih Korban (Bila Ada dalam Perkara)--</option>
-                            @foreach ($involvedPeoples as $person)
-                                @php
-                                    $personAge = 'Umur tidak diketahui';
-                                    if (!empty($person->birth_date)) {
-                                        try {
-                                            $pBirth = \Carbon\Carbon::parse($person->birth_date);
-                                            $pDiff = $pBirth->diff(\Carbon\Carbon::now());
-                                            $personAge = "{$pDiff->y} tahun {$pDiff->m} bulan {$pDiff->d} hari";
-                                        } catch (\Exception $e) {
-                                            $personAge = 'Umur tidak diketahui';
-                                        }
-                                    } elseif (!empty($person->age)) {
-                                        $personAge = $person->age . ' tahun';
-                                    }
-                                @endphp
-                                <option value="{{ $person->id }}"
-                                    data-name="{{ $person->name }}"
-                                    data-identity="{{ $person->identity_number }}"
-                                    data-nationality="{{ $person->nationality ?? 'WNI' }}"
-                                    data-gender="{{ $person->gender_id }}"
-                                    data-birthplace="{{ $person->birth_place }}"
-                                    data-birthdate="{{ $person->birth_date ? \Carbon\Carbon::parse($person->birth_date)->format('Y-m-d') : '' }}"
-                                    data-age-year="{{ isset($pDiff) ? $pDiff->y : $person->age }}"
-                                    data-age-month="{{ isset($pDiff) ? $pDiff->m : 0 }}"
-                                    data-age-day="{{ isset($pDiff) ? $pDiff->d : 0 }}"
-                                    data-job="{{ $person->job_id }}"
-                                    data-religion="{{ $person->religion_id }}"
-                                    data-address="{{ $person->address }}"
-                                    {{ old('victimId') == $person->id ? 'selected' : '' }}>
-                                    {{ $person->name }} ({{ $person->status ?? 'Korban' }}) - {{ $personAge }}
+                    <label class="fw-bold col-sm-2 col-form-label" for="victimIdentityType">Jenis Identitas<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <select class="form-control select2" id="victimIdentityType" name="victimIdentityType">
+                            <option value="">--Pilih Jenis Identitas--</option>
+                            @foreach ($identityTypes as $identityType)
+                                <option value="{{ $identityType->id }}" {{ old('victimIdentityType') == $identityType->id ? 'selected' : '' }}>
+                                    {{ $identityType->name }}
                                 </option>
                             @endforeach
                         </select>
-                        <small class="text-muted">Pilih korban dari pihak yang terlibat dalam perkara untuk mengisi otomatis, atau isi manual di bawah.</small>
-                    </div>
-                </div>
-
-                {{-- Nama Korban --}}
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="victimName">Nama Lengkap Korban<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="victimName" type="text" class="form-control" name="victimName" value="{{ old('victimName') }}" required placeholder="Nama lengkap korban">
                     </div>
                 </div>
 
                 {{-- Nomor Identitas Korban --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="victimIdentityNumber">Nomor Identitas Korban<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="victimIdentityNumber" type="text" class="form-control" name="victimIdentityNumber" value="{{ old('victimIdentityNumber') }}" placeholder="NIK KTP / Paspor korban">
+                    <label class="fw-bold col-sm-2 col-form-label" for="victimIdentityNumber">Nomor Identitas<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="victimIdentityNumber" type="text" class="form-control" name="victimIdentityNumber" value="{{ old('victimIdentityNumber') }}" placeholder="Nomor Identitas">
                     </div>
                 </div>
 
-                {{-- Kewarganegaraan Korban --}}
+                {{-- Nama Korban --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="victimNationality">Kewarganegaraan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="victimNationality" type="text" class="form-control" name="victimNationality" value="{{ old('victimNationality', 'WNI') }}">
+                    <label class="fw-bold col-sm-2 col-form-label" for="victimName">Nama<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="victimName" type="text" class="form-control" name="victimName" value="{{ old('victimName') }}" required placeholder="Nama Lengkap">
                     </div>
                 </div>
 
                 {{-- Jenis Kelamin Korban --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="victimGender">Jenis Kelamin<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="victimGender" id="victimGender">
                             <option value="">--Pilih Jenis Kelamin--</option>
                             @foreach ($genders as $gender)
@@ -491,20 +595,25 @@
                     </div>
                 </div>
 
-                {{-- Tempat & Tanggal Lahir Korban --}}
+                {{-- Tempat Lahir Korban --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="victimBirthPlace">Tempat & Tanggal Lahir<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12">
+                    <label class="fw-bold col-sm-2 col-form-label" for="victimBirthPlace">Tempat Lahir<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <input id="victimBirthPlace" type="text" class="form-control" name="victimBirthPlace" value="{{ old('victimBirthPlace') }}" placeholder="Tempat Lahir">
                     </div>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input id="victimBirthDate" type="text" class="form-control calculate-age" data-target-prefix="victimAge" name="victimBirthDate" value="{{ old('victimBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
+                </div>
+
+                {{-- Tanggal Lahir Korban --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="victimBirthDate">Tanggal Lahir<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <input id="victimBirthDate" type="text" class="form-control" name="victimBirthDate" value="{{ old('victimBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
                     </div>
                 </div>
 
                 {{-- Umur Korban --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label">Umur Korban<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label">Umur<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <div class="row">
                             <div class="col-4">
@@ -515,13 +624,13 @@
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="11" class="form-control" id="victimAgeMonth" name="victimAgeMonth" value="{{ old('victimAgeMonth', 0) }}" placeholder="0">
+                                    <input type="number" min="0" max="11" class="form-control" id="victimAgeMonth" name="victimAgeMonth" value="{{ old('victimAgeMonth') }}" placeholder="0">
                                     <div class="input-group-append"><span class="input-group-text">Bulan</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="31" class="form-control" id="victimAgeDay" name="victimAgeDay" value="{{ old('victimAgeDay', 0) }}" placeholder="0">
+                                    <input type="number" min="0" max="31" class="form-control" id="victimAgeDay" name="victimAgeDay" value="{{ old('victimAgeDay') }}" placeholder="0">
                                     <div class="input-group-append"><span class="input-group-text">Hari</span></div>
                                 </div>
                             </div>
@@ -529,10 +638,25 @@
                     </div>
                 </div>
 
+                {{-- Kewarganegaraan Korban --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="victimNationality">Kewarganegaraan<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <select class="form-control select2" name="victimNationality" id="victimNationality">
+                            <option value="">--Pilih Kewarganegaraan--</option>
+                            @foreach ($nationalities as $nationality)
+                                <option value="{{ $nationality->id }}" {{ old('victimNationality') == $nationality->id ? 'selected' : '' }}>
+                                    {{ $nationality->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
                 {{-- Pekerjaan Korban --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="victimJob">Pekerjaan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="victimJob" id="victimJob">
                             <option value="">--Pilih Pekerjaan--</option>
                             @foreach ($jobs as $job)
@@ -545,7 +669,7 @@
                 {{-- Agama Korban --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="victimReligion">Agama<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="victimReligion" id="victimReligion">
                             <option value="">--Pilih Agama--</option>
                             @foreach ($religions as $religion)
@@ -557,64 +681,90 @@
 
                 {{-- Alamat Korban --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="victimAddress">Alamat Korban<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <textarea id="victimAddress" class="form-control" name="victimAddress" rows="2" placeholder="Alamat domisili korban">{{ old('victimAddress') }}</textarea>
+                    <label class="fw-bold col-sm-2 col-form-label" for="victimAddress">Alamat<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                        <textarea id="victimAddress" class="form-control" name="victimAddress" rows="2" placeholder="Alamat">{{ old('victimAddress') }}</textarea>
                     </div>
                 </div>
 
-                {{-- Checkbox Pendamping Korban --}}
+                {{-- Status Pendampingan Korban (Radio Button) --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label">Pendamping Korban</label>
+                    <label class="fw-bold col-sm-2 col-form-label">Pendamping Korban<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="isVictimAccompanied" name="isVictimAccompanied" value="1" {{ old('isVictimAccompanied') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="isVictimAccompanied">
-                                Korban didampingi oleh orang tua/wali/pendamping (*korban dewasa tidak wajib didampingi)
-                            </label>
+                        <div class="d-flex mb-2">
+                            <div class="form-check me-4">
+                                <input class="form-check-input" type="radio" id="victimNotAccompanied" name="isVictimAccompanied" value="0" {{ old('isVictimAccompanied', '0') == '0' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="victimNotAccompanied">
+                                    Tidak Didampingi (Korban Dewasa)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" id="victimAccompanied" name="isVictimAccompanied" value="1" {{ old('isVictimAccompanied') == '1' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="victimAccompanied">
+                                    Didampingi (Orang Tua / Wali / Pendamping)
+                                </label>
+                            </div>
                         </div>
+                        <small class="text-muted">(*Korban dewasa tidak wajib didampingi)</small>
                     </div>
                 </div>
 
-                <div id="victimGuardianContainer" style="display: {{ old('isVictimAccompanied') ? 'block' : 'none' }};">
+                <div id="victimGuardianContainer" style="display: {{ old('isVictimAccompanied') == '1' ? 'block' : 'none' }};">
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianFrom">Pendamping Dari</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                            <input id="victimGuardianFrom" type="text" class="form-control" name="victimGuardianFrom" value="{{ old('victimGuardianFrom', 'Orang Tua') }}" placeholder="Contoh: Orang Tua / Wali / Pendamping">
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                            <select class="form-control select2" name="victimGuardianFrom" id="victimGuardianFrom">
+                                <option value="">--Pilih Pendamping Dari--</option>
+                                @foreach(['Orang Tua', 'Wali', 'Pekerja Sosial (PEKSOS)', 'Penasihat Hukum / Advokat', 'Lainnya'] as $opt)
+                                    <option value="{{ $opt }}" {{ old('victimGuardianFrom') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianRelation">Hubungan Keluarga</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                            <input id="victimGuardianRelation" type="text" class="form-control" name="victimGuardianRelation" value="{{ old('victimGuardianRelation') }}" placeholder="Contoh: Ibu Kandung / Ayah Kandung">
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                            <select class="form-control select2" name="victimGuardianRelation" id="victimGuardianRelation">
+                                <option value="">--Pilih Hubungan Keluarga--</option>
+                                @foreach(['Ayah Kandung', 'Ibu Kandung', 'Kakek / Nenek', 'Paman / Bibi', 'Kakak Kandung', 'Suami / Istri', 'Anak Kandung', 'Wali', 'Penasihat Hukum', 'Lainnya'] as $opt)
+                                    <option value="{{ $opt }}" {{ old('victimGuardianRelation') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianName">Nama Pendamping Korban</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                            <input id="victimGuardianName" type="text" class="form-control" name="victimGuardianName" value="{{ old('victimGuardianName') }}" placeholder="Nama lengkap pendamping korban">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianIdentityType">Jenis Identitas</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                            <select class="form-control select2" id="victimGuardianIdentityType" name="victimGuardianIdentityType">
+                                <option value="">--Pilih Jenis Identitas--</option>
+                                @foreach ($identityTypes as $identityType)
+                                    <option value="{{ $identityType->id }}" {{ old('victimGuardianIdentityType') == $identityType->id ? 'selected' : '' }}>
+                                        {{ $identityType->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianIdentity">Nomor Identitas Pendamping</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                            <input id="victimGuardianIdentity" type="text" class="form-control" name="victimGuardianIdentity" value="{{ old('victimGuardianIdentity') }}" placeholder="NIK KTP pendamping korban">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianIdentity">Nomor Identitas</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                            <input id="victimGuardianIdentity" type="text" class="form-control" name="victimGuardianIdentity" value="{{ old('victimGuardianIdentity') }}" placeholder="Nomor Identitas">
                         </div>
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianNationality">Kewarganegaraan Pendamping</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                            <input id="victimGuardianNationality" type="text" class="form-control" name="victimGuardianNationality" value="{{ old('victimGuardianNationality', 'WNI') }}" placeholder="WNI / WNA">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianName">Nama</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                            <input id="victimGuardianName" type="text" class="form-control" name="victimGuardianName" value="{{ old('victimGuardianName') }}" placeholder="Nama Lengkap">
                         </div>
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianGender">Jenis Kelamin Pendamping</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianGender">Jenis Kelamin</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                             <select class="form-control select2" name="victimGuardianGender" id="victimGuardianGender">
                                 <option value="">--Pilih Jenis Kelamin--</option>
                                 @foreach ($genders as $gender)
@@ -625,18 +775,36 @@
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianBirthPlace">Tempat & Tanggal Lahir</label>
-                        <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                            <input id="victimGuardianBirthPlace" type="text" class="form-control" name="victimGuardianBirthPlace" value="{{ old('victimGuardianBirthPlace') }}" placeholder="Tempat Lahir Pendamping">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianBirthPlace">Tempat Lahir</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                            <input id="victimGuardianBirthPlace" type="text" class="form-control" name="victimGuardianBirthPlace" value="{{ old('victimGuardianBirthPlace') }}" placeholder="Tempat Lahir">
                         </div>
-                        <div class="col-lg-5 col-md-5 col-sm-12 col-12">
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianBirthDate">Tanggal Lahir</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                             <input id="victimGuardianBirthDate" type="text" class="form-control" name="victimGuardianBirthDate" value="{{ old('victimGuardianBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
                         </div>
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianJob">Pekerjaan Pendamping</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianNationality">Kewarganegaraan</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                            <select class="form-control select2" name="victimGuardianNationality" id="victimGuardianNationality">
+                                <option value="">--Pilih Kewarganegaraan--</option>
+                                @foreach ($nationalities as $nationality)
+                                    <option value="{{ $nationality->id }}" {{ old('victimGuardianNationality') == $nationality->id ? 'selected' : '' }}>
+                                        {{ $nationality->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group row mb-3 ms-0">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianJob">Pekerjaan</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                             <select class="form-control select2" name="victimGuardianJob" id="victimGuardianJob">
                                 <option value="">--Pilih Pekerjaan--</option>
                                 @foreach ($jobs as $job)
@@ -647,8 +815,8 @@
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianReligion">Agama Pendamping</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianReligion">Agama</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                             <select class="form-control select2" name="victimGuardianReligion" id="victimGuardianReligion">
                                 <option value="">--Pilih Agama--</option>
                                 @foreach ($religions as $religion)
@@ -659,16 +827,16 @@
                     </div>
 
                     <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianAddress">Alamat Pendamping Korban</label>
-                        <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                            <textarea id="victimGuardianAddress" class="form-control" name="victimGuardianAddress" rows="2" placeholder="Alamat domisili pendamping korban">{{ old('victimGuardianAddress') }}</textarea>
+                        <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianAddress">Alamat</label>
+                        <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
+                            <textarea id="victimGuardianAddress" class="form-control" name="victimGuardianAddress" rows="2" placeholder="Alamat">{{ old('victimGuardianAddress') }}</textarea>
                         </div>
                     </div>
                 </div>
 
                 {{-- ─── PASAL-PASAL KESEPAKATAN DIVERSI ─── --}}
                 <hr>
-                <h6 class="fw-bold text-blue-dark mb-3">Isi Kesepakatan Diversi (Pasal-Pasal S-44.3)</h6>
+                <h5 class="fw-bold text-blue-dark">Isi Kesepakatan Diversi (Pasal-Pasal S-44.3)</h5>
 
                 {{-- Pasal 1: Bentuk Kesepakatan --}}
                 <div class="input-group row mb-3 ms-0">
@@ -751,13 +919,13 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="pasal2Content">Pasal 2 (Pemaafan)<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <textarea class="form-control" id="pasal2Content" name="pasal2Content" rows="2" required placeholder="Contoh: Anak Korban [Nama Korban] dan kedua orang tuanya memaafkan perbuatan Anak [Nama Anak]">{{ old('pasal2Content') }}</textarea>
-                        <small class="text-muted">Pernyataan pemaafan korban dan kedua orang tuanya kepada anak.</small>
+                        <textarea class="form-control" id="pasal2Content" name="pasal2Content" rows="2" required placeholder="Pernyataan pemaafan pihak korban kepada anak">{{ old('pasal2Content') }}</textarea>
+                        <small class="text-muted">Pernyataan kesepakatan pemaafan dari korban dan keluarga korban kepada anak.</small>
                     </div>
                 </div>
 
                 {{-- ─── PASAL TAMBAHAN (PASAL 3, 4, DAN SETERUSNYA) ─── --}}
-                <div class="row mb-3 ms-0">
+                <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label">Pasal Tambahan</label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <div id="additionalPasalContainer">
@@ -784,35 +952,35 @@
 
                 {{-- ─── SAKSI-SAKSI ─── --}}
                 <hr>
-                <h6 class="fw-bold text-blue-dark mb-3">Saksi-Saksi</h6>
+                <h5 class="fw-bold text-blue-dark">Saksi-Saksi</h5>
 
-                {{-- Saksi PK BAPAS --}}
+                {{-- Saksi PK BAPAS: Nama & Pangkat/NIP --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label">Saksi BAPAS<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="bapasOfficerName">Saksi BAPAS<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" name="bapasOfficerName" value="{{ old('bapasOfficerName') }}" placeholder="Nama Petugas PK BAPAS" required>
+                        <input type="text" class="form-control" id="bapasOfficerName" name="bapasOfficerName" value="{{ old('bapasOfficerName') }}" placeholder="Nama Petugas PK BAPAS" required>
                     </div>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" name="bapasOfficerRankNip" value="{{ old('bapasOfficerRankNip') }}" placeholder="Pangkat / NIP PK BAPAS" required>
+                        <input type="text" class="form-control" id="bapasOfficerRankNip" name="bapasOfficerRankNip" value="{{ old('bapasOfficerRankNip') }}" placeholder="Pangkat / NIP PK BAPAS" required>
                     </div>
                 </div>
 
-                {{-- Saksi PEKSOS --}}
+                {{-- Saksi PEKSOS: Nama & Pangkat/NIP --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label">Saksi Pekerja Sosial<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="socialWorkerName">Saksi PEKSOS<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" name="socialWorkerName" value="{{ old('socialWorkerName') }}" placeholder="Nama Pekerja Sosial (PEKSOS)" required>
+                        <input type="text" class="form-control" id="socialWorkerName" name="socialWorkerName" value="{{ old('socialWorkerName') }}" placeholder="Nama Pekerja Sosial (PEKSOS)" required>
                     </div>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" name="socialWorkerRankNip" value="{{ old('socialWorkerRankNip') }}" placeholder="Pangkat / NIP (atau -)" required>
+                        <input type="text" class="form-control" id="socialWorkerRankNip" name="socialWorkerRankNip" value="{{ old('socialWorkerRankNip') }}" placeholder="Pangkat / NIP (atau -)" required>
                     </div>
                 </div>
 
                 {{-- Saksi Lainnya --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label">Saksi Lainnya<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="communityWitnessName">Saksi Lainnya<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input type="text" class="form-control" name="communityWitnessName" value="{{ old('communityWitnessName') }}" placeholder="Nama Penasihat Hukum Anak / Tokoh Masyarakat / Toga / Toma" required>
+                        <input type="text" class="form-control" id="communityWitnessName" name="communityWitnessName" value="{{ old('communityWitnessName') }}" placeholder="Nama Penasihat Hukum Anak / Tokoh Masyarakat / Toga / Toma" required>
                     </div>
                 </div>
 
@@ -852,6 +1020,11 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
+            // Blinking timer for attention box
+            setInterval(function () {
+                $('#attentionBox').toggleClass('alert-danger alert-warning');
+            }, 1000);
+
             $('#documentDate').datepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: true,
@@ -887,17 +1060,6 @@
                 autoclose: true,
                 orientation: 'auto bottom'
             });
-
-            $('#diversionDate').on('change changeDate', function() {
-                var dateVal = $(this).val();
-                if (dateVal) {
-                    var days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-                    var d = new Date(dateVal);
-                    if (!isNaN(d.getTime())) {
-                        $('#diversionDay').val(days[d.getDay()]);
-                    }
-                }
-            });
         });
 
         // Select2 with Bootstrap4 theme
@@ -906,91 +1068,144 @@
                 theme: 'bootstrap4',
                 width: '100%'
             });
-
-            $('.select2-multiple').select2({
-                theme: 'bootstrap4',
-                width: '100%'
-            });
         });
 
-        // Toggle Pendamping Korban
+        // Toggle Pendamping Korban & Bentuk Diversi
         $(document).ready(function() {
-            $('#isVictimAccompanied').on('change', function() {
-                if ($(this).is(':checked')) {
-                    $('#victimGuardianContainer').show();
+            $('input[name="isVictimAccompanied"]').on('change', function() {
+                if ($(this).val() === '1') {
+                    $('#victimGuardianContainer').slideDown();
                 } else {
-                    $('#victimGuardianContainer').hide();
+                    $('#victimGuardianContainer').slideUp();
                 }
             });
 
             $('.deal-toggle').on('change', function() {
                 var target = $(this).data('target');
                 if ($(this).is(':checked')) {
-                    $(target).show();
+                    $(target).slideDown();
                 } else {
-                    $(target).hide();
+                    $(target).slideUp();
                 }
             });
 
-            // Auto-fill dari dropdown Tersangka Anak
-            $('#suspectId').on('change', function() {
-                var $opt = $(this).find(':selected');
-                if ($opt.val()) {
-                    $('#childName').val($opt.data('name') || '').trigger('change');
-                    $('#childIdentityNumber').val($opt.data('identity') || '');
-                    $('#childNationality').val($opt.data('nationality') || 'WNI');
-                    if ($opt.data('gender')) $('#childGender').val($opt.data('gender')).trigger('change');
-                    $('#childBirthPlace').val($opt.data('birthplace') || '');
-                    if ($opt.data('birthdate')) {
-                        $('#childBirthDate').val($opt.data('birthdate')).trigger('change');
+            // Kalkulasi Umur (Tahun, Bulan, Hari) dari Tanggal Lahir
+            function calculateAgeFromDate(dateString) {
+                if (!dateString) return null;
+                var birth = new Date(dateString);
+                if (isNaN(birth.getTime())) return null;
+                var today = new Date();
+                if (birth > today) return null;
+
+                var years = today.getFullYear() - birth.getFullYear();
+                var months = today.getMonth() - birth.getMonth();
+                var days = today.getDate() - birth.getDate();
+
+                if (days < 0) {
+                    months -= 1;
+                    var prevMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+                    days += prevMonthLastDay;
+                }
+                if (months < 0) {
+                    years -= 1;
+                    months += 12;
+                }
+                return { years: years, months: months, days: days };
+            }
+
+            // Auto-calculate saat Tanggal Lahir Anak dipilih/diubah (jika belum locked)
+            $('#childBirthDate').on('change changeDate input', function() {
+                if ($('#childAgeYear').prop('readonly')) return;
+                var res = calculateAgeFromDate($(this).val());
+                if (res) {
+                    $('#childAgeYear').val(res.years);
+                    $('#childAgeMonth').val(res.months);
+                    $('#childAgeDay').val(res.days);
+                }
+            });
+
+            // Auto-calculate saat Tanggal Lahir Korban dipilih/diubah (manual input)
+            $('#victimBirthDate').on('change changeDate input', function() {
+                var res = calculateAgeFromDate($(this).val());
+                if (res) {
+                    $('#victimAgeYear').val(res.years);
+                    $('#victimAgeMonth').val(res.months);
+                    $('#victimAgeDay').val(res.days);
+                }
+            });
+
+            // Lock helper: HANYA kunci jika field memiliki nilai dari database.
+            // JIKA KOSONG DI DATABASE: JANGAN DISABLE, BISA DIISI MANUAL!
+            function setFieldLock(selector, val, isSelect) {
+                var $el = $(selector);
+                var hasVal = val !== null && val !== undefined && String(val).trim() !== '' && String(val).trim() !== 'null' && String(val).trim() !== '0';
+
+                if (isSelect) {
+                    if (hasVal) {
+                        $el.val(String(val)).trigger('change.select2');
+                        $el.prop('disabled', true);
+                        $el.next('.select2-container').css('pointer-events', 'none');
+                        $el.next('.select2-container').find('.select2-selection').css('background-color', '#e9ecef');
+                    } else {
+                        $el.val('').trigger('change.select2');
+                        $el.prop('disabled', false);
+                        $el.next('.select2-container').css('pointer-events', '');
+                        $el.next('.select2-container').find('.select2-selection').css('background-color', '');
                     }
-                    if ($opt.data('age-year') !== undefined) $('#childAgeYear').val($opt.data('age-year'));
-                    if ($opt.data('age-month') !== undefined) $('#childAgeMonth').val($opt.data('age-month'));
-                    if ($opt.data('age-day') !== undefined) $('#childAgeDay').val($opt.data('age-day'));
-                    if ($opt.data('religion')) $('#childReligion').val($opt.data('religion')).trigger('change');
-                    if ($opt.data('job')) $('#childJob').val($opt.data('job')).trigger('change');
-                    $('#childAddress').val($opt.data('address') || '');
-                }
-            });
-
-            // Auto-fill dari dropdown Korban
-            $('#victimId').on('change', function() {
-                var $opt = $(this).find(':selected');
-                if ($opt.val()) {
-                    $('#victimName').val($opt.data('name') || '').trigger('change');
-                    $('#victimIdentityNumber').val($opt.data('identity') || '');
-                    $('#victimNationality').val($opt.data('nationality') || 'WNI');
-                    if ($opt.data('gender')) $('#victimGender').val($opt.data('gender')).trigger('change');
-                    $('#victimBirthPlace').val($opt.data('birthplace') || '');
-                    if ($opt.data('birthdate')) {
-                        $('#victimBirthDate').val($opt.data('birthdate')).trigger('change');
+                } else {
+                    if (hasVal) {
+                        $el.val(val);
+                        $el.prop('readonly', true).css('background-color', '#e9ecef');
+                        if ($el.attr('data-provide') === 'datepicker') {
+                            $el.css('pointer-events', 'none');
+                        }
+                    } else {
+                        $el.val('');
+                        $el.prop('readonly', false).css('background-color', '');
+                        $el.css('pointer-events', '');
                     }
-                    if ($opt.data('age-year') !== undefined) $('#victimAgeYear').val($opt.data('age-year'));
-                    if ($opt.data('age-month') !== undefined) $('#victimAgeMonth').val($opt.data('age-month'));
-                    if ($opt.data('age-day') !== undefined) $('#victimAgeDay').val($opt.data('age-day'));
-                    if ($opt.data('religion')) $('#victimReligion').val($opt.data('religion')).trigger('change');
-                    if ($opt.data('job')) $('#victimJob').val($opt.data('job')).trigger('change');
-                    $('#victimAddress').val($opt.data('address') || '');
-                }
-            });
-
-            // Auto update teks Pasal 2
-            function updatePasal2() {
-                var childName = $('#childName').val() || '[Nama Anak]';
-                var victimName = $('#victimName').val() || '[Nama Korban]';
-                var defaultText = 'Anak Korban ' + victimName + ' dan kedua orang tuanya memaafkan perbuatan Anak ' + childName;
-                if (!$('#pasal2Content').val() || $('#pasal2Content').data('is-auto') !== false) {
-                    $('#pasal2Content').val(defaultText);
                 }
             }
 
-            $('#childName, #victimName').on('input change', function() {
-                updatePasal2();
+            function resetChildFields() {
+                var textFields = ['#childName', '#childIdentityNumber', '#childBirthPlace', '#childBirthDate', '#childAddress', '#childAgeYear', '#childAgeMonth', '#childAgeDay'];
+                textFields.forEach(function(sel) {
+                    $(sel).val('').prop('readonly', false).css('background-color', '').css('pointer-events', '');
+                });
+                var selectFields = ['#childIdentityType', '#childNationality', '#childGender', '#childJob', '#childReligion'];
+                selectFields.forEach(function(sel) {
+                    $(sel).val('').trigger('change.select2').prop('disabled', false);
+                    $(sel).next('.select2-container').css('pointer-events', '');
+                    $(sel).next('.select2-container').find('.select2-selection').css('background-color', '');
+                });
+            }
+
+            // Auto-fill dan lock HANYA dari database Tersangka Anak
+            $('#suspectId').on('change', function() {
+                var $opt = $(this).find(':selected');
+                if ($opt.val()) {
+                    setFieldLock('#childIdentityType', $opt.data('identity-type'), true);
+                    setFieldLock('#childIdentityNumber', $opt.data('identity'), false);
+                    setFieldLock('#childName', $opt.data('name'), false);
+                    setFieldLock('#childGender', $opt.data('gender'), true);
+                    setFieldLock('#childBirthPlace', $opt.data('birthplace'), false);
+                    setFieldLock('#childBirthDate', $opt.data('birthdate'), false);
+                    setFieldLock('#childAgeYear', $opt.data('age-year'), false);
+                    setFieldLock('#childAgeMonth', $opt.data('age-month'), false);
+                    setFieldLock('#childAgeDay', $opt.data('age-day'), false);
+                    setFieldLock('#childNationality', $opt.data('nationality'), true);
+                    setFieldLock('#childJob', $opt.data('job'), true);
+                    setFieldLock('#childReligion', $opt.data('religion'), true);
+                    setFieldLock('#childAddress', $opt.data('address'), false);
+                } else {
+                    resetChildFields();
+                }
             });
 
-            $('#pasal2Content').on('input', function() {
-                $(this).data('is-auto', false);
-            });
+            // Initial check jika suspectId sudah terisi saat load
+            if ($('#suspectId').val()) {
+                $('#suspectId').trigger('change');
+            }
 
             // Dynamic Pasal Tambahan (Pasal 3, 4, dst.)
             $('#btnAddPasal').on('click', function() {
@@ -1152,9 +1367,12 @@
                 // Validasi semua field wajib
                 checkInput('#documentNumber', 'Nomor Dokumen');
                 checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
+                checkInput('#diversionDate', 'Tanggal Musyawarah');
+                checkInput('#diversionRoom', 'Ruang Musyawarah');
+                checkInput('#diversionStreet', 'Alamat Tempat Pelaksanaan Musyawarah');
                 checkSelect('#facilitatorOfficer', 'Fasilitator Diversi');
-                checkInput('#childName', 'Nama Anak');
-                checkInput('#victimName', 'Nama Korban');
+                checkInput('#childName', 'Nama Lengkap Anak');
+                checkInput('#victimName', 'Nama Lengkap Korban');
                 checkInput('#pasal2Content', 'Pasal 2 (Pemaafan)');
 
                 if (errors.length > 0) {
@@ -1168,6 +1386,7 @@
                     icon: 'success',
                     confirmButtonText: 'Ok'
                 }).then((result) => {
+                    $('#suratKesepakatanDiversiForm').find(':disabled').prop('disabled', false);
                     $('#suratKesepakatanDiversiForm')[0].submit();
                 });
             });
