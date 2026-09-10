@@ -16,6 +16,7 @@ use App\Http\Controllers\Docs\Tahap2DocumentController;
 use App\Http\Controllers\Docs\Sp2hpDocumentController;
 use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
 use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
+use App\Http\Controllers\Docs\SuratKesepakatanDiversiDocumentController;
 
 Route::post('/create',[DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');
 Route::get('/type-document/{id}',[DocumentController::class, 'getTypeDocument'])->name('doc.getTypeDocument');
@@ -242,7 +243,6 @@ Route::prefix('/sp3-pusiknas-document')->middleware(['document-access'])->group(
 // Surat Kesepakatan Diversi Document
 // ─────────────────────────────────────────────────────────────────────────────
 Route::prefix('/surat-kesepakatan-diversi-document')->middleware(['document-access'])->group(function () {
-    Route::get('/create', function (\Illuminate\Http\Request $request) {
-        return redirect()->back()->with('info', 'Form Surat Kesepakatan Diversi sedang dalam proses pengembangan.');
-    })->name('doc.surat-kesepakatan-diversi-document.create');
+    Route::get('/create', [SuratKesepakatanDiversiDocumentController::class, 'create'])->name('doc.surat-kesepakatan-diversi-document.create');
+    Route::post('/create', [SuratKesepakatanDiversiDocumentController::class, 'store'])->name('doc.surat-kesepakatan-diversi-document.store');
 });
