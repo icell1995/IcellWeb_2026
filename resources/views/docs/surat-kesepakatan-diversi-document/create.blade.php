@@ -155,29 +155,17 @@
                     <label class="fw-bold col-sm-2 col-form-label" for="facilitatorOfficer">Fasilitator Diversi<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <select class="form-control select2" name="facilitatorOfficer" id="facilitatorOfficer">
-                            <option value="">--Pilih Fasilitator (Penyidik / Penyidik Pembantu)--</option>
-                            <optgroup label="Penyidik">
-                                @foreach ($authorizedSignatories as $data)
-                                    @php
-                                        $positionName = ($data->position) ? $data->position->name : '-';
-                                    @endphp
-                                    <option value="{{ $data->id }}" data-register-number="{{ $data->register_number }}" {{ old('facilitatorOfficer') == $data->id ? 'selected' : '' }}>
-                                        {{ $data->register_number . ' - ' . $data->full_name . ' | ' . $positionName }}
-                                    </option>
-                                @endforeach
-                            </optgroup>
-                            <optgroup label="Penyidik Pembantu">
-                                @foreach ($officers as $data)
-                                    @php
-                                        $positionName = ($data->position) ? $data->position->name : '-';
-                                    @endphp
-                                    <option value="{{ $data->id }}" data-register-number="{{ $data->register_number }}" {{ old('facilitatorOfficer') == $data->id ? 'selected' : '' }}>
-                                        {{ $data->register_number . ' - ' . $data->full_name . ' | ' . $positionName }}
-                                    </option>
-                                @endforeach
-                            </optgroup>
+                            <option value="">--Pilih Fasilitator Diversi--</option>
+                            @foreach ($authorizedSignatories->merge($officers)->sortBy('first_name') as $data)
+                                @php
+                                    $positionName = ($data->position) ? $data->position->name : '-';
+                                @endphp
+                                <option value="{{ $data->id }}" data-register-number="{{ $data->register_number }}" {{ old('facilitatorOfficer') == $data->id ? 'selected' : '' }}>
+                                    {{ $data->register_number . ' - ' . $data->full_name . ' | ' . $positionName }}
+                                </option>
+                            @endforeach
                         </select>
-                        <small class="text-muted">(*Pilih penyidik atau penyidik pembantu yang ditugaskan sebagai fasilitator diversi)</small>
+                        <small class="text-muted">(*Apabila daftar fasilitator kosong silahkan hubungi Helpdesk untuk mendapat bantuan)</small>
 
                         @error('facilitatorOfficer')
                             <span class="invalid-feedback" role="alert">
