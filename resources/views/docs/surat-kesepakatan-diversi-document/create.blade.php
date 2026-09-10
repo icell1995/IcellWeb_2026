@@ -338,19 +338,19 @@
                         <div class="row">
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="100" class="form-control" id="childAgeYear" name="childAgeYear" value="{{ old('childAgeYear') }}" placeholder="0">
+                                    <input type="number" min="0" max="100" class="form-control" id="childAgeYear" name="childAgeYear" value="{{ old('childAgeYear') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Tahun</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="11" class="form-control" id="childAgeMonth" name="childAgeMonth" value="{{ old('childAgeMonth') }}" placeholder="0">
+                                    <input type="number" min="0" max="11" class="form-control" id="childAgeMonth" name="childAgeMonth" value="{{ old('childAgeMonth') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Bulan</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="31" class="form-control" id="childAgeDay" name="childAgeDay" value="{{ old('childAgeDay') }}" placeholder="0">
+                                    <input type="number" min="0" max="31" class="form-control" id="childAgeDay" name="childAgeDay" value="{{ old('childAgeDay') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Hari</span></div>
                                 </div>
                             </div>
@@ -618,19 +618,19 @@
                         <div class="row">
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="100" class="form-control" id="victimAgeYear" name="victimAgeYear" value="{{ old('victimAgeYear') }}" placeholder="0">
+                                    <input type="number" min="0" max="100" class="form-control" id="victimAgeYear" name="victimAgeYear" value="{{ old('victimAgeYear') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Tahun</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="11" class="form-control" id="victimAgeMonth" name="victimAgeMonth" value="{{ old('victimAgeMonth') }}" placeholder="0">
+                                    <input type="number" min="0" max="11" class="form-control" id="victimAgeMonth" name="victimAgeMonth" value="{{ old('victimAgeMonth') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Bulan</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="31" class="form-control" id="victimAgeDay" name="victimAgeDay" value="{{ old('victimAgeDay') }}" placeholder="0">
+                                    <input type="number" min="0" max="31" class="form-control" id="victimAgeDay" name="victimAgeDay" value="{{ old('victimAgeDay') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Hari</span></div>
                                 </div>
                             </div>
@@ -1113,24 +1113,31 @@
                 return { years: years, months: months, days: days };
             }
 
-            // Auto-calculate saat Tanggal Lahir Anak dipilih/diubah (jika belum locked)
+            // Auto-calculate saat Tanggal Lahir Anak dipilih/diubah
             $('#childBirthDate').on('change changeDate input', function() {
-                if ($('#childAgeYear').prop('readonly')) return;
                 var res = calculateAgeFromDate($(this).val());
                 if (res) {
                     $('#childAgeYear').val(res.years);
                     $('#childAgeMonth').val(res.months);
                     $('#childAgeDay').val(res.days);
+                } else {
+                    $('#childAgeYear').val('');
+                    $('#childAgeMonth').val('');
+                    $('#childAgeDay').val('');
                 }
             });
 
-            // Auto-calculate saat Tanggal Lahir Korban dipilih/diubah (manual input)
+            // Auto-calculate saat Tanggal Lahir Korban dipilih/diubah
             $('#victimBirthDate').on('change changeDate input', function() {
                 var res = calculateAgeFromDate($(this).val());
                 if (res) {
                     $('#victimAgeYear').val(res.years);
                     $('#victimAgeMonth').val(res.months);
                     $('#victimAgeDay').val(res.days);
+                } else {
+                    $('#victimAgeYear').val('');
+                    $('#victimAgeMonth').val('');
+                    $('#victimAgeDay').val('');
                 }
             });
 
