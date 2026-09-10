@@ -57,6 +57,18 @@ class SuratKesepakatanDiversiDocumentController extends Controller
             ->orderBy('first_name')
             ->get();
 
+        // Penyidik Pembantu (MEMBER) - untuk opsi Fasilitator Diversi
+        $officers = Officer::withRelated()
+            ->selectFullName()
+            ->whereIn('police_id', $getOldNewPolresIds)
+            ->whereHasUserActive()
+            ->hasDataComplete()
+            ->member()
+            ->active()
+            ->valid()
+            ->orderBy('first_name')
+            ->get();
+
         // Tersangka pada perkara ini
         $suspects = Suspect::withRelated()
             ->where('accident_id', $accidentId)
@@ -74,6 +86,7 @@ class SuratKesepakatanDiversiDocumentController extends Controller
             'accidentId'            => $accidentId,
             'accident'              => $accident,
             'authorizedSignatories' => $authorizedSignatories,
+            'officers'              => $officers,
             'suspects'              => $suspects,
             'identityTypes'         => $identityTypes,
             'genders'               => $genders,
