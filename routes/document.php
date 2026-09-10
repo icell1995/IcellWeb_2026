@@ -237,3 +237,12 @@ Route::prefix('/sp3-pusiknas-document')->middleware(['document-access'])->group(
     Route::post('/api/validate-request-form', [Sp3PusiknasDocumentController::class, 'validateRequestForm'])
         ->name('doc.sp3-pusiknas-document.api.validate-request-form');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Kesepakatan Diversi Document
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-kesepakatan-diversi-document')->middleware(['document-access'])->group(function () {
+    Route::get('/create', function (\Illuminate\Http\Request $request) {
+        return redirect()->back()->with('info', 'Form Surat Kesepakatan Diversi sedang dalam proses pengembangan.');
+    })->name('doc.surat-kesepakatan-diversi-document.create');
+});
