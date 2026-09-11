@@ -38,7 +38,7 @@
 
     <div class="box">
         <div class="box-header">
-            <h5 class="fw-bold text-blue-dark">Tambah Surat Kesepakatan Diversi</h5>
+            <h5 class="fw-bold text-blue-dark">Edit Surat Kesepakatan Diversi</h5>
 
             <div class="alert alert-danger" id="attentionBox">
                 <div class="text-center">
@@ -74,7 +74,7 @@
         </div>
 
         <div class="box-body">
-            <form action="{{ route('doc.surat-kesepakatan-diversi-document.store', ['accident_id' => $accidentId]) }}"
+            <form action="{{ route('doc.surat-kesepakatan-diversi-document.update', ['accident_id' => $accidentId, 'id' => $document->id]) }}"
                 method="POST" enctype="multipart/form-data" id="suratKesepakatanDiversiForm" novalidate>
                 @csrf
                 <input type="hidden" name="accidentId" id="accidentId" value="{{ $accidentId }}">
@@ -180,7 +180,7 @@
                                     data-job="{{ $suspect->job_id }}"
                                     data-religion="{{ $suspect->religion_id }}"
                                     data-address="{{ $suspect->address ?? ($suspect->properties['address'] ?? '') }}"
-                                    {{ old('suspectId') == $suspect->id ? 'selected' : '' }}>
+                                    {{ old('suspectId', $payload['suspectId'] ?? '') == $suspect->id ? 'selected' : '' }}>
                                     {{ $suspect->name }} ({{ $suspectAgeText }})
                                 </option>
                             @endforeach
@@ -195,7 +195,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childName">Nama<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="childName" type="text" class="form-control" name="childName" value="{{ old('childName') }}" required placeholder="Nama Lengkap">
+                        <input id="childName" type="text" class="form-control" name="childName" value="{{ old('childName', $payload['childName'] ?? '') }}" required placeholder="Nama Lengkap">
                     </div>
                 </div>
 
@@ -206,7 +206,7 @@
                         <select class="form-control select2" id="childIdentityType" name="childIdentityType">
                             <option value="">--Pilih Jenis Identitas--</option>
                             @foreach ($identityTypes as $identityType)
-                                <option value="{{ $identityType->id }}" data-identity-type-name="{{ $identityType->name }}" {{ old('childIdentityType') == $identityType->id ? 'selected' : '' }}>
+                                <option value="{{ $identityType->id }}" data-identity-type-name="{{ $identityType->name }}" {{ old('childIdentityType', $payload['childIdentityType'] ?? '') == $identityType->id ? 'selected' : '' }}>
                                     {{ $identityType->name }}
                                 </option>
                             @endforeach
@@ -218,9 +218,12 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childIdentityNumber">Nomor Identitas<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="childIdentityNumber" type="text" class="form-control" name="childIdentityNumber" value="{{ old('childIdentityNumber') }}"
-                            placeholder="{{ empty(old('childIdentityType')) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
-                            @if(empty(old('childIdentityType'))) disabled @endif>
+                        @php
+                            $currentChildIdType = old('childIdentityType', $payload['childIdentityType'] ?? '');
+                        @endphp
+                        <input id="childIdentityNumber" type="text" class="form-control" name="childIdentityNumber" value="{{ old('childIdentityNumber', $payload['childIdentityNumber'] ?? '') }}"
+                            placeholder="{{ empty($currentChildIdType) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
+                            @if(empty($currentChildIdType)) disabled @endif>
                     </div>
                 </div>
 
@@ -231,7 +234,7 @@
                         <select class="form-control select2" name="childNationality" id="childNationality">
                             <option value="">--Pilih Kewarganegaraan--</option>
                             @foreach ($nationalities as $nationality)
-                                <option value="{{ $nationality->id }}" {{ old('childNationality') == $nationality->id ? 'selected' : '' }}>
+                                <option value="{{ $nationality->id }}" {{ old('childNationality', $payload['childNationality'] ?? '') == $nationality->id ? 'selected' : '' }}>
                                     {{ $nationality->name }}
                                 </option>
                             @endforeach
@@ -246,7 +249,7 @@
                         <select class="form-control select2" name="childGender" id="childGender">
                             <option value="">--Pilih Jenis Kelamin--</option>
                             @foreach ($genders as $gender)
-                                <option value="{{ $gender->id }}" {{ old('childGender') == $gender->id ? 'selected' : '' }}>{{ $gender->name }}</option>
+                                <option value="{{ $gender->id }}" {{ old('childGender', $payload['childGender'] ?? '') == $gender->id ? 'selected' : '' }}>{{ $gender->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -256,7 +259,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childBirthPlace">Tempat Lahir<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="childBirthPlace" type="text" class="form-control" name="childBirthPlace" value="{{ old('childBirthPlace') }}" placeholder="Tempat Lahir">
+                        <input id="childBirthPlace" type="text" class="form-control" name="childBirthPlace" value="{{ old('childBirthPlace', $payload['childBirthPlace'] ?? '') }}" placeholder="Tempat Lahir">
                     </div>
                 </div>
 
@@ -264,7 +267,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childBirthDate">Tanggal Lahir<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="childBirthDate" type="text" class="form-control" name="childBirthDate" value="{{ old('childBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
+                        <input id="childBirthDate" type="text" class="form-control" name="childBirthDate" value="{{ old('childBirthDate', $payload['childBirthDate'] ?? '') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
                     </div>
                 </div>
 
@@ -275,19 +278,19 @@
                         <div class="row">
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="100" class="form-control" id="childAgeYear" name="childAgeYear" value="{{ old('childAgeYear') }}" placeholder="0" readonly style="background-color: #e9ecef;">
+                                    <input type="number" min="0" max="100" class="form-control" id="childAgeYear" name="childAgeYear" value="{{ old('childAgeYear', $payload['childAgeYear'] ?? '') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Tahun</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="11" class="form-control" id="childAgeMonth" name="childAgeMonth" value="{{ old('childAgeMonth') }}" placeholder="0" readonly style="background-color: #e9ecef;">
+                                    <input type="number" min="0" max="11" class="form-control" id="childAgeMonth" name="childAgeMonth" value="{{ old('childAgeMonth', $payload['childAgeMonth'] ?? '') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Bulan</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="31" class="form-control" id="childAgeDay" name="childAgeDay" value="{{ old('childAgeDay') }}" placeholder="0" readonly style="background-color: #e9ecef;">
+                                    <input type="number" min="0" max="31" class="form-control" id="childAgeDay" name="childAgeDay" value="{{ old('childAgeDay', $payload['childAgeDay'] ?? '') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Hari</span></div>
                                 </div>
                             </div>
@@ -302,7 +305,7 @@
                         <select class="form-control select2" name="childJob" id="childJob">
                             <option value="">--Pilih Pekerjaan--</option>
                             @foreach ($jobs as $job)
-                                <option value="{{ $job->id }}" {{ old('childJob') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
+                                <option value="{{ $job->id }}" {{ old('childJob', $payload['childJob'] ?? '') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -315,7 +318,7 @@
                         <select class="form-control select2" name="childReligion" id="childReligion">
                             <option value="">--Pilih Agama--</option>
                             @foreach ($religions as $religion)
-                                <option value="{{ $religion->id }}" {{ old('childReligion') == $religion->id ? 'selected' : '' }}>{{ $religion->name }}</option>
+                                <option value="{{ $religion->id }}" {{ old('childReligion', $payload['childReligion'] ?? '') == $religion->id ? 'selected' : '' }}>{{ $religion->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -325,7 +328,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childAddress">Alamat<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <textarea id="childAddress" class="form-control" name="childAddress" rows="2" placeholder="Alamat">{{ old('childAddress') }}</textarea>
+                        <textarea id="childAddress" class="form-control" name="childAddress" rows="2" placeholder="Alamat">{{ old('childAddress', $payload['childAddress'] ?? '') }}</textarea>
                     </div>
                 </div>
 
@@ -341,7 +344,7 @@
                         <select class="form-control select2" name="childGuardianFrom" id="childGuardianFrom">
                             <option value="">--Pilih Pendamping Dari--</option>
                             @foreach(['Orang Tua', 'Wali', 'Balai Pemasyarakatan (BAPAS)', 'Pekerja Sosial (PEKSOS)', 'Penasihat Hukum / Advokat', 'Lainnya'] as $opt)
-                                <option value="{{ $opt }}" {{ old('childGuardianFrom') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                <option value="{{ $opt }}" {{ old('childGuardianFrom', $payload['childGuardianFrom'] ?? '') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -351,7 +354,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childGuardianName">Nama<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="childGuardianName" type="text" class="form-control" name="childGuardianName" value="{{ old('childGuardianName') }}" placeholder="Nama Lengkap">
+                        <input id="childGuardianName" type="text" class="form-control" name="childGuardianName" value="{{ old('childGuardianName', $payload['childGuardianName'] ?? '') }}" placeholder="Nama Lengkap">
                     </div>
                 </div>
 
@@ -362,7 +365,7 @@
                         <select class="form-control select2" id="childGuardianIdentityType" name="childGuardianIdentityType">
                             <option value="">--Pilih Jenis Identitas--</option>
                             @foreach ($identityTypes as $identityType)
-                                <option value="{{ $identityType->id }}" data-identity-type-name="{{ $identityType->name }}" {{ old('childGuardianIdentityType') == $identityType->id ? 'selected' : '' }}>
+                                <option value="{{ $identityType->id }}" data-identity-type-name="{{ $identityType->name }}" {{ old('childGuardianIdentityType', $payload['childGuardianIdentityType'] ?? '') == $identityType->id ? 'selected' : '' }}>
                                     {{ $identityType->name }}
                                 </option>
                             @endforeach
@@ -374,9 +377,12 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childGuardianIdentity">Nomor Identitas<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="childGuardianIdentity" type="text" class="form-control" name="childGuardianIdentity" value="{{ old('childGuardianIdentity') }}"
-                            placeholder="{{ empty(old('childGuardianIdentityType')) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
-                            @if(empty(old('childGuardianIdentityType'))) disabled @endif>
+                        @php
+                            $currentCgIdType = old('childGuardianIdentityType', $payload['childGuardianIdentityType'] ?? '');
+                        @endphp
+                        <input id="childGuardianIdentity" type="text" class="form-control" name="childGuardianIdentity" value="{{ old('childGuardianIdentity', $payload['childGuardianIdentity'] ?? '') }}"
+                            placeholder="{{ empty($currentCgIdType) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
+                            @if(empty($currentCgIdType)) disabled @endif>
                     </div>
                 </div>
 
@@ -387,7 +393,7 @@
                         <select class="form-control select2" name="childGuardianNationality" id="childGuardianNationality">
                             <option value="">--Pilih Kewarganegaraan--</option>
                             @foreach ($nationalities as $nationality)
-                                <option value="{{ $nationality->id }}" {{ old('childGuardianNationality') == $nationality->id ? 'selected' : '' }}>
+                                <option value="{{ $nationality->id }}" {{ old('childGuardianNationality', $payload['childGuardianNationality'] ?? '') == $nationality->id ? 'selected' : '' }}>
                                     {{ $nationality->name }}
                                 </option>
                             @endforeach
@@ -402,7 +408,7 @@
                         <select class="form-control select2" name="childGuardianGender" id="childGuardianGender">
                             <option value="">--Pilih Jenis Kelamin--</option>
                             @foreach ($genders as $gender)
-                                <option value="{{ $gender->id }}" {{ old('childGuardianGender') == $gender->id ? 'selected' : '' }}>{{ $gender->name }}</option>
+                                <option value="{{ $gender->id }}" {{ old('childGuardianGender', $payload['childGuardianGender'] ?? '') == $gender->id ? 'selected' : '' }}>{{ $gender->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -412,7 +418,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childGuardianBirthPlace">Tempat Lahir<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="childGuardianBirthPlace" type="text" class="form-control" name="childGuardianBirthPlace" value="{{ old('childGuardianBirthPlace') }}" placeholder="Tempat Lahir">
+                        <input id="childGuardianBirthPlace" type="text" class="form-control" name="childGuardianBirthPlace" value="{{ old('childGuardianBirthPlace', $payload['childGuardianBirthPlace'] ?? '') }}" placeholder="Tempat Lahir">
                     </div>
                 </div>
 
@@ -420,7 +426,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childGuardianBirthDate">Tanggal Lahir<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="childGuardianBirthDate" type="text" class="form-control" name="childGuardianBirthDate" value="{{ old('childGuardianBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
+                        <input id="childGuardianBirthDate" type="text" class="form-control" name="childGuardianBirthDate" value="{{ old('childGuardianBirthDate', $payload['childGuardianBirthDate'] ?? '') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
                     </div>
                 </div>
 
@@ -431,7 +437,7 @@
                         <select class="form-control select2" name="childGuardianJob" id="childGuardianJob">
                             <option value="">--Pilih Pekerjaan--</option>
                             @foreach ($jobs as $job)
-                                <option value="{{ $job->id }}" {{ old('childGuardianJob') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
+                                <option value="{{ $job->id }}" {{ old('childGuardianJob', $payload['childGuardianJob'] ?? '') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -444,7 +450,7 @@
                         <select class="form-control select2" name="childGuardianReligion" id="childGuardianReligion">
                             <option value="">--Pilih Agama--</option>
                             @foreach ($religions as $religion)
-                                <option value="{{ $religion->id }}" {{ old('childGuardianReligion') == $religion->id ? 'selected' : '' }}>{{ $religion->name }}</option>
+                                <option value="{{ $religion->id }}" {{ old('childGuardianReligion', $payload['childGuardianReligion'] ?? '') == $religion->id ? 'selected' : '' }}>{{ $religion->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -454,7 +460,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="childGuardianAddress">Alamat<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <textarea id="childGuardianAddress" class="form-control" name="childGuardianAddress" rows="2" placeholder="Alamat">{{ old('childGuardianAddress') }}</textarea>
+                        <textarea id="childGuardianAddress" class="form-control" name="childGuardianAddress" rows="2" placeholder="Alamat">{{ old('childGuardianAddress', $payload['childGuardianAddress'] ?? '') }}</textarea>
                     </div>
                 </div>
 
@@ -465,7 +471,7 @@
                         <select class="form-control select2" name="childGuardianRelation" id="childGuardianRelation">
                             <option value="">--Pilih Hubungan Keluarga--</option>
                             @foreach(['Ayah Kandung', 'Ibu Kandung', 'Kakek / Nenek', 'Paman / Bibi', 'Kakak Kandung', 'Wali', 'Penasihat Hukum', 'Lainnya'] as $opt)
-                                <option value="{{ $opt }}" {{ old('childGuardianRelation') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                <option value="{{ $opt }}" {{ old('childGuardianRelation', $payload['childGuardianRelation'] ?? '') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -527,7 +533,7 @@
                                         data-job="{{ $victim->job_id }}"
                                         data-religion="{{ $victim->religion_id }}"
                                         data-address="{{ $victim->address }}"
-                                        {{ old('victimSelect') == $victim->id ? 'selected' : '' }}>
+                                        {{ old('victimSelect', $payload['victimSelect'] ?? '') == $victim->id ? 'selected' : '' }}>
                                         {{ $victim->name }} ({{ $victimAgeText }})
                                     </option>
                                 @endforeach
@@ -542,7 +548,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="victimName">Nama<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="victimName" type="text" class="form-control" name="victimName" value="{{ old('victimName') }}" required placeholder="Nama Lengkap">
+                        <input id="victimName" type="text" class="form-control" name="victimName" value="{{ old('victimName', $payload['victimName'] ?? '') }}" required placeholder="Nama Lengkap">
                     </div>
                 </div>
 
@@ -553,7 +559,7 @@
                         <select class="form-control select2" id="victimIdentityType" name="victimIdentityType">
                             <option value="">--Pilih Jenis Identitas--</option>
                             @foreach ($identityTypes as $identityType)
-                                <option value="{{ $identityType->id }}" data-identity-type-name="{{ $identityType->name }}" {{ old('victimIdentityType') == $identityType->id ? 'selected' : '' }}>
+                                <option value="{{ $identityType->id }}" data-identity-type-name="{{ $identityType->name }}" {{ old('victimIdentityType', $payload['victimIdentityType'] ?? '') == $identityType->id ? 'selected' : '' }}>
                                     {{ $identityType->name }}
                                 </option>
                             @endforeach
@@ -565,9 +571,12 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="victimIdentityNumber">Nomor Identitas<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="victimIdentityNumber" type="text" class="form-control" name="victimIdentityNumber" value="{{ old('victimIdentityNumber') }}"
-                            placeholder="{{ empty(old('victimIdentityType')) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
-                            @if(empty(old('victimIdentityType'))) disabled @endif>
+                        @php
+                            $currentVictimIdType = old('victimIdentityType', $payload['victimIdentityType'] ?? '');
+                        @endphp
+                        <input id="victimIdentityNumber" type="text" class="form-control" name="victimIdentityNumber" value="{{ old('victimIdentityNumber', $payload['victimIdentityNumber'] ?? '') }}"
+                            placeholder="{{ empty($currentVictimIdType) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
+                            @if(empty($currentVictimIdType)) disabled @endif>
                     </div>
                 </div>
 
@@ -578,7 +587,7 @@
                         <select class="form-control select2" name="victimNationality" id="victimNationality">
                             <option value="">--Pilih Kewarganegaraan--</option>
                             @foreach ($nationalities as $nationality)
-                                <option value="{{ $nationality->id }}" {{ old('victimNationality') == $nationality->id ? 'selected' : '' }}>
+                                <option value="{{ $nationality->id }}" {{ old('victimNationality', $payload['victimNationality'] ?? '') == $nationality->id ? 'selected' : '' }}>
                                     {{ $nationality->name }}
                                 </option>
                             @endforeach
@@ -593,7 +602,7 @@
                         <select class="form-control select2" name="victimGender" id="victimGender">
                             <option value="">--Pilih Jenis Kelamin--</option>
                             @foreach ($genders as $gender)
-                                <option value="{{ $gender->id }}" {{ old('victimGender') == $gender->id ? 'selected' : '' }}>{{ $gender->name }}</option>
+                                <option value="{{ $gender->id }}" {{ old('victimGender', $payload['victimGender'] ?? '') == $gender->id ? 'selected' : '' }}>{{ $gender->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -603,7 +612,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="victimBirthPlace">Tempat Lahir<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="victimBirthPlace" type="text" class="form-control" name="victimBirthPlace" value="{{ old('victimBirthPlace') }}" placeholder="Tempat Lahir">
+                        <input id="victimBirthPlace" type="text" class="form-control" name="victimBirthPlace" value="{{ old('victimBirthPlace', $payload['victimBirthPlace'] ?? '') }}" placeholder="Tempat Lahir">
                     </div>
                 </div>
 
@@ -611,7 +620,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="victimBirthDate">Tanggal Lahir<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <input id="victimBirthDate" type="text" class="form-control" name="victimBirthDate" value="{{ old('victimBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
+                        <input id="victimBirthDate" type="text" class="form-control" name="victimBirthDate" value="{{ old('victimBirthDate', $payload['victimBirthDate'] ?? '') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
                     </div>
                 </div>
 
@@ -622,19 +631,19 @@
                         <div class="row">
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="100" class="form-control" id="victimAgeYear" name="victimAgeYear" value="{{ old('victimAgeYear') }}" placeholder="0" readonly style="background-color: #e9ecef;">
+                                    <input type="number" min="0" max="100" class="form-control" id="victimAgeYear" name="victimAgeYear" value="{{ old('victimAgeYear', $payload['victimAgeYear'] ?? '') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Tahun</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="11" class="form-control" id="victimAgeMonth" name="victimAgeMonth" value="{{ old('victimAgeMonth') }}" placeholder="0" readonly style="background-color: #e9ecef;">
+                                    <input type="number" min="0" max="11" class="form-control" id="victimAgeMonth" name="victimAgeMonth" value="{{ old('victimAgeMonth', $payload['victimAgeMonth'] ?? '') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Bulan</span></div>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="input-group">
-                                    <input type="number" min="0" max="31" class="form-control" id="victimAgeDay" name="victimAgeDay" value="{{ old('victimAgeDay') }}" placeholder="0" readonly style="background-color: #e9ecef;">
+                                    <input type="number" min="0" max="31" class="form-control" id="victimAgeDay" name="victimAgeDay" value="{{ old('victimAgeDay', $payload['victimAgeDay'] ?? '') }}" placeholder="0" readonly style="background-color: #e9ecef;">
                                     <div class="input-group-append"><span class="input-group-text">Hari</span></div>
                                 </div>
                             </div>
@@ -649,7 +658,7 @@
                         <select class="form-control select2" name="victimJob" id="victimJob">
                             <option value="">--Pilih Pekerjaan--</option>
                             @foreach ($jobs as $job)
-                                <option value="{{ $job->id }}" {{ old('victimJob') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
+                                <option value="{{ $job->id }}" {{ old('victimJob', $payload['victimJob'] ?? '') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -662,7 +671,7 @@
                         <select class="form-control select2" name="victimReligion" id="victimReligion">
                             <option value="">--Pilih Agama--</option>
                             @foreach ($religions as $religion)
-                                <option value="{{ $religion->id }}" {{ old('victimReligion') == $religion->id ? 'selected' : '' }}>{{ $religion->name }}</option>
+                                <option value="{{ $religion->id }}" {{ old('victimReligion', $payload['victimReligion'] ?? '') == $religion->id ? 'selected' : '' }}>{{ $religion->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -672,7 +681,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="victimAddress">Alamat<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                        <textarea id="victimAddress" class="form-control" name="victimAddress" rows="2" placeholder="Alamat">{{ old('victimAddress') }}</textarea>
+                        <textarea id="victimAddress" class="form-control" name="victimAddress" rows="2" placeholder="Alamat">{{ old('victimAddress', $payload['victimAddress'] ?? '') }}</textarea>
                     </div>
                 </div>
 
@@ -682,13 +691,13 @@
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <div class="d-flex mb-2">
                             <div class="form-check me-4">
-                                <input class="form-check-input" type="radio" id="victimNotAccompanied" name="isVictimAccompanied" value="0" {{ old('isVictimAccompanied', '0') == '0' ? 'checked' : '' }}>
+                                <input class="form-check-input" type="radio" id="victimNotAccompanied" name="isVictimAccompanied" value="0" {{ old('isVictimAccompanied', $payload['isVictimAccompanied'] ?? '0') == '0' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="victimNotAccompanied">
                                     Tidak Didampingi (Korban Dewasa)
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" id="victimAccompanied" name="isVictimAccompanied" value="1" {{ old('isVictimAccompanied') == '1' ? 'checked' : '' }}>
+                                <input class="form-check-input" type="radio" id="victimAccompanied" name="isVictimAccompanied" value="1" {{ old('isVictimAccompanied', $payload['isVictimAccompanied'] ?? '') == '1' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="victimAccompanied">
                                     Didampingi (Orang Tua / Wali / Pendamping)
                                 </label>
@@ -698,7 +707,7 @@
                     </div>
                 </div>
 
-                <div id="victimGuardianContainer" style="display: {{ old('isVictimAccompanied') == '1' ? 'block' : 'none' }};">
+                <div id="victimGuardianContainer" style="display: {{ old('isVictimAccompanied', $payload['isVictimAccompanied'] ?? '') == '1' ? 'block' : 'none' }};">
                     {{-- Pendamping Korban Dari --}}
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianFrom">Pendamping Dari</label>
@@ -706,7 +715,7 @@
                             <select class="form-control select2" name="victimGuardianFrom" id="victimGuardianFrom">
                                 <option value="">--Pilih Pendamping Dari--</option>
                                 @foreach(['Orang Tua', 'Wali', 'Pekerja Sosial (PEKSOS)', 'Penasihat Hukum / Advokat', 'Lainnya'] as $opt)
-                                    <option value="{{ $opt }}" {{ old('victimGuardianFrom') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                    <option value="{{ $opt }}" {{ old('victimGuardianFrom', $payload['victimGuardianFrom'] ?? '') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -716,7 +725,7 @@
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianName">Nama</label>
                         <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                            <input id="victimGuardianName" type="text" class="form-control" name="victimGuardianName" value="{{ old('victimGuardianName') }}" placeholder="Nama Lengkap">
+                            <input id="victimGuardianName" type="text" class="form-control" name="victimGuardianName" value="{{ old('victimGuardianName', $payload['victimGuardianName'] ?? '') }}" placeholder="Nama Lengkap">
                         </div>
                     </div>
 
@@ -727,7 +736,7 @@
                             <select class="form-control select2" id="victimGuardianIdentityType" name="victimGuardianIdentityType">
                                 <option value="">--Pilih Jenis Identitas--</option>
                                 @foreach ($identityTypes as $identityType)
-                                    <option value="{{ $identityType->id }}" data-identity-type-name="{{ $identityType->name }}" {{ old('victimGuardianIdentityType') == $identityType->id ? 'selected' : '' }}>
+                                    <option value="{{ $identityType->id }}" data-identity-type-name="{{ $identityType->name }}" {{ old('victimGuardianIdentityType', $payload['victimGuardianIdentityType'] ?? '') == $identityType->id ? 'selected' : '' }}>
                                         {{ $identityType->name }}
                                     </option>
                                 @endforeach
@@ -739,9 +748,12 @@
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianIdentity">Nomor Identitas</label>
                         <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                            <input id="victimGuardianIdentity" type="text" class="form-control" name="victimGuardianIdentity" value="{{ old('victimGuardianIdentity') }}"
-                                placeholder="{{ empty(old('victimGuardianIdentityType')) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
-                                @if(empty(old('victimGuardianIdentityType'))) disabled @endif>
+                            @php
+                                $currentVgIdType = old('victimGuardianIdentityType', $payload['victimGuardianIdentityType'] ?? '');
+                            @endphp
+                            <input id="victimGuardianIdentity" type="text" class="form-control" name="victimGuardianIdentity" value="{{ old('victimGuardianIdentity', $payload['victimGuardianIdentity'] ?? '') }}"
+                                placeholder="{{ empty($currentVgIdType) ? 'Pilih Jenis Identitas terlebih dahulu' : 'Nomor Identitas' }}"
+                                @if(empty($currentVgIdType)) disabled @endif>
                         </div>
                     </div>
 
@@ -752,7 +764,7 @@
                             <select class="form-control select2" name="victimGuardianNationality" id="victimGuardianNationality">
                                 <option value="">--Pilih Kewarganegaraan--</option>
                                 @foreach ($nationalities as $nationality)
-                                    <option value="{{ $nationality->id }}" {{ old('victimGuardianNationality') == $nationality->id ? 'selected' : '' }}>
+                                    <option value="{{ $nationality->id }}" {{ old('victimGuardianNationality', $payload['victimGuardianNationality'] ?? '') == $nationality->id ? 'selected' : '' }}>
                                         {{ $nationality->name }}
                                     </option>
                                 @endforeach
@@ -767,7 +779,7 @@
                             <select class="form-control select2" name="victimGuardianGender" id="victimGuardianGender">
                                 <option value="">--Pilih Jenis Kelamin--</option>
                                 @foreach ($genders as $gender)
-                                    <option value="{{ $gender->id }}" {{ old('victimGuardianGender') == $gender->id ? 'selected' : '' }}>{{ $gender->name }}</option>
+                                    <option value="{{ $gender->id }}" {{ old('victimGuardianGender', $payload['victimGuardianGender'] ?? '') == $gender->id ? 'selected' : '' }}>{{ $gender->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -777,7 +789,7 @@
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianBirthPlace">Tempat Lahir</label>
                         <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                            <input id="victimGuardianBirthPlace" type="text" class="form-control" name="victimGuardianBirthPlace" value="{{ old('victimGuardianBirthPlace') }}" placeholder="Tempat Lahir">
+                            <input id="victimGuardianBirthPlace" type="text" class="form-control" name="victimGuardianBirthPlace" value="{{ old('victimGuardianBirthPlace', $payload['victimGuardianBirthPlace'] ?? '') }}" placeholder="Tempat Lahir">
                         </div>
                     </div>
 
@@ -785,7 +797,7 @@
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianBirthDate">Tanggal Lahir</label>
                         <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                            <input id="victimGuardianBirthDate" type="text" class="form-control" name="victimGuardianBirthDate" value="{{ old('victimGuardianBirthDate') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
+                            <input id="victimGuardianBirthDate" type="text" class="form-control" name="victimGuardianBirthDate" value="{{ old('victimGuardianBirthDate', $payload['victimGuardianBirthDate'] ?? '') }}" placeholder="YYYY-MM-DD" data-provide="datepicker" autocomplete="off">
                         </div>
                     </div>
 
@@ -796,7 +808,7 @@
                             <select class="form-control select2" name="victimGuardianJob" id="victimGuardianJob">
                                 <option value="">--Pilih Pekerjaan--</option>
                                 @foreach ($jobs as $job)
-                                    <option value="{{ $job->id }}" {{ old('victimGuardianJob') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
+                                    <option value="{{ $job->id }}" {{ old('victimGuardianJob', $payload['victimGuardianJob'] ?? '') == $job->id ? 'selected' : '' }}>{{ $job->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -809,7 +821,7 @@
                             <select class="form-control select2" name="victimGuardianReligion" id="victimGuardianReligion">
                                 <option value="">--Pilih Agama--</option>
                                 @foreach ($religions as $religion)
-                                    <option value="{{ $religion->id }}" {{ old('victimGuardianReligion') == $religion->id ? 'selected' : '' }}>{{ $religion->name }}</option>
+                                    <option value="{{ $religion->id }}" {{ old('victimGuardianReligion', $payload['victimGuardianReligion'] ?? '') == $religion->id ? 'selected' : '' }}>{{ $religion->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -819,7 +831,7 @@
                     <div class="input-group row mb-3 ms-0">
                         <label class="fw-bold col-sm-2 col-form-label" for="victimGuardianAddress">Alamat</label>
                         <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
-                            <textarea id="victimGuardianAddress" class="form-control" name="victimGuardianAddress" rows="2" placeholder="Alamat">{{ old('victimGuardianAddress') }}</textarea>
+                            <textarea id="victimGuardianAddress" class="form-control" name="victimGuardianAddress" rows="2" placeholder="Alamat">{{ old('victimGuardianAddress', $payload['victimGuardianAddress'] ?? '') }}</textarea>
                         </div>
                     </div>
 
@@ -830,7 +842,7 @@
                             <select class="form-control select2" name="victimGuardianRelation" id="victimGuardianRelation">
                                 <option value="">--Pilih Hubungan Keluarga--</option>
                                 @foreach(['Ayah Kandung', 'Ibu Kandung', 'Kakek / Nenek', 'Paman / Bibi', 'Kakak Kandung', 'Suami / Istri', 'Anak Kandung', 'Wali', 'Penasihat Hukum', 'Lainnya'] as $opt)
-                                    <option value="{{ $opt }}" {{ old('victimGuardianRelation') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                    <option value="{{ $opt }}" {{ old('victimGuardianRelation', $payload['victimGuardianRelation'] ?? '') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -846,7 +858,7 @@
                     <label class="fw-bold col-sm-2 col-form-label" for="diversionDate">Tanggal Musyawarah<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input class="form-control" id="diversionDate" name="diversionDate"
-                            placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('diversionDate') }}"
+                            placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('diversionDate', $document->diversion_date ?? $payload['diversionDate'] ?? '') }}"
                             data-provide="datepicker">
 
                         @error('diversionDate')
@@ -862,7 +874,7 @@
                     <label class="fw-bold col-sm-2 col-form-label" for="diversionRoom">Tempat Musyawarah<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
                         <input type="text" class="form-control" id="diversionRoom" name="diversionRoom"
-                            placeholder="Ruang Musyawarah (Contoh: Ruang Mediasi)" value="{{ old('diversionRoom') }}">
+                            placeholder="Ruang Musyawarah (Contoh: Ruang Mediasi)" value="{{ old('diversionRoom', $document->diversion_room ?? $payload['diversionRoom'] ?? '') }}">
 
                         @error('diversionRoom')
                             <span class="invalid-feedback" role="alert">
@@ -872,7 +884,7 @@
                     </div>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
                         <input type="text" class="form-control" id="diversionStreet" name="diversionStreet"
-                            placeholder="Jalan / Alamat Tempat Pelaksanaan Musyawarah" value="{{ old('diversionStreet') }}">
+                            placeholder="Jalan / Alamat Tempat Pelaksanaan Musyawarah" value="{{ old('diversionStreet', $document->diversion_street ?? $payload['diversionStreet'] ?? '') }}">
 
                         @error('diversionStreet')
                             <span class="invalid-feedback" role="alert">
@@ -892,7 +904,7 @@
                                 @php
                                     $positionName = ($data->position) ? $data->position->name : '-';
                                 @endphp
-                                <option value="{{ $data->id }}" data-register-number="{{ $data->register_number }}" {{ old('facilitatorOfficer') == $data->id ? 'selected' : '' }}>
+                                <option value="{{ $data->id }}" data-register-number="{{ $data->register_number }}" {{ old('facilitatorOfficer', $payload['facilitatorOfficer'] ?? '') == $data->id ? 'selected' : '' }}>
                                     {{ $data->register_number . ' - ' . $data->full_name . ' | ' . $positionName }}
                                 </option>
                             @endforeach
@@ -919,71 +931,71 @@
 
                         {{-- Opsi 1: Ganti Kerugian --}}
                         <div class="form-check mb-2">
-                            <input class="form-check-input deal-toggle" type="checkbox" id="dealCompensationCheck" name="dealCompensationCheck" value="1" {{ old('dealCompensationCheck') ? 'checked' : '' }} data-target="#boxCompensation">
+                            <input class="form-check-input deal-toggle" type="checkbox" id="dealCompensationCheck" name="dealCompensationCheck" value="1" {{ old('dealCompensationCheck', $payload['dealCompensationCheck'] ?? '') ? 'checked' : '' }} data-target="#boxCompensation">
                             <label class="form-check-label fw-bold" for="dealCompensationCheck">
                                 [1] Pihak keluarga Anak memberikan ganti kerugian berupa uang
                             </label>
                         </div>
-                        <div id="boxCompensation" class="mb-3 ps-4" style="display: {{ old('dealCompensationCheck') ? 'block' : 'none' }};">
+                        <div id="boxCompensation" class="mb-3 ps-4" style="display: {{ old('dealCompensationCheck', $payload['dealCompensationCheck'] ?? '') ? 'block' : 'none' }};">
                             <div class="row mb-2">
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="compensationAmount" value="{{ old('compensationAmount') }}" placeholder="Besaran uang (Contoh: 5.000.000)">
+                                    <input type="text" class="form-control form-control-sm" name="compensationAmount" value="{{ old('compensationAmount', $payload['compensationAmount'] ?? '') }}" placeholder="Besaran uang (Contoh: 5.000.000)">
                                 </div>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="compensationPeriod" value="{{ old('compensationPeriod') }}" placeholder="Jangka waktu pembayaran (Contoh: 1 bulan)">
+                                    <input type="text" class="form-control form-control-sm" name="compensationPeriod" value="{{ old('compensationPeriod', $payload['compensationPeriod'] ?? '') }}" placeholder="Jangka waktu pembayaran (Contoh: 1 bulan)">
                                 </div>
                             </div>
-                            <textarea class="form-control form-control-sm" name="compensationConsideration" rows="2" placeholder="Pertimbangan">{{ old('compensationConsideration') }}</textarea>
+                            <textarea class="form-control form-control-sm" name="compensationConsideration" rows="2" placeholder="Pertimbangan">{{ old('compensationConsideration', $payload['compensationConsideration'] ?? '') }}</textarea>
                         </div>
 
                         {{-- Opsi 2: Rehabilitasi Sosial --}}
                         <div class="form-check mb-2">
-                            <input class="form-check-input deal-toggle" type="checkbox" id="dealRehabCheck" name="dealRehabCheck" value="1" {{ old('dealRehabCheck') ? 'checked' : '' }} data-target="#boxRehab">
+                            <input class="form-check-input deal-toggle" type="checkbox" id="dealRehabCheck" name="dealRehabCheck" value="1" {{ old('dealRehabCheck', $payload['dealRehabCheck'] ?? '') ? 'checked' : '' }} data-target="#boxRehab">
                             <label class="form-check-label fw-bold" for="dealRehabCheck">
                                 [2] Terhadap Anak diberikan Rehabilitasi Sosial dan Psikososial
                             </label>
                         </div>
-                        <div id="boxRehab" class="mb-3 ps-4" style="display: {{ old('dealRehabCheck') ? 'block' : 'none' }};">
+                        <div id="boxRehab" class="mb-3 ps-4" style="display: {{ old('dealRehabCheck', $payload['dealRehabCheck'] ?? '') ? 'block' : 'none' }};">
                             <div class="row mb-2">
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="rehabOrganizer" value="{{ old('rehabOrganizer') }}" placeholder="Pelaksana rehabilitasi (Contoh: Dinas Sosial / Balai Rehabilitasi)">
+                                    <input type="text" class="form-control form-control-sm" name="rehabOrganizer" value="{{ old('rehabOrganizer', $payload['rehabOrganizer'] ?? '') }}" placeholder="Pelaksana rehabilitasi (Contoh: Dinas Sosial / Balai Rehabilitasi)">
                                 </div>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="rehabPeriod" value="{{ old('rehabPeriod') }}" placeholder="Lama pelaksanaan (Contoh: 3 bulan)">
+                                    <input type="text" class="form-control form-control-sm" name="rehabPeriod" value="{{ old('rehabPeriod', $payload['rehabPeriod'] ?? '') }}" placeholder="Lama pelaksanaan (Contoh: 3 bulan)">
                                 </div>
                             </div>
-                            <textarea class="form-control form-control-sm" name="rehabConsideration" rows="2" placeholder="Pertimbangan">{{ old('rehabConsideration') }}</textarea>
+                            <textarea class="form-control form-control-sm" name="rehabConsideration" rows="2" placeholder="Pertimbangan">{{ old('rehabConsideration', $payload['rehabConsideration'] ?? '') }}</textarea>
                         </div>
 
                         {{-- Opsi 3: Pengembalian ke Orang Tua --}}
                         <div class="form-check mb-2">
-                            <input class="form-check-input deal-toggle" type="checkbox" id="dealBapasCheck" name="dealBapasCheck" value="1" {{ old('dealBapasCheck') ? 'checked' : '' }} data-target="#boxBapas">
+                            <input class="form-check-input deal-toggle" type="checkbox" id="dealBapasCheck" name="dealBapasCheck" value="1" {{ old('dealBapasCheck', $payload['dealBapasCheck'] ?? '') ? 'checked' : '' }} data-target="#boxBapas">
                             <label class="form-check-label fw-bold" for="dealBapasCheck">
                                 [3] Anak dikembalikan ke orang tua dengan pengawasan BAPAS
                             </label>
                         </div>
-                        <div id="boxBapas" class="mb-3 ps-4" style="display: {{ old('dealBapasCheck') ? 'block' : 'none' }};">
-                            <input type="text" class="form-control form-control-sm mb-2" name="bapasSupervisionName" value="{{ old('bapasSupervisionName') }}" placeholder="Nama BAPAS pengawas (Contoh: BAPAS Jakarta Selatan)">
-                            <textarea class="form-control form-control-sm" name="parentSupervisionConsideration" rows="2" placeholder="Pertimbangan">{{ old('parentSupervisionConsideration') }}</textarea>
+                        <div id="boxBapas" class="mb-3 ps-4" style="display: {{ old('dealBapasCheck', $payload['dealBapasCheck'] ?? '') ? 'block' : 'none' }};">
+                            <input type="text" class="form-control form-control-sm mb-2" name="bapasSupervisionName" value="{{ old('bapasSupervisionName', $payload['bapasSupervisionName'] ?? '') }}" placeholder="Nama BAPAS pengawas (Contoh: BAPAS Jakarta Selatan)">
+                            <textarea class="form-control form-control-sm" name="parentSupervisionConsideration" rows="2" placeholder="Pertimbangan">{{ old('parentSupervisionConsideration', $payload['parentSupervisionConsideration'] ?? '') }}</textarea>
                         </div>
 
                         {{-- Opsi 4: Pelayanan Masyarakat --}}
                         <div class="form-check mb-2">
-                            <input class="form-check-input deal-toggle" type="checkbox" id="dealCommunityCheck" name="dealCommunityCheck" value="1" {{ old('dealCommunityCheck') ? 'checked' : '' }} data-target="#boxCommunity">
+                            <input class="form-check-input deal-toggle" type="checkbox" id="dealCommunityCheck" name="dealCommunityCheck" value="1" {{ old('dealCommunityCheck', $payload['dealCommunityCheck'] ?? '') ? 'checked' : '' }} data-target="#boxCommunity">
                             <label class="form-check-label fw-bold" for="dealCommunityCheck">
                                 [4] Anak melakukan Pelayanan Masyarakat di Yayasan/Lembaga Pendidikan
                             </label>
                         </div>
-                        <div id="boxCommunity" class="mb-3 ps-4" style="display: {{ old('dealCommunityCheck') ? 'block' : 'none' }};">
+                        <div id="boxCommunity" class="mb-3 ps-4" style="display: {{ old('dealCommunityCheck', $payload['dealCommunityCheck'] ?? '') ? 'block' : 'none' }};">
                             <div class="row mb-2">
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="communityServiceLocation" value="{{ old('communityServiceLocation') }}" placeholder="Yayasan / Lembaga Pendidikan">
+                                    <input type="text" class="form-control form-control-sm" name="communityServiceLocation" value="{{ old('communityServiceLocation', $payload['communityServiceLocation'] ?? '') }}" placeholder="Yayasan / Lembaga Pendidikan">
                                 </div>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="communityServicePeriod" value="{{ old('communityServicePeriod') }}" placeholder="Lama pelayanan (Contoh: 14 hari)">
+                                    <input type="text" class="form-control form-control-sm" name="communityServicePeriod" value="{{ old('communityServicePeriod', $payload['communityServicePeriod'] ?? '') }}" placeholder="Lama pelayanan (Contoh: 14 hari)">
                                 </div>
                             </div>
-                            <textarea class="form-control form-control-sm" name="communityServiceConsideration" rows="2" placeholder="Pertimbangan">{{ old('communityServiceConsideration') }}</textarea>
+                            <textarea class="form-control form-control-sm" name="communityServiceConsideration" rows="2" placeholder="Pertimbangan">{{ old('communityServiceConsideration', $payload['communityServiceConsideration'] ?? '') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -992,7 +1004,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="pasal2Content">Pasal 2 (Pemaafan)<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <textarea class="form-control" id="pasal2Content" name="pasal2Content" rows="2" required placeholder="Pernyataan pemaafan pihak korban kepada anak">{{ old('pasal2Content') }}</textarea>
+                        <textarea class="form-control" id="pasal2Content" name="pasal2Content" rows="2" required placeholder="Pernyataan pemaafan pihak korban kepada anak">{{ old('pasal2Content', $payload['pasal2Content'] ?? '') }}</textarea>
                         <small class="text-muted">Pernyataan kesepakatan pemaafan dari korban dan keluarga korban kepada anak.</small>
                     </div>
                 </div>
@@ -1006,7 +1018,7 @@
                             <div class="pasal-item mb-2" data-pasal="3">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="badge bg-secondary px-2 py-2 pasal-badge" style="min-width: 65px; font-size: 0.85rem;">Pasal 3.</span>
-                                    <textarea class="form-control form-control-sm pasal-text" name="additionalPasals[0][content]" id="pasal3Content" rows="2" placeholder="Klausul / ketentuan tambahan (opsional)">{{ old('additionalPasals.0.content', old('pasal3Content')) }}</textarea>
+                                    <textarea class="form-control form-control-sm pasal-text" name="additionalPasals[0][content]" id="pasal3Content" rows="2" placeholder="Klausul / ketentuan tambahan (opsional)">{{ old('additionalPasals.0.content', old('pasal3Content', $payload['pasal3Content'] ?? '')) }}</textarea>
                                     <input type="hidden" class="pasal-number" name="additionalPasals[0][number]" value="3">
                                     <button type="button" class="btn btn-outline-danger btn-sm btn-remove-pasal" title="Hapus Pasal" style="height: fit-content;">
                                         <i class="bi bi-trash"></i>
@@ -1031,10 +1043,10 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="bapasOfficerName">Saksi BAPAS<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" id="bapasOfficerName" name="bapasOfficerName" value="{{ old('bapasOfficerName') }}" placeholder="Nama Petugas PK BAPAS" required>
+                        <input type="text" class="form-control" id="bapasOfficerName" name="bapasOfficerName" value="{{ old('bapasOfficerName', $payload['bapasOfficerName'] ?? '') }}" placeholder="Nama Petugas PK BAPAS" required>
                     </div>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" id="bapasOfficerRankNip" name="bapasOfficerRankNip" value="{{ old('bapasOfficerRankNip') }}" placeholder="Pangkat / NIP PK BAPAS" required>
+                        <input type="text" class="form-control" id="bapasOfficerRankNip" name="bapasOfficerRankNip" value="{{ old('bapasOfficerRankNip', $payload['bapasOfficerRankNip'] ?? '') }}" placeholder="Pangkat / NIP PK BAPAS" required>
                     </div>
                 </div>
 
@@ -1042,10 +1054,10 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="socialWorkerName">Saksi PEKSOS<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" id="socialWorkerName" name="socialWorkerName" value="{{ old('socialWorkerName') }}" placeholder="Nama Pekerja Sosial (PEKSOS)" required>
+                        <input type="text" class="form-control" id="socialWorkerName" name="socialWorkerName" value="{{ old('socialWorkerName', $payload['socialWorkerName'] ?? '') }}" placeholder="Nama Pekerja Sosial (PEKSOS)" required>
                     </div>
                     <div class="col-lg-5 col-md-5 col-sm-12 col-12">
-                        <input type="text" class="form-control" id="socialWorkerRankNip" name="socialWorkerRankNip" value="{{ old('socialWorkerRankNip') }}" placeholder="Pangkat / NIP (atau -)" required>
+                        <input type="text" class="form-control" id="socialWorkerRankNip" name="socialWorkerRankNip" value="{{ old('socialWorkerRankNip', $payload['socialWorkerRankNip'] ?? '') }}" placeholder="Pangkat / NIP (atau -)" required>
                     </div>
                 </div>
 
@@ -1053,7 +1065,7 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="communityWitnessName">Saksi Lainnya<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input type="text" class="form-control" id="communityWitnessName" name="communityWitnessName" value="{{ old('communityWitnessName') }}" placeholder="Nama Penasihat Hukum Anak / Tokoh Masyarakat / Toga / Toma" required>
+                        <input type="text" class="form-control" id="communityWitnessName" name="communityWitnessName" value="{{ old('communityWitnessName', $payload['communityWitnessName'] ?? '') }}" placeholder="Nama Penasihat Hukum Anak / Tokoh Masyarakat / Toga / Toma" required>
                     </div>
                 </div>
 
@@ -1556,11 +1568,6 @@
                     resetVictimFields();
                 }
             });
-
-            // Initial check jika suspectId sudah terisi saat load
-            if ($('#suspectId').val()) {
-                $('#suspectId').trigger('change');
-            }
 
             // Dynamic Pasal Tambahan (Pasal 3, 4, dst.)
             $('#btnAddPasal').on('click', function() {

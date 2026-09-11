@@ -17,6 +17,7 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratKesepakatanDiversiDocument\SuratKesepakatanDiversiDocument;
 
 class DocumentActionController extends Controller
 {
@@ -229,10 +230,13 @@ class DocumentActionController extends Controller
         return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId]);
     }
 
-    public function documentPreviewView(){
+    public function previewView()
+    {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $documentId = htmlspecialchars(request()->query('document_id'));
         $documentCategoryId = htmlspecialchars(request()->query('document_category_id'));
+
+        $accident = Accident::where('id', $accidentId)->first();
 
         $document = $this->getDocumentRouter($documentCategoryId, $documentId, $accidentId);
 
@@ -243,7 +247,7 @@ class DocumentActionController extends Controller
             'document' => $document
         ];
 
-        return view('document-action.document-preview.view', $viewData);
+        return view('document-action.preview.view', $viewData);
     }
 
     //===================================================================================================================================
@@ -254,6 +258,7 @@ class DocumentActionController extends Controller
             '0101' => SuratPerintahPenyelidikanDocument::class,
             '0201' => SuratPerintahPenyidikanDocument::class,
             '0204' => SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            '0213' => SuratKesepakatanDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
@@ -261,7 +266,7 @@ class DocumentActionController extends Controller
         ];
 
         if (array_key_exists($documentCategoryId, $documentModels)) {
-            $document = $documentModels[$documentCategoryId]::with(['accident','documentCategory'])
+            $document = $documentModels[$documentCategoryId]::with(['accident','documentCategory','attachment'])
                 ->where('id', $documentId)
                 ->first();
         } else {

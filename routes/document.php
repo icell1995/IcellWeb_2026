@@ -243,6 +243,12 @@ Route::prefix('/sp3-pusiknas-document')->middleware(['document-access'])->group(
 // Surat Kesepakatan Diversi Document
 // ─────────────────────────────────────────────────────────────────────────────
 Route::prefix('/surat-kesepakatan-diversi-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratKesepakatanDiversiDocumentController::class, 'index'])->name('doc.surat-kesepakatan-diversi-document.index');
     Route::get('/create', [SuratKesepakatanDiversiDocumentController::class, 'create'])->name('doc.surat-kesepakatan-diversi-document.create');
     Route::post('/create', [SuratKesepakatanDiversiDocumentController::class, 'store'])->name('doc.surat-kesepakatan-diversi-document.store');
+    Route::get('/{id}/show', [SuratKesepakatanDiversiDocumentController::class, 'show'])->name('doc.surat-kesepakatan-diversi-document.show');
+    Route::get('/{id}/edit', [SuratKesepakatanDiversiDocumentController::class, 'edit'])->name('doc.surat-kesepakatan-diversi-document.edit');
+    Route::post('/{id}/edit', [SuratKesepakatanDiversiDocumentController::class, 'update'])->name('doc.surat-kesepakatan-diversi-document.update');
+    Route::delete('/{id}/delete', [SuratKesepakatanDiversiDocumentController::class, 'delete'])->name('doc.surat-kesepakatan-diversi-document.delete');
+    Route::get('/{id}/download', [SuratKesepakatanDiversiDocumentController::class, 'download'])->name('doc.surat-kesepakatan-diversi-document.download');
 });
