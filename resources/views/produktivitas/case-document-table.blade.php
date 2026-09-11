@@ -403,7 +403,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('doc.createDocumentRouter') }}" method="POST" enctype="multipart/form-data">
+            <form id="createDocumentForm" action="{{ route('doc.createDocumentRouter') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="accidentId" value="{{ $id }}">
                 <div class="modal-body">
@@ -415,6 +415,8 @@
                                         <option value="">---Pilih Tahapan Dokumen---</option>
                                         @php
                                             $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm = $countAccidentDocuments['suratPerintahPenyelidikanDocumentsRequiredUnlockForm']['count'] ?? 0;
+                                            $suratPermintaanPenggeledahanDocumentsCount = $countAccidentDocuments['suratPermintaanPenggeledahanDocuments']['count'] 
+                                                ?? (isset($accidentDocuments) ? $accidentDocuments->where('document_category_id', '0404')->count() : 0);
                                         @endphp
                                         @foreach ($documentStages as $documentStage)
                                             @if($documentStage->id == '01' || $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm > 0)
@@ -488,6 +490,26 @@
                 $('#documentSubmit').prop('disabled', false);
             } else {
                 $('#documentSubmit').prop('disabled', true);
+            }
+        });
+
+        var suratPermintaanPenggeledahanCount = {{ $suratPermintaanPenggeledahanDocumentsCount }};
+
+        $('#createDocumentForm').on('submit', function(e) {
+            var typeDocumentID = $('#typeDocument').val();
+            // 0405 = SURAT LAPORAN GUNA MEMPEROLEH PERSETUJUAN PENGGELEDAHAN KEPADA KETUA PENGADILAN NEGERI
+            if (typeDocumentID == '0405') {
+                if (suratPermintaanPenggeledahanCount <= 0) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Perhatian',
+                        text: 'Dokumen Permintaan Penggeledahan belum dibuat, mohon untuk buat Surat Permintaan Penggeledahan terlebih dahulu.',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    return false;
+                }
             }
         });
 
