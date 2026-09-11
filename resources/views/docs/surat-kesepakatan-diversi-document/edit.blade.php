@@ -1,5 +1,58 @@
 @php
     $_title = 'Surat Kesepakatan Diversi';
+
+    $initialPasals = old('pasals', $payload['pasals'] ?? null);
+    if (empty($initialPasals)) {
+        $p1Points = [];
+        if (!empty($payload['dealCompensationCheck'])) {
+            $amt = $payload['compensationAmount'] ?? '';
+            $period = $payload['compensationPeriod'] ?? '';
+            $cons = $payload['compensationConsideration'] ?? '';
+            $p1Points[] = "Pihak keluarga Anak memberikan kerugian berupa uang sebesar Rp {$amt}, yang akan dibayarkan selama {$period} dengan pertimbangan: {$cons}";
+        }
+        if (!empty($payload['dealRehabCheck'])) {
+            $org = $payload['rehabOrganizer'] ?? '';
+            $per = $payload['rehabPeriod'] ?? '';
+            $cons = $payload['rehabConsideration'] ?? '';
+            $p1Points[] = "Terhadap Anak diberikan Rehabilitasi Sosial dan psikososial yang dilakukan oleh {$org} selama {$per} dengan pertimbangan: {$cons}";
+        }
+        if (!empty($payload['dealBapasCheck'])) {
+            $bapas = $payload['bapasSupervisionName'] ?? '';
+            $cons = $payload['parentSupervisionConsideration'] ?? '';
+            $p1Points[] = "Anak dikembalikan ke orang tua dengan pengawasan dari {$bapas} dan orang tua, dengan pertimbangan: {$cons}";
+        }
+        if (!empty($payload['dealCommunityCheck'])) {
+            $loc = $payload['communityServiceLocation'] ?? '';
+            $per = $payload['communityServicePeriod'] ?? '';
+            $cons = $payload['communityServiceConsideration'] ?? '';
+            $p1Points[] = "Anak melakukan Pelayanan Masyarakat di {$loc} selama {$per} dengan pertimbangan: {$cons}";
+        }
+
+        $initialPasals = [
+            [
+                'number' => 1,
+                'subtitle' => $payload['pasal1Subtitle'] ?? '',
+                'content' => $payload['pasal1Content'] ?? '',
+                'points' => $p1Points,
+            ],
+        ];
+        if (!empty($payload['pasal2Content'])) {
+            $initialPasals[] = [
+                'number' => 2,
+                'subtitle' => $payload['pasal2Subtitle'] ?? '',
+                'content' => $payload['pasal2Content'],
+                'points' => [],
+            ];
+        }
+        if (!empty($payload['pasal3Content'])) {
+            $initialPasals[] = [
+                'number' => 3,
+                'subtitle' => $payload['pasal3Subtitle'] ?? '',
+                'content' => $payload['pasal3Content'],
+                'points' => [],
+            ];
+        }
+    }
 @endphp
 
 @extends('layouts.app')
@@ -9,22 +62,32 @@
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
     <style>
+        .input-group.row > .col-lg-10,
+        .input-group.row > .col-md-10,
         .input-group > div.d-flex,
         .input-group .d-flex.align-self-center {
+            flex-direction: column !important;
+            align-items: stretch !important;
             flex-wrap: wrap !important;
+        }
+        .input-group.row > .col-lg-10 > .select2-container,
+        .input-group.row > .col-md-10 > .select2-container,
+        .input-group .select2-container {
+            width: 100% !important;
         }
         .select2-container--bootstrap4 .select2-selection.border-danger,
         .select2-container--bootstrap4.is-invalid .select2-selection,
         .select2-selection.border-danger {
             border: 1px solid #dc3545 !important;
         }
-        .frontend-error {
-            display: block;
-            width: 100%;
-            margin-top: 0.25rem;
-            font-size: 0.85rem;
-            color: #dc3545;
-            font-weight: 600;
+        .frontend-error,
+        .invalid-feedback {
+            display: block !important;
+            width: 100% !important;
+            margin-top: 0.25rem !important;
+            font-size: 0.85rem !important;
+            color: #dc3545 !important;
+            font-weight: 600 !important;
         }
         .form-control.is-invalid {
             border-color: #dc3545 !important;
@@ -343,10 +406,18 @@
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="childGuardianFrom" id="childGuardianFrom">
                             <option value="">--Pilih Pendamping Dari--</option>
-                            @foreach(['Orang Tua', 'Wali', 'Balai Pemasyarakatan (BAPAS)', 'Pekerja Sosial (PEKSOS)', 'Penasihat Hukum / Advokat', 'Lainnya'] as $opt)
-                                <option value="{{ $opt }}" {{ old('childGuardianFrom', $payload['childGuardianFrom'] ?? '') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                            @php
+                                $currentCgFrom = old('childGuardianFrom', $payload['childGuardianFrom'] ?? '');
+                                $isCgDetail = !in_array($currentCgFrom, ['', 'Orang Tua', 'Wali']);
+                            @endphp
+                            @foreach(['Orang Tua', 'Wali', 'Pendamping dari ......'] as $opt)
+                                <option value="{{ $opt }}" {{ ($currentCgFrom == $opt || ($opt == 'Pendamping dari ......' && $isCgDetail)) ? 'selected' : '' }}>{{ $opt }}</option>
                             @endforeach
                         </select>
+                        <div id="childGuardianFromDetailContainer" class="mt-2 w-100" style="display: {{ ($currentCgFrom == 'Pendamping dari ......' || $isCgDetail) ? 'block' : 'none' }};">
+                            <input type="text" class="form-control" name="childGuardianFromDetail" id="childGuardianFromDetail"
+                                value="{{ old('childGuardianFromDetail', $payload['childGuardianFromDetail'] ?? ($isCgDetail ? $currentCgFrom : '')) }}" placeholder="Sebutkan instansi / lembaga pendamping (contoh: BAPAS / PEKSOS / Advokat)">
+                        </div>
                     </div>
                 </div>
 
@@ -714,10 +785,18 @@
                         <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                             <select class="form-control select2" name="victimGuardianFrom" id="victimGuardianFrom">
                                 <option value="">--Pilih Pendamping Dari--</option>
-                                @foreach(['Orang Tua', 'Wali', 'Pekerja Sosial (PEKSOS)', 'Penasihat Hukum / Advokat', 'Lainnya'] as $opt)
-                                    <option value="{{ $opt }}" {{ old('victimGuardianFrom', $payload['victimGuardianFrom'] ?? '') == $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                @php
+                                    $currentVgFrom = old('victimGuardianFrom', $payload['victimGuardianFrom'] ?? '');
+                                    $isVgDetail = !in_array($currentVgFrom, ['', 'Orang Tua', 'Wali']);
+                                @endphp
+                                @foreach(['Orang Tua', 'Wali', 'Pendamping dari ......'] as $opt)
+                                    <option value="{{ $opt }}" {{ ($currentVgFrom == $opt || ($opt == 'Pendamping dari ......' && $isVgDetail)) ? 'selected' : '' }}>{{ $opt }}</option>
                                 @endforeach
                             </select>
+                            <div id="victimGuardianFromDetailContainer" class="mt-2 w-100" style="display: {{ ($currentVgFrom == 'Pendamping dari ......' || $isVgDetail) ? 'block' : 'none' }};">
+                                <input type="text" class="form-control" name="victimGuardianFromDetail" id="victimGuardianFromDetail"
+                                    value="{{ old('victimGuardianFromDetail', $payload['victimGuardianFromDetail'] ?? ($isVgDetail ? $currentVgFrom : '')) }}" placeholder="Sebutkan instansi / lembaga pendamping (contoh: BAPAS / PEKSOS / Advokat)">
+                            </div>
                         </div>
                     </div>
 
@@ -921,118 +1000,22 @@
 
                 {{-- ─── PASAL-PASAL KESEPAKATAN DIVERSI ─── --}}
                 <hr>
-                <h5 class="fw-bold text-blue-dark">Isi Kesepakatan Diversi (Pasal-Pasal S-44.3)</h5>
-
-                {{-- Pasal 1: Bentuk Kesepakatan --}}
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label">Pasal 1 (Bentuk Diversi)<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <small class="text-muted d-block mb-2">Pilih satu atau lebih bentuk kesepakatan diversi yang disepakati para pihak:</small>
-
-                        {{-- Opsi 1: Ganti Kerugian --}}
-                        <div class="form-check mb-2">
-                            <input class="form-check-input deal-toggle" type="checkbox" id="dealCompensationCheck" name="dealCompensationCheck" value="1" {{ old('dealCompensationCheck', $payload['dealCompensationCheck'] ?? '') ? 'checked' : '' }} data-target="#boxCompensation">
-                            <label class="form-check-label fw-bold" for="dealCompensationCheck">
-                                [1] Pihak keluarga Anak memberikan ganti kerugian berupa uang
-                            </label>
-                        </div>
-                        <div id="boxCompensation" class="mb-3 ps-4" style="display: {{ old('dealCompensationCheck', $payload['dealCompensationCheck'] ?? '') ? 'block' : 'none' }};">
-                            <div class="row mb-2">
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="compensationAmount" value="{{ old('compensationAmount', $payload['compensationAmount'] ?? '') }}" placeholder="Besaran uang (Contoh: 5.000.000)">
-                                </div>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="compensationPeriod" value="{{ old('compensationPeriod', $payload['compensationPeriod'] ?? '') }}" placeholder="Jangka waktu pembayaran (Contoh: 1 bulan)">
-                                </div>
-                            </div>
-                            <textarea class="form-control form-control-sm" name="compensationConsideration" rows="2" placeholder="Pertimbangan">{{ old('compensationConsideration', $payload['compensationConsideration'] ?? '') }}</textarea>
-                        </div>
-
-                        {{-- Opsi 2: Rehabilitasi Sosial --}}
-                        <div class="form-check mb-2">
-                            <input class="form-check-input deal-toggle" type="checkbox" id="dealRehabCheck" name="dealRehabCheck" value="1" {{ old('dealRehabCheck', $payload['dealRehabCheck'] ?? '') ? 'checked' : '' }} data-target="#boxRehab">
-                            <label class="form-check-label fw-bold" for="dealRehabCheck">
-                                [2] Terhadap Anak diberikan Rehabilitasi Sosial dan Psikososial
-                            </label>
-                        </div>
-                        <div id="boxRehab" class="mb-3 ps-4" style="display: {{ old('dealRehabCheck', $payload['dealRehabCheck'] ?? '') ? 'block' : 'none' }};">
-                            <div class="row mb-2">
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="rehabOrganizer" value="{{ old('rehabOrganizer', $payload['rehabOrganizer'] ?? '') }}" placeholder="Pelaksana rehabilitasi (Contoh: Dinas Sosial / Balai Rehabilitasi)">
-                                </div>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="rehabPeriod" value="{{ old('rehabPeriod', $payload['rehabPeriod'] ?? '') }}" placeholder="Lama pelaksanaan (Contoh: 3 bulan)">
-                                </div>
-                            </div>
-                            <textarea class="form-control form-control-sm" name="rehabConsideration" rows="2" placeholder="Pertimbangan">{{ old('rehabConsideration', $payload['rehabConsideration'] ?? '') }}</textarea>
-                        </div>
-
-                        {{-- Opsi 3: Pengembalian ke Orang Tua --}}
-                        <div class="form-check mb-2">
-                            <input class="form-check-input deal-toggle" type="checkbox" id="dealBapasCheck" name="dealBapasCheck" value="1" {{ old('dealBapasCheck', $payload['dealBapasCheck'] ?? '') ? 'checked' : '' }} data-target="#boxBapas">
-                            <label class="form-check-label fw-bold" for="dealBapasCheck">
-                                [3] Anak dikembalikan ke orang tua dengan pengawasan BAPAS
-                            </label>
-                        </div>
-                        <div id="boxBapas" class="mb-3 ps-4" style="display: {{ old('dealBapasCheck', $payload['dealBapasCheck'] ?? '') ? 'block' : 'none' }};">
-                            <input type="text" class="form-control form-control-sm mb-2" name="bapasSupervisionName" value="{{ old('bapasSupervisionName', $payload['bapasSupervisionName'] ?? '') }}" placeholder="Nama BAPAS pengawas (Contoh: BAPAS Jakarta Selatan)">
-                            <textarea class="form-control form-control-sm" name="parentSupervisionConsideration" rows="2" placeholder="Pertimbangan">{{ old('parentSupervisionConsideration', $payload['parentSupervisionConsideration'] ?? '') }}</textarea>
-                        </div>
-
-                        {{-- Opsi 4: Pelayanan Masyarakat --}}
-                        <div class="form-check mb-2">
-                            <input class="form-check-input deal-toggle" type="checkbox" id="dealCommunityCheck" name="dealCommunityCheck" value="1" {{ old('dealCommunityCheck', $payload['dealCommunityCheck'] ?? '') ? 'checked' : '' }} data-target="#boxCommunity">
-                            <label class="form-check-label fw-bold" for="dealCommunityCheck">
-                                [4] Anak melakukan Pelayanan Masyarakat di Yayasan/Lembaga Pendidikan
-                            </label>
-                        </div>
-                        <div id="boxCommunity" class="mb-3 ps-4" style="display: {{ old('dealCommunityCheck', $payload['dealCommunityCheck'] ?? '') ? 'block' : 'none' }};">
-                            <div class="row mb-2">
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="communityServiceLocation" value="{{ old('communityServiceLocation', $payload['communityServiceLocation'] ?? '') }}" placeholder="Yayasan / Lembaga Pendidikan">
-                                </div>
-                                <div class="col-sm-6">
-                                    <input type="text" class="form-control form-control-sm" name="communityServicePeriod" value="{{ old('communityServicePeriod', $payload['communityServicePeriod'] ?? '') }}" placeholder="Lama pelayanan (Contoh: 14 hari)">
-                                </div>
-                            </div>
-                            <textarea class="form-control form-control-sm" name="communityServiceConsideration" rows="2" placeholder="Pertimbangan">{{ old('communityServiceConsideration', $payload['communityServiceConsideration'] ?? '') }}</textarea>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="fw-bold text-blue-dark mb-1">Isi Kesepakatan Diversi (Pasal-Pasal S-44.3)</h5>
+                        <small class="text-muted">Kelola kesepakatan per-pasal secara fleksibel. Setiap pasal dapat berisi narasi dan/atau butir-butir penomoran berurutan [1], [2], dst.</small>
                     </div>
                 </div>
 
-                {{-- Pasal 2: Pemaafan --}}
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="pasal2Content">Pasal 2 (Pemaafan)<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <textarea class="form-control" id="pasal2Content" name="pasal2Content" rows="2" required placeholder="Pernyataan pemaafan pihak korban kepada anak">{{ old('pasal2Content', $payload['pasal2Content'] ?? '') }}</textarea>
-                        <small class="text-muted">Pernyataan kesepakatan pemaafan dari korban dan keluarga korban kepada anak.</small>
-                    </div>
+                <div id="pasalContainer" class="mb-3">
+                    {{-- Dinamis dibuat oleh JavaScript --}}
                 </div>
 
-                {{-- ─── PASAL TAMBAHAN (PASAL 3, 4, DAN SETERUSNYA) ─── --}}
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label">Pasal Tambahan</label>
-                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <div id="additionalPasalContainer">
-                            {{-- Baris Pasal 3 (default) --}}
-                            <div class="pasal-item mb-2" data-pasal="3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-secondary px-2 py-2 pasal-badge" style="min-width: 65px; font-size: 0.85rem;">Pasal 3.</span>
-                                    <textarea class="form-control form-control-sm pasal-text" name="additionalPasals[0][content]" id="pasal3Content" rows="2" placeholder="Klausul / ketentuan tambahan (opsional)">{{ old('additionalPasals.0.content', old('pasal3Content', $payload['pasal3Content'] ?? '')) }}</textarea>
-                                    <input type="hidden" class="pasal-number" name="additionalPasals[0][number]" value="3">
-                                    <button type="button" class="btn btn-outline-danger btn-sm btn-remove-pasal" title="Hapus Pasal" style="height: fit-content;">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="btnAddPasal">
-                                <i class="bi bi-plus-circle me-1"></i> Tambah Pasal
-                            </button>
-                            <small class="text-muted ms-2">Klik untuk menambahkan Pasal 4, Pasal 5, dan seterusnya bila terdapat kesepakatan tambahan lainnya.</small>
-                        </div>
-                    </div>
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="btnAddPasal">
+                        <i class="bi bi-plus-circle me-1"></i> Tambah Pasal Baru
+                    </button>
+                    <small class="text-muted">Klik untuk menambahkan Pasal 3, Pasal 4, dan seterusnya bila terdapat klausul kesepakatan tambahan.</small>
                 </div>
 
                 {{-- ─── SAKSI-SAKSI ─── --}}
@@ -1104,6 +1087,181 @@
 @endif
 
     <script type="text/javascript">
+        // =========================================================================
+        // HELPER VALIDASI & SANITASI IDENTITAS (LEVEL SKRIP GLOBAL)
+        // =========================================================================
+        function sanitizeIdentityField(typeSelector, numberSelector) {
+            var $type = $(typeSelector);
+            var $field = $(numberSelector);
+            var identityTypeId = $type.val();
+            var identityTypeName = ($type.find(':selected').data('identity-type-name') || $type.find(':selected').text() || '').toUpperCase();
+            var val = $field.val() || '';
+
+            if (!identityTypeId || identityTypeId === '') {
+                $field.prop('disabled', true);
+                $field.attr('placeholder', 'Pilih Jenis Identitas terlebih dahulu');
+                $field.val('');
+                $field.removeAttr('maxlength');
+                $field.removeClass('is-invalid');
+                $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
+                return '';
+            } else {
+                $field.prop('disabled', false);
+                $field.attr('placeholder', 'Nomor Identitas');
+            }
+
+            if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) {
+                $field.attr('maxlength', 16);
+                val = val.replace(/[^0-9]/g, '');
+                if (val.length > 16) val = val.slice(0, 16);
+            } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) {
+                $field.attr('maxlength', 9);
+                val = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                if (val.length > 9) val = val.slice(0, 9);
+            } else {
+                $field.removeAttr('maxlength');
+            }
+
+            if ($field.val() !== val) {
+                $field.val(val);
+            }
+            return val;
+        }
+
+        function validateIdentityField(typeSelector, numberSelector, isRequired = true) {
+            var $type = $(typeSelector);
+            var $field = $(numberSelector);
+            var identityTypeId = $type.val();
+            var identityTypeName = ($type.find(':selected').data('identity-type-name') || $type.find(':selected').text() || '').toUpperCase();
+            var val = ($field.val() || '').trim();
+            var errorMsg = '';
+
+            if ($field.is(':disabled')) {
+                return null;
+            }
+
+            if (val === '') {
+                if (isRequired) {
+                    errorMsg = 'Nomor Identitas harus diisi.';
+                } else {
+                    return null;
+                }
+            } else {
+                if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
+                    if (!/^[0-9]+$/.test(val)) {
+                        errorMsg = 'Nomor KTP harus berupa angka saja.';
+                    } else if (val.length !== 16) {
+                        errorMsg = 'Nomor KTP harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
+                    }
+                } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) {
+                    if (!/^[0-9]+$/.test(val)) {
+                        errorMsg = 'Nomor Kartu Keluarga (KK) harus berupa angka saja.';
+                    } else if (val.length !== 16) {
+                        errorMsg = 'Nomor Kartu Keluarga (KK) harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
+                    }
+                } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) {
+                    if (!/^[0-9]+$/.test(val)) {
+                        errorMsg = 'Nomor SIM harus berupa angka saja.';
+                    } else if (val.length !== 12 && val.length !== 14 && val.length !== 16) {
+                        errorMsg = 'Nomor SIM harus 12, 14, atau 16 digit (saat ini: ' + val.length + ' digit).';
+                    }
+                } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) {
+                    if (!/^[a-zA-Z0-9]+$/.test(val)) {
+                        errorMsg = 'Nomor Passport harus alfanumerik (huruf dan angka saja).';
+                    } else if (val.length < 7 || val.length > 9) {
+                        errorMsg = 'Nomor Passport harus 7 sampai 9 karakter (saat ini: ' + val.length + ' karakter).';
+                    }
+                }
+            }
+
+            $field.removeClass('is-invalid');
+            $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
+
+            if (errorMsg) {
+                $field.parent().addClass('flex-wrap');
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block w-100 frontend-error font-weight-bold mt-1 text-danger">' + errorMsg + '</div>');
+                return errorMsg;
+            }
+            return null;
+        }
+
+        function validateBirthDateField(fieldSelector, isRequired = true) {
+            var $field = $(fieldSelector);
+            if ($field.is(':disabled')) {
+                $field.removeClass('is-invalid');
+                $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
+                return null;
+            }
+
+            var val = ($field.val() || '').trim();
+            var errorMsg = '';
+
+            if (val === '') {
+                if (isRequired) {
+                    errorMsg = 'Tanggal Lahir harus diisi.';
+                } else {
+                    return null;
+                }
+            } else {
+                var bDate = new Date(val);
+                var today = new Date();
+                today.setHours(23, 59, 59, 999);
+                if (isNaN(bDate.getTime())) {
+                    errorMsg = 'Format tanggal lahir tidak valid (YYYY-MM-DD).';
+                } else if (bDate > today) {
+                    errorMsg = 'Tanggal lahir tidak boleh melebihi hari ini.';
+                }
+            }
+
+            $field.removeClass('is-invalid');
+            $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
+
+            if (errorMsg) {
+                $field.parent().addClass('flex-wrap');
+                $field.addClass('is-invalid');
+                $field.after('<div class="invalid-feedback d-block w-100 frontend-error font-weight-bold mt-1 text-danger">' + errorMsg + '</div>');
+                return errorMsg;
+            }
+            return null;
+        }
+
+        function calculateAgeFromDate(dateString) {
+            if (!dateString) return null;
+            var birth = new Date(dateString);
+            if (isNaN(birth.getTime())) return null;
+            var today = new Date();
+            if (birth > today) return null;
+
+            var years = today.getFullYear() - birth.getFullYear();
+            var months = today.getMonth() - birth.getMonth();
+            var days = today.getDate() - birth.getDate();
+
+            if (days < 0) {
+                months -= 1;
+                var prevMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+                days += prevMonthLastDay;
+            }
+            if (months < 0) {
+                years -= 1;
+                months += 12;
+            }
+            return { years: years, months: months, days: days };
+        }
+
+        window.sanitizeIdentityField = sanitizeIdentityField;
+        window.validateIdentityField = validateIdentityField;
+        window.validateBirthDateField = validateBirthDateField;
+        window.calculateAgeFromDate = calculateAgeFromDate;
+
         $(document).ready(function() {
             // Blinking timer for attention box
             setInterval(function () {
@@ -1160,159 +1318,26 @@
                 }
             });
 
-            $('.deal-toggle').on('change', function() {
-                var target = $(this).data('target');
-                if ($(this).is(':checked')) {
-                    $(target).slideDown();
+            $('#childGuardianFrom').on('change', function() {
+                if ($(this).val() === 'Pendamping dari ......') {
+                    $('#childGuardianFromDetailContainer').slideDown();
                 } else {
-                    $(target).slideUp();
+                    $('#childGuardianFromDetailContainer').slideUp();
                 }
             });
 
+            $('#victimGuardianFrom').on('change', function() {
+                if ($(this).val() === 'Pendamping dari ......') {
+                    $('#victimGuardianFromDetailContainer').slideDown();
+                } else {
+                    $('#victimGuardianFromDetailContainer').slideUp();
+                }
+            });
+
+
             // =========================================================================
-            // VALIDASI FORMAT & SANITIZE IDENTITAS (PERSIS SEPERTI PELAPOR / TERLAPOR)
+            // EVENT LISTENERS IDENTITAS
             // =========================================================================
-            function sanitizeIdentityField(typeSelector, numberSelector) {
-                var $type = $(typeSelector);
-                var $field = $(numberSelector);
-                var identityTypeId = $type.val();
-                var identityTypeName = ($type.find(':selected').data('identity-type-name') || $type.find(':selected').text() || '').toUpperCase();
-                var val = $field.val() || '';
-
-                if (!identityTypeId || identityTypeId === '') {
-                    $field.prop('disabled', true);
-                    $field.attr('placeholder', 'Pilih Jenis Identitas terlebih dahulu');
-                    $field.val('');
-                    $field.removeAttr('maxlength');
-                    $field.removeClass('is-invalid');
-                    $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
-                    return '';
-                } else {
-                    $field.prop('disabled', false);
-                    $field.attr('placeholder', 'Nomor Identitas');
-                }
-
-                if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
-                    $field.attr('maxlength', 16);
-                    val = val.replace(/[^0-9]/g, '');
-                    if (val.length > 16) val = val.slice(0, 16);
-                } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) {
-                    $field.attr('maxlength', 16);
-                    val = val.replace(/[^0-9]/g, '');
-                    if (val.length > 16) val = val.slice(0, 16);
-                } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) {
-                    $field.attr('maxlength', 16);
-                    val = val.replace(/[^0-9]/g, '');
-                    if (val.length > 16) val = val.slice(0, 16);
-                } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) {
-                    $field.attr('maxlength', 9);
-                    val = val.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-                    if (val.length > 9) val = val.slice(0, 9);
-                } else {
-                    $field.removeAttr('maxlength');
-                }
-
-                if ($field.val() !== val) {
-                    $field.val(val);
-                }
-                return val;
-            }
-
-            function validateIdentityField(typeSelector, numberSelector, isRequired = true) {
-                var $type = $(typeSelector);
-                var $field = $(numberSelector);
-                var identityTypeId = $type.val();
-                var identityTypeName = ($type.find(':selected').data('identity-type-name') || $type.find(':selected').text() || '').toUpperCase();
-                var val = ($field.val() || '').trim();
-                var errorMsg = '';
-
-                if ($field.is(':disabled')) {
-                    return null;
-                }
-
-                if (val === '') {
-                    if (isRequired) {
-                        errorMsg = 'Nomor Identitas harus diisi.';
-                    } else {
-                        return null;
-                    }
-                } else {
-                    if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
-                        if (!/^[0-9]+$/.test(val)) {
-                            errorMsg = 'Nomor KTP harus berupa angka saja.';
-                        } else if (val.length !== 16) {
-                            errorMsg = 'Nomor KTP harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
-                        }
-                    } else if (identityTypeId == 8 || identityTypeName.indexOf('KK') !== -1 || identityTypeName.indexOf('KARTU KELUARGA') !== -1) {
-                        if (!/^[0-9]+$/.test(val)) {
-                            errorMsg = 'Nomor Kartu Keluarga (KK) harus berupa angka saja.';
-                        } else if (val.length !== 16) {
-                            errorMsg = 'Nomor Kartu Keluarga (KK) harus tepat 16 digit (saat ini: ' + val.length + ' digit).';
-                        }
-                    } else if (identityTypeId == 13 || identityTypeName.indexOf('SIM') !== -1 || identityTypeName.indexOf('SURAT IZIN MENGEMUDI') !== -1) {
-                        if (!/^[0-9]+$/.test(val)) {
-                            errorMsg = 'Nomor SIM harus berupa angka saja.';
-                        } else if (val.length !== 12 && val.length !== 14 && val.length !== 16) {
-                            errorMsg = 'Nomor SIM harus 12, 14, atau 16 digit (saat ini: ' + val.length + ' digit).';
-                        }
-                    } else if (identityTypeId == 12 || identityTypeName.indexOf('PASPOR') !== -1 || identityTypeName.indexOf('PASSPORT') !== -1) {
-                        if (!/^[a-zA-Z0-9]+$/.test(val)) {
-                            errorMsg = 'Nomor Passport harus alfanumerik (huruf dan angka saja).';
-                        } else if (val.length < 7 || val.length > 9) {
-                            errorMsg = 'Nomor Passport harus 7 sampai 9 karakter (saat ini: ' + val.length + ' karakter).';
-                        }
-                    }
-                }
-
-                $field.removeClass('is-invalid');
-                $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
-
-                if (errorMsg) {
-                    $field.addClass('is-invalid');
-                    $field.after('<div class="invalid-feedback d-block frontend-error font-weight-bold mt-1 text-danger">' + errorMsg + '</div>');
-                    return errorMsg;
-                }
-                return null;
-            }
-
-            function validateBirthDateField(fieldSelector, isRequired = true) {
-                var $field = $(fieldSelector);
-                if ($field.is(':disabled')) {
-                    $field.removeClass('is-invalid');
-                    $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
-                    return null;
-                }
-
-                var val = ($field.val() || '').trim();
-                var errorMsg = '';
-
-                if (val === '') {
-                    if (isRequired) {
-                        errorMsg = 'Tanggal Lahir harus diisi.';
-                    } else {
-                        return null;
-                    }
-                } else {
-                    var bDate = new Date(val);
-                    var today = new Date();
-                    today.setHours(23, 59, 59, 999);
-                    if (isNaN(bDate.getTime())) {
-                        errorMsg = 'Format tanggal lahir tidak valid (YYYY-MM-DD).';
-                    } else if (bDate > today) {
-                        errorMsg = 'Tanggal lahir tidak boleh melebihi hari ini.';
-                    }
-                }
-
-                $field.removeClass('is-invalid');
-                $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
-
-                if (errorMsg) {
-                    $field.addClass('is-invalid');
-                    $field.after('<div class="invalid-feedback d-block frontend-error font-weight-bold mt-1 text-danger">' + errorMsg + '</div>');
-                    return errorMsg;
-                }
-                return null;
-            }
 
             // Realtime listeners untuk sanitasi dan validasi identitas Anak
             $('#childIdentityType').on('change select2:select', function() {
@@ -1406,29 +1431,7 @@
             sanitizeIdentityField('#victimIdentityType', '#victimIdentityNumber');
             sanitizeIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity');
 
-            // Kalkulasi Umur (Tahun, Bulan, Hari) dari Tanggal Lahir
-            function calculateAgeFromDate(dateString) {
-                if (!dateString) return null;
-                var birth = new Date(dateString);
-                if (isNaN(birth.getTime())) return null;
-                var today = new Date();
-                if (birth > today) return null;
 
-                var years = today.getFullYear() - birth.getFullYear();
-                var months = today.getMonth() - birth.getMonth();
-                var days = today.getDate() - birth.getDate();
-
-                if (days < 0) {
-                    months -= 1;
-                    var prevMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-                    days += prevMonthLastDay;
-                }
-                if (months < 0) {
-                    years -= 1;
-                    months += 12;
-                }
-                return { years: years, months: months, days: days };
-            }
 
             // Auto-calculate saat Tanggal Lahir Anak dipilih/diubah
             $('#childBirthDate').on('change changeDate input', function() {
@@ -1569,46 +1572,183 @@
                 }
             });
 
-            // Dynamic Pasal Tambahan (Pasal 3, 4, dst.)
-            $('#btnAddPasal').on('click', function() {
-                var currentItems = $('#additionalPasalContainer .pasal-item').length;
-                var nextNumber = 3;
-                if (currentItems > 0) {
-                    var lastNumber = parseInt($('#additionalPasalContainer .pasal-item:last').data('pasal')) || (currentItems + 2);
-                    nextNumber = lastNumber + 1;
-                }
-                var newIndex = currentItems;
-                var html = `
-                    <div class="pasal-item mb-2 mt-2" data-pasal="${nextNumber}">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-secondary px-2 py-2 pasal-badge" style="min-width: 65px; font-size: 0.85rem;">Pasal ${nextNumber}.</span>
-                            <textarea class="form-control form-control-sm pasal-text" name="additionalPasals[${newIndex}][content]" rows="2" placeholder="Klausul / ketentuan tambahan"></textarea>
-                            <input type="hidden" class="pasal-number" name="additionalPasals[${newIndex}][number]" value="${nextNumber}">
-                            <button type="button" class="btn btn-outline-danger btn-sm btn-remove-pasal" title="Hapus Pasal" style="height: fit-content;">
-                                <i class="bi bi-trash"></i>
-                            </button>
+            // =========================================================================
+            // DYNAMIC PER-PASAL & POIN LIST (OPSI B)
+            // =========================================================================
+            var initialPasals = @json($initialPasals ?? []);
+            if (!initialPasals || initialPasals.length === 0) {
+                initialPasals = [
+                    {
+                        number: 1,
+                        subtitle: '',
+                        content: '',
+                        points: []
+                    }
+                ];
+            }
+
+            function renderPasals() {
+                var $container = $('#pasalContainer');
+                $container.empty();
+
+                initialPasals.forEach(function(pasal, pIdx) {
+                    var pNum = pIdx + 1;
+                    pasal.number = pNum;
+
+                    var subtitleVal = pasal.subtitle || '';
+                    var contentVal = pasal.content || '';
+                    var points = Array.isArray(pasal.points) ? pasal.points : [];
+
+                    var deleteBtnHtml = (pNum > 1)
+                        ? `<button type="button" class="btn btn-outline-danger btn-sm btn-delete-pasal" title="Hapus Pasal">
+                               <i class="bi bi-trash"></i> Hapus Pasal
+                           </button>`
+                        : `<span class="badge bg-light text-muted border py-2 px-3">Pasal Wajib</span>`;
+
+                    var $card = $(`
+                        <div class="card mb-3 border shadow-sm pasal-card" data-pasal-index="${pIdx}">
+                            <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                     <span class="badge bg-primary px-3 py-2 fs-6 pasal-badge flex-shrink-0">Pasal ${pNum}.</span>
+                                     <input type="hidden" name="pasals[${pIdx}][number]" class="pasal-number-input" value="${pNum}">
+                                     <input type="text" name="pasals[${pIdx}][subtitle]" class="form-control form-control-sm pasal-subtitle-input flex-grow-1 w-100" placeholder="Sub-judul pasal (opsional, contoh: [Jenis kesepakatan Diversi yang disepakati])" value="${$('<div>').text(subtitleVal).html()}">
+                                 </div>
+                                 <div class="flex-shrink-0 ms-auto">
+                                     ${deleteBtnHtml}
+                                 </div>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-secondary mb-1">Narasi / Teks Isi Pasal:</label>
+                                    <textarea class="form-control form-control-sm pasal-content-input" name="pasals[${pIdx}][content]" rows="2" placeholder="Tuliskan narasi isi pasal (bisa dikombinasikan dengan butir berurutan di bawah)...">${$('<div>').text(contentVal).html()}</textarea>
+                                </div>
+                                <div class="pasal-points-container">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label fw-bold small text-secondary mb-0">Poin / Butir Berurutan (Opsional):</label>
+                                    </div>
+                                    <div class="points-list">
+                                    </div>
+                                    <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-add-point">
+                                            <i class="bi bi-plus-circle me-1"></i> Tambah Poin [<span class="next-point-num">${points.length + 1}</span>]
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    `);
+
+                    var $pointsList = $card.find('.points-list');
+                    points.forEach(function(ptText, ptIdx) {
+                        renderPointItem($pointsList, pIdx, ptIdx, ptText);
+                    });
+
+                    $container.append($card);
+                });
+
+                updateAllIndices();
+            }
+
+            function renderPointItem($pointsList, pIdx, ptIdx, ptText) {
+                var ptNum = ptIdx + 1;
+                var $ptItem = $(`
+                    <div class="point-item mb-2 d-flex align-items-start gap-2" data-point-index="${ptIdx}">
+                        <span class="badge bg-secondary px-2 py-2 point-badge" style="min-width: 42px; font-size: 0.85rem; margin-top: 2px;">[${ptNum}]</span>
+                        <textarea class="form-control form-control-sm point-text" name="pasals[${pIdx}][points][${ptIdx}]" rows="2" placeholder="Isi butir kesepakatan...">${$('<div>').text(ptText || '').html()}</textarea>
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete-point" title="Hapus Butir" style="margin-top: 2px;">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
-                `;
-                $('#additionalPasalContainer').append(html);
+                `);
+                $pointsList.append($ptItem);
+            }
+
+            function updateAllIndices() {
+                $('.pasal-card').each(function(pIdx) {
+                    var pNum = pIdx + 1;
+                    var $card = $(this);
+                    $card.attr('data-pasal-index', pIdx);
+                    $card.find('.pasal-badge').text('Pasal ' + pNum + '.');
+                    $card.find('.pasal-number-input').attr('name', `pasals[${pIdx}][number]`).val(pNum);
+                    $card.find('.pasal-subtitle-input').attr('name', `pasals[${pIdx}][subtitle]`);
+                    $card.find('.pasal-content-input').attr('name', `pasals[${pIdx}][content]`);
+
+                    var $points = $card.find('.point-item');
+                    $points.each(function(ptIdx) {
+                        var ptNum = ptIdx + 1;
+                        var $pt = $(this);
+                        $pt.attr('data-point-index', ptIdx);
+                        $pt.find('.point-badge').text(`[${ptNum}]`);
+                        $pt.find('.point-text').attr('name', `pasals[${pIdx}][points][${ptIdx}]`);
+                    });
+                    $card.find('.next-point-num').text($points.length + 1);
+                });
+            }
+
+            function syncPasalsFromDOM() {
+                var list = [];
+                $('.pasal-card').each(function(pIdx) {
+                    var pNum = pIdx + 1;
+                    var sub = $(this).find('.pasal-subtitle-input').val() || '';
+                    var cont = $(this).find('.pasal-content-input').val() || '';
+                    var pts = [];
+                    $(this).find('.point-text').each(function() {
+                        pts.push($(this).val() || '');
+                    });
+                    list.push({
+                        number: pNum,
+                        subtitle: sub,
+                        content: cont,
+                        points: pts
+                    });
+                });
+                return list;
+            }
+
+            // Inisialisasi render
+            renderPasals();
+
+            // Event: Tambah Pasal
+            $('#btnAddPasal').on('click', function() {
+                initialPasals = syncPasalsFromDOM();
+                var nextNum = initialPasals.length + 1;
+                initialPasals.push({
+                    number: nextNum,
+                    subtitle: '',
+                    content: '',
+                    points: []
+                });
+                renderPasals();
             });
 
-            // Hapus Pasal & Re-indexing otomatis
-            $(document).on('click', '.btn-remove-pasal', function() {
-                $(this).closest('.pasal-item').remove();
-                $('#additionalPasalContainer .pasal-item').each(function(idx) {
-                    var num = idx + 3;
-                    $(this).attr('data-pasal', num);
-                    $(this).find('.pasal-badge').text('Pasal ' + num + '.');
-                    $(this).find('.pasal-number').val(num).attr('name', 'additionalPasals[' + idx + '][number]');
-                    $(this).find('.pasal-text').attr('name', 'additionalPasals[' + idx + '][content]');
-                    if (idx === 0) {
-                        $(this).find('.pasal-text').attr('id', 'pasal3Content');
-                    } else {
-                        $(this).find('.pasal-text').removeAttr('id');
-                    }
-                });
+            // Event: Hapus Pasal
+            $(document).on('click', '.btn-delete-pasal', function() {
+                initialPasals = syncPasalsFromDOM();
+                var $card = $(this).closest('.pasal-card');
+                var pIdx = parseInt($card.attr('data-pasal-index'), 10);
+                if (pIdx > 0) {
+                    initialPasals.splice(pIdx, 1);
+                    renderPasals();
+                }
             });
+
+            // Event: Tambah Poin
+            $(document).on('click', '.btn-add-point', function() {
+                var $card = $(this).closest('.pasal-card');
+                var pIdx = parseInt($card.attr('data-pasal-index'), 10);
+                var $pointsList = $card.find('.points-list');
+                var ptIdx = $pointsList.find('.point-item').length;
+                renderPointItem($pointsList, pIdx, ptIdx, '');
+                updateAllIndices();
+            });
+
+            // Event: Hapus Poin
+            $(document).on('click', '.btn-delete-point', function() {
+                var $pt = $(this).closest('.point-item');
+                $pt.remove();
+                updateAllIndices();
+            });
+
         });
 
         // Helper check field has value
@@ -1647,24 +1787,87 @@
             }
         });
 
-        // Helper scrollToFirstError
+        // Helper scrollToFirstError (Akurat scroll ke error paling atas)
         function scrollToFirstError() {
-            var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
-            if (!$firstError.length) {
-                $firstError = $('.is-invalid, .border-danger').first();
+            var $form = $('#suratKesepakatanDiversiForm');
+            
+            // Ambil semua elemen error dalam form berdasarkan urutan DOM dokumen
+            var $allErrors = $form.find('.is-invalid, .select2-selection.border-danger, .frontend-error').filter(function() {
+                var $t = $(this);
+                // Abaikan template pasal / poin yang tersembunyi
+                if ($t.closest('#pasalTemplate, #pointTemplate, template').length) return false;
+                return true;
+            });
+
+            if (!$allErrors.length) {
+                $allErrors = $('.is-invalid, .select2-selection.border-danger, .frontend-error').filter(function() {
+                    return $(this).closest('#pasalTemplate, #pointTemplate, template').length === 0;
+                });
             }
-            if ($firstError && $firstError.length) {
-                var el = $firstError[0];
-                if (el && typeof el.scrollIntoView === 'function') {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            if (!$allErrors.length) {
+                return;
+            }
+
+            // Elemen pertama dalam urutan DOM dokumen selalu merupakan elemen paling atas di halaman
+            var $firstError = $allErrors.first();
+
+            // Tentukan target elemen visible yang akan di-scroll
+            var $visibleTarget = $firstError;
+            if ($firstError.is('select') && $firstError.next('.select2-container').length) {
+                $visibleTarget = $firstError.next('.select2-container');
+            } else if ($firstError.hasClass('select2-selection')) {
+                $visibleTarget = $firstError.closest('.select2-container');
+            } else if (!$firstError.is(':visible')) {
+                var $visParent = $firstError.closest('.input-group, .row, .col-lg-10, .col-md-10, div:visible');
+                if ($visParent.length) {
+                    $visibleTarget = $visParent;
                 }
-                var topPos = $firstError.offset() ? $firstError.offset().top : 0;
-                $('html, body, .content-wrapper, .wrapper, main').stop().animate({
-                    scrollTop: Math.max(0, topPos - 140)
-                }, 400);
-            } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+
+            var domEl = $visibleTarget[0];
+
+            // 1. Native scrollIntoView jika didukung browser
+            if (domEl && typeof domEl.scrollIntoView === 'function') {
+                try {
+                    domEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (e) {
+                    domEl.scrollIntoView(true);
+                }
+            }
+
+            // 2. Animate scroll presisi pada container .content (karena style3x.css menggunakan .content overflow: auto)
+            var $content = $('.content');
+            if ($content.length && $visibleTarget.length && $visibleTarget.offset()) {
+                var currentScroll = $content.scrollTop();
+                var contentOffsetTop = $content.offset().top;
+                var targetOffsetTop = $visibleTarget.offset().top;
+                
+                // Rumus posisi scroll presisi:
+                // targetScroll = posisi scroll saat ini + jarak vertikal dari top container ke elemen - padding atas (120px)
+                var targetScroll = currentScroll + (targetOffsetTop - contentOffsetTop) - 120;
+                if (targetScroll < 0) targetScroll = 0;
+
+                $content.stop().animate({
+                    scrollTop: targetScroll
+                }, 350);
+            }
+
+            // 3. Fallback animasi window / html / body
+            if ($visibleTarget.length && $visibleTarget.offset()) {
+                $('html, body, .main-content').stop().animate({
+                    scrollTop: Math.max(0, $visibleTarget.offset().top - 120)
+                }, 350);
+            }
+
+            // 4. Fokuskan kursor ke input yang salah
+            setTimeout(function() {
+                if ($firstError.is('input:not([type="hidden"]), textarea') && $firstError.is(':visible')) {
+                    try { $firstError.trigger('focus'); } catch (err) {}
+                } else if ($firstError.is('select') || $visibleTarget.hasClass('select2-container')) {
+                    $visibleTarget.find('.select2-selection').trigger('focus');
+                }
+            }, 300);
         }
 
         // Validasi Submit Form
@@ -1690,15 +1893,21 @@
                         $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
                     }
                     var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+
+                    if ($field.parent().hasClass('input-group') && !$field.parent().hasClass('row')) {
+                        $target = $field.parent();
+                    }
+
+                    $target.parent().addClass('flex-wrap');
                     $target.siblings('.frontend-error, .invalid-feedback').remove();
                     $target.next('.frontend-error, .invalid-feedback').remove();
-                    $target.after('<div class="invalid-feedback d-block frontend-error font-weight-bold mt-1 text-danger">' + message + '</div>');
+                    $target.after('<div class="invalid-feedback d-block w-100 frontend-error font-weight-bold mt-1 text-danger">' + message + '</div>');
                     errors.push(message);
                 }
 
                 function checkInput(fieldSelector, label) {
                     var $field = $(fieldSelector);
-                    if ($field.is(':disabled') || !$field.is(':visible')) return;
+                    if (!$field.length || $field.is(':disabled') || !$field.is(':visible')) return;
                     var raw = $field.val();
                     var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
                     if (!val || val === '') {
@@ -1708,7 +1917,10 @@
 
                 function checkSelect(fieldSelector, label) {
                     var $field = $(fieldSelector);
-                    if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                    if (!$field.length || $field.is(':disabled')) return;
+                    var isVis = $field.is(':visible') || ($field.next('.select2-container').length && $field.next('.select2-container').is(':visible'));
+                    if (!isVis) return;
+
                     var raw = $field.val();
                     var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
                     if (!hasVal) {
@@ -1716,79 +1928,104 @@
                     }
                 }
 
-                // 1. Validasi Dokumen & Musyawarah
-                checkInput('#diversionDate', 'Tanggal Musyawarah');
-                checkInput('#diversionRoom', 'Tempat Musyawarah');
-                checkInput('#diversionStreet', 'Jalan Tempat Musyawarah');
-                checkSelect('#facilitatorOfficer', 'Fasilitator Diversi');
+                // =============================================================
+                // URUTAN VALIDASI SESUAI TAMPILAN FORM DARI ATAS KE BAWAH:
+                // =============================================================
 
-                // 2. Validasi Identitas Anak (Pihak I)
+                // 1. Identitas Pihak I (Anak yang Berkonflik dengan Hukum)
+                checkSelect('#suspectId', 'Tersangka Anak');
+                checkInput('#childName', 'Nama Anak');
                 checkSelect('#childIdentityType', 'Jenis Identitas Anak');
                 checkInput('#childIdentityNumber', 'Nomor Identitas Anak');
-                var childIdErr = validateIdentityField('#childIdentityType', '#childIdentityNumber', true);
-                if (childIdErr) errors.push(childIdErr);
-
-                checkInput('#childName', 'Nama Anak');
-                checkSelect('#childGender', 'Jenis Kelamin Anak');
-                checkInput('#childBirthPlace', 'Tempat Lahir Anak');
-                var childBirthErr = validateBirthDateField('#childBirthDate', true);
-                if (childBirthErr) errors.push(childBirthErr);
+                if (typeof validateIdentityField === 'function') {
+                    var childIdErr = validateIdentityField('#childIdentityType', '#childIdentityNumber', true);
+                    if (childIdErr) errors.push(childIdErr);
+                }
 
                 checkSelect('#childNationality', 'Kewarganegaraan Anak');
+                checkSelect('#childGender', 'Jenis Kelamin Anak');
+                checkInput('#childBirthPlace', 'Tempat Lahir Anak');
+                checkInput('#childBirthDate', 'Tanggal Lahir Anak');
+                if (typeof validateBirthDateField === 'function') {
+                    var childBirthErr = validateBirthDateField('#childBirthDate', true);
+                    if (childBirthErr) errors.push(childBirthErr);
+                }
+
                 checkSelect('#childJob', 'Pekerjaan Anak');
                 checkSelect('#childReligion', 'Agama Anak');
                 checkInput('#childAddress', 'Alamat Anak');
 
-                // 3. Validasi Pendamping Anak
+                // Pendamping Anak
                 checkSelect('#childGuardianFrom', 'Pendamping Anak Dari');
-                checkSelect('#childGuardianRelation', 'Hubungan Keluarga Pendamping Anak');
+                if ($('#childGuardianFrom').val() === 'Pendamping dari ......') {
+                    checkInput('#childGuardianFromDetail', 'Detail Instansi / Lembaga Pendamping Anak');
+                }
                 checkInput('#childGuardianName', 'Nama Pendamping Anak');
-                if ($('#childGuardianIdentity').val()) {
+                checkSelect('#childGuardianRelation', 'Hubungan Keluarga Pendamping Anak');
+                if ($('#childGuardianIdentity').val() && typeof validateIdentityField === 'function') {
                     var cgIdErr = validateIdentityField('#childGuardianIdentityType', '#childGuardianIdentity', false);
                     if (cgIdErr) errors.push(cgIdErr);
                 }
-                if ($('#childGuardianBirthDate').val()) {
+                if ($('#childGuardianBirthDate').val() && typeof validateBirthDateField === 'function') {
                     var cgBirthErr = validateBirthDateField('#childGuardianBirthDate', false);
                     if (cgBirthErr) errors.push(cgBirthErr);
                 }
 
-                // 4. Validasi Identitas Korban (Pihak II)
+                // 2. Identitas Pihak II (Korban & Pendamping Korban)
+                checkInput('#victimName', 'Nama Korban');
                 checkSelect('#victimIdentityType', 'Jenis Identitas Korban');
                 checkInput('#victimIdentityNumber', 'Nomor Identitas Korban');
-                var victimIdErr = validateIdentityField('#victimIdentityType', '#victimIdentityNumber', true);
-                if (victimIdErr) errors.push(victimIdErr);
-
-                checkInput('#victimName', 'Nama Korban');
-                checkSelect('#victimGender', 'Jenis Kelamin Korban');
-                checkInput('#victimBirthPlace', 'Tempat Lahir Korban');
-                var victimBirthErr = validateBirthDateField('#victimBirthDate', true);
-                if (victimBirthErr) errors.push(victimBirthErr);
+                if (typeof validateIdentityField === 'function') {
+                    var victimIdErr = validateIdentityField('#victimIdentityType', '#victimIdentityNumber', true);
+                    if (victimIdErr) errors.push(victimIdErr);
+                }
 
                 checkSelect('#victimNationality', 'Kewarganegaraan Korban');
+                checkSelect('#victimGender', 'Jenis Kelamin Korban');
+                checkInput('#victimBirthPlace', 'Tempat Lahir Korban');
+                checkInput('#victimBirthDate', 'Tanggal Lahir Korban');
+                if (typeof validateBirthDateField === 'function') {
+                    var victimBirthErr = validateBirthDateField('#victimBirthDate', true);
+                    if (victimBirthErr) errors.push(victimBirthErr);
+                }
+
                 checkSelect('#victimJob', 'Pekerjaan Korban');
                 checkSelect('#victimReligion', 'Agama Korban');
                 checkInput('#victimAddress', 'Alamat Korban');
 
-                // 5. Validasi Pendamping Korban (bila dicentang/didampingi)
+                // Pendamping Korban (bila dicentang/didampingi)
                 if ($('input[name="isVictimAccompanied"]:checked').val() === '1') {
                     checkInput('#victimGuardianName', 'Nama Pendamping Korban');
-                    if ($('#victimGuardianIdentity').val()) {
+                    if ($('#victimGuardianIdentity').val() && typeof validateIdentityField === 'function') {
                         var vgIdErr = validateIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity', false);
                         if (vgIdErr) errors.push(vgIdErr);
                     }
-                    if ($('#victimGuardianBirthDate').val()) {
+                    if ($('#victimGuardianBirthDate').val() && typeof validateBirthDateField === 'function') {
                         var vgBirthErr = validateBirthDateField('#victimGuardianBirthDate', false);
                         if (vgBirthErr) errors.push(vgBirthErr);
                     }
                 }
 
-                // 6. Validasi Kesepakatan (Pasal 1 & Pasal 2)
-                if (!$('#dealCompensationCheck').is(':checked') && !$('#dealRehabCheck').is(':checked') && !$('#dealBapasCheck').is(':checked') && !$('#dealCommunityCheck').is(':checked')) {
-                    markError('#dealCompensationCheck', 'Pilih minimal satu bentuk kesepakatan diversi pada Pasal 1');
-                }
-                checkInput('#pasal2Content', 'Pasal 2 (Pemaafan)');
+                // 3. Pelaksanaan Musyawarah Diversi & Fasilitator
+                checkInput('#diversionDate', 'Tanggal Musyawarah');
+                checkInput('#diversionRoom', 'Tempat Musyawarah');
+                checkInput('#diversionStreet', 'Jalan Tempat Musyawarah');
+                checkSelect('#facilitatorOfficer', 'Fasilitator Diversi');
 
-                // 7. Validasi Saksi-Saksi
+                // 4. Isi Kesepakatan (Pasal 1)
+                var p1Content = ($('textarea[name="pasals[0][content]"]').val() || '').trim();
+                var hasP1Points = false;
+                $('.pasal-card[data-pasal-index="0"]').find('.point-text').each(function() {
+                    if (($(this).val() || '').trim() !== '') {
+                        hasP1Points = true;
+                    }
+                });
+
+                if (p1Content === '' && !hasP1Points) {
+                    markError('textarea[name="pasals[0][content]"]', 'Pasal 1 harus diisi (narasi atau minimal satu butir kesepakatan)');
+                }
+
+                // 5. Saksi-Saksi Musyawarah Diversi
                 checkInput('#bapasOfficerName', 'Nama Saksi PK BAPAS');
                 checkInput('#bapasOfficerRankNip', 'Pangkat / NIP Saksi PK BAPAS');
                 checkInput('#socialWorkerName', 'Nama Saksi Pekerja Sosial (PEKSOS)');

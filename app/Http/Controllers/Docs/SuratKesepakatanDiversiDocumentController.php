@@ -358,17 +358,30 @@ class SuratKesepakatanDiversiDocumentController extends Controller
         $templateProcessor->setValue('childReligionName', $payload['childReligionName'] ?? '-');
         $templateProcessor->setValue('childAddress', $payload['childAddress'] ?? '-');
 
-        // Pendamping Anak
-        $templateProcessor->setValue('childGuardianFrom', $payload['childGuardianFrom'] ?? 'Orang Tua / Wali');
+        // Pendamping Anak (3 Opsi Standar Blanko: Orang Tua / Wali / Pendamping dari ......)
+        $cgFrom = $payload['childGuardianFrom'] ?? 'Orang Tua';
+        $cgSentence = 'orang tua';
+        if ($cgFrom === 'Wali') {
+            $cgSentence = 'wali';
+        } elseif (str_contains(strtolower($cgFrom), 'pendamping') || $cgFrom === 'Pendamping dari ......') {
+            $cgDetail = trim($payload['childGuardianFromDetail'] ?? '');
+            $cgSentence = !empty($cgDetail) ? "pendamping dari {$cgDetail}" : "pendamping dari ......";
+        } elseif ($cgFrom === 'Orang Tua') {
+            $cgSentence = 'orang tua';
+        } else {
+            $cgSentence = strtolower($cgFrom);
+        }
+        $templateProcessor->setValue('childGuardianSentence', $cgSentence);
+        $templateProcessor->setValue('childGuardianFrom', $cgSentence);
         $templateProcessor->setValue('childGuardianName', $payload['childGuardianName'] ?? '-');
-        $templateProcessor->setValue('childGuardianIdentityNumber', $payload['childGuardianIdentityNumber'] ?? '-');
+        $templateProcessor->setValue('childGuardianIdentityNumber', $payload['childGuardianIdentityNumber'] ?? ($payload['childGuardianIdentity'] ?? '-'));
         $templateProcessor->setValue('childGuardianNationality', $payload['childGuardianNationality'] ?? 'INDONESIA');
         $templateProcessor->setValue('childGuardianGenderName', $payload['childGuardianGenderName'] ?? '-');
         $templateProcessor->setValue('childGuardianBirthPlaceDate', ($payload['childGuardianBirthPlace'] ?? '') . ' / ' . ($payload['childGuardianBirthDate'] ?? ''));
         $templateProcessor->setValue('childGuardianJobName', $payload['childGuardianJobName'] ?? '-');
         $templateProcessor->setValue('childGuardianReligionName', $payload['childGuardianReligionName'] ?? '-');
         $templateProcessor->setValue('childGuardianAddress', $payload['childGuardianAddress'] ?? '-');
-        $templateProcessor->setValue('childGuardianFamilyRelation', $payload['childGuardianFamilyRelation'] ?? '-');
+        $templateProcessor->setValue('childGuardianFamilyRelation', $payload['childGuardianRelation'] ?? ($payload['childGuardianFamilyRelation'] ?? '-'));
 
         // Pihak II (Korban)
         $templateProcessor->setValue('victimName', $payload['victimName'] ?? '-');
@@ -382,7 +395,47 @@ class SuratKesepakatanDiversiDocumentController extends Controller
         $templateProcessor->setValue('victimJobName', $payload['victimJobName'] ?? '-');
         $templateProcessor->setValue('victimReligionName', $payload['victimReligionName'] ?? '-');
         $templateProcessor->setValue('victimAddress', $payload['victimAddress'] ?? '-');
-        $templateProcessor->setValue('victimGuardianSection', '');
+
+        // Pendamping Korban (Jika Korban Didampingi)
+        $isVictimAccompanied = ($payload['isVictimAccompanied'] ?? '0') == '1';
+        if ($isVictimAccompanied) {
+            $vgFrom = $payload['victimGuardianFrom'] ?? 'Orang Tua';
+            $vgSentence = 'orang tua';
+            if ($vgFrom === 'Wali') {
+                $vgSentence = 'wali';
+            } elseif (str_contains(strtolower($vgFrom), 'pendamping') || $vgFrom === 'Pendamping dari ......') {
+                $vgDetail = trim($payload['victimGuardianFromDetail'] ?? '');
+                $vgSentence = !empty($vgDetail) ? "pendamping dari {$vgDetail}" : "pendamping dari ......";
+            } elseif ($vgFrom === 'Orang Tua') {
+                $vgSentence = 'orang tua';
+            } else {
+                $vgSentence = strtolower($vgFrom);
+            }
+
+            $vgName = $payload['victimGuardianName'] ?? '-';
+            $vgIdNumber = $payload['victimGuardianIdentityNumber'] ?? ($payload['victimGuardianIdentity'] ?? '-');
+            $vgNat = $payload['victimGuardianNationality'] ?? 'INDONESIA';
+            $vgGender = $payload['victimGuardianGenderName'] ?? '-';
+            $vgBirth = ($payload['victimGuardianBirthPlace'] ?? '') . ' / ' . ($payload['victimGuardianBirthDate'] ?? '');
+            $vgJob = $payload['victimGuardianJobName'] ?? '-';
+            $vgRel = $payload['victimGuardianReligionName'] ?? '-';
+            $vgAddr = $payload['victimGuardianAddress'] ?? '-';
+            $vgFamilyRel = $payload['victimGuardianRelation'] ?? ($payload['victimGuardianFamilyRelation'] ?? '-');
+
+            $vgText = "korban didampingi {$vgSentence}, dengan identitas sebagai berikut:</w:t><w:br/><w:t>" .
+                      "  nama : {$vgName}</w:t><w:br/><w:t>" .
+                      "  nomor identitas : {$vgIdNumber}</w:t><w:br/><w:t>" .
+                      "  kewarganegaraan : {$vgNat}</w:t><w:br/><w:t>" .
+                      "  jenis kelamin : {$vgGender}</w:t><w:br/><w:t>" .
+                      "  tempat/tanggal lahir : {$vgBirth}</w:t><w:br/><w:t>" .
+                      "  pekerjaan : {$vgJob}</w:t><w:br/><w:t>" .
+                      "  agama : {$vgRel}</w:t><w:br/><w:t>" .
+                      "  alamat : {$vgAddr}</w:t><w:br/><w:t>" .
+                      "  hubungan keluarga : {$vgFamilyRel}";
+            $templateProcessor->setValue('victimGuardianSection', $vgText);
+        } else {
+            $templateProcessor->setValue('victimGuardianSection', '');
+        }
 
         // Musyawarah
         $templateProcessor->setValue('diversionDay', $document->diversion_day ?? ($payload['diversionDay'] ?? '-'));
@@ -397,10 +450,81 @@ class SuratKesepakatanDiversiDocumentController extends Controller
         $templateProcessor->setValue('facilitatorName', $facilitatorName);
         $templateProcessor->setValue('facilitatorRankNrp', $facilitatorRankNrp);
 
-        // Pasal-Pasal
-        $templateProcessor->setValue('pasal1Content', $payload['pasal1Content'] ?? '-');
-        $templateProcessor->setValue('pasal2Content', $payload['pasal2Content'] ?? '-');
-        $templateProcessor->setValue('pasal3Content', $payload['pasal3Content'] ?? '-');
+        // Pasal-Pasal (Format Baru Berbasis Array Pasals & Poin Dinamis)
+        $pasals = $payload['pasals'] ?? [];
+        if (empty($pasals)) {
+            $p1Points = [];
+            if (!empty($payload['dealCompensationCheck'])) {
+                $p1Points[] = "Pihak keluarga Anak memberikan kerugian berupa uang sebesar Rp " . ($payload['compensationAmount'] ?? '') . ", yang akan dibayarkan selama " . ($payload['compensationPeriod'] ?? '') . " dengan pertimbangan: " . ($payload['compensationConsideration'] ?? '');
+            }
+            if (!empty($payload['dealRehabCheck'])) {
+                $p1Points[] = "Terhadap Anak diberikan Rehabilitasi Sosial dan psikososial yang dilakukan oleh " . ($payload['rehabOrganizer'] ?? '') . " selama " . ($payload['rehabPeriod'] ?? '') . " dengan pertimbangan: " . ($payload['rehabConsideration'] ?? '');
+            }
+            if (!empty($payload['dealBapasCheck'])) {
+                $p1Points[] = "Anak dikembalikan ke orang tua dengan pengawasan dari " . ($payload['bapasSupervisionName'] ?? '') . " dan orang tua, dengan pertimbangan: " . ($payload['parentSupervisionConsideration'] ?? '');
+            }
+            if (!empty($payload['dealCommunityCheck'])) {
+                $p1Points[] = "Anak melakukan Pelayanan Masyarakat di " . ($payload['communityServiceLocation'] ?? '') . " selama " . ($payload['communityServicePeriod'] ?? '') . " dengan pertimbangan: " . ($payload['communityServiceConsideration'] ?? '');
+            }
+
+            $pasals = [
+                [
+                    'number' => 1,
+                    'subtitle' => $payload['pasal1Subtitle'] ?? '',
+                    'content' => $payload['pasal1Content'] ?? '',
+                    'points' => $p1Points,
+                ],
+            ];
+            if (!empty($payload['pasal2Content'])) {
+                $pasals[] = [
+                    'number' => 2,
+                    'subtitle' => $payload['pasal2Subtitle'] ?? '',
+                    'content' => $payload['pasal2Content'],
+                    'points' => [],
+                ];
+            }
+            if (!empty($payload['pasal3Content'])) {
+                $pasals[] = [
+                    'number' => 3,
+                    'subtitle' => $payload['pasal3Subtitle'] ?? '',
+                    'content' => $payload['pasal3Content'],
+                    'points' => [],
+                ];
+            }
+        }
+
+        $blockPasals = [];
+        foreach ($pasals as $p) {
+            $num = $p['number'] ?? 1;
+            $title = 'Pasal ' . $num . '.';
+            if (!empty($p['subtitle'])) {
+                $title .= '</w:t><w:br/><w:t>' . $p['subtitle'];
+            }
+
+            $lines = [];
+            if (!empty($p['content'])) {
+                $lines[] = trim($p['content']);
+            }
+            if (!empty($p['points']) && is_array($p['points'])) {
+                foreach ($p['points'] as $ptIdx => $pointText) {
+                    if (!empty(trim($pointText))) {
+                        $lines[] = '[' . ($ptIdx + 1) . '] ' . trim($pointText);
+                    }
+                }
+            }
+
+            $contentFormatted = implode('</w:t><w:br/><w:t>', $lines);
+            if (empty($contentFormatted)) {
+                $contentFormatted = '-';
+            }
+
+            $blockPasals[] = [
+                'pasalTitle'   => $title,
+                'pasalContent' => $contentFormatted,
+            ];
+        }
+
+        $templateProcessor->cloneBlock('block_pasals', count($blockPasals), true, false, $blockPasals);
 
         // Signatures
         $templateProcessor->setValue('victimSignatoryName', $payload['victimName'] ?? '-');
