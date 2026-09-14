@@ -1,0 +1,219 @@
+[
+  {
+    "Butir": "kode_alasan   -   Master Alasan Penghentian Perkara   (butir 15 - dipakai pada dokumen sp3)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "15",
+    "Field JSON": "kode_alasan",
+    "Master Data": "Alasan Penghentian Perkara",
+    "Kode": "1",
+    "Nama / Uraian": "Tidak Cukup Bukti"
+  },
+  {
+    "Butir": "15",
+    "Field JSON": "kode_alasan",
+    "Master Data": "Alasan Penghentian Perkara",
+    "Kode": "2",
+    "Nama / Uraian": "Bukan Merupakan Tindak Pidana"
+  },
+  {
+    "Butir": "15",
+    "Field JSON": "kode_alasan",
+    "Master Data": "Alasan Penghentian Perkara",
+    "Kode": "3",
+    "Nama / Uraian": "Dihentikan Demi Hukum"
+  },
+  {
+    "Butir": "15",
+    "Field JSON": "kode_alasan",
+    "Master Data": "Alasan Penghentian Perkara",
+    "Kode": "3a",
+    "Nama / Uraian": "Tersangka meninggal dunia"
+  },
+  {
+    "Butir": "15",
+    "Field JSON": "kode_alasan",
+    "Master Data": "Alasan Penghentian Perkara",
+    "Kode": "3b",
+    "Nama / Uraian": "Daluwarsa"
+  },
+  {
+    "Butir": "15",
+    "Field JSON": "kode_alasan",
+    "Master Data": "Alasan Penghentian Perkara",
+    "Kode": "3c",
+    "Nama / Uraian": "Nebis in idem"
+  },
+  {
+    "Butir": "",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "kode_pendamping   -   Master Pendamping   (butir 16 - dipakai pada dokumen diversi)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "16",
+    "Field JSON": "kode_pendamping",
+    "Master Data": "Pendamping",
+    "Kode": "1",
+    "Nama / Uraian": "Orang Tua"
+  },
+  {
+    "Butir": "16",
+    "Field JSON": "kode_pendamping",
+    "Master Data": "Pendamping",
+    "Kode": "2",
+    "Nama / Uraian": "Wali"
+  },
+  {
+    "Butir": "16",
+    "Field JSON": "kode_pendamping",
+    "Master Data": "Pendamping",
+    "Kode": "3",
+    "Nama / Uraian": "Pendamping"
+  },
+  {
+    "Butir": "16",
+    "Field JSON": "kode_pendamping",
+    "Master Data": "Pendamping",
+    "Kode": "4",
+    "Nama / Uraian": "Tidak ada pendamping"
+  },
+  {
+    "Butir": "",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "kode_jenis_lokasi   -   Jenis Lokasi Penggeledahan   (butir 18 - dipakai pada dokumen s10 dan s11)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "18",
+    "Field JSON": "kode_jenis_lokasi",
+    "Master Data": "Jenis Lokasi",
+    "Kode": "1",
+    "Nama / Uraian": "Rumah"
+  },
+  {
+    "Butir": "18",
+    "Field JSON": "kode_jenis_lokasi",
+    "Master Data": "Jenis Lokasi",
+    "Kode": "2",
+    "Nama / Uraian": "Penginapan"
+  },
+  {
+    "Butir": "18",
+    "Field JSON": "kode_jenis_lokasi",
+    "Master Data": "Jenis Lokasi",
+    "Kode": "3",
+    "Nama / Uraian": "Kantor"
+  },
+  {
+    "Butir": "18",
+    "Field JSON": "kode_jenis_lokasi",
+    "Master Data": "Jenis Lokasi",
+    "Kode": "4",
+    "Nama / Uraian": "Tempat Umum"
+  },
+  {
+    "Butir": "18",
+    "Field JSON": "kode_jenis_lokasi",
+    "Master Data": "Jenis Lokasi",
+    "Kode": "5",
+    "Nama / Uraian": "Instansi Pemerintahan"
+  },
+  {
+    "Butir": "18",
+    "Field JSON": "kode_jenis_lokasi",
+    "Master Data": "Jenis Lokasi",
+    "Kode": "6",
+    "Nama / Uraian": "Lainnya"
+  },
+  {
+    "Butir": "18",
+    "Field JSON": "kode_jenis_lokasi",
+    "Master Data": "Jenis Lokasi",
+    "Kode": "-",
+    "Nama / Uraian": "Boleh diisi lebih dari satu pilihan bila lokasi penggeledahan lebih dari satu jenis."
+  },
+  {
+    "Butir": "",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "jenis_jaminan   -   Jenis Jaminan Penahanan   (butir 19 - dipakai pada dokumen s18)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "19",
+    "Field JSON": "jenis_jaminan",
+    "Master Data": "Jenis Jaminan",
+    "Kode": "1",
+    "Nama / Uraian": "Jaminan Uang"
+  },
+  {
+    "Butir": "19",
+    "Field JSON": "jenis_jaminan",
+    "Master Data": "Jenis Jaminan",
+    "Kode": "2",
+    "Nama / Uraian": "Jaminan Orang"
+  },
+  {
+    "Butir": "19",
+    "Field JSON": "besaran_uang_jaminan",
+    "Master Data": "Field pendamping jaminan",
+    "Kode": "-",
+    "Nama / Uraian": "Nilai uang jaminan. Diisi bila jenis_jaminan = 1."
+  },
+  {
+    "Butir": "19",
+    "Field JSON": "lokasi_penyimpanan_jaminan",
+    "Master Data": "Field pendamping jaminan",
+    "Kode": "-",
+    "Nama / Uraian": "Lokasi penyimpanan jaminan. Diisi bila jenis_jaminan = 1."
+  },
+  {
+    "Butir": "19",
+    "Field JSON": "nomor_identitas_penjamin",
+    "Master Data": "Field pendamping jaminan",
+    "Kode": "-",
+    "Nama / Uraian": "Nomor identitas penjamin. Diisi bila jenis_jaminan = 2."
+  },
+  {
+    "Butir": "19",
+    "Field JSON": "nama_penjamin",
+    "Master Data": "Field pendamping jaminan",
+    "Kode": "-",
+    "Nama / Uraian": "Nama penjamin. Diisi bila jenis_jaminan = 2."
+  },
+  {
+    "Butir": "19",
+    "Field JSON": "alamat_penjamin",
+    "Master Data": "Field pendamping jaminan",
+    "Kode": "-",
+    "Nama / Uraian": "Alamat penjamin. Diisi bila jenis_jaminan = 2."
+  }
+]

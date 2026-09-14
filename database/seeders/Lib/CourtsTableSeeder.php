@@ -83,7 +83,7 @@ class CourtsTableSeeder extends Seeder
     }
 
     private function getCourts(){
-        $courts = File::get(base_path('master_seeder/courts.json'));
+        $courts = File::get(base_path('master_seeder/courts-new1.json'));
 
         return $courts;
     }

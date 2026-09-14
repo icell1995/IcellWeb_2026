@@ -1,0 +1,1478 @@
+[
+  {
+    "No": "",
+    "Kode (alpha-3)": "IDN",
+    "Kode alpha-2": "ID",
+    "Nama Negara": "INDONESIA   <-- dipakai untuk Warga Negara Indonesia"
+  },
+  {
+    "No": "1",
+    "Kode (alpha-3)": "AFG",
+    "Kode alpha-2": "AF",
+    "Nama Negara": "AFGHANISTAN"
+  },
+  {
+    "No": "2",
+    "Kode (alpha-3)": "ALB",
+    "Kode alpha-2": "AL",
+    "Nama Negara": "ALBANIA"
+  },
+  {
+    "No": "3",
+    "Kode (alpha-3)": "DZA",
+    "Kode alpha-2": "DZ",
+    "Nama Negara": "ALGERIA"
+  },
+  {
+    "No": "4",
+    "Kode (alpha-3)": "ASM",
+    "Kode alpha-2": "AS",
+    "Nama Negara": "AMERICAN SAMOA"
+  },
+  {
+    "No": "5",
+    "Kode (alpha-3)": "AND",
+    "Kode alpha-2": "AD",
+    "Nama Negara": "ANDORRA"
+  },
+  {
+    "No": "6",
+    "Kode (alpha-3)": "AGO",
+    "Kode alpha-2": "AO",
+    "Nama Negara": "ANGOLA"
+  },
+  {
+    "No": "7",
+    "Kode (alpha-3)": "AIA",
+    "Kode alpha-2": "AI",
+    "Nama Negara": "ANGUILLA"
+  },
+  {
+    "No": "8",
+    "Kode (alpha-3)": "ATA",
+    "Kode alpha-2": "AQ",
+    "Nama Negara": "ANTARCTICA"
+  },
+  {
+    "No": "9",
+    "Kode (alpha-3)": "ATG",
+    "Kode alpha-2": "AG",
+    "Nama Negara": "ANTIGUA AND BARBUDA"
+  },
+  {
+    "No": "10",
+    "Kode (alpha-3)": "ARG",
+    "Kode alpha-2": "AR",
+    "Nama Negara": "ARGENTINA"
+  },
+  {
+    "No": "11",
+    "Kode (alpha-3)": "ARM",
+    "Kode alpha-2": "AM",
+    "Nama Negara": "ARMENIA"
+  },
+  {
+    "No": "12",
+    "Kode (alpha-3)": "ABW",
+    "Kode alpha-2": "AW",
+    "Nama Negara": "ARUBA"
+  },
+  {
+    "No": "13",
+    "Kode (alpha-3)": "AUS",
+    "Kode alpha-2": "AU",
+    "Nama Negara": "AUSTRALIA"
+  },
+  {
+    "No": "14",
+    "Kode (alpha-3)": "AUT",
+    "Kode alpha-2": "AT",
+    "Nama Negara": "AUSTRIA"
+  },
+  {
+    "No": "15",
+    "Kode (alpha-3)": "AZE",
+    "Kode alpha-2": "AZ",
+    "Nama Negara": "AZERBAIJAN"
+  },
+  {
+    "No": "16",
+    "Kode (alpha-3)": "BHS",
+    "Kode alpha-2": "BS",
+    "Nama Negara": "BAHAMAS"
+  },
+  {
+    "No": "17",
+    "Kode (alpha-3)": "BHR",
+    "Kode alpha-2": "BH",
+    "Nama Negara": "BAHRAIN"
+  },
+  {
+    "No": "18",
+    "Kode (alpha-3)": "BGD",
+    "Kode alpha-2": "BD",
+    "Nama Negara": "BANGLADESH"
+  },
+  {
+    "No": "19",
+    "Kode (alpha-3)": "BRB",
+    "Kode alpha-2": "BB",
+    "Nama Negara": "BARBADOS"
+  },
+  {
+    "No": "20",
+    "Kode (alpha-3)": "BLR",
+    "Kode alpha-2": "BY",
+    "Nama Negara": "BELARUS"
+  },
+  {
+    "No": "21",
+    "Kode (alpha-3)": "BEL",
+    "Kode alpha-2": "BE",
+    "Nama Negara": "BELGIUM"
+  },
+  {
+    "No": "22",
+    "Kode (alpha-3)": "BLZ",
+    "Kode alpha-2": "BZ",
+    "Nama Negara": "BELIZE"
+  },
+  {
+    "No": "23",
+    "Kode (alpha-3)": "BEN",
+    "Kode alpha-2": "BJ",
+    "Nama Negara": "BENIN"
+  },
+  {
+    "No": "24",
+    "Kode (alpha-3)": "BMU",
+    "Kode alpha-2": "BM",
+    "Nama Negara": "BERMUDA"
+  },
+  {
+    "No": "25",
+    "Kode (alpha-3)": "BTN",
+    "Kode alpha-2": "BT",
+    "Nama Negara": "BHUTAN"
+  },
+  {
+    "No": "26",
+    "Kode (alpha-3)": "BOL",
+    "Kode alpha-2": "BO",
+    "Nama Negara": "BOLIVIA"
+  },
+  {
+    "No": "27",
+    "Kode (alpha-3)": "BIH",
+    "Kode alpha-2": "BA",
+    "Nama Negara": "BOSNIA AND HERZEGOVINA"
+  },
+  {
+    "No": "28",
+    "Kode (alpha-3)": "BWA",
+    "Kode alpha-2": "BW",
+    "Nama Negara": "BOTSWANA"
+  },
+  {
+    "No": "29",
+    "Kode (alpha-3)": "BVT",
+    "Kode alpha-2": "BV",
+    "Nama Negara": "BOUVET ISLAND"
+  },
+  {
+    "No": "30",
+    "Kode (alpha-3)": "BRA",
+    "Kode alpha-2": "BR",
+    "Nama Negara": "BRAZIL"
+  },
+  {
+    "No": "31",
+    "Kode (alpha-3)": "IOT",
+    "Kode alpha-2": "IO",
+    "Nama Negara": "BRITISH INDIAN OCEAN TERRITORY"
+  },
+  {
+    "No": "32",
+    "Kode (alpha-3)": "BRN",
+    "Kode alpha-2": "BN",
+    "Nama Negara": "BRUNEI DARUSSALAM"
+  },
+  {
+    "No": "33",
+    "Kode (alpha-3)": "BGR",
+    "Kode alpha-2": "BG",
+    "Nama Negara": "BULGARIA"
+  },
+  {
+    "No": "34",
+    "Kode (alpha-3)": "BFA",
+    "Kode alpha-2": "BF",
+    "Nama Negara": "BURKINA FASO"
+  },
+  {
+    "No": "35",
+    "Kode (alpha-3)": "BDI",
+    "Kode alpha-2": "BI",
+    "Nama Negara": "BURUNDI"
+  },
+  {
+    "No": "36",
+    "Kode (alpha-3)": "KHM",
+    "Kode alpha-2": "KH",
+    "Nama Negara": "CAMBODIA"
+  },
+  {
+    "No": "37",
+    "Kode (alpha-3)": "CMR",
+    "Kode alpha-2": "CM",
+    "Nama Negara": "CAMEROON"
+  },
+  {
+    "No": "38",
+    "Kode (alpha-3)": "CAN",
+    "Kode alpha-2": "CA",
+    "Nama Negara": "CANADA"
+  },
+  {
+    "No": "39",
+    "Kode (alpha-3)": "CPV",
+    "Kode alpha-2": "CV",
+    "Nama Negara": "CAPE VERDE"
+  },
+  {
+    "No": "40",
+    "Kode (alpha-3)": "CYM",
+    "Kode alpha-2": "KY",
+    "Nama Negara": "CAYMAN ISLANDS"
+  },
+  {
+    "No": "41",
+    "Kode (alpha-3)": "CAF",
+    "Kode alpha-2": "CF",
+    "Nama Negara": "CENTRAL AFRICAN REPUBLIC"
+  },
+  {
+    "No": "42",
+    "Kode (alpha-3)": "TCD",
+    "Kode alpha-2": "TD",
+    "Nama Negara": "CHAD"
+  },
+  {
+    "No": "43",
+    "Kode (alpha-3)": "CHL",
+    "Kode alpha-2": "CL",
+    "Nama Negara": "CHILE"
+  },
+  {
+    "No": "44",
+    "Kode (alpha-3)": "CHN",
+    "Kode alpha-2": "CN",
+    "Nama Negara": "CHINA"
+  },
+  {
+    "No": "45",
+    "Kode (alpha-3)": "CXR",
+    "Kode alpha-2": "CX",
+    "Nama Negara": "CHRISTMAS ISLAND"
+  },
+  {
+    "No": "46",
+    "Kode (alpha-3)": "CCK",
+    "Kode alpha-2": "CC",
+    "Nama Negara": "COCOS (KEELING) ISLANDS"
+  },
+  {
+    "No": "47",
+    "Kode (alpha-3)": "COL",
+    "Kode alpha-2": "CO",
+    "Nama Negara": "COLOMBIA"
+  },
+  {
+    "No": "48",
+    "Kode (alpha-3)": "COM",
+    "Kode alpha-2": "KM",
+    "Nama Negara": "COMOROS"
+  },
+  {
+    "No": "49",
+    "Kode (alpha-3)": "COG",
+    "Kode alpha-2": "CG",
+    "Nama Negara": "CONGO"
+  },
+  {
+    "No": "50",
+    "Kode (alpha-3)": "COK",
+    "Kode alpha-2": "CK",
+    "Nama Negara": "COOK ISLANDS"
+  },
+  {
+    "No": "51",
+    "Kode (alpha-3)": "CRI",
+    "Kode alpha-2": "CR",
+    "Nama Negara": "COSTA RICA"
+  },
+  {
+    "No": "52",
+    "Kode (alpha-3)": "HRV",
+    "Kode alpha-2": "HR",
+    "Nama Negara": "CROATIA (HRVATSKA)"
+  },
+  {
+    "No": "53",
+    "Kode (alpha-3)": "CUB",
+    "Kode alpha-2": "CU",
+    "Nama Negara": "CUBA"
+  },
+  {
+    "No": "54",
+    "Kode (alpha-3)": "CYP",
+    "Kode alpha-2": "CY",
+    "Nama Negara": "CYPRUS"
+  },
+  {
+    "No": "55",
+    "Kode (alpha-3)": "CZE",
+    "Kode alpha-2": "CZ",
+    "Nama Negara": "CZECH REPUBLIC"
+  },
+  {
+    "No": "56",
+    "Kode (alpha-3)": "DNK",
+    "Kode alpha-2": "DK",
+    "Nama Negara": "DENMARK"
+  },
+  {
+    "No": "57",
+    "Kode (alpha-3)": "DJI",
+    "Kode alpha-2": "DJ",
+    "Nama Negara": "DJIBOUTI"
+  },
+  {
+    "No": "58",
+    "Kode (alpha-3)": "DMA",
+    "Kode alpha-2": "DM",
+    "Nama Negara": "DOMINICA"
+  },
+  {
+    "No": "59",
+    "Kode (alpha-3)": "DOM",
+    "Kode alpha-2": "DO",
+    "Nama Negara": "DOMINICAN REPUBLIC"
+  },
+  {
+    "No": "60",
+    "Kode (alpha-3)": "TLS",
+    "Kode alpha-2": "TL",
+    "Nama Negara": "EAST TIMOR"
+  },
+  {
+    "No": "61",
+    "Kode (alpha-3)": "ECU",
+    "Kode alpha-2": "EC",
+    "Nama Negara": "ECUADOR"
+  },
+  {
+    "No": "62",
+    "Kode (alpha-3)": "EGY",
+    "Kode alpha-2": "EG",
+    "Nama Negara": "EGYPT"
+  },
+  {
+    "No": "63",
+    "Kode (alpha-3)": "SLV",
+    "Kode alpha-2": "SV",
+    "Nama Negara": "EL SALVADOR"
+  },
+  {
+    "No": "64",
+    "Kode (alpha-3)": "GNQ",
+    "Kode alpha-2": "GQ",
+    "Nama Negara": "EQUATORIAL GUINEA"
+  },
+  {
+    "No": "65",
+    "Kode (alpha-3)": "ERI",
+    "Kode alpha-2": "ER",
+    "Nama Negara": "ERITREA"
+  },
+  {
+    "No": "66",
+    "Kode (alpha-3)": "EST",
+    "Kode alpha-2": "EE",
+    "Nama Negara": "ESTONIA"
+  },
+  {
+    "No": "67",
+    "Kode (alpha-3)": "ETH",
+    "Kode alpha-2": "ET",
+    "Nama Negara": "ETHIOPIA"
+  },
+  {
+    "No": "68",
+    "Kode (alpha-3)": "FLK",
+    "Kode alpha-2": "FK",
+    "Nama Negara": "FALKLAND ISLANDS (MALVINAS)"
+  },
+  {
+    "No": "69",
+    "Kode (alpha-3)": "FRO",
+    "Kode alpha-2": "FO",
+    "Nama Negara": "FAROE ISLANDS"
+  },
+  {
+    "No": "70",
+    "Kode (alpha-3)": "FJI",
+    "Kode alpha-2": "FJ",
+    "Nama Negara": "FIJI"
+  },
+  {
+    "No": "71",
+    "Kode (alpha-3)": "FIN",
+    "Kode alpha-2": "FI",
+    "Nama Negara": "FINLAND"
+  },
+  {
+    "No": "72",
+    "Kode (alpha-3)": "FRA",
+    "Kode alpha-2": "FR",
+    "Nama Negara": "FRANCE"
+  },
+  {
+    "No": "73",
+    "Kode (alpha-3)": "FXX",
+    "Kode alpha-2": "FX",
+    "Nama Negara": "FRANCE, METROPOLITAN"
+  },
+  {
+    "No": "74",
+    "Kode (alpha-3)": "GUF",
+    "Kode alpha-2": "GF",
+    "Nama Negara": "FRENCH GUIANA"
+  },
+  {
+    "No": "75",
+    "Kode (alpha-3)": "PYF",
+    "Kode alpha-2": "PF",
+    "Nama Negara": "FRENCH POLYNESIA"
+  },
+  {
+    "No": "76",
+    "Kode (alpha-3)": "ATF",
+    "Kode alpha-2": "TF",
+    "Nama Negara": "FRENCH SOUTHERN TERRITORIES"
+  },
+  {
+    "No": "77",
+    "Kode (alpha-3)": "GAB",
+    "Kode alpha-2": "GA",
+    "Nama Negara": "GABON"
+  },
+  {
+    "No": "78",
+    "Kode (alpha-3)": "GMB",
+    "Kode alpha-2": "GM",
+    "Nama Negara": "GAMBIA"
+  },
+  {
+    "No": "79",
+    "Kode (alpha-3)": "GEO",
+    "Kode alpha-2": "GE",
+    "Nama Negara": "GEORGIA"
+  },
+  {
+    "No": "80",
+    "Kode (alpha-3)": "DEU",
+    "Kode alpha-2": "DE",
+    "Nama Negara": "GERMANY"
+  },
+  {
+    "No": "81",
+    "Kode (alpha-3)": "GHA",
+    "Kode alpha-2": "GH",
+    "Nama Negara": "GHANA"
+  },
+  {
+    "No": "82",
+    "Kode (alpha-3)": "GIB",
+    "Kode alpha-2": "GI",
+    "Nama Negara": "GIBRALTAR"
+  },
+  {
+    "No": "83",
+    "Kode (alpha-3)": "GRC",
+    "Kode alpha-2": "GR",
+    "Nama Negara": "GREECE"
+  },
+  {
+    "No": "84",
+    "Kode (alpha-3)": "GRL",
+    "Kode alpha-2": "GL",
+    "Nama Negara": "GREENLAND"
+  },
+  {
+    "No": "85",
+    "Kode (alpha-3)": "GRD",
+    "Kode alpha-2": "GD",
+    "Nama Negara": "GRENADA"
+  },
+  {
+    "No": "86",
+    "Kode (alpha-3)": "GLP",
+    "Kode alpha-2": "GP",
+    "Nama Negara": "GUADELOUPE"
+  },
+  {
+    "No": "87",
+    "Kode (alpha-3)": "GUM",
+    "Kode alpha-2": "GU",
+    "Nama Negara": "GUAM"
+  },
+  {
+    "No": "88",
+    "Kode (alpha-3)": "GTM",
+    "Kode alpha-2": "GT",
+    "Nama Negara": "GUATEMALA"
+  },
+  {
+    "No": "89",
+    "Kode (alpha-3)": "GGY",
+    "Kode alpha-2": "GG",
+    "Nama Negara": "GUERNSEY"
+  },
+  {
+    "No": "90",
+    "Kode (alpha-3)": "GIN",
+    "Kode alpha-2": "GN",
+    "Nama Negara": "GUINEA"
+  },
+  {
+    "No": "91",
+    "Kode (alpha-3)": "GNB",
+    "Kode alpha-2": "GW",
+    "Nama Negara": "GUINEA-BISSAU"
+  },
+  {
+    "No": "92",
+    "Kode (alpha-3)": "GUY",
+    "Kode alpha-2": "GY",
+    "Nama Negara": "GUYANA"
+  },
+  {
+    "No": "93",
+    "Kode (alpha-3)": "HTI",
+    "Kode alpha-2": "HT",
+    "Nama Negara": "HAITI"
+  },
+  {
+    "No": "94",
+    "Kode (alpha-3)": "HMD",
+    "Kode alpha-2": "HM",
+    "Nama Negara": "HEARD AND MC DONALD ISLANDS"
+  },
+  {
+    "No": "95",
+    "Kode (alpha-3)": "HND",
+    "Kode alpha-2": "HN",
+    "Nama Negara": "HONDURAS"
+  },
+  {
+    "No": "96",
+    "Kode (alpha-3)": "HKG",
+    "Kode alpha-2": "HK",
+    "Nama Negara": "HONG KONG"
+  },
+  {
+    "No": "97",
+    "Kode (alpha-3)": "HUN",
+    "Kode alpha-2": "HU",
+    "Nama Negara": "HUNGARY"
+  },
+  {
+    "No": "98",
+    "Kode (alpha-3)": "ISL",
+    "Kode alpha-2": "IS",
+    "Nama Negara": "ICELAND"
+  },
+  {
+    "No": "99",
+    "Kode (alpha-3)": "IND",
+    "Kode alpha-2": "IN",
+    "Nama Negara": "INDIA"
+  },
+  {
+    "No": "100",
+    "Kode (alpha-3)": "IDN",
+    "Kode alpha-2": "ID",
+    "Nama Negara": "INDONESIA"
+  },
+  {
+    "No": "101",
+    "Kode (alpha-3)": "IRN",
+    "Kode alpha-2": "IR",
+    "Nama Negara": "IRAN (ISLAMIC REPUBLIC OF)"
+  },
+  {
+    "No": "102",
+    "Kode (alpha-3)": "IRQ",
+    "Kode alpha-2": "IQ",
+    "Nama Negara": "IRAQ"
+  },
+  {
+    "No": "103",
+    "Kode (alpha-3)": "IRL",
+    "Kode alpha-2": "IE",
+    "Nama Negara": "IRELAND"
+  },
+  {
+    "No": "104",
+    "Kode (alpha-3)": "IMN",
+    "Kode alpha-2": "IM",
+    "Nama Negara": "ISLE OF MAN"
+  },
+  {
+    "No": "105",
+    "Kode (alpha-3)": "ISR",
+    "Kode alpha-2": "IL",
+    "Nama Negara": "ISRAEL"
+  },
+  {
+    "No": "106",
+    "Kode (alpha-3)": "ITA",
+    "Kode alpha-2": "IT",
+    "Nama Negara": "ITALY"
+  },
+  {
+    "No": "107",
+    "Kode (alpha-3)": "CIV",
+    "Kode alpha-2": "CI",
+    "Nama Negara": "IVORY COAST"
+  },
+  {
+    "No": "108",
+    "Kode (alpha-3)": "JAM",
+    "Kode alpha-2": "JM",
+    "Nama Negara": "JAMAICA"
+  },
+  {
+    "No": "109",
+    "Kode (alpha-3)": "JPN",
+    "Kode alpha-2": "JP",
+    "Nama Negara": "JAPAN"
+  },
+  {
+    "No": "110",
+    "Kode (alpha-3)": "JEY",
+    "Kode alpha-2": "JE",
+    "Nama Negara": "JERSEY"
+  },
+  {
+    "No": "111",
+    "Kode (alpha-3)": "JOR",
+    "Kode alpha-2": "JO",
+    "Nama Negara": "JORDAN"
+  },
+  {
+    "No": "112",
+    "Kode (alpha-3)": "KAZ",
+    "Kode alpha-2": "KZ",
+    "Nama Negara": "KAZAKHSTAN"
+  },
+  {
+    "No": "113",
+    "Kode (alpha-3)": "KEN",
+    "Kode alpha-2": "KE",
+    "Nama Negara": "KENYA"
+  },
+  {
+    "No": "114",
+    "Kode (alpha-3)": "KIR",
+    "Kode alpha-2": "KI",
+    "Nama Negara": "KIRIBATI"
+  },
+  {
+    "No": "115",
+    "Kode (alpha-3)": "PRK",
+    "Kode alpha-2": "KP",
+    "Nama Negara": "KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF"
+  },
+  {
+    "No": "116",
+    "Kode (alpha-3)": "KOR",
+    "Kode alpha-2": "KR",
+    "Nama Negara": "KOREA, REPUBLIC OF"
+  },
+  {
+    "No": "117",
+    "Kode (alpha-3)": "XKX",
+    "Kode alpha-2": "XK",
+    "Nama Negara": "KOSOVO"
+  },
+  {
+    "No": "118",
+    "Kode (alpha-3)": "KWT",
+    "Kode alpha-2": "KW",
+    "Nama Negara": "KUWAIT"
+  },
+  {
+    "No": "119",
+    "Kode (alpha-3)": "KGZ",
+    "Kode alpha-2": "KG",
+    "Nama Negara": "KYRGYZSTAN"
+  },
+  {
+    "No": "120",
+    "Kode (alpha-3)": "LAO",
+    "Kode alpha-2": "LA",
+    "Nama Negara": "LAO PEOPLE'S DEMOCRATIC REPUBLIC"
+  },
+  {
+    "No": "121",
+    "Kode (alpha-3)": "LVA",
+    "Kode alpha-2": "LV",
+    "Nama Negara": "LATVIA"
+  },
+  {
+    "No": "122",
+    "Kode (alpha-3)": "LBN",
+    "Kode alpha-2": "LB",
+    "Nama Negara": "LEBANON"
+  },
+  {
+    "No": "123",
+    "Kode (alpha-3)": "LSO",
+    "Kode alpha-2": "LS",
+    "Nama Negara": "LESOTHO"
+  },
+  {
+    "No": "124",
+    "Kode (alpha-3)": "LBR",
+    "Kode alpha-2": "LR",
+    "Nama Negara": "LIBERIA"
+  },
+  {
+    "No": "125",
+    "Kode (alpha-3)": "LBY",
+    "Kode alpha-2": "LY",
+    "Nama Negara": "LIBYAN ARAB JAMAHIRIYA"
+  },
+  {
+    "No": "126",
+    "Kode (alpha-3)": "LIE",
+    "Kode alpha-2": "LI",
+    "Nama Negara": "LIECHTENSTEIN"
+  },
+  {
+    "No": "127",
+    "Kode (alpha-3)": "LTU",
+    "Kode alpha-2": "LT",
+    "Nama Negara": "LITHUANIA"
+  },
+  {
+    "No": "128",
+    "Kode (alpha-3)": "LUX",
+    "Kode alpha-2": "LU",
+    "Nama Negara": "LUXEMBOURG"
+  },
+  {
+    "No": "129",
+    "Kode (alpha-3)": "MAC",
+    "Kode alpha-2": "MO",
+    "Nama Negara": "MACAU"
+  },
+  {
+    "No": "130",
+    "Kode (alpha-3)": "MKD",
+    "Kode alpha-2": "MK",
+    "Nama Negara": "MACEDONIA"
+  },
+  {
+    "No": "131",
+    "Kode (alpha-3)": "MDG",
+    "Kode alpha-2": "MG",
+    "Nama Negara": "MADAGASCAR"
+  },
+  {
+    "No": "132",
+    "Kode (alpha-3)": "MWI",
+    "Kode alpha-2": "MW",
+    "Nama Negara": "MALAWI"
+  },
+  {
+    "No": "133",
+    "Kode (alpha-3)": "MYS",
+    "Kode alpha-2": "MY",
+    "Nama Negara": "MALAYSIA"
+  },
+  {
+    "No": "134",
+    "Kode (alpha-3)": "MDV",
+    "Kode alpha-2": "MV",
+    "Nama Negara": "MALDIVES"
+  },
+  {
+    "No": "135",
+    "Kode (alpha-3)": "MLI",
+    "Kode alpha-2": "ML",
+    "Nama Negara": "MALI"
+  },
+  {
+    "No": "136",
+    "Kode (alpha-3)": "MLT",
+    "Kode alpha-2": "MT",
+    "Nama Negara": "MALTA"
+  },
+  {
+    "No": "137",
+    "Kode (alpha-3)": "MHL",
+    "Kode alpha-2": "MH",
+    "Nama Negara": "MARSHALL ISLANDS"
+  },
+  {
+    "No": "138",
+    "Kode (alpha-3)": "MTQ",
+    "Kode alpha-2": "MQ",
+    "Nama Negara": "MARTINIQUE"
+  },
+  {
+    "No": "139",
+    "Kode (alpha-3)": "MRT",
+    "Kode alpha-2": "MR",
+    "Nama Negara": "MAURITANIA"
+  },
+  {
+    "No": "140",
+    "Kode (alpha-3)": "MUS",
+    "Kode alpha-2": "MU",
+    "Nama Negara": "MAURITIUS"
+  },
+  {
+    "No": "141",
+    "Kode (alpha-3)": "MYT",
+    "Kode alpha-2": "YT",
+    "Nama Negara": "MAYOTTE"
+  },
+  {
+    "No": "142",
+    "Kode (alpha-3)": "MEX",
+    "Kode alpha-2": "MX",
+    "Nama Negara": "MEXICO"
+  },
+  {
+    "No": "143",
+    "Kode (alpha-3)": "FSM",
+    "Kode alpha-2": "FM",
+    "Nama Negara": "MICRONESIA, FEDERATED STATES OF"
+  },
+  {
+    "No": "144",
+    "Kode (alpha-3)": "MDA",
+    "Kode alpha-2": "MD",
+    "Nama Negara": "MOLDOVA, REPUBLIC OF"
+  },
+  {
+    "No": "145",
+    "Kode (alpha-3)": "MCO",
+    "Kode alpha-2": "MC",
+    "Nama Negara": "MONACO"
+  },
+  {
+    "No": "146",
+    "Kode (alpha-3)": "MNG",
+    "Kode alpha-2": "MN",
+    "Nama Negara": "MONGOLIA"
+  },
+  {
+    "No": "147",
+    "Kode (alpha-3)": "MNE",
+    "Kode alpha-2": "ME",
+    "Nama Negara": "MONTENEGRO"
+  },
+  {
+    "No": "148",
+    "Kode (alpha-3)": "MSR",
+    "Kode alpha-2": "MS",
+    "Nama Negara": "MONTSERRAT"
+  },
+  {
+    "No": "149",
+    "Kode (alpha-3)": "MAR",
+    "Kode alpha-2": "MA",
+    "Nama Negara": "MOROCCO"
+  },
+  {
+    "No": "150",
+    "Kode (alpha-3)": "MOZ",
+    "Kode alpha-2": "MZ",
+    "Nama Negara": "MOZAMBIQUE"
+  },
+  {
+    "No": "151",
+    "Kode (alpha-3)": "MMR",
+    "Kode alpha-2": "MM",
+    "Nama Negara": "MYANMAR"
+  },
+  {
+    "No": "152",
+    "Kode (alpha-3)": "NAM",
+    "Kode alpha-2": "NA",
+    "Nama Negara": "NAMIBIA"
+  },
+  {
+    "No": "153",
+    "Kode (alpha-3)": "NRU",
+    "Kode alpha-2": "NR",
+    "Nama Negara": "NAURU"
+  },
+  {
+    "No": "154",
+    "Kode (alpha-3)": "NPL",
+    "Kode alpha-2": "NP",
+    "Nama Negara": "NEPAL"
+  },
+  {
+    "No": "155",
+    "Kode (alpha-3)": "NLD",
+    "Kode alpha-2": "NL",
+    "Nama Negara": "NETHERLANDS"
+  },
+  {
+    "No": "156",
+    "Kode (alpha-3)": "ANT",
+    "Kode alpha-2": "AN",
+    "Nama Negara": "NETHERLANDS ANTILLES"
+  },
+  {
+    "No": "157",
+    "Kode (alpha-3)": "NCL",
+    "Kode alpha-2": "NC",
+    "Nama Negara": "NEW CALEDONIA"
+  },
+  {
+    "No": "158",
+    "Kode (alpha-3)": "NZL",
+    "Kode alpha-2": "NZ",
+    "Nama Negara": "NEW ZEALAND"
+  },
+  {
+    "No": "159",
+    "Kode (alpha-3)": "NIC",
+    "Kode alpha-2": "NI",
+    "Nama Negara": "NICARAGUA"
+  },
+  {
+    "No": "160",
+    "Kode (alpha-3)": "NER",
+    "Kode alpha-2": "NE",
+    "Nama Negara": "NIGER"
+  },
+  {
+    "No": "161",
+    "Kode (alpha-3)": "NGA",
+    "Kode alpha-2": "NG",
+    "Nama Negara": "NIGERIA"
+  },
+  {
+    "No": "162",
+    "Kode (alpha-3)": "NIU",
+    "Kode alpha-2": "NU",
+    "Nama Negara": "NIUE"
+  },
+  {
+    "No": "163",
+    "Kode (alpha-3)": "NFK",
+    "Kode alpha-2": "NF",
+    "Nama Negara": "NORFOLK ISLAND"
+  },
+  {
+    "No": "164",
+    "Kode (alpha-3)": "MNP",
+    "Kode alpha-2": "MP",
+    "Nama Negara": "NORTHERN MARIANA ISLANDS"
+  },
+  {
+    "No": "165",
+    "Kode (alpha-3)": "NOR",
+    "Kode alpha-2": "NO",
+    "Nama Negara": "NORWAY"
+  },
+  {
+    "No": "166",
+    "Kode (alpha-3)": "OMN",
+    "Kode alpha-2": "OM",
+    "Nama Negara": "OMAN"
+  },
+  {
+    "No": "167",
+    "Kode (alpha-3)": "PAK",
+    "Kode alpha-2": "PK",
+    "Nama Negara": "PAKISTAN"
+  },
+  {
+    "No": "168",
+    "Kode (alpha-3)": "PLW",
+    "Kode alpha-2": "PW",
+    "Nama Negara": "PALAU"
+  },
+  {
+    "No": "169",
+    "Kode (alpha-3)": "PSE",
+    "Kode alpha-2": "PS",
+    "Nama Negara": "PALESTINE"
+  },
+  {
+    "No": "170",
+    "Kode (alpha-3)": "PAN",
+    "Kode alpha-2": "PA",
+    "Nama Negara": "PANAMA"
+  },
+  {
+    "No": "171",
+    "Kode (alpha-3)": "PNG",
+    "Kode alpha-2": "PG",
+    "Nama Negara": "PAPUA NEW GUINEA"
+  },
+  {
+    "No": "172",
+    "Kode (alpha-3)": "PRY",
+    "Kode alpha-2": "PY",
+    "Nama Negara": "PARAGUAY"
+  },
+  {
+    "No": "173",
+    "Kode (alpha-3)": "PER",
+    "Kode alpha-2": "PE",
+    "Nama Negara": "PERU"
+  },
+  {
+    "No": "174",
+    "Kode (alpha-3)": "PHL",
+    "Kode alpha-2": "PH",
+    "Nama Negara": "PHILIPPINES"
+  },
+  {
+    "No": "175",
+    "Kode (alpha-3)": "PCN",
+    "Kode alpha-2": "PN",
+    "Nama Negara": "PITCAIRN"
+  },
+  {
+    "No": "176",
+    "Kode (alpha-3)": "POL",
+    "Kode alpha-2": "PL",
+    "Nama Negara": "POLAND"
+  },
+  {
+    "No": "177",
+    "Kode (alpha-3)": "PRT",
+    "Kode alpha-2": "PT",
+    "Nama Negara": "PORTUGAL"
+  },
+  {
+    "No": "178",
+    "Kode (alpha-3)": "PRI",
+    "Kode alpha-2": "PR",
+    "Nama Negara": "PUERTO RICO"
+  },
+  {
+    "No": "179",
+    "Kode (alpha-3)": "QAT",
+    "Kode alpha-2": "QA",
+    "Nama Negara": "QATAR"
+  },
+  {
+    "No": "180",
+    "Kode (alpha-3)": "REU",
+    "Kode alpha-2": "RE",
+    "Nama Negara": "REUNION"
+  },
+  {
+    "No": "181",
+    "Kode (alpha-3)": "ROU",
+    "Kode alpha-2": "RO",
+    "Nama Negara": "ROMANIA"
+  },
+  {
+    "No": "182",
+    "Kode (alpha-3)": "RUS",
+    "Kode alpha-2": "RU",
+    "Nama Negara": "RUSSIAN FEDERATION"
+  },
+  {
+    "No": "183",
+    "Kode (alpha-3)": "RWA",
+    "Kode alpha-2": "RW",
+    "Nama Negara": "RWANDA"
+  },
+  {
+    "No": "184",
+    "Kode (alpha-3)": "KNA",
+    "Kode alpha-2": "KN",
+    "Nama Negara": "SAINT KITTS AND NEVIS"
+  },
+  {
+    "No": "185",
+    "Kode (alpha-3)": "LCA",
+    "Kode alpha-2": "LC",
+    "Nama Negara": "SAINT LUCIA"
+  },
+  {
+    "No": "186",
+    "Kode (alpha-3)": "VCT",
+    "Kode alpha-2": "VC",
+    "Nama Negara": "SAINT VINCENT AND THE GRENADINES"
+  },
+  {
+    "No": "187",
+    "Kode (alpha-3)": "WSM",
+    "Kode alpha-2": "WS",
+    "Nama Negara": "SAMOA"
+  },
+  {
+    "No": "188",
+    "Kode (alpha-3)": "SMR",
+    "Kode alpha-2": "SM",
+    "Nama Negara": "SAN MARINO"
+  },
+  {
+    "No": "189",
+    "Kode (alpha-3)": "STP",
+    "Kode alpha-2": "ST",
+    "Nama Negara": "SAO TOME AND PRINCIPE"
+  },
+  {
+    "No": "190",
+    "Kode (alpha-3)": "SAU",
+    "Kode alpha-2": "SA",
+    "Nama Negara": "SAUDI ARABIA"
+  },
+  {
+    "No": "191",
+    "Kode (alpha-3)": "SEN",
+    "Kode alpha-2": "SN",
+    "Nama Negara": "SENEGAL"
+  },
+  {
+    "No": "192",
+    "Kode (alpha-3)": "SRB",
+    "Kode alpha-2": "RS",
+    "Nama Negara": "SERBIA"
+  },
+  {
+    "No": "193",
+    "Kode (alpha-3)": "SYC",
+    "Kode alpha-2": "SC",
+    "Nama Negara": "SEYCHELLES"
+  },
+  {
+    "No": "194",
+    "Kode (alpha-3)": "SLE",
+    "Kode alpha-2": "SL",
+    "Nama Negara": "SIERRA LEONE"
+  },
+  {
+    "No": "195",
+    "Kode (alpha-3)": "SGP",
+    "Kode alpha-2": "SG",
+    "Nama Negara": "SINGAPORE"
+  },
+  {
+    "No": "196",
+    "Kode (alpha-3)": "SVK",
+    "Kode alpha-2": "SK",
+    "Nama Negara": "SLOVAKIA"
+  },
+  {
+    "No": "197",
+    "Kode (alpha-3)": "SVN",
+    "Kode alpha-2": "SI",
+    "Nama Negara": "SLOVENIA"
+  },
+  {
+    "No": "198",
+    "Kode (alpha-3)": "SLB",
+    "Kode alpha-2": "SB",
+    "Nama Negara": "SOLOMON ISLANDS"
+  },
+  {
+    "No": "199",
+    "Kode (alpha-3)": "SOM",
+    "Kode alpha-2": "SO",
+    "Nama Negara": "SOMALIA"
+  },
+  {
+    "No": "200",
+    "Kode (alpha-3)": "ZAF",
+    "Kode alpha-2": "ZA",
+    "Nama Negara": "SOUTH AFRICA"
+  },
+  {
+    "No": "201",
+    "Kode (alpha-3)": "SGS",
+    "Kode alpha-2": "GS",
+    "Nama Negara": "SOUTH GEORGIA SOUTH SANDWICH ISLANDS"
+  },
+  {
+    "No": "202",
+    "Kode (alpha-3)": "ESP",
+    "Kode alpha-2": "ES",
+    "Nama Negara": "SPAIN"
+  },
+  {
+    "No": "203",
+    "Kode (alpha-3)": "LKA",
+    "Kode alpha-2": "LK",
+    "Nama Negara": "SRI LANKA"
+  },
+  {
+    "No": "204",
+    "Kode (alpha-3)": "SHN",
+    "Kode alpha-2": "SH",
+    "Nama Negara": "ST. HELENA"
+  },
+  {
+    "No": "205",
+    "Kode (alpha-3)": "SPM",
+    "Kode alpha-2": "PM",
+    "Nama Negara": "ST. PIERRE AND MIQUELON"
+  },
+  {
+    "No": "206",
+    "Kode (alpha-3)": "SDN",
+    "Kode alpha-2": "SD",
+    "Nama Negara": "SUDAN"
+  },
+  {
+    "No": "207",
+    "Kode (alpha-3)": "SUR",
+    "Kode alpha-2": "SR",
+    "Nama Negara": "SURINAME"
+  },
+  {
+    "No": "208",
+    "Kode (alpha-3)": "SJM",
+    "Kode alpha-2": "SJ",
+    "Nama Negara": "SVALBARD AND JAN MAYEN ISLANDS"
+  },
+  {
+    "No": "209",
+    "Kode (alpha-3)": "SWZ",
+    "Kode alpha-2": "SZ",
+    "Nama Negara": "SWAZILAND"
+  },
+  {
+    "No": "210",
+    "Kode (alpha-3)": "SWE",
+    "Kode alpha-2": "SE",
+    "Nama Negara": "SWEDEN"
+  },
+  {
+    "No": "211",
+    "Kode (alpha-3)": "CHE",
+    "Kode alpha-2": "CH",
+    "Nama Negara": "SWITZERLAND"
+  },
+  {
+    "No": "212",
+    "Kode (alpha-3)": "SYR",
+    "Kode alpha-2": "SY",
+    "Nama Negara": "SYRIAN ARAB REPUBLIC"
+  },
+  {
+    "No": "213",
+    "Kode (alpha-3)": "TWN",
+    "Kode alpha-2": "TW",
+    "Nama Negara": "TAIWAN"
+  },
+  {
+    "No": "214",
+    "Kode (alpha-3)": "TJK",
+    "Kode alpha-2": "TJ",
+    "Nama Negara": "TAJIKISTAN"
+  },
+  {
+    "No": "215",
+    "Kode (alpha-3)": "TZA",
+    "Kode alpha-2": "TZ",
+    "Nama Negara": "TANZANIA, UNITED REPUBLIC OF"
+  },
+  {
+    "No": "216",
+    "Kode (alpha-3)": "THA",
+    "Kode alpha-2": "TH",
+    "Nama Negara": "THAILAND"
+  },
+  {
+    "No": "217",
+    "Kode (alpha-3)": "TGO",
+    "Kode alpha-2": "TG",
+    "Nama Negara": "TOGO"
+  },
+  {
+    "No": "218",
+    "Kode (alpha-3)": "TKL",
+    "Kode alpha-2": "TK",
+    "Nama Negara": "TOKELAU"
+  },
+  {
+    "No": "219",
+    "Kode (alpha-3)": "TON",
+    "Kode alpha-2": "TO",
+    "Nama Negara": "TONGA"
+  },
+  {
+    "No": "220",
+    "Kode (alpha-3)": "TTO",
+    "Kode alpha-2": "TT",
+    "Nama Negara": "TRINIDAD AND TOBAGO"
+  },
+  {
+    "No": "221",
+    "Kode (alpha-3)": "TUN",
+    "Kode alpha-2": "TN",
+    "Nama Negara": "TUNISIA"
+  },
+  {
+    "No": "222",
+    "Kode (alpha-3)": "TUR",
+    "Kode alpha-2": "TR",
+    "Nama Negara": "TURKEY"
+  },
+  {
+    "No": "223",
+    "Kode (alpha-3)": "TKM",
+    "Kode alpha-2": "TM",
+    "Nama Negara": "TURKMENISTAN"
+  },
+  {
+    "No": "224",
+    "Kode (alpha-3)": "TCA",
+    "Kode alpha-2": "TC",
+    "Nama Negara": "TURKS AND CAICOS ISLANDS"
+  },
+  {
+    "No": "225",
+    "Kode (alpha-3)": "TUV",
+    "Kode alpha-2": "TV",
+    "Nama Negara": "TUVALU"
+  },
+  {
+    "No": "226",
+    "Kode (alpha-3)": "UGA",
+    "Kode alpha-2": "UG",
+    "Nama Negara": "UGANDA"
+  },
+  {
+    "No": "227",
+    "Kode (alpha-3)": "UKR",
+    "Kode alpha-2": "UA",
+    "Nama Negara": "UKRAINE"
+  },
+  {
+    "No": "228",
+    "Kode (alpha-3)": "ARE",
+    "Kode alpha-2": "AE",
+    "Nama Negara": "UNITED ARAB EMIRATES"
+  },
+  {
+    "No": "229",
+    "Kode (alpha-3)": "GBR",
+    "Kode alpha-2": "GB",
+    "Nama Negara": "UNITED KINGDOM"
+  },
+  {
+    "No": "230",
+    "Kode (alpha-3)": "USA",
+    "Kode alpha-2": "US",
+    "Nama Negara": "UNITED STATES"
+  },
+  {
+    "No": "231",
+    "Kode (alpha-3)": "UMI",
+    "Kode alpha-2": "UM",
+    "Nama Negara": "UNITED STATES MINOR OUTLYING ISLANDS"
+  },
+  {
+    "No": "232",
+    "Kode (alpha-3)": "URY",
+    "Kode alpha-2": "UY",
+    "Nama Negara": "URUGUAY"
+  },
+  {
+    "No": "233",
+    "Kode (alpha-3)": "UZB",
+    "Kode alpha-2": "UZ",
+    "Nama Negara": "UZBEKISTAN"
+  },
+  {
+    "No": "234",
+    "Kode (alpha-3)": "VUT",
+    "Kode alpha-2": "VU",
+    "Nama Negara": "VANUATU"
+  },
+  {
+    "No": "235",
+    "Kode (alpha-3)": "VAT",
+    "Kode alpha-2": "VA",
+    "Nama Negara": "VATICAN CITY STATE"
+  },
+  {
+    "No": "236",
+    "Kode (alpha-3)": "VEN",
+    "Kode alpha-2": "VE",
+    "Nama Negara": "VENEZUELA"
+  },
+  {
+    "No": "237",
+    "Kode (alpha-3)": "VNM",
+    "Kode alpha-2": "VN",
+    "Nama Negara": "VIETNAM"
+  },
+  {
+    "No": "238",
+    "Kode (alpha-3)": "VGB",
+    "Kode alpha-2": "VG",
+    "Nama Negara": "VIRGIN ISLANDS (BRITISH)"
+  },
+  {
+    "No": "239",
+    "Kode (alpha-3)": "VIR",
+    "Kode alpha-2": "VI",
+    "Nama Negara": "VIRGIN ISLANDS (U.S.)"
+  },
+  {
+    "No": "240",
+    "Kode (alpha-3)": "WLF",
+    "Kode alpha-2": "WF",
+    "Nama Negara": "WALLIS AND FUTUNA ISLANDS"
+  },
+  {
+    "No": "241",
+    "Kode (alpha-3)": "ESH",
+    "Kode alpha-2": "EH",
+    "Nama Negara": "WESTERN SAHARA"
+  },
+  {
+    "No": "242",
+    "Kode (alpha-3)": "YEM",
+    "Kode alpha-2": "YE",
+    "Nama Negara": "YEMEN"
+  },
+  {
+    "No": "243",
+    "Kode (alpha-3)": "ZAR",
+    "Kode alpha-2": "ZR",
+    "Nama Negara": "ZAIRE"
+  },
+  {
+    "No": "244",
+    "Kode (alpha-3)": "ZMB",
+    "Kode alpha-2": "ZM",
+    "Nama Negara": "ZAMBIA"
+  },
+  {
+    "No": "245",
+    "Kode (alpha-3)": "ZWE",
+    "Kode alpha-2": "ZW",
+    "Nama Negara": "ZIMBABWE"
+  }
+]
