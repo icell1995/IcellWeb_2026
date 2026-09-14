@@ -1,0 +1,1724 @@
+[
+    {
+        "Id": 0,
+        "EmpId": 0,
+        "Nama": "TIDAK DIKETAHUI",
+        "KodeNegara": " ",
+        "KodeNegara3": " "
+    },
+    {
+        "Id": 1,
+        "EmpId": 1,
+        "Nama": "AFGHANISTAN",
+        "KodeNegara": "AF",
+        "KodeNegara3": "AFG"
+    },
+    {
+        "Id": 2,
+        "EmpId": 2,
+        "Nama": "ALBANIA",
+        "KodeNegara": "AL",
+        "KodeNegara3": "ALB"
+    },
+    {
+        "Id": 3,
+        "EmpId": 3,
+        "Nama": "ALGERIA",
+        "KodeNegara": "DZ",
+        "KodeNegara3": "DZA"
+    },
+    {
+        "Id": 4,
+        "EmpId": 4,
+        "Nama": "AMERICAN SAMOA",
+        "KodeNegara": "AS",
+        "KodeNegara3": "ASM"
+    },
+    {
+        "Id": 5,
+        "EmpId": 5,
+        "Nama": "ANDORRA",
+        "KodeNegara": "AD",
+        "KodeNegara3": "AND"
+    },
+    {
+        "Id": 6,
+        "EmpId": 6,
+        "Nama": "ANGOLA",
+        "KodeNegara": "AO",
+        "KodeNegara3": "AGO"
+    },
+    {
+        "Id": 7,
+        "EmpId": 7,
+        "Nama": "ANGUILLA",
+        "KodeNegara": "AI",
+        "KodeNegara3": "AIA"
+    },
+    {
+        "Id": 8,
+        "EmpId": 8,
+        "Nama": "ANTARCTICA",
+        "KodeNegara": "AQ",
+        "KodeNegara3": "ATA"
+    },
+    {
+        "Id": 9,
+        "EmpId": 9,
+        "Nama": "ANTIGUA AND BARBUDA",
+        "KodeNegara": "AG",
+        "KodeNegara3": "ATG"
+    },
+    {
+        "Id": 10,
+        "EmpId": 10,
+        "Nama": "ARGENTINA",
+        "KodeNegara": "AR",
+        "KodeNegara3": "ARG"
+    },
+    {
+        "Id": 11,
+        "EmpId": 11,
+        "Nama": "ARMENIA",
+        "KodeNegara": "AM",
+        "KodeNegara3": "ARM"
+    },
+    {
+        "Id": 12,
+        "EmpId": 12,
+        "Nama": "ARUBA",
+        "KodeNegara": "AW",
+        "KodeNegara3": "ABW"
+    },
+    {
+        "Id": 13,
+        "EmpId": 13,
+        "Nama": "AUSTRALIA",
+        "KodeNegara": "AU",
+        "KodeNegara3": "AUS"
+    },
+    {
+        "Id": 14,
+        "EmpId": 14,
+        "Nama": "AUSTRIA",
+        "KodeNegara": "AT",
+        "KodeNegara3": "AUT"
+    },
+    {
+        "Id": 15,
+        "EmpId": 15,
+        "Nama": "AZERBAIJAN",
+        "KodeNegara": "AZ",
+        "KodeNegara3": "AZE"
+    },
+    {
+        "Id": 16,
+        "EmpId": 16,
+        "Nama": "BAHAMAS",
+        "KodeNegara": "BS",
+        "KodeNegara3": "BHS"
+    },
+    {
+        "Id": 17,
+        "EmpId": 17,
+        "Nama": "BAHRAIN",
+        "KodeNegara": "BH",
+        "KodeNegara3": "BHR"
+    },
+    {
+        "Id": 18,
+        "EmpId": 18,
+        "Nama": "BANGLADESH",
+        "KodeNegara": "BD",
+        "KodeNegara3": "BGD"
+    },
+    {
+        "Id": 19,
+        "EmpId": 19,
+        "Nama": "BARBADOS",
+        "KodeNegara": "BB",
+        "KodeNegara3": "BRB"
+    },
+    {
+        "Id": 20,
+        "EmpId": 20,
+        "Nama": "BELARUS",
+        "KodeNegara": "BY",
+        "KodeNegara3": "BLR"
+    },
+    {
+        "Id": 21,
+        "EmpId": 21,
+        "Nama": "BELGIUM",
+        "KodeNegara": "BE",
+        "KodeNegara3": "BEL"
+    },
+    {
+        "Id": 22,
+        "EmpId": 22,
+        "Nama": "BELIZE",
+        "KodeNegara": "BZ",
+        "KodeNegara3": "BLZ"
+    },
+    {
+        "Id": 23,
+        "EmpId": 23,
+        "Nama": "BENIN",
+        "KodeNegara": "BJ",
+        "KodeNegara3": "BEN"
+    },
+    {
+        "Id": 24,
+        "EmpId": 24,
+        "Nama": "BERMUDA",
+        "KodeNegara": "BM",
+        "KodeNegara3": "BMU"
+    },
+    {
+        "Id": 25,
+        "EmpId": 25,
+        "Nama": "BHUTAN",
+        "KodeNegara": "BT",
+        "KodeNegara3": "BTN"
+    },
+    {
+        "Id": 26,
+        "EmpId": 26,
+        "Nama": "BOLIVIA",
+        "KodeNegara": "BO",
+        "KodeNegara3": "BOL"
+    },
+    {
+        "Id": 27,
+        "EmpId": 27,
+        "Nama": "BOSNIA AND HERZEGOVINA",
+        "KodeNegara": "BA",
+        "KodeNegara3": "BIH"
+    },
+    {
+        "Id": 28,
+        "EmpId": 28,
+        "Nama": "BOTSWANA",
+        "KodeNegara": "BW",
+        "KodeNegara3": "BWA"
+    },
+    {
+        "Id": 29,
+        "EmpId": 29,
+        "Nama": "BOUVET ISLAND",
+        "KodeNegara": "BV",
+        "KodeNegara3": "BVT"
+    },
+    {
+        "Id": 30,
+        "EmpId": 30,
+        "Nama": "BRAZIL",
+        "KodeNegara": "BR",
+        "KodeNegara3": "BRA"
+    },
+    {
+        "Id": 31,
+        "EmpId": 31,
+        "Nama": "BRITISH INDIAN OCEAN TERRITORY",
+        "KodeNegara": "IO",
+        "KodeNegara3": "IOT"
+    },
+    {
+        "Id": 32,
+        "EmpId": 32,
+        "Nama": "BRUNEI DARUSSALAM",
+        "KodeNegara": "BN",
+        "KodeNegara3": "BRN"
+    },
+    {
+        "Id": 33,
+        "EmpId": 33,
+        "Nama": "BULGARIA",
+        "KodeNegara": "BG",
+        "KodeNegara3": "BGR"
+    },
+    {
+        "Id": 34,
+        "EmpId": 34,
+        "Nama": "BURKINA FASO",
+        "KodeNegara": "BF",
+        "KodeNegara3": "BFA"
+    },
+    {
+        "Id": 35,
+        "EmpId": 35,
+        "Nama": "BURUNDI",
+        "KodeNegara": "BI",
+        "KodeNegara3": "BDI"
+    },
+    {
+        "Id": 36,
+        "EmpId": 36,
+        "Nama": "CAMBODIA",
+        "KodeNegara": "KH",
+        "KodeNegara3": "KHM"
+    },
+    {
+        "Id": 37,
+        "EmpId": 37,
+        "Nama": "CAMEROON",
+        "KodeNegara": "CM",
+        "KodeNegara3": "CMR"
+    },
+    {
+        "Id": 38,
+        "EmpId": 38,
+        "Nama": "CANADA",
+        "KodeNegara": "CA",
+        "KodeNegara3": "CAN"
+    },
+    {
+        "Id": 39,
+        "EmpId": 39,
+        "Nama": "CAPE VERDE",
+        "KodeNegara": "CV",
+        "KodeNegara3": "CPV"
+    },
+    {
+        "Id": 40,
+        "EmpId": 40,
+        "Nama": "CAYMAN ISLANDS",
+        "KodeNegara": "KY",
+        "KodeNegara3": "CYM"
+    },
+    {
+        "Id": 41,
+        "EmpId": 41,
+        "Nama": "CENTRAL AFRICAN REPUBLIC",
+        "KodeNegara": "CF",
+        "KodeNegara3": "CAF"
+    },
+    {
+        "Id": 42,
+        "EmpId": 42,
+        "Nama": "CHAD",
+        "KodeNegara": "TD",
+        "KodeNegara3": "TCD"
+    },
+    {
+        "Id": 43,
+        "EmpId": 43,
+        "Nama": "CHILE",
+        "KodeNegara": "CL",
+        "KodeNegara3": "CHL"
+    },
+    {
+        "Id": 44,
+        "EmpId": 44,
+        "Nama": "CHINA",
+        "KodeNegara": "CN",
+        "KodeNegara3": "CHN"
+    },
+    {
+        "Id": 45,
+        "EmpId": 45,
+        "Nama": "CHRISTMAS ISLAND",
+        "KodeNegara": "CX",
+        "KodeNegara3": "CXR"
+    },
+    {
+        "Id": 46,
+        "EmpId": 46,
+        "Nama": "COCOS (KEELING) ISLANDS",
+        "KodeNegara": "CC",
+        "KodeNegara3": "CCK"
+    },
+    {
+        "Id": 47,
+        "EmpId": 47,
+        "Nama": "COLOMBIA",
+        "KodeNegara": "CO",
+        "KodeNegara3": "COL"
+    },
+    {
+        "Id": 48,
+        "EmpId": 48,
+        "Nama": "COMOROS",
+        "KodeNegara": "KM",
+        "KodeNegara3": "COM"
+    },
+    {
+        "Id": 49,
+        "EmpId": 49,
+        "Nama": "CONGO",
+        "KodeNegara": "CG",
+        "KodeNegara3": "COG"
+    },
+    {
+        "Id": 50,
+        "EmpId": 50,
+        "Nama": "COOK ISLANDS",
+        "KodeNegara": "CK",
+        "KodeNegara3": "COK"
+    },
+    {
+        "Id": 51,
+        "EmpId": 51,
+        "Nama": "COSTA RICA",
+        "KodeNegara": "CR",
+        "KodeNegara3": "CRI"
+    },
+    {
+        "Id": 52,
+        "EmpId": 52,
+        "Nama": "CROATIA (HRVATSKA)",
+        "KodeNegara": "HR",
+        "KodeNegara3": "HRV"
+    },
+    {
+        "Id": 53,
+        "EmpId": 53,
+        "Nama": "CUBA",
+        "KodeNegara": "CU",
+        "KodeNegara3": "CUB"
+    },
+    {
+        "Id": 54,
+        "EmpId": 54,
+        "Nama": "CYPRUS",
+        "KodeNegara": "CY",
+        "KodeNegara3": "CYP"
+    },
+    {
+        "Id": 55,
+        "EmpId": 55,
+        "Nama": "CZECH REPUBLIC",
+        "KodeNegara": "CZ",
+        "KodeNegara3": "CZE"
+    },
+    {
+        "Id": 56,
+        "EmpId": 56,
+        "Nama": "DENMARK",
+        "KodeNegara": "DK",
+        "KodeNegara3": "DNK"
+    },
+    {
+        "Id": 57,
+        "EmpId": 57,
+        "Nama": "DJIBOUTI",
+        "KodeNegara": "DJ",
+        "KodeNegara3": "DJI"
+    },
+    {
+        "Id": 58,
+        "EmpId": 58,
+        "Nama": "DOMINICA",
+        "KodeNegara": "DM",
+        "KodeNegara3": "DMA"
+    },
+    {
+        "Id": 59,
+        "EmpId": 59,
+        "Nama": "DOMINICAN REPUBLIC",
+        "KodeNegara": "DO",
+        "KodeNegara3": "DOM"
+    },
+    {
+        "Id": 60,
+        "EmpId": 60,
+        "Nama": "EAST TIMOR",
+        "KodeNegara": "TL",
+        "KodeNegara3": "TLS"
+    },
+    {
+        "Id": 61,
+        "EmpId": 61,
+        "Nama": "ECUADOR",
+        "KodeNegara": "EC",
+        "KodeNegara3": "ECU"
+    },
+    {
+        "Id": 62,
+        "EmpId": 62,
+        "Nama": "EGYPT",
+        "KodeNegara": "EG",
+        "KodeNegara3": "EGY"
+    },
+    {
+        "Id": 63,
+        "EmpId": 63,
+        "Nama": "EL SALVADOR",
+        "KodeNegara": "SV",
+        "KodeNegara3": "SLV"
+    },
+    {
+        "Id": 64,
+        "EmpId": 64,
+        "Nama": "EQUATORIAL GUINEA",
+        "KodeNegara": "GQ",
+        "KodeNegara3": "GNQ"
+    },
+    {
+        "Id": 65,
+        "EmpId": 65,
+        "Nama": "ERITREA",
+        "KodeNegara": "ER",
+        "KodeNegara3": "ERI"
+    },
+    {
+        "Id": 66,
+        "EmpId": 66,
+        "Nama": "ESTONIA",
+        "KodeNegara": "EE",
+        "KodeNegara3": "EST"
+    },
+    {
+        "Id": 67,
+        "EmpId": 67,
+        "Nama": "ETHIOPIA",
+        "KodeNegara": "ET",
+        "KodeNegara3": "ETH"
+    },
+    {
+        "Id": 68,
+        "EmpId": 68,
+        "Nama": "FALKLAND ISLANDS (MALVINAS)",
+        "KodeNegara": "FK",
+        "KodeNegara3": "FLK"
+    },
+    {
+        "Id": 69,
+        "EmpId": 69,
+        "Nama": "FAROE ISLANDS",
+        "KodeNegara": "FO",
+        "KodeNegara3": "FRO"
+    },
+    {
+        "Id": 70,
+        "EmpId": 70,
+        "Nama": "FIJI",
+        "KodeNegara": "FJ",
+        "KodeNegara3": "FJI"
+    },
+    {
+        "Id": 71,
+        "EmpId": 71,
+        "Nama": "FINLAND",
+        "KodeNegara": "FI",
+        "KodeNegara3": "FIN"
+    },
+    {
+        "Id": 72,
+        "EmpId": 72,
+        "Nama": "FRANCE",
+        "KodeNegara": "FR",
+        "KodeNegara3": "FRA"
+    },
+    {
+        "Id": 73,
+        "EmpId": 73,
+        "Nama": "FRANCE, METROPOLITAN",
+        "KodeNegara": "FX",
+        "KodeNegara3": "FXX"
+    },
+    {
+        "Id": 74,
+        "EmpId": 74,
+        "Nama": "FRENCH GUIANA",
+        "KodeNegara": "GF",
+        "KodeNegara3": "GUF"
+    },
+    {
+        "Id": 75,
+        "EmpId": 75,
+        "Nama": "FRENCH POLYNESIA",
+        "KodeNegara": "PF",
+        "KodeNegara3": "PYF"
+    },
+    {
+        "Id": 76,
+        "EmpId": 76,
+        "Nama": "FRENCH SOUTHERN TERRITORIES",
+        "KodeNegara": "TF",
+        "KodeNegara3": "ATF"
+    },
+    {
+        "Id": 77,
+        "EmpId": 77,
+        "Nama": "GABON",
+        "KodeNegara": "GA",
+        "KodeNegara3": "GAB"
+    },
+    {
+        "Id": 78,
+        "EmpId": 78,
+        "Nama": "GAMBIA",
+        "KodeNegara": "GM",
+        "KodeNegara3": "GMB"
+    },
+    {
+        "Id": 79,
+        "EmpId": 79,
+        "Nama": "GEORGIA",
+        "KodeNegara": "GE",
+        "KodeNegara3": "GEO"
+    },
+    {
+        "Id": 80,
+        "EmpId": 80,
+        "Nama": "GERMANY",
+        "KodeNegara": "DE",
+        "KodeNegara3": "DEU"
+    },
+    {
+        "Id": 81,
+        "EmpId": 81,
+        "Nama": "GHANA",
+        "KodeNegara": "GH",
+        "KodeNegara3": "GHA"
+    },
+    {
+        "Id": 82,
+        "EmpId": 82,
+        "Nama": "GIBRALTAR",
+        "KodeNegara": "GI",
+        "KodeNegara3": "GIB"
+    },
+    {
+        "Id": 83,
+        "EmpId": 83,
+        "Nama": "GREECE",
+        "KodeNegara": "GR",
+        "KodeNegara3": "GRC"
+    },
+    {
+        "Id": 84,
+        "EmpId": 84,
+        "Nama": "GREENLAND",
+        "KodeNegara": "GL",
+        "KodeNegara3": "GRL"
+    },
+    {
+        "Id": 85,
+        "EmpId": 85,
+        "Nama": "GRENADA",
+        "KodeNegara": "GD",
+        "KodeNegara3": "GRD"
+    },
+    {
+        "Id": 86,
+        "EmpId": 86,
+        "Nama": "GUADELOUPE",
+        "KodeNegara": "GP",
+        "KodeNegara3": "GLP"
+    },
+    {
+        "Id": 87,
+        "EmpId": 87,
+        "Nama": "GUAM",
+        "KodeNegara": "GU",
+        "KodeNegara3": "GUM"
+    },
+    {
+        "Id": 88,
+        "EmpId": 88,
+        "Nama": "GUATEMALA",
+        "KodeNegara": "GT",
+        "KodeNegara3": "GTM"
+    },
+    {
+        "Id": 89,
+        "EmpId": 89,
+        "Nama": "GUERNSEY",
+        "KodeNegara": "GG",
+        "KodeNegara3": "GGY"
+    },
+    {
+        "Id": 90,
+        "EmpId": 90,
+        "Nama": "GUINEA",
+        "KodeNegara": "GN",
+        "KodeNegara3": "GIN"
+    },
+    {
+        "Id": 91,
+        "EmpId": 91,
+        "Nama": "GUINEA-BISSAU",
+        "KodeNegara": "GW",
+        "KodeNegara3": "GNB"
+    },
+    {
+        "Id": 92,
+        "EmpId": 92,
+        "Nama": "GUYANA",
+        "KodeNegara": "GY",
+        "KodeNegara3": "GUY"
+    },
+    {
+        "Id": 93,
+        "EmpId": 93,
+        "Nama": "HAITI",
+        "KodeNegara": "HT",
+        "KodeNegara3": "HTI"
+    },
+    {
+        "Id": 94,
+        "EmpId": 94,
+        "Nama": "HEARD AND MC DONALD ISLANDS",
+        "KodeNegara": "HM",
+        "KodeNegara3": "HMD"
+    },
+    {
+        "Id": 95,
+        "EmpId": 95,
+        "Nama": "HONDURAS",
+        "KodeNegara": "HN",
+        "KodeNegara3": "HND"
+    },
+    {
+        "Id": 96,
+        "EmpId": 96,
+        "Nama": "HONG KONG",
+        "KodeNegara": "HK",
+        "KodeNegara3": "HKG"
+    },
+    {
+        "Id": 97,
+        "EmpId": 97,
+        "Nama": "HUNGARY",
+        "KodeNegara": "HU",
+        "KodeNegara3": "HUN"
+    },
+    {
+        "Id": 98,
+        "EmpId": 98,
+        "Nama": "ICELAND",
+        "KodeNegara": "IS",
+        "KodeNegara3": "ISL"
+    },
+    {
+        "Id": 99,
+        "EmpId": 99,
+        "Nama": "INDIA",
+        "KodeNegara": "IN",
+        "KodeNegara3": "IND"
+    },
+    {
+        "Id": 100,
+        "EmpId": 100,
+        "Nama": "INDONESIA",
+        "KodeNegara": "ID",
+        "KodeNegara3": "IDN"
+    },
+    {
+        "Id": 101,
+        "EmpId": 101,
+        "Nama": "IRAN (ISLAMIC REPUBLIC OF)",
+        "KodeNegara": "IR",
+        "KodeNegara3": "IRN"
+    },
+    {
+        "Id": 102,
+        "EmpId": 102,
+        "Nama": "IRAQ",
+        "KodeNegara": "IQ",
+        "KodeNegara3": "IRQ"
+    },
+    {
+        "Id": 103,
+        "EmpId": 103,
+        "Nama": "IRELAND",
+        "KodeNegara": "IE",
+        "KodeNegara3": "IRL"
+    },
+    {
+        "Id": 104,
+        "EmpId": 104,
+        "Nama": "ISLE OF MAN",
+        "KodeNegara": "IM",
+        "KodeNegara3": "IMN"
+    },
+    {
+        "Id": 105,
+        "EmpId": 105,
+        "Nama": "ISRAEL",
+        "KodeNegara": "IL",
+        "KodeNegara3": "ISR"
+    },
+    {
+        "Id": 106,
+        "EmpId": 106,
+        "Nama": "ITALY",
+        "KodeNegara": "IT",
+        "KodeNegara3": "ITA"
+    },
+    {
+        "Id": 107,
+        "EmpId": 107,
+        "Nama": "IVORY COAST",
+        "KodeNegara": "CI",
+        "KodeNegara3": "CIV"
+    },
+    {
+        "Id": 108,
+        "EmpId": 108,
+        "Nama": "JAMAICA",
+        "KodeNegara": "JM",
+        "KodeNegara3": "JAM"
+    },
+    {
+        "Id": 109,
+        "EmpId": 109,
+        "Nama": "JAPAN",
+        "KodeNegara": "JP",
+        "KodeNegara3": "JPN"
+    },
+    {
+        "Id": 110,
+        "EmpId": 110,
+        "Nama": "JERSEY",
+        "KodeNegara": "JE",
+        "KodeNegara3": "JEY"
+    },
+    {
+        "Id": 111,
+        "EmpId": 111,
+        "Nama": "JORDAN",
+        "KodeNegara": "JO",
+        "KodeNegara3": "JOR"
+    },
+    {
+        "Id": 112,
+        "EmpId": 112,
+        "Nama": "KAZAKHSTAN",
+        "KodeNegara": "KZ",
+        "KodeNegara3": "KAZ"
+    },
+    {
+        "Id": 113,
+        "EmpId": 113,
+        "Nama": "KENYA",
+        "KodeNegara": "KE",
+        "KodeNegara3": "KEN"
+    },
+    {
+        "Id": 114,
+        "EmpId": 114,
+        "Nama": "KIRIBATI",
+        "KodeNegara": "KI",
+        "KodeNegara3": "KIR"
+    },
+    {
+        "Id": 115,
+        "EmpId": 115,
+        "Nama": "KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF",
+        "KodeNegara": "KP",
+        "KodeNegara3": "PRK"
+    },
+    {
+        "Id": 116,
+        "EmpId": 116,
+        "Nama": "KOREA, REPUBLIC OF",
+        "KodeNegara": "KR",
+        "KodeNegara3": "KOR"
+    },
+    {
+        "Id": 117,
+        "EmpId": 117,
+        "Nama": "KOSOVO",
+        "KodeNegara": "XK",
+        "KodeNegara3": "XKX"
+    },
+    {
+        "Id": 118,
+        "EmpId": 118,
+        "Nama": "KUWAIT",
+        "KodeNegara": "KW",
+        "KodeNegara3": "KWT"
+    },
+    {
+        "Id": 119,
+        "EmpId": 119,
+        "Nama": "KYRGYZSTAN",
+        "KodeNegara": "KG",
+        "KodeNegara3": "KGZ"
+    },
+    {
+        "Id": 120,
+        "EmpId": 120,
+        "Nama": "LAO PEOPLE'S DEMOCRATIC REPUBLIC",
+        "KodeNegara": "LA",
+        "KodeNegara3": "LAO"
+    },
+    {
+        "Id": 121,
+        "EmpId": 121,
+        "Nama": "LATVIA",
+        "KodeNegara": "LV",
+        "KodeNegara3": "LVA"
+    },
+    {
+        "Id": 122,
+        "EmpId": 122,
+        "Nama": "LEBANON",
+        "KodeNegara": "LB",
+        "KodeNegara3": "LBN"
+    },
+    {
+        "Id": 123,
+        "EmpId": 123,
+        "Nama": "LESOTHO",
+        "KodeNegara": "LS",
+        "KodeNegara3": "LSO"
+    },
+    {
+        "Id": 124,
+        "EmpId": 124,
+        "Nama": "LIBERIA",
+        "KodeNegara": "LR",
+        "KodeNegara3": "LBR"
+    },
+    {
+        "Id": 125,
+        "EmpId": 125,
+        "Nama": "LIBYAN ARAB JAMAHIRIYA",
+        "KodeNegara": "LY",
+        "KodeNegara3": "LBY"
+    },
+    {
+        "Id": 126,
+        "EmpId": 126,
+        "Nama": "LIECHTENSTEIN",
+        "KodeNegara": "LI",
+        "KodeNegara3": "LIE"
+    },
+    {
+        "Id": 127,
+        "EmpId": 127,
+        "Nama": "LITHUANIA",
+        "KodeNegara": "LT",
+        "KodeNegara3": "LTU"
+    },
+    {
+        "Id": 128,
+        "EmpId": 128,
+        "Nama": "LUXEMBOURG",
+        "KodeNegara": "LU",
+        "KodeNegara3": "LUX"
+    },
+    {
+        "Id": 129,
+        "EmpId": 129,
+        "Nama": "MACAU",
+        "KodeNegara": "MO",
+        "KodeNegara3": "MAC"
+    },
+    {
+        "Id": 130,
+        "EmpId": 130,
+        "Nama": "MACEDONIA",
+        "KodeNegara": "MK",
+        "KodeNegara3": "MKD"
+    },
+    {
+        "Id": 131,
+        "EmpId": 131,
+        "Nama": "MADAGASCAR",
+        "KodeNegara": "MG",
+        "KodeNegara3": "MDG"
+    },
+    {
+        "Id": 132,
+        "EmpId": 132,
+        "Nama": "MALAWI",
+        "KodeNegara": "MW",
+        "KodeNegara3": "MWI"
+    },
+    {
+        "Id": 133,
+        "EmpId": 133,
+        "Nama": "MALAYSIA",
+        "KodeNegara": "MY",
+        "KodeNegara3": "MYS"
+    },
+    {
+        "Id": 134,
+        "EmpId": 134,
+        "Nama": "MALDIVES",
+        "KodeNegara": "MV",
+        "KodeNegara3": "MDV"
+    },
+    {
+        "Id": 135,
+        "EmpId": 135,
+        "Nama": "MALI",
+        "KodeNegara": "ML",
+        "KodeNegara3": "MLI"
+    },
+    {
+        "Id": 136,
+        "EmpId": 136,
+        "Nama": "MALTA",
+        "KodeNegara": "MT",
+        "KodeNegara3": "MLT"
+    },
+    {
+        "Id": 137,
+        "EmpId": 137,
+        "Nama": "MARSHALL ISLANDS",
+        "KodeNegara": "MH",
+        "KodeNegara3": "MHL"
+    },
+    {
+        "Id": 138,
+        "EmpId": 138,
+        "Nama": "MARTINIQUE",
+        "KodeNegara": "MQ",
+        "KodeNegara3": "MTQ"
+    },
+    {
+        "Id": 139,
+        "EmpId": 139,
+        "Nama": "MAURITANIA",
+        "KodeNegara": "MR",
+        "KodeNegara3": "MRT"
+    },
+    {
+        "Id": 140,
+        "EmpId": 140,
+        "Nama": "MAURITIUS",
+        "KodeNegara": "MU",
+        "KodeNegara3": "MUS"
+    },
+    {
+        "Id": 141,
+        "EmpId": 141,
+        "Nama": "MAYOTTE",
+        "KodeNegara": "YT",
+        "KodeNegara3": "MYT"
+    },
+    {
+        "Id": 142,
+        "EmpId": 142,
+        "Nama": "MEXICO",
+        "KodeNegara": "MX",
+        "KodeNegara3": "MEX"
+    },
+    {
+        "Id": 143,
+        "EmpId": 143,
+        "Nama": "MICRONESIA, FEDERATED STATES OF",
+        "KodeNegara": "FM",
+        "KodeNegara3": "FSM"
+    },
+    {
+        "Id": 144,
+        "EmpId": 144,
+        "Nama": "MOLDOVA, REPUBLIC OF",
+        "KodeNegara": "MD",
+        "KodeNegara3": "MDA"
+    },
+    {
+        "Id": 145,
+        "EmpId": 145,
+        "Nama": "MONACO",
+        "KodeNegara": "MC",
+        "KodeNegara3": "MCO"
+    },
+    {
+        "Id": 146,
+        "EmpId": 146,
+        "Nama": "MONGOLIA",
+        "KodeNegara": "MN",
+        "KodeNegara3": "MNG"
+    },
+    {
+        "Id": 147,
+        "EmpId": 147,
+        "Nama": "MONTENEGRO",
+        "KodeNegara": "ME",
+        "KodeNegara3": "MNE"
+    },
+    {
+        "Id": 148,
+        "EmpId": 148,
+        "Nama": "MONTSERRAT",
+        "KodeNegara": "MS",
+        "KodeNegara3": "MSR"
+    },
+    {
+        "Id": 149,
+        "EmpId": 149,
+        "Nama": "MOROCCO",
+        "KodeNegara": "MA",
+        "KodeNegara3": "MAR"
+    },
+    {
+        "Id": 150,
+        "EmpId": 150,
+        "Nama": "MOZAMBIQUE",
+        "KodeNegara": "MZ",
+        "KodeNegara3": "MOZ"
+    },
+    {
+        "Id": 151,
+        "EmpId": 151,
+        "Nama": "MYANMAR",
+        "KodeNegara": "MM",
+        "KodeNegara3": "MMR"
+    },
+    {
+        "Id": 152,
+        "EmpId": 152,
+        "Nama": "NAMIBIA",
+        "KodeNegara": "NA",
+        "KodeNegara3": "NAM"
+    },
+    {
+        "Id": 153,
+        "EmpId": 153,
+        "Nama": "NAURU",
+        "KodeNegara": "NR",
+        "KodeNegara3": "NRU"
+    },
+    {
+        "Id": 154,
+        "EmpId": 154,
+        "Nama": "NEPAL",
+        "KodeNegara": "NP",
+        "KodeNegara3": "NPL"
+    },
+    {
+        "Id": 155,
+        "EmpId": 155,
+        "Nama": "NETHERLANDS",
+        "KodeNegara": "NL",
+        "KodeNegara3": "NLD"
+    },
+    {
+        "Id": 156,
+        "EmpId": 156,
+        "Nama": "NETHERLANDS ANTILLES",
+        "KodeNegara": "AN",
+        "KodeNegara3": "ANT"
+    },
+    {
+        "Id": 157,
+        "EmpId": 157,
+        "Nama": "NEW CALEDONIA",
+        "KodeNegara": "NC",
+        "KodeNegara3": "NCL"
+    },
+    {
+        "Id": 158,
+        "EmpId": 158,
+        "Nama": "NEW ZEALAND",
+        "KodeNegara": "NZ",
+        "KodeNegara3": "NZL"
+    },
+    {
+        "Id": 159,
+        "EmpId": 159,
+        "Nama": "NICARAGUA",
+        "KodeNegara": "NI",
+        "KodeNegara3": "NIC"
+    },
+    {
+        "Id": 160,
+        "EmpId": 160,
+        "Nama": "NIGER",
+        "KodeNegara": "NE",
+        "KodeNegara3": "NER"
+    },
+    {
+        "Id": 161,
+        "EmpId": 161,
+        "Nama": "NIGERIA",
+        "KodeNegara": "NG",
+        "KodeNegara3": "NGA"
+    },
+    {
+        "Id": 162,
+        "EmpId": 162,
+        "Nama": "NIUE",
+        "KodeNegara": "NU",
+        "KodeNegara3": "NIU"
+    },
+    {
+        "Id": 163,
+        "EmpId": 163,
+        "Nama": "NORFOLK ISLAND",
+        "KodeNegara": "NF",
+        "KodeNegara3": "NFK"
+    },
+    {
+        "Id": 164,
+        "EmpId": 164,
+        "Nama": "NORTHERN MARIANA ISLANDS",
+        "KodeNegara": "MP",
+        "KodeNegara3": "MNP"
+    },
+    {
+        "Id": 165,
+        "EmpId": 165,
+        "Nama": "NORWAY",
+        "KodeNegara": "NO",
+        "KodeNegara3": "NOR"
+    },
+    {
+        "Id": 166,
+        "EmpId": 166,
+        "Nama": "OMAN",
+        "KodeNegara": "OM",
+        "KodeNegara3": "OMN"
+    },
+    {
+        "Id": 167,
+        "EmpId": 167,
+        "Nama": "PAKISTAN",
+        "KodeNegara": "PK",
+        "KodeNegara3": "PAK"
+    },
+    {
+        "Id": 168,
+        "EmpId": 168,
+        "Nama": "PALAU",
+        "KodeNegara": "PW",
+        "KodeNegara3": "PLW"
+    },
+    {
+        "Id": 169,
+        "EmpId": 169,
+        "Nama": "PALESTINE",
+        "KodeNegara": "PS",
+        "KodeNegara3": "PSE"
+    },
+    {
+        "Id": 170,
+        "EmpId": 170,
+        "Nama": "PANAMA",
+        "KodeNegara": "PA",
+        "KodeNegara3": "PAN"
+    },
+    {
+        "Id": 171,
+        "EmpId": 171,
+        "Nama": "PAPUA NEW GUINEA",
+        "KodeNegara": "PG",
+        "KodeNegara3": "PNG"
+    },
+    {
+        "Id": 172,
+        "EmpId": 172,
+        "Nama": "PARAGUAY",
+        "KodeNegara": "PY",
+        "KodeNegara3": "PRY"
+    },
+    {
+        "Id": 173,
+        "EmpId": 173,
+        "Nama": "PERU",
+        "KodeNegara": "PE",
+        "KodeNegara3": "PER"
+    },
+    {
+        "Id": 174,
+        "EmpId": 174,
+        "Nama": "PHILIPPINES",
+        "KodeNegara": "PH",
+        "KodeNegara3": "PHL"
+    },
+    {
+        "Id": 175,
+        "EmpId": 175,
+        "Nama": "PITCAIRN",
+        "KodeNegara": "PN",
+        "KodeNegara3": "PCN"
+    },
+    {
+        "Id": 176,
+        "EmpId": 176,
+        "Nama": "POLAND",
+        "KodeNegara": "PL",
+        "KodeNegara3": "POL"
+    },
+    {
+        "Id": 177,
+        "EmpId": 177,
+        "Nama": "PORTUGAL",
+        "KodeNegara": "PT",
+        "KodeNegara3": "PRT"
+    },
+    {
+        "Id": 178,
+        "EmpId": 178,
+        "Nama": "PUERTO RICO",
+        "KodeNegara": "PR",
+        "KodeNegara3": "PRI"
+    },
+    {
+        "Id": 179,
+        "EmpId": 179,
+        "Nama": "QATAR",
+        "KodeNegara": "QA",
+        "KodeNegara3": "QAT"
+    },
+    {
+        "Id": 180,
+        "EmpId": 180,
+        "Nama": "REUNION",
+        "KodeNegara": "RE",
+        "KodeNegara3": "REU"
+    },
+    {
+        "Id": 181,
+        "EmpId": 181,
+        "Nama": "ROMANIA",
+        "KodeNegara": "RO",
+        "KodeNegara3": "ROU"
+    },
+    {
+        "Id": 182,
+        "EmpId": 182,
+        "Nama": "RUSSIAN FEDERATION",
+        "KodeNegara": "RU",
+        "KodeNegara3": "RUS"
+    },
+    {
+        "Id": 183,
+        "EmpId": 183,
+        "Nama": "RWANDA",
+        "KodeNegara": "RW",
+        "KodeNegara3": "RWA"
+    },
+    {
+        "Id": 184,
+        "EmpId": 184,
+        "Nama": "SAINT KITTS AND NEVIS",
+        "KodeNegara": "KN",
+        "KodeNegara3": "KNA"
+    },
+    {
+        "Id": 185,
+        "EmpId": 185,
+        "Nama": "SAINT LUCIA",
+        "KodeNegara": "LC",
+        "KodeNegara3": "LCA"
+    },
+    {
+        "Id": 186,
+        "EmpId": 186,
+        "Nama": "SAINT VINCENT AND THE GRENADINES",
+        "KodeNegara": "VC",
+        "KodeNegara3": "VCT"
+    },
+    {
+        "Id": 187,
+        "EmpId": 187,
+        "Nama": "SAMOA",
+        "KodeNegara": "WS",
+        "KodeNegara3": "WSM"
+    },
+    {
+        "Id": 188,
+        "EmpId": 188,
+        "Nama": "SAN MARINO",
+        "KodeNegara": "SM",
+        "KodeNegara3": "SMR"
+    },
+    {
+        "Id": 189,
+        "EmpId": 189,
+        "Nama": "SAO TOME AND PRINCIPE",
+        "KodeNegara": "ST",
+        "KodeNegara3": "STP"
+    },
+    {
+        "Id": 190,
+        "EmpId": 190,
+        "Nama": "SAUDI ARABIA",
+        "KodeNegara": "SA",
+        "KodeNegara3": "SAU"
+    },
+    {
+        "Id": 191,
+        "EmpId": 191,
+        "Nama": "SENEGAL",
+        "KodeNegara": "SN",
+        "KodeNegara3": "SEN"
+    },
+    {
+        "Id": 192,
+        "EmpId": 192,
+        "Nama": "SERBIA",
+        "KodeNegara": "RS",
+        "KodeNegara3": "SRB"
+    },
+    {
+        "Id": 193,
+        "EmpId": 193,
+        "Nama": "SEYCHELLES",
+        "KodeNegara": "SC",
+        "KodeNegara3": "SYC"
+    },
+    {
+        "Id": 194,
+        "EmpId": 194,
+        "Nama": "SIERRA LEONE",
+        "KodeNegara": "SL",
+        "KodeNegara3": "SLE"
+    },
+    {
+        "Id": 195,
+        "EmpId": 195,
+        "Nama": "SINGAPORE",
+        "KodeNegara": "SG",
+        "KodeNegara3": "SGP"
+    },
+    {
+        "Id": 196,
+        "EmpId": 196,
+        "Nama": "SLOVAKIA",
+        "KodeNegara": "SK",
+        "KodeNegara3": "SVK"
+    },
+    {
+        "Id": 197,
+        "EmpId": 197,
+        "Nama": "SLOVENIA",
+        "KodeNegara": "SI",
+        "KodeNegara3": "SVN"
+    },
+    {
+        "Id": 198,
+        "EmpId": 198,
+        "Nama": "SOLOMON ISLANDS",
+        "KodeNegara": "SB",
+        "KodeNegara3": "SLB"
+    },
+    {
+        "Id": 199,
+        "EmpId": 199,
+        "Nama": "SOMALIA",
+        "KodeNegara": "SO",
+        "KodeNegara3": "SOM"
+    },
+    {
+        "Id": 200,
+        "EmpId": 200,
+        "Nama": "SOUTH AFRICA",
+        "KodeNegara": "ZA",
+        "KodeNegara3": "ZAF"
+    },
+    {
+        "Id": 201,
+        "EmpId": 201,
+        "Nama": "SOUTH GEORGIA SOUTH SANDWICH ISLANDS",
+        "KodeNegara": "GS",
+        "KodeNegara3": "SGS"
+    },
+    {
+        "Id": 202,
+        "EmpId": 202,
+        "Nama": "SPAIN",
+        "KodeNegara": "ES",
+        "KodeNegara3": "ESP"
+    },
+    {
+        "Id": 203,
+        "EmpId": 203,
+        "Nama": "SRI LANKA",
+        "KodeNegara": "LK",
+        "KodeNegara3": "LKA"
+    },
+    {
+        "Id": 204,
+        "EmpId": 204,
+        "Nama": "ST. HELENA",
+        "KodeNegara": "SH",
+        "KodeNegara3": "SHN"
+    },
+    {
+        "Id": 205,
+        "EmpId": 205,
+        "Nama": "ST. PIERRE AND MIQUELON",
+        "KodeNegara": "PM",
+        "KodeNegara3": "SPM"
+    },
+    {
+        "Id": 206,
+        "EmpId": 206,
+        "Nama": "SUDAN",
+        "KodeNegara": "SD",
+        "KodeNegara3": "SDN"
+    },
+    {
+        "Id": 207,
+        "EmpId": 207,
+        "Nama": "SURINAME",
+        "KodeNegara": "SR",
+        "KodeNegara3": "SUR"
+    },
+    {
+        "Id": 208,
+        "EmpId": 208,
+        "Nama": "SVALBARD AND JAN MAYEN ISLANDS",
+        "KodeNegara": "SJ",
+        "KodeNegara3": "SJM"
+    },
+    {
+        "Id": 209,
+        "EmpId": 209,
+        "Nama": "SWAZILAND",
+        "KodeNegara": "SZ",
+        "KodeNegara3": "SWZ"
+    },
+    {
+        "Id": 210,
+        "EmpId": 210,
+        "Nama": "SWEDEN",
+        "KodeNegara": "SE",
+        "KodeNegara3": "SWE"
+    },
+    {
+        "Id": 211,
+        "EmpId": 211,
+        "Nama": "SWITZERLAND",
+        "KodeNegara": "CH",
+        "KodeNegara3": "CHE"
+    },
+    {
+        "Id": 212,
+        "EmpId": 212,
+        "Nama": "SYRIAN ARAB REPUBLIC",
+        "KodeNegara": "SY",
+        "KodeNegara3": "SYR"
+    },
+    {
+        "Id": 213,
+        "EmpId": 213,
+        "Nama": "TAIWAN",
+        "KodeNegara": "TW",
+        "KodeNegara3": "TWN"
+    },
+    {
+        "Id": 214,
+        "EmpId": 214,
+        "Nama": "TAJIKISTAN",
+        "KodeNegara": "TJ",
+        "KodeNegara3": "TJK"
+    },
+    {
+        "Id": 215,
+        "EmpId": 215,
+        "Nama": "TANZANIA, UNITED REPUBLIC OF",
+        "KodeNegara": "TZ",
+        "KodeNegara3": "TZA"
+    },
+    {
+        "Id": 216,
+        "EmpId": 216,
+        "Nama": "THAILAND",
+        "KodeNegara": "TH",
+        "KodeNegara3": "THA"
+    },
+    {
+        "Id": 217,
+        "EmpId": 217,
+        "Nama": "TOGO",
+        "KodeNegara": "TG",
+        "KodeNegara3": "TGO"
+    },
+    {
+        "Id": 218,
+        "EmpId": 218,
+        "Nama": "TOKELAU",
+        "KodeNegara": "TK",
+        "KodeNegara3": "TKL"
+    },
+    {
+        "Id": 219,
+        "EmpId": 219,
+        "Nama": "TONGA",
+        "KodeNegara": "TO",
+        "KodeNegara3": "TON"
+    },
+    {
+        "Id": 220,
+        "EmpId": 220,
+        "Nama": "TRINIDAD AND TOBAGO",
+        "KodeNegara": "TT",
+        "KodeNegara3": "TTO"
+    },
+    {
+        "Id": 221,
+        "EmpId": 221,
+        "Nama": "TUNISIA",
+        "KodeNegara": "TN",
+        "KodeNegara3": "TUN"
+    },
+    {
+        "Id": 222,
+        "EmpId": 222,
+        "Nama": "TURKEY",
+        "KodeNegara": "TR",
+        "KodeNegara3": "TUR"
+    },
+    {
+        "Id": 223,
+        "EmpId": 223,
+        "Nama": "TURKMENISTAN",
+        "KodeNegara": "TM",
+        "KodeNegara3": "TKM"
+    },
+    {
+        "Id": 224,
+        "EmpId": 224,
+        "Nama": "TURKS AND CAICOS ISLANDS",
+        "KodeNegara": "TC",
+        "KodeNegara3": "TCA"
+    },
+    {
+        "Id": 225,
+        "EmpId": 225,
+        "Nama": "TUVALU",
+        "KodeNegara": "TV",
+        "KodeNegara3": "TUV"
+    },
+    {
+        "Id": 226,
+        "EmpId": 226,
+        "Nama": "UGANDA",
+        "KodeNegara": "UG",
+        "KodeNegara3": "UGA"
+    },
+    {
+        "Id": 227,
+        "EmpId": 227,
+        "Nama": "UKRAINE",
+        "KodeNegara": "UA",
+        "KodeNegara3": "UKR"
+    },
+    {
+        "Id": 228,
+        "EmpId": 228,
+        "Nama": "UNITED ARAB EMIRATES",
+        "KodeNegara": "AE",
+        "KodeNegara3": "ARE"
+    },
+    {
+        "Id": 229,
+        "EmpId": 229,
+        "Nama": "UNITED KINGDOM",
+        "KodeNegara": "GB",
+        "KodeNegara3": "GBR"
+    },
+    {
+        "Id": 230,
+        "EmpId": 230,
+        "Nama": "UNITED STATES",
+        "KodeNegara": "US",
+        "KodeNegara3": "USA"
+    },
+    {
+        "Id": 231,
+        "EmpId": 231,
+        "Nama": "UNITED STATES MINOR OUTLYING ISLANDS",
+        "KodeNegara": "UM",
+        "KodeNegara3": "UMI"
+    },
+    {
+        "Id": 232,
+        "EmpId": 232,
+        "Nama": "URUGUAY",
+        "KodeNegara": "UY",
+        "KodeNegara3": "URY"
+    },
+    {
+        "Id": 233,
+        "EmpId": 233,
+        "Nama": "UZBEKISTAN",
+        "KodeNegara": "UZ",
+        "KodeNegara3": "UZB"
+    },
+    {
+        "Id": 234,
+        "EmpId": 234,
+        "Nama": "VANUATU",
+        "KodeNegara": "VU",
+        "KodeNegara3": "VUT"
+    },
+    {
+        "Id": 235,
+        "EmpId": 235,
+        "Nama": "VATICAN CITY STATE",
+        "KodeNegara": "VA",
+        "KodeNegara3": "VAT"
+    },
+    {
+        "Id": 236,
+        "EmpId": 236,
+        "Nama": "VENEZUELA",
+        "KodeNegara": "VE",
+        "KodeNegara3": "VEN"
+    },
+    {
+        "Id": 237,
+        "EmpId": 237,
+        "Nama": "VIETNAM",
+        "KodeNegara": "VN",
+        "KodeNegara3": "VNM"
+    },
+    {
+        "Id": 238,
+        "EmpId": 238,
+        "Nama": "VIRGIN ISLANDS (BRITISH)",
+        "KodeNegara": "VG",
+        "KodeNegara3": "VGB"
+    },
+    {
+        "Id": 239,
+        "EmpId": 239,
+        "Nama": "VIRGIN ISLANDS (U.S.)",
+        "KodeNegara": "VI",
+        "KodeNegara3": "VIR"
+    },
+    {
+        "Id": 240,
+        "EmpId": 240,
+        "Nama": "WALLIS AND FUTUNA ISLANDS",
+        "KodeNegara": "WF",
+        "KodeNegara3": "WLF"
+    },
+    {
+        "Id": 241,
+        "EmpId": 241,
+        "Nama": "WESTERN SAHARA",
+        "KodeNegara": "EH",
+        "KodeNegara3": "ESH"
+    },
+    {
+        "Id": 242,
+        "EmpId": 242,
+        "Nama": "YEMEN",
+        "KodeNegara": "YE",
+        "KodeNegara3": "YEM"
+    },
+    {
+        "Id": 243,
+        "EmpId": 243,
+        "Nama": "ZAIRE",
+        "KodeNegara": "ZR",
+        "KodeNegara3": "ZAR"
+    },
+    {
+        "Id": 244,
+        "EmpId": 244,
+        "Nama": "ZAMBIA",
+        "KodeNegara": "ZM",
+        "KodeNegara3": "ZMB"
+    },
+    {
+        "Id": 245,
+        "EmpId": 245,
+        "Nama": "ZIMBABWE",
+        "KodeNegara": "ZW",
+        "KodeNegara3": "ZWE"
+    }
+]

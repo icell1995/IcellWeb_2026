@@ -82,15 +82,15 @@ class PolicesTableSeeder extends Seeder
                         'id' => $regionalPolice['id'],
                         'name' => $regionalPolice['name'],
 
-                        // 'sort' => 0,
+                        'sort' => isset($regionalPolice['sort']) ? $regionalPolice['sort'] : 0,
 
                         // 'puskarda_code' => $regionalPolice['puskarda_code'],
                         // 'emp_id' => $regionalPolice['spptti_id'],
                         // 'spptti_id' => $regionalPolice['spptti_id'],
                         // 'satker_code' => $regionalPolice['satker_code'], // 'satker_code' => '00000000000000000000
-                        // 'timezone' => $regionalPolice['timezone'],
+                        'timezone' => isset($regionalPolice['timezone']) ? $regionalPolice['timezone'] : '+7',
 
-                        // 'state' => ($regionalPolice['state'] == '1' ? 1 : 0),
+                        'state' => (isset($regionalPolice['state']) && $regionalPolice['state'] == '1' ? 1 : 0),
                     ]
                 );
 
@@ -102,20 +102,20 @@ class PolicesTableSeeder extends Seeder
                         'id' => $regionalPolice['id'],
                         'parent_id' => $regionalPolice['parent_id'],
                         
-                        // 'class' => 'DAERAH',
+                        'class' => 'DAERAH',
                         
-                        // 'puskarda_id' => $regionalPolice['puskarda_code'],
-                        // 'emp_id' => $regionalPolice['spptti_id'],
-                        // 'spptti_id' => $regionalPolice['spptti_id'],
-                        // 'satker_code' => $regionalPolice['satker_code'], // 'satker_code' => '00000000000000000000
+                        'puskarda_id' => isset($regionalPolice['puskarda_code']) ? $regionalPolice['puskarda_code'] : null,
+                        // 'emp_id' => isset($regionalPolice['spptti_id']) ? $regionalPolice['spptti_id'] : null,
+                        'spptti_id' => isset($regionalPolice['spptti_id']) ? $regionalPolice['spptti_id'] : null,
+                        'satker_code' => isset($regionalPolice['satker_code']) ? $regionalPolice['satker_code'] : null,
 
                         'name' => $regionalPolice['name'],
                         'full_name' => $regionalPolice['full_name'],
 
-                        // 'address' => $regionalPolice['address'],
-                        // 'timezone' => $regionalPolice['timezone'],
+                        'address' => isset($regionalPolice['address']) ? $regionalPolice['address'] : null,
+                        'timezone' => isset($regionalPolice['timezone']) ? $regionalPolice['timezone'] : '+7',
 
-                        // 'is_active' => ($regionalPolice['state'] == '1' ? true : false),
+                        'is_active' => (isset($regionalPolice['state']) && $regionalPolice['state'] == '1' ? true : false),
                     ]
                 );
             }
@@ -134,21 +134,21 @@ class PolicesTableSeeder extends Seeder
             foreach($resortPolices as $resortPolice){
                 Polres::updateOrCreate(
                     [
-                        'id' => $regionalPolice['id'],
+                        'id' => $resortPolice['id'],
                     ],
                     [
-                        'id' => $regionalPolice['id'],
-                        'name' => $regionalPolice['name'],
-                        // 'polda_id' => $resortPolice['polda_id'],
+                        'id' => $resortPolice['id'],
+                        'name' => $resortPolice['name'],
+                        'polda_id' => $resortPolice['polda_id'],
 
-                        // 'sort' => 0,
+                        'sort' => isset($resortPolice['sort']) ? $resortPolice['sort'] : 0,
 
                         // 'puskarda_code' => $resortPolice['puskarda_code'],
                         // 'emp_id' => $resortPolice['spptti_id'],
                         // 'spptti_id' => $resortPolice['spptti_id'],
                         // 'satker_code' => $resortPolice['satker_code'],
 
-                        // 'state' => ($regionalPolice['state'] == '1' ? 1 : 0),
+                        'state' => (isset($resortPolice['state']) && $resortPolice['state'] == '1' ? 1 : 0),
                     ]
                 );
 
@@ -160,22 +160,22 @@ class PolicesTableSeeder extends Seeder
                         'id' => $resortPolice['id'],
                         'parent_id' => $resortPolice['polda_id'],
                         
-                        // 'class' => 'RESOR',
+                        'class' => 'RESOR',
                         
-                        // 'puskarda_id' => $resortPolice['puskarda_code'],
-                        // 'emp_id' => $resortPolice['spptti_id'],
-                        // 'spptti_id' => $resortPolice['spptti_id'],
-                        // 'satker_code' => $resortPolice['satker_code'],
+                        'puskarda_id' => isset($resortPolice['puskarda_code']) ? $resortPolice['puskarda_code'] : null,
+                        // 'emp_id' => isset($resortPolice['spptti_id']) ? $resortPolice['spptti_id'] : null,
+                        'spptti_id' => isset($resortPolice['spptti_id']) ? $resortPolice['spptti_id'] : null,
+                        'satker_code' => isset($resortPolice['satker_code']) ? $resortPolice['satker_code'] : null,
 
                         'name' => $resortPolice['name'],
                         'full_name' => $resortPolice['full_name'],
 
-                        // 'address' => $resortPolice['address'],
-                        // 'postal_code' => $resortPolice['polres_zipcode'],
+                        'address' => isset($resortPolice['address']) ? $resortPolice['address'] : null,
+                        'postal_code' => isset($resortPolice['polres_zipcode']) ? $resortPolice['polres_zipcode'] : null,
 
                         'category' => isset($resortPolice['category']) ? $resortPolice['category'] : null,
 
-                        // 'is_active' => ($resortPolice['state'] == '1' ? true : false),
+                        'is_active' => (isset($resortPolice['state']) && $resortPolice['state'] == '1' ? true : false),
                     ]
                 );
             }
@@ -190,14 +190,14 @@ class PolicesTableSeeder extends Seeder
 
     private function getRegionalPolices()
     {
-        $regionalPolices = File::get(base_path('master_seeder/regional_polices.json'));
+        $regionalPolices = File::get(base_path('master_seeder/regional_polices-new1.json'));
 
         return $regionalPolices;
     }
    
     private function getResortPolices()
     {
-        $resortPolices = File::get(base_path('master_seeder/resort_polices.json'));
+        $resortPolices = File::get(base_path('master_seeder/resort_polices-new1.json'));
 
         return $resortPolices;
     }
