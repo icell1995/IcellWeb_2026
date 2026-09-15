@@ -17,6 +17,7 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\BeritaAcaraPenahanan;
 
 class DocumentActionController extends Controller
 {
@@ -255,6 +256,7 @@ class DocumentActionController extends Controller
             '0201' => SuratPerintahPenyidikanDocument::class,
             '0204' => SuratPemberitahuanDimulainyaPenyidikanDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
+            '0605' => BeritaAcaraPenahanan::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
             // Add more document types here

@@ -16,9 +16,24 @@ use App\Http\Controllers\Docs\Tahap2DocumentController;
 use App\Http\Controllers\Docs\Sp2hpDocumentController;
 use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
 use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
+use App\Http\Controllers\Docs\BeritaAcaraPenahananDocumentController;
 
 Route::post('/create',[DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');
 Route::get('/type-document/{id}',[DocumentController::class, 'getTypeDocument'])->name('doc.getTypeDocument');
+
+Route::prefix('/berita-acara-penahanan-document')->middleware(['document-access'])->group(function(){
+    Route::get('/', [BeritaAcaraPenahananDocumentController::class, 'index'])->name('doc.berita-acara-penahanan-document.index');
+    Route::get('/{id}/show', [BeritaAcaraPenahananDocumentController::class, 'show'])->name('doc.berita-acara-penahanan-document.show');
+    Route::get('/create', [BeritaAcaraPenahananDocumentController::class, 'create'])->name('doc.berita-acara-penahanan-document.create');
+    Route::post('/create', [BeritaAcaraPenahananDocumentController::class, 'store'])->name('doc.berita-acara-penahanan-document.store');
+    Route::get('/{id}/edit', [BeritaAcaraPenahananDocumentController::class, 'edit'])->name('doc.berita-acara-penahanan-document.edit');
+    Route::post('/{id}/edit', [BeritaAcaraPenahananDocumentController::class, 'update'])->name('doc.berita-acara-penahanan-document.update');
+    Route::delete('/{id}/delete', [BeritaAcaraPenahananDocumentController::class, 'delete'])->name('doc.berita-acara-penahanan-document.delete');
+    Route::get('/{id}/download', [BeritaAcaraPenahananDocumentController::class, 'download'])->name('doc.berita-acara-penahanan-document.download');
+
+    Route::get('/api/internal-officers', [BeritaAcaraPenahananDocumentController::class, 'getInternalOfficers'])->name('doc.berita-acara-penahanan-document.api.internal-officers');
+    Route::post('/api/validate-request-form', [BeritaAcaraPenahananDocumentController::class, 'validateRequestForm'])->name('doc.berita-acara-penahanan-document.api.validate-request-form');
+});
 
 Route::prefix('/surat-perintah-penyelidikan-document')->group(function(){
     Route::get('/', [SuratPerintahPenyelidikanDocumentController::class, 'index'])->name('doc.surat-perintah-penyelidikan-document.index');
@@ -116,70 +131,65 @@ Route::prefix('/surat-pemberitahuan-dimulainya-penyidikan-document')->middleware
     Route::post('/api/validate-request-form', [SuratPemberitahuanDimulainyaPenyidikanDocumentController::class, 'validateRequestForm'])->name('doc.surat-pemberitahuan-dimulainya-penyidikan-document.api.validate-request-form');
 });
 
-Route::prefix('/daftar-tersangka-document')->middleware(['document-access'])->group(function(){
-    Route::get('/', [DaftarTersangkaDocumentController::class, 'index'])->name('doc.daftar-tersangka-document.index');
-    Route::get('/{id}/show', [DaftarTersangkaDocumentController::class, 'show'])->name('doc.daftar-tersangka-document.show');
-    Route::get('/create', [DaftarTersangkaDocumentController::class, 'create'])->name('doc.daftar-tersangka-document.create');
-    Route::post('/create', [DaftarTersangkaDocumentController::class, 'store'])->name('doc.daftar-tersangka-document.store');
-    Route::get('/{id}/edit', [DaftarTersangkaDocumentController::class, 'edit'])->name('doc.daftar-tersangka-document.edit');
-    Route::post('/{id}/edit', [DaftarTersangkaDocumentController::class, 'update'])->name('doc.daftar-tersangka-document.update');
-    Route::delete('/{id}/delete', [DaftarTersangkaDocumentController::class, 'delete'])->name('doc.daftar-tersangka-document.delete');
-    Route::get('/{id}/download', [DaftarTersangkaDocumentController::class, 'download'])->name('doc.daftar-tersangka-document.download');
+// Route::prefix('/daftar-tersangka-document')->middleware(['document-access'])->group(function(){
+//     Route::get('/', [DaftarTersangkaDocumentController::class, 'index'])->name('doc.daftar-tersangka-document.index');
+//     Route::get('/{id}/show', [DaftarTersangkaDocumentController::class, 'show'])->name('doc.daftar-tersangka-document.show');
+//     Route::get('/create', [DaftarTersangkaDocumentController::class, 'create'])->name('doc.daftar-tersangka-document.create');
+//     Route::post('/create', [DaftarTersangkaDocumentController::class, 'store'])->name('doc.daftar-tersangka-document.store');
+//     Route::get('/{id}/edit', [DaftarTersangkaDocumentController::class, 'edit'])->name('doc.daftar-tersangka-document.edit');
+//     Route::post('/{id}/edit', [DaftarTersangkaDocumentController::class, 'update'])->name('doc.daftar-tersangka-document.update');
+//     Route::delete('/{id}/delete', [DaftarTersangkaDocumentController::class, 'delete'])->name('doc.daftar-tersangka-document.delete');
+//     Route::get('/{id}/download', [DaftarTersangkaDocumentController::class, 'download'])->name('doc.daftar-tersangka-document.download');
+//     Route::post('/api/validate-request-form', [DaftarTersangkaDocumentController::class, 'validateRequestForm'])->name('doc.daftar-tersangka-document.api.validate-request-form');
+// });
 
-    Route::post('/api/validate-request-form', [DaftarTersangkaDocumentController::class, 'validateRequestForm'])->name('doc.daftar-tersangka-document.api.validate-request-form');
-});
+// Route::prefix('/tahap-1-document')->middleware(['document-access'])->group(function(){
+//     Route::get('/', [Tahap1DocumentController::class, 'index'])->name('doc.tahap-1-document.index');
+//     Route::get('/{id}/show', [Tahap1DocumentController::class, 'show'])->name('doc.tahap-1-document.show');
+//     Route::get('/create', [Tahap1DocumentController::class, 'create'])->name('doc.tahap-1-document.create');
+//     Route::post('/create', [Tahap1DocumentController::class, 'store'])->name('doc.tahap-1-document.store');
+//     Route::get('/{id}/edit', [Tahap1DocumentController::class, 'edit'])->name('doc.tahap-1-document.edit');
+//     Route::post('/{id}/edit', [Tahap1DocumentController::class, 'update'])->name('doc.tahap-1-document.update');
+//     Route::delete('/{id}/delete', [Tahap1DocumentController::class, 'delete'])->name('doc.tahap-1-document.delete');
+//     Route::get('/{id}/download', [Tahap1DocumentController::class, 'download'])->name('doc.tahap-1-document.download');
+//     Route::post('/api/validate-request-form', [Tahap1DocumentController::class, 'validateRequestForm'])->name('doc.tahap-1-document.api.validate-request-form');
+// });
 
-Route::prefix('/tahap-1-document')->middleware(['document-access'])->group(function(){
-    Route::get('/', [Tahap1DocumentController::class, 'index'])->name('doc.tahap-1-document.index');
-    Route::get('/{id}/show', [Tahap1DocumentController::class, 'show'])->name('doc.tahap-1-document.show');
-    Route::get('/create', [Tahap1DocumentController::class, 'create'])->name('doc.tahap-1-document.create');
-    Route::post('/create', [Tahap1DocumentController::class, 'store'])->name('doc.tahap-1-document.store');
-    Route::get('/{id}/edit', [Tahap1DocumentController::class, 'edit'])->name('doc.tahap-1-document.edit');
-    Route::post('/{id}/edit', [Tahap1DocumentController::class, 'update'])->name('doc.tahap-1-document.update');
-    Route::delete('/{id}/delete', [Tahap1DocumentController::class, 'delete'])->name('doc.tahap-1-document.delete');
-    Route::get('/{id}/download', [Tahap1DocumentController::class, 'download'])->name('doc.tahap-1-document.download');
+// Route::prefix('/p19-document')->middleware(['document-access'])->group(function(){
+//     Route::get('/', [P19DocumentController::class, 'index'])->name('doc.p19-document.index');
+//     Route::get('/{id}/show', [P19DocumentController::class, 'show'])->name('doc.p19-document.show');
+//     Route::get('/create', [P19DocumentController::class, 'create'])->name('doc.p19-document.create');
+//     Route::post('/create', [P19DocumentController::class, 'store'])->name('doc.p19-document.store');
+//     Route::get('/{id}/edit', [P19DocumentController::class, 'edit'])->name('doc.p19-document.edit');
+//     Route::post('/{id}/edit', [P19DocumentController::class, 'update'])->name('doc.p19-document.update');
+//     Route::delete('/{id}/delete', [P19DocumentController::class, 'delete'])->name('doc.p19-document.delete');
+//     Route::get('/{id}/download', [P19DocumentController::class, 'download'])->name('doc.p19-document.download');
+//     Route::post('/api/validate-request-form', [P19DocumentController::class, 'validateRequestForm'])->name('doc.p19-document.api.validate-request-form');
+// });
 
-    Route::post('/api/validate-request-form', [Tahap1DocumentController::class, 'validateRequestForm'])->name('doc.tahap-1-document.api.validate-request-form');
-});
+// Route::prefix('/p21-document')->middleware(['document-access'])->group(function(){
+//     Route::get('/', [P21DocumentController::class, 'index'])->name('doc.p21-document.index');
+//     Route::get('/{id}/show', [P21DocumentController::class, 'show'])->name('doc.p21-document.show');
+//     Route::get('/create', [P21DocumentController::class, 'create'])->name('doc.p21-document.create');
+//     Route::post('/create', [P21DocumentController::class, 'store'])->name('doc.p21-document.store');
+//     Route::get('/{id}/edit', [P21DocumentController::class, 'edit'])->name('doc.p21-document.edit');
+//     Route::post('/{id}/edit', [P21DocumentController::class, 'update'])->name('doc.p21-document.update');
+//     Route::delete('/{id}/delete', [P21DocumentController::class, 'delete'])->name('doc.p21-document.delete');
+//     Route::get('/{id}/download', [P21DocumentController::class, 'download'])->name('doc.p21-document.download');
+//     Route::post('/api/validate-request-form', [P21DocumentController::class, 'validateRequestForm'])->name('doc.p21-document.api.validate-request-form');
+// });
 
-Route::prefix('/p19-document')->middleware(['document-access'])->group(function(){
-    Route::get('/', [P19DocumentController::class, 'index'])->name('doc.p19-document.index');
-    Route::get('/{id}/show', [P19DocumentController::class, 'show'])->name('doc.p19-document.show');
-    Route::get('/create', [P19DocumentController::class, 'create'])->name('doc.p19-document.create');
-    Route::post('/create', [P19DocumentController::class, 'store'])->name('doc.p19-document.store');
-    Route::get('/{id}/edit', [P19DocumentController::class, 'edit'])->name('doc.p19-document.edit');
-    Route::post('/{id}/edit', [P19DocumentController::class, 'update'])->name('doc.p19-document.update');
-    Route::delete('/{id}/delete', [P19DocumentController::class, 'delete'])->name('doc.p19-document.delete');
-    Route::get('/{id}/download', [P19DocumentController::class, 'download'])->name('doc.p19-document.download');
-
-    Route::post('/api/validate-request-form', [P19DocumentController::class, 'validateRequestForm'])->name('doc.p19-document.api.validate-request-form');
-});
-
-Route::prefix('/p21-document')->middleware(['document-access'])->group(function(){
-    Route::get('/', [P21DocumentController::class, 'index'])->name('doc.p21-document.index');
-    Route::get('/{id}/show', [P21DocumentController::class, 'show'])->name('doc.p21-document.show');
-    Route::get('/create', [P21DocumentController::class, 'create'])->name('doc.p21-document.create');
-    Route::post('/create', [P21DocumentController::class, 'store'])->name('doc.p21-document.store');
-    Route::get('/{id}/edit', [P21DocumentController::class, 'edit'])->name('doc.p21-document.edit');
-    Route::post('/{id}/edit', [P21DocumentController::class, 'update'])->name('doc.p21-document.update');
-    Route::delete('/{id}/delete', [P21DocumentController::class, 'delete'])->name('doc.p21-document.delete');
-    Route::get('/{id}/download', [P21DocumentController::class, 'download'])->name('doc.p21-document.download');
-
-    Route::post('/api/validate-request-form', [P21DocumentController::class, 'validateRequestForm'])->name('doc.p21-document.api.validate-request-form');
-});
-
-Route::prefix('/tahap-2-document')->middleware(['document-access'])->group(function(){
-    Route::get('/', [Tahap2DocumentController::class, 'index'])->name('doc.tahap-2-document.index');
-    Route::get('/{id}/show', [Tahap2DocumentController::class, 'show'])->name('doc.tahap-2-document.show');
-    Route::get('/create', [Tahap2DocumentController::class, 'create'])->name('doc.tahap-2-document.create');
-    Route::post('/create', [Tahap2DocumentController::class, 'store'])->name('doc.tahap-2-document.store');
-    Route::get('/{id}/edit', [Tahap2DocumentController::class, 'edit'])->name('doc.tahap-2-document.edit');
-    Route::post('/{id}/edit', [Tahap2DocumentController::class, 'update'])->name('doc.tahap-2-document.update');
-    Route::delete('/{id}/delete', [Tahap2DocumentController::class, 'delete'])->name('doc.tahap-2-document.delete');
-    Route::get('/{id}/download', [Tahap2DocumentController::class, 'download'])->name('doc.tahap-2-document.download');
-
-    Route::post('/api/validate-request-form', [Tahap2DocumentController::class, 'validateRequestForm'])->name('doc.tahap-2-document.api.validate-request-form');
-});
+// Route::prefix('/tahap-2-document')->middleware(['document-access'])->group(function(){
+//     Route::get('/', [Tahap2DocumentController::class, 'index'])->name('doc.tahap-2-document.index');
+//     Route::get('/{id}/show', [Tahap2DocumentController::class, 'show'])->name('doc.tahap-2-document.show');
+//     Route::get('/create', [Tahap2DocumentController::class, 'create'])->name('doc.tahap-2-document.create');
+//     Route::post('/create', [Tahap2DocumentController::class, 'store'])->name('doc.tahap-2-document.store');
+//     Route::get('/{id}/edit', [Tahap2DocumentController::class, 'edit'])->name('doc.tahap-2-document.edit');
+//     Route::post('/{id}/edit', [Tahap2DocumentController::class, 'update'])->name('doc.tahap-2-document.update');
+//     Route::delete('/{id}/delete', [Tahap2DocumentController::class, 'delete'])->name('doc.tahap-2-document.delete');
+//     Route::get('/{id}/download', [Tahap2DocumentController::class, 'download'])->name('doc.tahap-2-document.download');
+//     Route::post('/api/validate-request-form', [Tahap2DocumentController::class, 'validateRequestForm'])->name('doc.tahap-2-document.api.validate-request-form');
+// });
 
 // SP2HP Document Routes (SP2HP Regulation)
 Route::prefix('/sp2hp-document')->group(function(){
