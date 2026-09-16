@@ -114,6 +114,7 @@ class SuratKesepakatanDiversiDocumentController extends Controller
     public function store(Request $request)
     {
         $accidentId = $request->input('accidentId') ?? $request->query('accident_id');
+        $documentNumber = $request->input('documentNumber') ?? $request->input('document_number');
         $diversionDate = $request->input('diversionDate');
         $documentDate = $request->input('documentDate') ?? $diversionDate;
         $diversionDay = $request->input('diversionDay');
@@ -252,6 +253,7 @@ class SuratKesepakatanDiversiDocumentController extends Controller
     {
         $document = SuratKesepakatanDiversiDocument::where('id', $id)->firstOrFail();
         $accidentId = $request->input('accidentId') ?? $request->query('accident_id') ?? $document->accident_id;
+        $documentNumber = $request->input('documentNumber') ?? $request->input('document_number') ?? $document->document_number;
         $diversionDate = $request->input('diversionDate');
         $documentDate = $request->input('documentDate') ?? $diversionDate;
         $diversionDay = $request->input('diversionDay');
