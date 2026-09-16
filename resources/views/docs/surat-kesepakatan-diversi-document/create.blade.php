@@ -494,10 +494,13 @@
                     <label class="fw-bold col-sm-2 col-form-label" for="victimSelect">Pilih Korban</label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12 d-flex align-self-center">
                         <select class="form-control select2" name="victimSelect" id="victimSelect">
-                            <option value="">--Pilih Korban dari Pihak Pelapor Perkara--</option>
+                            <option value="">--Pilih Korban dari Pihak Perkara--</option>
                             <option value="manual">--Input Manual Korban--</option>
-                            @if(isset($reportingPersons))
-                                @foreach ($reportingPersons as $victim)
+                            @php
+                                $victimList = $victims ?? $reportingPersons ?? [];
+                            @endphp
+                            @if(count($victimList) > 0)
+                                @foreach ($victimList as $victim)
                                     @php
                                         $victimAgeYear = '';
                                         $victimAgeMonth = '';
@@ -525,6 +528,8 @@
                                             $victimNatId = $victim->nationality_id;
                                         } elseif (!empty($victim->country_id)) {
                                             $victimNatId = ($victim->country_id === 'C101') ? '1' : '2';
+                                        } else {
+                                            $victimNatId = '1';
                                         }
                                     @endphp
                                     <option value="{{ $victim->id }}"
@@ -542,7 +547,7 @@
                                         data-religion="{{ $victim->religion_id }}"
                                         data-address="{{ $victim->address }}"
                                         {{ old('victimSelect') == $victim->id ? 'selected' : '' }}>
-                                        {{ $victim->name }} ({{ $victimAgeText }})
+                                        {{ $victim->name }} ({{ !empty($victim->identity_number) ? $victim->identity_number . ' - ' : '' }}{{ $victim->role_label ?? 'Korban' }} - {{ $victimAgeText }})
                                     </option>
                                 @endforeach
                             @endif
@@ -930,7 +935,15 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
                         <h5 class="fw-bold text-blue-dark mb-1">Isi Kesepakatan Diversi (Pasal-Pasal S-44.3)</h5>
-                        <small class="text-muted">Kelola kesepakatan per-pasal secara fleksibel. Setiap pasal dapat berisi narasi dan/atau butir-butir penomoran berurutan [1], [2], dst.</small>
+                        <small class="text-muted">Kelola kesepakatan per-pasal secara fleksibel. Setiap pasal dapat berisi narasi dan/atau butir-butir penomoran berurutan 1., 2., dst.</small>
+                    </div>
+                </div>
+
+                {{-- Rujukan Rekomendasi BAPAS --}}
+                <div class="alert alert-info border-info d-flex align-items-center mb-3 shadow-sm py-2" style="background-color: #f0f7fd; border-left: 4px solid #0d6efd !important;">
+                    <i class="bi bi-info-circle-fill text-primary fs-5 me-2 flex-shrink-0"></i>
+                    <div class="small text-dark">
+                        Pengisian pasal kesepakatan diversi wajib merujuk pada <strong>Rekomendasi BAPAS</strong>.
                     </div>
                 </div>
 
@@ -1029,8 +1042,6 @@
                 $field.attr('placeholder', 'Pilih Jenis Identitas terlebih dahulu');
                 $field.val('');
                 $field.removeAttr('maxlength');
-                $field.removeClass('is-invalid');
-                $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
                 return '';
             } else {
                 $field.prop('disabled', false);
@@ -1109,8 +1120,11 @@
                 }
             }
 
+            // Bersihkan error lama sebelum render yang baru
             $field.removeClass('is-invalid');
-            $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
+            $field.nextAll('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
+            $field.closest('.input-group, .col-lg-10, .col-md-10, .col-12, div').find('.frontend-error, .invalid-feedback').remove();
 
             if (errorMsg) {
                 $field.parent().addClass('flex-wrap');
@@ -1125,7 +1139,9 @@
             var $field = $(fieldSelector);
             if ($field.is(':disabled')) {
                 $field.removeClass('is-invalid');
-                $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
+                $field.nextAll('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.closest('.input-group, .col-lg-10, .col-md-10, .col-12, div').find('.frontend-error, .invalid-feedback').remove();
                 return null;
             }
 
@@ -1136,6 +1152,10 @@
                 if (isRequired) {
                     errorMsg = 'Tanggal Lahir harus diisi.';
                 } else {
+                    $field.removeClass('is-invalid');
+                    $field.nextAll('.frontend-error, .invalid-feedback').remove();
+                    $field.siblings('.frontend-error, .invalid-feedback').remove();
+                    $field.closest('.input-group, .col-lg-10, .col-md-10, .col-12, div').find('.frontend-error, .invalid-feedback').remove();
                     return null;
                 }
             } else {
@@ -1150,7 +1170,9 @@
             }
 
             $field.removeClass('is-invalid');
-            $field.closest('div').find('.frontend-error, .invalid-feedback').remove();
+            $field.nextAll('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
+            $field.closest('.input-group, .col-lg-10, .col-md-10, .col-12, div').find('.frontend-error, .invalid-feedback').remove();
 
             if (errorMsg) {
                 $field.parent().addClass('flex-wrap');
@@ -1184,10 +1206,65 @@
             return { years: years, months: months, days: days };
         }
 
+        function hasFieldValue(target) {
+            var $field = $(target);
+            if (!$field || !$field.length) return false;
+            var raw = $field.val();
+            if (raw === null || raw === undefined) return false;
+            if (Array.isArray(raw)) return raw.length > 0;
+            var str = String(raw).trim();
+            if (str === '' || str === 'null') return false;
+            if ($field.is('select') && str === '0') return false;
+            return true;
+        }
+
+        function clearFieldError(target) {
+            if (!target) return;
+            var $field = $(target);
+            if (!$field.length) return;
+
+            // 1. Bersihkan class invalid pada field
+            $field.removeClass('is-invalid border border-danger');
+
+            // 2. Bersihkan Select2 container & selection styling jika ada
+            var $s2 = $field.next('.select2-container');
+            if (!$s2.length) {
+                $s2 = $field.siblings('.select2-container');
+            }
+            if ($s2.length) {
+                $s2.find('.select2-selection').removeClass('border border-danger is-invalid');
+                $s2.nextAll('.frontend-error, .invalid-feedback').remove();
+                $s2.siblings('.frontend-error, .invalid-feedback').remove();
+            }
+
+            // 3. Bersihkan pesan error langsung setelah/sekitar field
+            $field.nextAll('.frontend-error, .invalid-feedback').remove();
+            $field.siblings('.frontend-error, .invalid-feedback').remove();
+
+            // 4. Jika field di dalam input-group yang bukan row, bersihkan setelah/sekitar input-group
+            var $inputGroup = $field.closest('.input-group');
+            if ($inputGroup.length && !$inputGroup.hasClass('row')) {
+                $inputGroup.nextAll('.frontend-error, .invalid-feedback').remove();
+                $inputGroup.siblings('.frontend-error, .invalid-feedback').remove();
+                $inputGroup.parent().find('.frontend-error, .invalid-feedback').remove();
+            }
+
+            // 5. Bersihkan pesan error di kolom wrapper (col-lg-10, col-md-10, col-4, col-sm-12, dll)
+            var $col = $field.closest('.col-lg-10, .col-md-10, .col-sm-12, .col-12, .col-4, .col-8');
+            if ($col.length) {
+                $col.find('.frontend-error, .invalid-feedback').remove();
+            }
+
+            // 6. Bersihkan jika ada di parent terdekat
+            $field.parent().find('.frontend-error, .invalid-feedback').remove();
+        }
+
         window.sanitizeIdentityField = sanitizeIdentityField;
         window.validateIdentityField = validateIdentityField;
         window.validateBirthDateField = validateBirthDateField;
         window.calculateAgeFromDate = calculateAgeFromDate;
+        window.hasFieldValue = hasFieldValue;
+        window.clearFieldError = clearFieldError;
 
         $(document).ready(function() {
             // Blinking timer for attention box
@@ -1276,12 +1353,7 @@
             });
             $('#childIdentityNumber').on('input paste keyup change blur', function() {
                 var val = sanitizeIdentityField('#childIdentityType', '#childIdentityNumber');
-                if (val !== '') {
-                    validateIdentityField('#childIdentityType', '#childIdentityNumber', true);
-                } else {
-                    $(this).removeClass('is-invalid');
-                    $(this).closest('div').find('.frontend-error, .invalid-feedback').remove();
-                }
+                validateIdentityField('#childIdentityType', '#childIdentityNumber', true);
             });
 
             // Realtime listeners untuk sanitasi dan validasi identitas Pendamping Anak
@@ -1289,17 +1361,12 @@
                 sanitizeIdentityField('#childGuardianIdentityType', '#childGuardianIdentity');
                 var val = ($('#childGuardianIdentity').val() || '').trim();
                 if (val !== '') {
-                    validateIdentityField('#childGuardianIdentityType', '#childGuardianIdentity', false);
+                    validateIdentityField('#childGuardianIdentityType', '#childGuardianIdentity', true);
                 }
             });
             $('#childGuardianIdentity').on('input paste keyup change blur', function() {
                 var val = sanitizeIdentityField('#childGuardianIdentityType', '#childGuardianIdentity');
-                if (val !== '') {
-                    validateIdentityField('#childGuardianIdentityType', '#childGuardianIdentity', false);
-                } else {
-                    $(this).removeClass('is-invalid');
-                    $(this).closest('div').find('.frontend-error, .invalid-feedback').remove();
-                }
+                validateIdentityField('#childGuardianIdentityType', '#childGuardianIdentity', true);
             });
 
             // Realtime listeners untuk sanitasi dan validasi identitas Korban
@@ -1312,12 +1379,7 @@
             });
             $('#victimIdentityNumber').on('input paste keyup change blur', function() {
                 var val = sanitizeIdentityField('#victimIdentityType', '#victimIdentityNumber');
-                if (val !== '') {
-                    validateIdentityField('#victimIdentityType', '#victimIdentityNumber', true);
-                } else {
-                    $(this).removeClass('is-invalid');
-                    $(this).closest('div').find('.frontend-error, .invalid-feedback').remove();
-                }
+                validateIdentityField('#victimIdentityType', '#victimIdentityNumber', true);
             });
 
             // Realtime listeners untuk sanitasi dan validasi identitas Pendamping Korban
@@ -1325,17 +1387,12 @@
                 sanitizeIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity');
                 var val = ($('#victimGuardianIdentity').val() || '').trim();
                 if (val !== '') {
-                    validateIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity', false);
+                    validateIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity', true);
                 }
             });
             $('#victimGuardianIdentity').on('input paste keyup change blur', function() {
                 var val = sanitizeIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity');
-                if (val !== '') {
-                    validateIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity', false);
-                } else {
-                    $(this).removeClass('is-invalid');
-                    $(this).closest('div').find('.frontend-error, .invalid-feedback').remove();
-                }
+                validateIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity', true);
             });
 
             // Birthdate realtime validation
@@ -1343,13 +1400,15 @@
                 validateBirthDateField('#childBirthDate', true);
             });
             $('#childGuardianBirthDate').on('change changeDate input blur', function() {
-                if ($(this).val()) validateBirthDateField('#childGuardianBirthDate', false);
+                validateBirthDateField('#childGuardianBirthDate', true);
             });
             $('#victimBirthDate').on('change changeDate input blur', function() {
                 validateBirthDateField('#victimBirthDate', true);
             });
             $('#victimGuardianBirthDate').on('change changeDate input blur', function() {
-                if ($(this).val()) validateBirthDateField('#victimGuardianBirthDate', false);
+                if ($('input[name="isVictimAccompanied"]:checked').val() === '1') {
+                    validateBirthDateField('#victimGuardianBirthDate', true);
+                }
             });
 
             // Initial sanitization on load
@@ -1362,11 +1421,15 @@
 
             // Auto-calculate saat Tanggal Lahir Anak dipilih/diubah
             $('#childBirthDate').on('change changeDate input', function() {
+                clearFieldError('#childBirthDate');
                 var res = calculateAgeFromDate($(this).val());
                 if (res) {
                     $('#childAgeYear').val(res.years);
                     $('#childAgeMonth').val(res.months);
                     $('#childAgeDay').val(res.days);
+                    clearFieldError('#childAgeYear');
+                    clearFieldError('#childAgeMonth');
+                    clearFieldError('#childAgeDay');
                 } else {
                     $('#childAgeYear').val('');
                     $('#childAgeMonth').val('');
@@ -1376,11 +1439,15 @@
 
             // Auto-calculate saat Tanggal Lahir Korban dipilih/diubah
             $('#victimBirthDate').on('change changeDate input', function() {
+                clearFieldError('#victimBirthDate');
                 var res = calculateAgeFromDate($(this).val());
                 if (res) {
                     $('#victimAgeYear').val(res.years);
                     $('#victimAgeMonth').val(res.months);
                     $('#victimAgeDay').val(res.days);
+                    clearFieldError('#victimAgeYear');
+                    clearFieldError('#victimAgeMonth');
+                    clearFieldError('#victimAgeDay');
                 } else {
                     $('#victimAgeYear').val('');
                     $('#victimAgeMonth').val('');
@@ -1395,25 +1462,27 @@
 
                 if (isSelect) {
                     if (hasVal) {
-                        $el.val(String(val)).trigger('change.select2');
+                        $el.val(String(val)).trigger('change.select2').trigger('change');
                         $el.prop('disabled', true);
                         $el.next('.select2-container').css('pointer-events', 'none');
                         $el.next('.select2-container').find('.select2-selection').css('background-color', '#e9ecef');
+                        clearFieldError(selector);
                     } else {
-                        $el.val('').trigger('change.select2');
+                        $el.val('').trigger('change.select2').trigger('change');
                         $el.prop('disabled', false);
                         $el.next('.select2-container').css('pointer-events', '');
                         $el.next('.select2-container').find('.select2-selection').css('background-color', '');
                     }
                 } else {
                     if (hasVal) {
-                        $el.val(val);
+                        $el.val(val).trigger('input').trigger('change');
                         $el.prop('readonly', true).css('background-color', '#e9ecef');
                         if ($el.attr('data-provide') === 'datepicker') {
                             $el.css('pointer-events', 'none');
                         }
+                        clearFieldError(selector);
                     } else {
-                        $el.val('');
+                        $el.val('').trigger('input').trigger('change');
                         $el.prop('readonly', false).css('background-color', '');
                         $el.css('pointer-events', '');
                     }
@@ -1427,7 +1496,7 @@
                 });
                 var selectFields = ['#childIdentityType', '#childNationality', '#childGender', '#childJob', '#childReligion'];
                 selectFields.forEach(function(sel) {
-                    $(sel).val('').trigger('change.select2').prop('disabled', false);
+                    $(sel).val('').trigger('change.select2').trigger('change').prop('disabled', false);
                     $(sel).next('.select2-container').css('pointer-events', '');
                     $(sel).next('.select2-container').find('.select2-selection').css('background-color', '');
                 });
@@ -1441,7 +1510,7 @@
                 });
                 var selectFields = ['#victimIdentityType', '#victimNationality', '#victimGender', '#victimJob', '#victimReligion'];
                 selectFields.forEach(function(sel) {
-                    $(sel).val('').trigger('change.select2').prop('disabled', false);
+                    $(sel).val('').trigger('change.select2').trigger('change').prop('disabled', false);
                     $(sel).next('.select2-container').css('pointer-events', '');
                     $(sel).next('.select2-container').find('.select2-selection').css('background-color', '');
                 });
@@ -1449,9 +1518,10 @@
             }
 
             // Auto-fill dan lock dari database Tersangka Anak
-            $('#suspectId').on('change', function() {
+            $('#suspectId').on('change select2:select', function() {
                 var $opt = $(this).find(':selected');
                 if ($opt.val()) {
+                    clearFieldError('#suspectId');
                     setFieldLock('#childIdentityType', $opt.data('identity-type'), true);
                     setFieldLock('#childIdentityNumber', $opt.data('identity'), false);
                     setFieldLock('#childName', $opt.data('name'), false);
@@ -1467,16 +1537,29 @@
                     setFieldLock('#childAddress', $opt.data('address'), false);
 
                     sanitizeIdentityField('#childIdentityType', '#childIdentityNumber');
+
+                    var childFields = [
+                        '#childIdentityType', '#childIdentityNumber', '#childName',
+                        '#childGender', '#childBirthPlace', '#childBirthDate',
+                        '#childAgeYear', '#childAgeMonth', '#childAgeDay',
+                        '#childNationality', '#childJob', '#childReligion', '#childAddress'
+                    ];
+                    childFields.forEach(function(sel) {
+                        if (hasFieldValue(sel)) {
+                            clearFieldError(sel);
+                        }
+                    });
                 } else {
                     resetChildFields();
                 }
             });
 
             // Auto-fill dan lock dari database Korban / Pelapor
-            $('#victimSelect').on('change', function() {
+            $('#victimSelect').on('change select2:select', function() {
                 var $opt = $(this).find(':selected');
                 var val = $opt.val();
                 if (val && val !== 'manual') {
+                    clearFieldError('#victimSelect');
                     setFieldLock('#victimIdentityType', $opt.data('identity-type'), true);
                     setFieldLock('#victimIdentityNumber', $opt.data('identity'), false);
                     setFieldLock('#victimName', $opt.data('name'), false);
@@ -1492,7 +1575,20 @@
                     setFieldLock('#victimAddress', $opt.data('address'), false);
 
                     sanitizeIdentityField('#victimIdentityType', '#victimIdentityNumber');
+
+                    var victimFields = [
+                        '#victimIdentityType', '#victimIdentityNumber', '#victimName',
+                        '#victimGender', '#victimBirthPlace', '#victimBirthDate',
+                        '#victimAgeYear', '#victimAgeMonth', '#victimAgeDay',
+                        '#victimNationality', '#victimJob', '#victimReligion', '#victimAddress'
+                    ];
+                    victimFields.forEach(function(sel) {
+                        if (hasFieldValue(sel)) {
+                            clearFieldError(sel);
+                        }
+                    });
                 } else if (val === 'manual') {
+                    clearFieldError('#victimSelect');
                     resetVictimFields();
                 } else {
                     resetVictimFields();
@@ -1543,7 +1639,7 @@
                                 <div class="d-flex align-items-center gap-2 flex-grow-1">
                                     <span class="badge bg-primary px-3 py-2 fs-6 pasal-badge flex-shrink-0">Pasal ${pNum}.</span>
                                     <input type="hidden" name="pasals[${pIdx}][number]" class="pasal-number-input" value="${pNum}">
-                                    <input type="text" name="pasals[${pIdx}][subtitle]" class="form-control form-control-sm pasal-subtitle-input flex-grow-1 w-100" placeholder="Sub-judul pasal (opsional, contoh: [Jenis kesepakatan Diversi yang disepakati])" value="${$('<div>').text(subtitleVal).html()}">
+                                    <input type="text" name="pasals[${pIdx}][subtitle]" class="form-control form-control-sm pasal-subtitle-input flex-grow-1 w-100" placeholder="Sub-judul pasal (opsional, contoh: Kesepakatan Berdasarkan Rekomendasi BAPAS)" value="${$('<div>').text(subtitleVal).html()}">
                                 </div>
                                 <div class="flex-shrink-0 ms-auto">
                                     ${deleteBtnHtml}
@@ -1552,7 +1648,7 @@
                             <div class="card-body p-3">
                                 <div class="mb-3">
                                     <label class="form-label fw-bold small text-secondary mb-1">Narasi / Teks Isi Pasal:</label>
-                                    <textarea class="form-control form-control-sm pasal-content-input" name="pasals[${pIdx}][content]" rows="2" placeholder="Tuliskan narasi isi pasal (bisa dikombinasikan dengan butir berurutan di bawah)...">${$('<div>').text(contentVal).html()}</textarea>
+                                    <textarea class="form-control form-control-sm pasal-content-input" name="pasals[${pIdx}][content]" rows="2" placeholder="Tuliskan narasi isi pasal (merujuk pada Rekomendasi BAPAS dan kesepakatan para pihak)...">${$('<div>').text(contentVal).html()}</textarea>
                                 </div>
                                 <div class="pasal-points-container">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
@@ -1562,7 +1658,7 @@
                                     </div>
                                     <div class="mt-2 d-flex flex-wrap gap-2 align-items-center">
                                         <button type="button" class="btn btn-sm btn-outline-secondary btn-add-point">
-                                            <i class="bi bi-plus-circle me-1"></i> Tambah Poin [<span class="next-point-num">${points.length + 1}</span>]
+                                            <i class="bi bi-plus-circle me-1"></i> Tambah Poin <span class="next-point-num">${points.length + 1}</span>.
                                         </button>
                                     </div>
                                 </div>
@@ -1585,8 +1681,8 @@
                 var ptNum = ptIdx + 1;
                 var $ptItem = $(`
                     <div class="point-item mb-2 d-flex align-items-start gap-2" data-point-index="${ptIdx}">
-                        <span class="badge bg-secondary px-2 py-2 point-badge" style="min-width: 42px; font-size: 0.85rem; margin-top: 2px;">[${ptNum}]</span>
-                        <textarea class="form-control form-control-sm point-text" name="pasals[${pIdx}][points][${ptIdx}]" rows="2" placeholder="Isi butir kesepakatan...">${$('<div>').text(ptText || '').html()}</textarea>
+                        <span class="badge bg-secondary px-2 py-2 point-badge" style="min-width: 42px; font-size: 0.85rem; margin-top: 2px;">${ptNum}.</span>
+                        <textarea class="form-control form-control-sm point-text" name="pasals[${pIdx}][points][${ptIdx}]" rows="2" placeholder="Isi butir kesepakatan (contoh: Anak dikembalikan ke orang tua dengan pengawasan BAPAS / Ganti kerugian sebesar Rp...)...">${$('<div>').text(ptText || '').html()}</textarea>
                         <button type="button" class="btn btn-outline-danger btn-sm btn-delete-point" title="Hapus Butir" style="margin-top: 2px;">
                             <i class="bi bi-trash"></i>
                         </button>
@@ -1610,7 +1706,7 @@
                         var ptNum = ptIdx + 1;
                         var $pt = $(this);
                         $pt.attr('data-point-index', ptIdx);
-                        $pt.find('.point-badge').text(`[${ptNum}]`);
+                        $pt.find('.point-badge').text(`${ptNum}.`);
                         $pt.find('.point-text').attr('name', `pasals[${pIdx}][points][${ptIdx}]`);
                     });
                     $card.find('.next-point-num').text($points.length + 1);
@@ -1683,30 +1779,21 @@
 
         });
 
-        // Helper check field has value
-        function hasFieldValue($field) {
-            var raw = $field.val();
-            if (raw === null || raw === undefined) return false;
-            if (Array.isArray(raw)) return raw.length > 0;
-            var str = String(raw).trim();
-            return str !== '' && str !== '0';
-        }
-
-        // Helper clear single field error
-        function clearFieldError($field) {
-            $field.removeClass('is-invalid border border-danger');
-            if ($field.next('.select2-container').length) {
-                $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
-                $field.next('.select2-container').next('.frontend-error, .invalid-feedback').remove();
-            }
-            $field.next('.frontend-error, .invalid-feedback').remove();
-            $field.siblings('.frontend-error, .invalid-feedback').remove();
-            $field.closest('.input-group, .mb-3, .col-lg-10, .col-md-10, div').find('.frontend-error, .invalid-feedback').remove();
-        }
-
         // Auto-clear realtime saat user mengetik atau mengubah nilai field
         $(document).on('input change changeDate dp.change keyup blur', 'input, textarea, select', function() {
             var $field = $(this);
+            var id = $field.attr('id');
+
+            // Jangan auto-clear identitas dan tanggal lahir di listener global, karena memiliki validasi format realtime sendiri
+            if (id === 'childIdentityNumber' || id === 'childGuardianIdentity' || 
+                id === 'victimIdentityNumber' || id === 'victimGuardianIdentity') {
+                return;
+            }
+            if (id === 'childBirthDate' || id === 'childGuardianBirthDate' || 
+                id === 'victimBirthDate' || id === 'victimGuardianBirthDate') {
+                return;
+            }
+
             if (hasFieldValue($field)) {
                 clearFieldError($field);
             }
@@ -1718,6 +1805,33 @@
                 clearFieldError($field);
             }
         });
+
+        // Periodic safety check jika ada field yang sudah terisi tapi masih memiliki class is-invalid
+        setInterval(function() {
+            $('.is-invalid').each(function() {
+                var $el = $(this);
+                var id = $el.attr('id');
+                // Jangan auto-clear nomor identitas jika sedang salah format regex
+                if (id === 'childIdentityNumber' || id === 'childGuardianIdentity' || 
+                    id === 'victimIdentityNumber' || id === 'victimGuardianIdentity') {
+                    return;
+                }
+                // Jangan auto-clear tanggal lahir jika sedang salah format
+                if (id === 'childBirthDate' || id === 'victimBirthDate' || 
+                    id === 'childGuardianBirthDate' || id === 'victimGuardianBirthDate') {
+                    return;
+                }
+                if (hasFieldValue($el)) {
+                    clearFieldError($el);
+                }
+            });
+            $('.select2-selection.border-danger').each(function() {
+                var $sel = $(this).closest('.select2-container').prev('select');
+                if ($sel.length && hasFieldValue($sel)) {
+                    clearFieldError($sel);
+                }
+            });
+        }, 400);
 
         // Helper scrollToFirstError (Akurat scroll ke error paling atas)
         function scrollToFirstError() {
@@ -1839,7 +1953,7 @@
 
                 function checkInput(fieldSelector, label) {
                     var $field = $(fieldSelector);
-                    if (!$field.length || $field.is(':disabled') || !$field.is(':visible')) return;
+                    if (!$field.length || !$field.is(':visible')) return;
                     var raw = $field.val();
                     var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
                     if (!val || val === '') {
@@ -1847,9 +1961,22 @@
                     }
                 }
 
+                function checkIdentityNumber(typeSelector, numberSelector, label) {
+                    var $field = $(numberSelector);
+                    if (!$field.length || !$field.is(':visible')) return;
+                    var raw = $field.val();
+                    var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                    if (!val || val === '') {
+                        markError(numberSelector, label + ' harus diisi');
+                    } else if (typeof validateIdentityField === 'function') {
+                        var err = validateIdentityField(typeSelector, numberSelector, true);
+                        if (err) errors.push(err);
+                    }
+                }
+
                 function checkSelect(fieldSelector, label) {
                     var $field = $(fieldSelector);
-                    if (!$field.length || $field.is(':disabled')) return;
+                    if (!$field.length) return;
                     var isVis = $field.is(':visible') || ($field.next('.select2-container').length && $field.next('.select2-container').is(':visible'));
                     if (!isVis) return;
 
@@ -1868,83 +1995,86 @@
                 checkSelect('#suspectId', 'Tersangka Anak');
                 checkInput('#childName', 'Nama Anak');
                 checkSelect('#childIdentityType', 'Jenis Identitas Anak');
-                checkInput('#childIdentityNumber', 'Nomor Identitas Anak');
-                if (typeof validateIdentityField === 'function') {
-                    var childIdErr = validateIdentityField('#childIdentityType', '#childIdentityNumber', true);
-                    if (childIdErr) errors.push(childIdErr);
-                }
-
+                checkIdentityNumber('#childIdentityType', '#childIdentityNumber', 'Nomor Identitas Anak');
                 checkSelect('#childNationality', 'Kewarganegaraan Anak');
                 checkSelect('#childGender', 'Jenis Kelamin Anak');
                 checkInput('#childBirthPlace', 'Tempat Lahir Anak');
                 checkInput('#childBirthDate', 'Tanggal Lahir Anak');
-                if (typeof validateBirthDateField === 'function') {
+                if (typeof validateBirthDateField === 'function' && $('#childBirthDate').val()) {
                     var childBirthErr = validateBirthDateField('#childBirthDate', true);
                     if (childBirthErr) errors.push(childBirthErr);
                 }
-
                 checkSelect('#childJob', 'Pekerjaan Anak');
                 checkSelect('#childReligion', 'Agama Anak');
                 checkInput('#childAddress', 'Alamat Anak');
 
-                // Pendamping Anak
+                // 2. Identitas Pendamping Anak
                 checkSelect('#childGuardianFrom', 'Pendamping Anak Dari');
                 if ($('#childGuardianFrom').val() === 'Pendamping dari ......') {
                     checkInput('#childGuardianFromDetail', 'Detail Instansi / Lembaga Pendamping Anak');
                 }
                 checkInput('#childGuardianName', 'Nama Pendamping Anak');
-                checkSelect('#childGuardianRelation', 'Hubungan Keluarga Pendamping Anak');
-                if ($('#childGuardianIdentity').val() && typeof validateIdentityField === 'function') {
-                    var cgIdErr = validateIdentityField('#childGuardianIdentityType', '#childGuardianIdentity', false);
-                    if (cgIdErr) errors.push(cgIdErr);
-                }
-                if ($('#childGuardianBirthDate').val() && typeof validateBirthDateField === 'function') {
-                    var cgBirthErr = validateBirthDateField('#childGuardianBirthDate', false);
+                checkSelect('#childGuardianIdentityType', 'Jenis Identitas Pendamping Anak');
+                checkIdentityNumber('#childGuardianIdentityType', '#childGuardianIdentity', 'Nomor Identitas Pendamping Anak');
+                checkSelect('#childGuardianNationality', 'Kewarganegaraan Pendamping Anak');
+                checkSelect('#childGuardianGender', 'Jenis Kelamin Pendamping Anak');
+                checkInput('#childGuardianBirthPlace', 'Tempat Lahir Pendamping Anak');
+                checkInput('#childGuardianBirthDate', 'Tanggal Lahir Pendamping Anak');
+                if (typeof validateBirthDateField === 'function' && $('#childGuardianBirthDate').val()) {
+                    var cgBirthErr = validateBirthDateField('#childGuardianBirthDate', true);
                     if (cgBirthErr) errors.push(cgBirthErr);
                 }
+                checkSelect('#childGuardianJob', 'Pekerjaan Pendamping Anak');
+                checkSelect('#childGuardianReligion', 'Agama Pendamping Anak');
+                checkInput('#childGuardianAddress', 'Alamat Pendamping Anak');
+                checkSelect('#childGuardianRelation', 'Hubungan Keluarga Pendamping Anak');
 
-                // 2. Identitas Pihak II (Korban & Pendamping Korban)
+                // 3. Identitas Pihak II (Korban)
                 checkInput('#victimName', 'Nama Korban');
                 checkSelect('#victimIdentityType', 'Jenis Identitas Korban');
-                checkInput('#victimIdentityNumber', 'Nomor Identitas Korban');
-                if (typeof validateIdentityField === 'function') {
-                    var victimIdErr = validateIdentityField('#victimIdentityType', '#victimIdentityNumber', true);
-                    if (victimIdErr) errors.push(victimIdErr);
-                }
-
+                checkIdentityNumber('#victimIdentityType', '#victimIdentityNumber', 'Nomor Identitas Korban');
                 checkSelect('#victimNationality', 'Kewarganegaraan Korban');
                 checkSelect('#victimGender', 'Jenis Kelamin Korban');
                 checkInput('#victimBirthPlace', 'Tempat Lahir Korban');
                 checkInput('#victimBirthDate', 'Tanggal Lahir Korban');
-                if (typeof validateBirthDateField === 'function') {
+                if (typeof validateBirthDateField === 'function' && $('#victimBirthDate').val()) {
                     var victimBirthErr = validateBirthDateField('#victimBirthDate', true);
                     if (victimBirthErr) errors.push(victimBirthErr);
                 }
-
                 checkSelect('#victimJob', 'Pekerjaan Korban');
                 checkSelect('#victimReligion', 'Agama Korban');
                 checkInput('#victimAddress', 'Alamat Korban');
 
-                // Pendamping Korban (bila dicentang/didampingi)
+                // 4. Identitas Pendamping Korban (Jika radio "Didampingi" dipilih / bernilai 1)
                 if ($('input[name="isVictimAccompanied"]:checked').val() === '1') {
-                    checkInput('#victimGuardianName', 'Nama Pendamping Korban');
-                    if ($('#victimGuardianIdentity').val() && typeof validateIdentityField === 'function') {
-                        var vgIdErr = validateIdentityField('#victimGuardianIdentityType', '#victimGuardianIdentity', false);
-                        if (vgIdErr) errors.push(vgIdErr);
+                    checkSelect('#victimGuardianFrom', 'Pendamping Korban Dari');
+                    if ($('#victimGuardianFrom').val() === 'Pendamping dari ......') {
+                        checkInput('#victimGuardianFromDetail', 'Detail Instansi / Lembaga Pendamping Korban');
                     }
-                    if ($('#victimGuardianBirthDate').val() && typeof validateBirthDateField === 'function') {
-                        var vgBirthErr = validateBirthDateField('#victimGuardianBirthDate', false);
+                    checkInput('#victimGuardianName', 'Nama Pendamping Korban');
+                    checkSelect('#victimGuardianIdentityType', 'Jenis Identitas Pendamping Korban');
+                    checkIdentityNumber('#victimGuardianIdentityType', '#victimGuardianIdentity', 'Nomor Identitas Pendamping Korban');
+                    checkSelect('#victimGuardianNationality', 'Kewarganegaraan Pendamping Korban');
+                    checkSelect('#victimGuardianGender', 'Jenis Kelamin Pendamping Korban');
+                    checkInput('#victimGuardianBirthPlace', 'Tempat Lahir Pendamping Korban');
+                    checkInput('#victimGuardianBirthDate', 'Tanggal Lahir Pendamping Korban');
+                    if (typeof validateBirthDateField === 'function' && $('#victimGuardianBirthDate').val()) {
+                        var vgBirthErr = validateBirthDateField('#victimGuardianBirthDate', true);
                         if (vgBirthErr) errors.push(vgBirthErr);
                     }
+                    checkSelect('#victimGuardianJob', 'Pekerjaan Pendamping Korban');
+                    checkSelect('#victimGuardianReligion', 'Agama Pendamping Korban');
+                    checkInput('#victimGuardianAddress', 'Alamat Pendamping Korban');
+                    checkSelect('#victimGuardianRelation', 'Hubungan Keluarga Pendamping Korban');
                 }
 
-                // 3. Pelaksanaan Musyawarah Diversi & Fasilitator
+                // 5. Waktu dan Tempat Pelaksanaan Musyawarah Diversi
                 checkInput('#diversionDate', 'Tanggal Musyawarah');
                 checkInput('#diversionRoom', 'Tempat Musyawarah');
                 checkInput('#diversionStreet', 'Jalan Tempat Musyawarah');
                 checkSelect('#facilitatorOfficer', 'Fasilitator Diversi');
 
-                // 4. Isi Kesepakatan (Pasal 1)
+                // 6. Isi Kesepakatan (Pasal 1)
                 var p1Content = ($('textarea[name="pasals[0][content]"]').val() || '').trim();
                 var hasP1Points = false;
                 $('.pasal-card[data-pasal-index="0"]').find('.point-text').each(function() {
@@ -1957,7 +2087,7 @@
                     markError('textarea[name="pasals[0][content]"]', 'Pasal 1 harus diisi (narasi atau minimal satu butir kesepakatan)');
                 }
 
-                // 5. Saksi-Saksi Musyawarah Diversi
+                // 7. Saksi-Saksi Musyawarah Diversi
                 checkInput('#bapasOfficerName', 'Nama Saksi PK BAPAS');
                 checkInput('#bapasOfficerRankNip', 'Pangkat / NIP Saksi PK BAPAS');
                 checkInput('#socialWorkerName', 'Nama Saksi Pekerja Sosial (PEKSOS)');
