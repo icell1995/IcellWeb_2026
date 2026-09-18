@@ -135,4 +135,9 @@ class SuratKesepakatanDiversiDocument extends Model
     {
         return $this->hasOne('App\Models\Doc\SuratKesepakatanDiversiDocument\SuratKesepakatanDiversiDocumentAttachment', 'surat_kesepakatan_diversi_document_id', 'id');
     }
+
+    public function suratKesepakatanDiversiDocumentAttachment()
+    {
+        return $this->hasOne('App\Models\Doc\SuratKesepakatanDiversiDocument\SuratKesepakatanDiversiDocumentAttachment', 'surat_kesepakatan_diversi_document_id', 'id');
+    }
 }
