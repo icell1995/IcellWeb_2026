@@ -33,3 +33,17 @@ Route::prefix('sp3')->group(function () {
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Sp3DocumentController::class, 'index']
     )->name('api.pusiknasbareskrim.doc.sp3.index');
 });
+
+Route::prefix('ba-han')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\BaHanDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ba-han.index');
+});
+
+Route::prefix('bahan')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\BaHanDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.bahan.index');
+});
