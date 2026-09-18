@@ -156,4 +156,9 @@ class SuratPermohonanPenetapanDiversiDocument extends Model
     {
         return $this->hasOne('App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocumentAttachment', 'surat_permohonan_penetapan_diversi_document_id', 'id');
     }
+
+    public function suratPermohonanPenetapanDiversiDocumentAttachment()
+    {
+        return $this->hasOne('App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocumentAttachment', 'surat_permohonan_penetapan_diversi_document_id', 'id');
+    }
 }

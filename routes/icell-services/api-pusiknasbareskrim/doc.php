@@ -33,3 +33,17 @@ Route::prefix('sp3')->group(function () {
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Sp3DocumentController::class, 'index']
     )->name('api.pusiknasbareskrim.doc.sp3.index');
 });
+
+Route::prefix('ppd-pol')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\PpdPolDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ppd-pol.index');
+});
+
+Route::prefix('ppd')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\PpdPolDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ppd.index');
+});
