@@ -92,11 +92,11 @@ class BaHanDocumentController extends Controller
                 $nomorSuratPerintah = $properties['surat_perintah_penahanan_document_number']
                     ?? $document->reference_document_number
                     ?? $document->initial
-                    ?? null;
+                    ?? ($accident ? $accident->no_lp : '-');
 
                 $tanggalDokumen = $document->document_date
                     ? date('Y-m-d', strtotime($document->document_date))
-                    : ($document->created_at ? $document->created_at->format('Y-m-d') : null);
+                    : ($document->created_at ? $document->created_at->format('Y-m-d') : date('Y-m-d'));
 
                 $identitasDokumen = [
                     'nomor_surat_perintah_penahanan' => $nomorSuratPerintah,
@@ -117,7 +117,7 @@ class BaHanDocumentController extends Controller
                         ?? $accident->polres->name;
                 }
                 if (empty($kodeSatker)) {
-                    $kodeSatker = $properties['detention_place'] ?? null;
+                    $kodeSatker = $properties['detention_place'] ?? '-';
                 }
 
                 // --- konten_dokumen: pejabat_penandatangan[] ---
@@ -173,6 +173,13 @@ class BaHanDocumentController extends Controller
                             'nomor_induk' => (string) ($creator->username ?? $creator->id),
                             'jabatan'     => 'Penyidik',
                             'pangkat'     => $creator->rank->name ?? ($creator->rank->rank_short_name ?? '-'),
+                        ];
+                    } else {
+                        $pejabatPenandatangan[] = [
+                            'nama'        => 'Penyidik',
+                            'nomor_induk' => '-',
+                            'jabatan'     => 'Penyidik',
+                            'pangkat'     => '-',
                         ];
                     }
                 }
