@@ -360,6 +360,14 @@ class AccidentController extends Controller
 
     public function save(Request $request)
     {
+        $request->validate([
+            'lp_file' => 'required|file|mimes:pdf|max:30000',
+        ], [
+            'lp_file.required' => 'Dokumen Laporan Polisi (LP) yang sudah ditandatangani wajib diunggah.',
+            'lp_file.mimes' => 'Dokumen Laporan Polisi (LP) harus berformat PDF.',
+            'lp_file.max' => 'Ukuran file Dokumen Laporan Polisi (LP) maksimal 30MB.',
+        ]);
+
         $accident_id = $request->id;
 
         $accident = Accident::where('id', '=', $accident_id)->count();
@@ -439,6 +447,23 @@ class AccidentController extends Controller
                 ]);
             }
 
+            if ($request->hasFile('lp_file')) {
+                $destinationPath = public_path('file/tugas/laporan_polisi');
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
+                $fileName = uniqid($accidentResult['id']) . '_' . $request->file('lp_file')->getClientOriginalName();
+                $request->file('lp_file')->move($destinationPath, $fileName);
+
+                LaporanPolisi::create([
+                    'accident_id' => $accidentResult['id'],
+                    'name' => $fileName,
+                    'category' => 'D010105',
+                    'initial' => 'laporan-polisi',
+                    'created_by' => Auth::user()->username ?? (Auth::user()->register_number ?? 'System'),
+                ]);
+            }
+
             DB::commit();
 
             if (env('APP_MODE') == 'PRODUCTION') {
@@ -454,10 +479,10 @@ class AccidentController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect('accident')->withErrors(['Terjadi kesalahan sistem'])->withInput();
+            return redirect('accident')->withErrors(['Terjadi kesalahan sistem: ' . $e->getMessage()])->withInput();
         }
 
-        return redirect('produktivitas');
+        return redirect()->route('view_produktivitas_accident', ['accident_id' => $accident_id]);
     }
 
     public function list_produktivitas()
