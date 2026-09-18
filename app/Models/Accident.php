@@ -181,4 +181,9 @@ class Accident extends Model
     {
         return $this->hasMany('App\Models\CaseVehicle', 'accident_id', 'id');
     }
+
+    public function involvedPeoples()
+    {
+        return $this->hasMany(InvolvedPeople::class, 'accident_id', 'id');
+    }
 }

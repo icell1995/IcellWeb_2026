@@ -161,4 +161,9 @@ class SuratPemberitahuanUpayaDiversiDocument extends Model
     {
         return $this->hasOne('App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocumentAttachment', 'surat_pemberitahuan_upaya_diversi_document_id', 'id');
     }
+
+    public function suratPemberitahuanUpayaDiversiDocumentAttachment()
+    {
+        return $this->hasOne('App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocumentAttachment', 'surat_pemberitahuan_upaya_diversi_document_id', 'id');
+    }
 }
