@@ -33,3 +33,17 @@ Route::prefix('sp3')->group(function () {
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Sp3DocumentController::class, 'index']
     )->name('api.pusiknasbareskrim.doc.sp3.index');
 });
+
+Route::prefix('surat-permintaan-penggeledahan')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPermintaanPenggeledahan::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.surat-permintaan-penggeledahan.index');
+});
+
+Route::prefix('surat-persetujuan-penggeledahan')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPersetujuanPenggeledahan::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.surat-persetujuan-penggeledahan.index');
+});
