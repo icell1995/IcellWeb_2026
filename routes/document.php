@@ -14,6 +14,7 @@ use App\Http\Controllers\Docs\P19DocumentController;
 use App\Http\Controllers\Docs\P21DocumentController;
 use App\Http\Controllers\Docs\Tahap2DocumentController;
 use App\Http\Controllers\Docs\Sp2hpDocumentController;
+use App\Http\Controllers\Docs\SuratPermintaanIzinPenyitaanController;
 use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
 use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
 
@@ -236,4 +237,15 @@ Route::prefix('/sp3-pusiknas-document')->middleware(['document-access'])->group(
 
     Route::post('/api/validate-request-form', [Sp3PusiknasDocumentController::class, 'validateRequestForm'])
         ->name('doc.sp3-pusiknas-document.api.validate-request-form');
+});
+
+
+Route::prefix('/surat-permintaan-izin-penyitaan-document')->group(function(){
+    Route::get('/{id}/show', [SuratPermintaanIzinPenyitaanController::class, 'show'])->name('doc.surat-permintaan-izin-penyitaan-document.show');
+    Route::get('/create', [SuratPermintaanIzinPenyitaanController::class, 'create'])->name('doc.surat-permintaan-izin-penyitaan-document.create');
+    Route::post('/create', [SuratPermintaanIzinPenyitaanController::class, 'store'])->name('doc.surat-permintaan-izin-penyitaan-document.store');
+    Route::get('/{id}/edit', [SuratPermintaanIzinPenyitaanController::class, 'edit'])->name('doc.surat-permintaan-izin-penyitaan-document.edit');
+    Route::post('/{id}/edit', [SuratPermintaanIzinPenyitaanController::class, 'update'])->name('doc.surat-permintaan-izin-penyitaan-document.update');
+    Route::delete('/{id}/delete', [SuratPermintaanIzinPenyitaanController::class, 'delete'])->name('doc.surat-permintaan-izin-penyitaan-document.delete');
+    Route::get('/{id}/download', [SuratPermintaanIzinPenyitaanController::class, 'download'])->name('doc.surat-permintaan-izin-penyitaan-document.download');
 });
