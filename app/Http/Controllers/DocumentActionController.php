@@ -17,6 +17,9 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument;
+use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument;
+use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument;
 
 class DocumentActionController extends Controller
 {
@@ -223,7 +226,8 @@ class DocumentActionController extends Controller
             }
         }catch(\Exception $e){
             DB::rollback();
-            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId]);
+            \Log::error('Upload Document Error: ' . $e->getMessage(), ['exception' => $e]);
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', 'Gagal mengunggah dokumen: ' . $e->getMessage());
         }
 
         return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId]);
@@ -257,6 +261,9 @@ class DocumentActionController extends Controller
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0603' => SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
+            '0604' => SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
+            '0605' => SuratPerintahPembantaranPenahananDocument::class,
             // Add more document types here
         ];
 

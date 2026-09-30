@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 | Mapping Kode Dokumen → Kode Proses SPPT-TI:
 | spdp        → DIK-10  (Surat Pemberitahuan Dimulainya Penyidikan)
 | sp3         → DIK-40  (Surat Pemberitahuan Penghentian Penyidikan)
+| s22         → HAN-10.30 (Surat Permintaan Perpanjangan Penahanan Lanjutan)
+| s23         → DAT-5   (Surat Perintah Pembantaran Penahanan)
 |
 */
 
@@ -33,3 +35,18 @@ Route::prefix('sp3')->group(function () {
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Sp3DocumentController::class, 'index']
     )->name('api.pusiknasbareskrim.doc.sp3.index');
 });
+
+Route::prefix('s22')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S22DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s22.index');
+});
+
+Route::prefix('s23')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S23DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s23.index');
+});
+

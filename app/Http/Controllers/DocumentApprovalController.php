@@ -13,6 +13,9 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument;
+use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument;
+use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument;
 
 use App\Traits\DocsOfficersTraits;
 
@@ -155,19 +158,26 @@ class DocumentApprovalController extends Controller
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
+                        $document->released_at = now();
                     }
 
                     $document->timestamps = [
                         'uploaded_at' => now()
                     ];
                 }else{
-                    $document->status_id = '4';
-                    $document->messages = [
-                        'reason_approval_rejected' => $message,
-                    ];
-                    $document->timestamps = [
-                        'rejected_at' => now(),
-                    ];
+                    if ($document->documentCategory && $document->documentCategory->is_digital_signature == true) {
+                        $document->status_id = '6';
+                    } else {
+                        $document->status_id = '5';
+                    }
+
+                    $currentMessages = is_array($document->getAttribute('messages')) ? $document->getAttribute('messages') : (json_decode($document->getAttribute('messages'), true) ?: []);
+                    $currentMessages['reason_approval_file_rejected'] = $message;
+                    $document->messages = $currentMessages;
+
+                    $currentTimestamps = is_array($document->getAttribute('timestamps')) ? $document->getAttribute('timestamps') : (json_decode($document->getAttribute('timestamps'), true) ?: []);
+                    $currentTimestamps['rejected_at'] = now();
+                    $document->timestamps = $currentTimestamps;
                 }
 
                 $document->save();
@@ -192,6 +202,9 @@ class DocumentApprovalController extends Controller
             LaporanHasilGelarPerkaraDocument::class,
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
+            SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
+            SuratPerintahPembantaranPenahananDocument::class,
         ];
 
         $documentsCollection = Collection::make();
@@ -222,6 +235,9 @@ class DocumentApprovalController extends Controller
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0603' => SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
+            '0604' => SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
+            '0605' => SuratPerintahPembantaranPenahananDocument::class,
             // Add more document types here
         ];
 

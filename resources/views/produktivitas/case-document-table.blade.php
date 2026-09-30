@@ -376,6 +376,7 @@
                                 @endif
 
                                 @if (Auth::getUser()->role_id == 1)
+                                    <br>
                                     <button type="button" data-document-id="{{$accidentDocument->id}}"
                                             class="btn btn-primary btn-sm m-1 copy-document-id"><i class="bi bi-clipboard"></i>
                                             Copy ID
