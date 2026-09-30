@@ -76,7 +76,7 @@ class CaseDocumentValidationController extends Controller
             ->whereHas('accident.suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
                 $query->whereIn('status_id', ['9', '12', '11', '10']);
             })
-                ->whereIn('status_id', ['9', '12', '11', '10'])
+                ->whereIn('status_id', ['12'])
                 ->where('accident_id', $accidentId)
                 ->get();
 
