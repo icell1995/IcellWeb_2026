@@ -1387,7 +1387,11 @@ class AccidentController extends Controller
             'laporanHasilGelarPerkaraDocuments',
             'suratKetetapanTentangPenetapanTersangkaDocuments',
             'suratPemberitahuanDimulainyaPenyidikanDocuments',
-            'suratPemberitahuanPerkembanganHasilPenyidikanDocuments'
+            'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments',
+            'suratPemberitahuanPerkembanganHasilPenyidikanDocuments',
+            'suratPemberitahuanPenghentianPenyidikanDocuments',
+            'tahap1Documents',
+            'tahap2Documents'
         ];
 
         $accidentDocument = Accident::with($documentTypes)
