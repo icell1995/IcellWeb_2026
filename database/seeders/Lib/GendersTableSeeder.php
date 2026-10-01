@@ -10,43 +10,30 @@ use App\Models\Lib\Gender;
 
 class GendersTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        $genders = json_decode($this->getGenders(), true);
+        $genders = json_decode(File::get(base_path('master_seeder/genders.json')), true);
 
         DB::beginTransaction();
-        try{
-            foreach($genders as $gender){
+        try {
+            foreach ($genders as $gender) {
                 Gender::updateOrCreate(
+                    ['id' => $gender['Id']],
                     [
-                        'id' => $gender['Id']
-                    ],
-                    [ 
-                        'id' => $gender['Id'],
-                        'emp_id' => $gender['Emp_Id'],
-                        'name' => $gender['Nama'],
-                        'code' => $gender['code'],
+                        'id'          => $gender['Id'],
+                        'emp_id'      => $gender['Emp_Id'],
+                        'name'        => $gender['Nama'],
+                        'code'        => $gender['code'],
+                        'pusiknas_id' => $gender['IdPuskarda'] ?? null,
                     ]
                 );
             }
 
             DB::commit();
-
             $this->command->info('Genders Seeded');
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
-        }   
-    }
-
-    private function getGenders(){
-        $genders = File::get(base_path('master_seeder/genders.json'));
-
-        return $genders;
+        }
     }
 }
