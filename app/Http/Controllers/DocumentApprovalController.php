@@ -13,6 +13,7 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
 
 use App\Traits\DocsOfficersTraits;
 
@@ -151,7 +152,7 @@ class DocumentApprovalController extends Controller
                 }
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
-                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706'])){
+                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706', '0601'])){
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
@@ -192,6 +193,7 @@ class DocumentApprovalController extends Controller
             LaporanHasilGelarPerkaraDocument::class,
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            SuratPerintahPenahananDocument::class,
         ];
 
         $documentsCollection = Collection::make();
@@ -222,6 +224,7 @@ class DocumentApprovalController extends Controller
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0601' => SuratPerintahPenahananDocument::class,
             // Add more document types here
         ];
 

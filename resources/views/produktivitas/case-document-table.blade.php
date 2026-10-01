@@ -369,10 +369,15 @@
                                             <i class="bi bi-file-earmark-pdf"></i> Lihat Dokumen Unggah</a>
                                     @break
 
-                                    @default
-                                        <h6>-</h6>
-                                    @break
-                                @endswitch
+                                    @endswitch
+                                @endif
+
+                                @if(!$isSp2hpDocument && $accidentDocument->document_category_id == '0601')
+                                    <a href="{{ route('doc.surat-perintah-penahanan-document.show', ['id' => $accidentDocument->id, 'accident_id' => $id]) }}"
+                                        class="btn btn-info btn-sm m-1 text-white" target="_blank">
+                                        <i class="bi bi-eye"></i> Detail / JSON
+                                    </a>
+                                    <br>
                                 @endif
 
                                 @if (Auth::getUser()->role_id == 1)

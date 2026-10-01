@@ -151,6 +151,15 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument', 'accident_id', 'id');
     }
 
+    public function suratPerintahPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
     public function suspect()
     {
         return $this->hasMany(Suspect::class, 'accident_id', 'id');
