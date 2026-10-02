@@ -249,3 +249,13 @@ Route::prefix('/surat-permintaan-izin-penyitaan-document')->group(function(){
     Route::delete('/{id}/delete', [SuratPermintaanIzinPenyitaanController::class, 'delete'])->name('doc.surat-permintaan-izin-penyitaan-document.delete');
     Route::get('/{id}/download', [SuratPermintaanIzinPenyitaanController::class, 'download'])->name('doc.surat-permintaan-izin-penyitaan-document.download');
 });
+
+Route::prefix('/surat-laporan-persetujuan-penyitaan-document')->group(function(){
+    Route::get('/{id}/show', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'show'])->name('doc.surat-laporan-persetujuan-penyitaan-document.show');
+    Route::get('/create', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'create'])->name('doc.surat-laporan-persetujuan-penyitaan-document.create');
+    Route::post('/create', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'store'])->name('doc.surat-laporan-persetujuan-penyitaan-document.store');
+    Route::get('/{id}/edit', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'edit'])->name('doc.surat-laporan-persetujuan-penyitaan-document.edit');
+    Route::post('/{id}/edit', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'update'])->name('doc.surat-laporan-persetujuan-penyitaan-document.update');
+    Route::delete('/{id}/delete', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'delete'])->name('doc.surat-laporan-persetujuan-penyitaan-document.delete');
+    Route::get('/{id}/download', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'download'])->name('doc.surat-laporan-persetujuan-penyitaan-document.download');
+});

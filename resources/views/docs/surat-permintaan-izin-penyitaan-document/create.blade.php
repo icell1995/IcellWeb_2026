@@ -206,26 +206,36 @@
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="surat_perintah_penyidikan_document_id">
                                 Nomor SP Penyidikan<span class="text-danger fs-5">*</span>
                             </label>
-                            <div class="col-lg-5 col-md-5 col-sm-12 mb-2 mb-md-0">
-                                <select class="form-control select2 @error('surat_perintah_penyidikan_document_id') is-invalid @enderror"
-                                    name="surat_perintah_penyidikan_document_id"
-                                    id="surat_perintah_penyidikan_document_id" required>
-                                    <option value="">-- Pilih No Surat Perintah Penyidikan --</option>
-                                    @foreach ($suratPerintahPenyidikanDocuments as $sprindikDoc)
-                                        @php
-                                            $sprindikLeader = $sprindikDoc->suratPerintahPenyidikanDocumentOfficers ? $sprindikDoc->suratPerintahPenyidikanDocumentOfficers->where('class', 'LEADER')->first() : null;
-                                        @endphp
-                                        <option value="{{ $sprindikDoc->id }}"
-                                            data-number="{{ $sprindikDoc->document_number }}"
-                                            data-date="{{ $sprindikDoc->document_date ? \Carbon\Carbon::parse($sprindikDoc->document_date)->format('Y-m-d') : '' }}"
-                                            data-leader-nrp="{{ $sprindikLeader ? $sprindikLeader->register_number : '' }}"
-                                            {{ old('surat_perintah_penyidikan_document_id') == $sprindikDoc->id ? 'selected' : '' }}>
-                                            {{ $sprindikDoc->document_number }} (Tgl: {{ $sprindikDoc->document_date ? \Carbon\Carbon::parse($sprindikDoc->document_date)->format('d/m/Y') : '-' }})
-                                        </option>
-                                    @endforeach
+                                                        <div class="col-lg-5 col-md-5 col-sm-12 mb-2 mb-md-0">
+                                @php
+                                    $currentSprindikNumber = old('sprindik_number');
+                                    $hasSprindikMatch = false;
+                                @endphp
+                                <select class="form-control select2-sprindik-tags @error('sprindik_number') is-invalid @enderror"
+                                    id="sprindik_number" name="sprindik_number" required>
+                                    <option value="">-- Pilih atau Ketik No SP Penyidikan --</option>
+                                    @if(isset($suratPerintahPenyidikanDocuments) && $suratPerintahPenyidikanDocuments->isNotEmpty())
+                                        @foreach ($suratPerintahPenyidikanDocuments as $sprindikDoc)
+                                            @php
+                                                $isMatch = ($currentSprindikNumber == $sprindikDoc->document_number);
+                                                if ($isMatch) $hasSprindikMatch = true;
+                                                $sprindikLeader = $sprindikDoc->suratPerintahPenyidikanDocumentOfficers ? $sprindikDoc->suratPerintahPenyidikanDocumentOfficers->where('class', 'LEADER')->first() : null;
+                                            @endphp
+                                            <option value="{{ $sprindikDoc->document_number }}"
+                                                data-id="{{ $sprindikDoc->id }}"
+                                                data-date="{{ $sprindikDoc->document_date ? \Carbon\Carbon::parse($sprindikDoc->document_date)->format('Y-m-d') : '' }}"
+                                                data-leader-nrp="{{ $sprindikLeader ? $sprindikLeader->register_number : '' }}"
+                                                {{ $isMatch ? 'selected' : '' }}>
+                                                {{ $sprindikDoc->document_number }}
+                                            </option>
+                                        @endforeach
+                                    @endif
+                                    @if($currentSprindikNumber && !$hasSprindikMatch)
+                                        <option value="{{ $currentSprindikNumber }}" selected>{{ $currentSprindikNumber }}</option>
+                                    @endif
                                 </select>
-                                <input type="hidden" id="sprindik_number" name="sprindik_number" value="{{ old('sprindik_number') }}">
-                                @error('surat_perintah_penyidikan_document_id')
+                                <input type="hidden" id="surat_perintah_penyidikan_document_id" name="surat_perintah_penyidikan_document_id" value="{{ old('surat_perintah_penyidikan_document_id', isset($document) ? $document->surat_perintah_penyidikan_document_id : '') }}">
+                                @error('sprindik_number')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -874,6 +884,43 @@
                 theme: 'bootstrap4',
                 width: '100%',
                 allowClear: true
+            });
+
+                        // SP Penyidikan Tags
+            $('.select2-sprindik-tags').select2({
+                theme: 'bootstrap4',
+                width: '100%',
+                tags: true,
+                placeholder: '-- Pilih atau Ketik No SP Penyidikan --',
+                allowClear: true,
+                createTag: function (params) {
+                    var term = $.trim(params.term);
+                    if (term === '') return null;
+                    return { id: term, text: term, newTag: true };
+                }
+            });
+
+            $('#sprindik_number').on('change', function() {
+                var selected = $(this).find(':selected');
+                var id = selected.data('id');
+                var date = selected.data('date');
+                var leaderNrp = selected.data('leader-nrp');
+
+                if (id) {
+                    $('#surat_perintah_penyidikan_document_id').val(id);
+                } else {
+                    $('#surat_perintah_penyidikan_document_id').val('');
+                }
+                
+                if (date) {
+                    $('#sprindik_date').val(date).removeClass('is-invalid');
+                }
+                if (leaderNrp && !$('#officerLeader').val()) {
+                    var leaderOpt = $('#officerLeader option[data-register-number="' + leaderNrp + '"]');
+                    if (leaderOpt.length) {
+                        $('#officerLeader').val(leaderOpt.val()).trigger('change');
+                    }
+                }
             });
 
             // Single field SPDP Number: Select existing SPDP or type manual/free-text

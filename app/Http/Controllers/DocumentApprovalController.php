@@ -14,6 +14,7 @@ use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocu
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument;
+use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument;
 
 use App\Traits\DocsOfficersTraits;
 
@@ -194,6 +195,7 @@ class DocumentApprovalController extends Controller
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
             SuratPermintaanIzinPenyitaanDocument::class,
+            SuratLaporanPersetujuanPenyitaanDocument::class,
         ];
 
         $documentsCollection = Collection::make();
@@ -223,6 +225,7 @@ class DocumentApprovalController extends Controller
             '0204' => SuratPemberitahuanDimulainyaPenyidikanDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0504' => SuratPermintaanIzinPenyitaanDocument::class,
+            '0505' => SuratLaporanPersetujuanPenyitaanDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
             // Add more document types here

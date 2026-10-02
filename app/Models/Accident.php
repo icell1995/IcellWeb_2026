@@ -155,6 +155,15 @@ class Accident extends Model
             ]);
     }
 
+    public function suratLaporanPersetujuanPenyitaanDocuments()
+    {
+        return $this->hasMany(
+            \App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument::class,
+            'accident_id',
+            'id'
+        );
+    }
+
     public function suratPemberitahuanPerkembanganHasilPenyidikanDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument', 'accident_id', 'id');

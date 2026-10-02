@@ -1,5 +1,5 @@
 @php
-    $_title = 'Edit Surat Permintaan Izin Penyitaan (S-12)';
+    $_title = 'Edit Surat Laporan Persetujuan Penyitaan';
 @endphp
 
 @extends('layouts.app')
@@ -9,6 +9,17 @@
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
     <style>
+        input::placeholder, textarea::placeholder {
+            color: #adb5bd !important;
+            opacity: 1;
+        }
+        input:-ms-input-placeholder, textarea:-ms-input-placeholder {
+            color: #adb5bd !important;
+        }
+        input::-ms-input-placeholder, textarea::-ms-input-placeholder {
+            color: #adb5bd !important;
+        }
+        
         .informasi-dokumen-card .form-group.row {
             margin-bottom: 1rem;
             margin-left: 0;
@@ -91,7 +102,7 @@
 
     <div class="box">
         <div class="box-header">
-            <h5 class="fw-bold text-blue-dark">Edit Surat Permintaan Izin Penyitaan (S-12)</h5>
+            <h5 class="fw-bold text-blue-dark">Edit Surat Laporan Persetujuan Penyitaan</h5>
             <div class="alert alert-danger" id="attentionBox">
                 <div class="text-center">
                     <b>
@@ -125,7 +136,7 @@
         </div>
 
         <div class="box-body">
-            <form action="{{ route('doc.surat-permintaan-izin-penyitaan-document.update', ['id' => $id, 'accident_id' => $accidentId]) }}"
+            <form action="{{ route('doc.surat-laporan-persetujuan-penyitaan-document.update', ['id' => $id, 'accident_id' => $accidentId]) }}"
                 method="POST" enctype="multipart/form-data" id="suratPermintaanIzinPenyitaanForm" novalidate>
                 @csrf
                 <input type="hidden" name="accident_id" id="accident_id" value="{{ $accidentId }}">
@@ -146,10 +157,10 @@
                             </div>
                         </div>
 
-                        <!-- Nomor Dokumen S-12 -->
+                        <!-- Nomor Dokumen -->
                         <div class="form-group row mb-3 align-items-center">
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="document_number">
-                                Nomor Dokumen S-12<span class="text-danger fs-5">*</span>
+                                Nomor Dokumen<span class="text-danger fs-5">*</span>
                             </label>
                             <div class="col-lg-9 col-md-9 col-sm-12">
                                 <input id="document_number" type="text"
@@ -185,10 +196,10 @@
                             </div>
                         </div>
 
-                        <!-- Tanggal Dokumen S-12 -->
+                        <!-- Tanggal Dokumen -->
                         <div class="form-group row mb-3 align-items-center">
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="document_date">
-                                Tanggal Dokumen S-12<span class="text-danger fs-5">*</span>
+                                Tanggal Dokumen<span class="text-danger fs-5">*</span>
                             </label>
                             <div class="col-lg-9 col-md-9 col-sm-12">
                                 <input class="form-control datepicker @error('document_date') is-invalid @enderror"
@@ -347,11 +358,11 @@
                         <!-- Pengadilan Negeri Tujuan -->
                         <div class="form-group row mb-3 align-items-center">
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="court_id">
-                                Pengadilan Negeri Tujuan
+                                Pengadilan Negeri Tujuan<span class="text-danger fs-5">*</span>
                             </label>
                             <div class="col-lg-9 col-md-9 col-sm-12">
                                 <select class="form-control select2 @error('court_id') is-invalid @enderror"
-                                    name="court_id" id="court_id">
+                                    name="court_id" id="court_id" required>
                                     <option value="">-- Pilih Pengadilan Negeri --</option>
                                     @foreach ($courts as $court)
                                         <option value="{{ $court->id }}"
@@ -379,131 +390,7 @@
                                     $existingOfficerIds[] = $matched->id;
                                 }
                             }
-                            $currentSelectedSuspectIds = old('suspects', $selectedSuspectIds ?? []);
-                            $hasSuspectsInDoc = count($currentSelectedSuspectIds) > 0;
-                            $isSuspectExistsVal = old('isSuspectExists', $hasSuspectsInDoc ? 'true' : 'false');
                         @endphp
-
-                        <!-- Opsi Ada Tersangka / Tidak Ada Tersangka -->
-                        <div class="input-group row mb-3 ms-0">
-                            <label class="fw-bold col-sm-3 col-form-label">Ada Tersangka?<span class="text-danger fs-5">*</span></label>
-                            <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                <div class="d-flex align-items-center h-100">
-                                    <div class="form-check me-4">
-                                        <input class="form-check-input isSuspectExists" type="radio" id="suspectExists" name="isSuspectExists" value="true" {{ $isSuspectExistsVal == 'true' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold" for="suspectExists">
-                                            Ada Tersangka
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input isSuspectExists" type="radio" id="suspectNotExists" name="isSuspectExists" value="false" {{ $isSuspectExistsVal == 'false' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold" for="suspectNotExists">
-                                            Tidak Ada Tersangka
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Form Tersangka (Jika Ada Tersangka) -->
-                        <div id="suspectExistsSection" {{ $isSuspectExistsVal == 'false' ? 'style=display:none;' : '' }}>
-                            <div class="alert alert-success">
-                                <div class="text-center">
-                                    <b>
-                                        PASTIKAN 
-                                        <a href="{{ route('doc.laporan-hasil-gelar-perkara-document.create', ['accident_id' => $accidentId]) }}">
-                                            LHGP (PENETAPAN TERSANGKA)
-                                        </a> 
-                                        LALU 
-                                        <a href="{{ route('doc.surat-ketetapan-tentang-penetapan-tersangka-document.create', ['accident_id' => $accidentId]) }}">
-                                            SURAT KETETAPAN TENTANG PENETAPAN TERSANGKA
-                                        </a> 
-                                        SUDAH DIBUAT SEBELUM MEMBUAT DOKUMEN INI
-                                    </b>
-                                </div>
-                            </div>
-
-                            <div class="input-group row mb-3 ms-0">
-                                <label class="fw-bold col-sm-3 col-form-label" for="suspects">
-                                    Tersangka Terkait
-                                </label>
-                                <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                    <select class="form-control select2-multiple @error('suspects') is-invalid @enderror"
-                                        name="suspects[]" id="suspects" multiple="multiple"
-                                        data-placeholder="Pilih Tersangka Terkait (Bisa Lebih Dari Satu)">
-                                        @foreach ($suspects as $suspect)
-                                            @php
-                                                $isSuspectSelected = is_array($currentSelectedSuspectIds) && in_array($suspect->id, $currentSelectedSuspectIds);
-                                            @endphp
-                                            <option value="{{ $suspect->id }}" {{ $isSuspectSelected ? 'selected' : '' }}>
-                                                {{ $suspect->name }} @if(!empty($suspect->id_card_number)) (NIK: {{ $suspect->id_card_number }}) @endif
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-muted">(*Pilih tersangka yang tersangkut dalam permohonan izin penyitaan ini)</small>
-                                    @error('suspects')
-                                        <span class="invalid-feedback d-block" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Form Terlapor & Pelapor (Jika Tidak Ada Tersangka) -->
-                        <div id="suspectNotExistsSection" {{ $isSuspectExistsVal == 'true' ? 'style=display:none;' : '' }}>
-                            <div class="alert alert-success">
-                                <div class="text-center">
-                                    <b>
-                                        PASTIKAN 
-                                        <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page' => 'participants']) }}">
-                                            DATA TERLAPOR
-                                        </a> 
-                                        SUDAH DIMASUKKAN SEBELUM MEMBUAT DOKUMEN INI
-                                    </b>
-                                </div>
-                            </div>
-
-                            <!-- Pelapor -->
-                            <div class="form-group row mb-3">
-                                <label class="col-sm-3 col-form-label fw-bold" for="informant">Pilih Pelapor</label>
-                                <div class="col-sm-9">
-                                    <select class="form-control select2 @error('informant') is-invalid @enderror" name="informant" id="informant">
-                                        <option value="">-- Pilih Pelapor --</option>
-                                        @foreach ($informants as $informant)
-                                            <option value="{{ $informant->id }}" {{ old('informant') == $informant->id ? 'selected' : '' }}>
-                                                {{ $informant->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('informant')
-                                        <span class="invalid-feedback d-block" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <!-- Terlapor -->
-                            <div class="form-group row mb-3">
-                                <label class="col-sm-3 col-form-label fw-bold" for="reportedPerson">Pilih Terlapor</label>
-                                <div class="col-sm-9">
-                                    <select class="form-control select2 @error('reportedPerson') is-invalid @enderror" name="reportedPerson" id="reportedPerson">
-                                        <option value="">-- Pilih Terlapor --</option>
-                                        @foreach ($reportedPersons as $reportedPerson)
-                                            <option value="{{ $reportedPerson->id }}" {{ old('reportedPerson') == $reportedPerson->id ? 'selected' : '' }}>
-                                                {{ $reportedPerson->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('reportedPerson')
-                                        <span class="invalid-feedback d-block" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- Ketua Tim Penyidik -->
                         <div class="input-group row mb-3 ms-0">
@@ -535,24 +422,32 @@
 
                         <!-- Yang Menandatangani (Pejabat Penandatangan) -->
                         @php
-                            $selectedOfficerIds = old('officers', $existingOfficerIds);
+                            $existingOfficerId = null;
+                            $signatoryDoc = $officers->where('class', 'SIGNATORY')->first();
+                            if ($signatoryDoc) {
+                                $matched = $authorizedSignatories->firstWhere('register_number', $signatoryDoc->register_number);
+                                if ($matched) {
+                                    $existingOfficerId = $matched->id;
+                                }
+                            }
+                            $selectedOfficerId = old('officers', $existingOfficerId);
                         @endphp
                         <div class="input-group row mb-3 ms-0">
                             <label class="fw-bold col-sm-3 col-form-label" for="officers">
                                 Yang Menandatangani<span class="text-danger fs-5">*</span>
                             </label>
                             <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                <select class="form-control select2-multiple @error('officers') is-invalid @enderror"
-                                    name="officers[]" id="officers" multiple="multiple"
-                                    data-placeholder="Pilih Pejabat Penandatangan (Bisa Lebih Dari Satu)">
+                                <select class="form-control select2 @error('officers') is-invalid @enderror"
+                                    name="officers" id="officers"
+                                    data-placeholder="Pilih Pejabat Penandatangan">
+                                    <option value=""></option>
                                     @foreach ($authorizedSignatories as $signatory)
                                         @php
                                             $positionName = $signatory->position->name ?? '';
                                             $rankName = $signatory->rank->name ?? '';
                                             $fullName = \App\Helpers\PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title);
-                                            $isSelected = is_array($selectedOfficerIds) && in_array($signatory->id, $selectedOfficerIds);
                                         @endphp
-                                        <option value="{{ $signatory->id }}" {{ $isSelected ? 'selected' : '' }}>
+                                        <option value="{{ $signatory->id }}" {{ $selectedOfficerId == $signatory->id ? 'selected' : '' }}>
                                             {{ $signatory->register_number }} - {{ $fullName }} ({{ $rankName }} / {{ $positionName }})
                                         </option>
                                     @endforeach
@@ -713,77 +608,145 @@
                     </div>
                 </div>
 
-                <!-- 3. DAFTAR BARANG YANG DIMINTAKAN IZIN PENYITAAN -->
+                <!-- 4. DAFTAR ORANG & BARANG SITAAN -->
                 <div class="card mb-4">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0 text-blue-dark">Daftar Barang yang Dimintakan Izin Penyitaan</h6>
-                        <button class="btn btn-md btn-primary" id="addSeizedItemRowButton" type="button"
-                            data-bs-toggle="modal" data-bs-target="#addSeizedItemModal">
-                            <i class="bi bi-plus-circle me-1"></i> Tambah Barang Sitaan
+                        <h6 class="fw-bold mb-0 text-blue-dark">Daftar Orang dan Barang Sitaan<span class="text-danger fs-5">*</span></h6>
+                        <button class="btn btn-md btn-primary" id="addPersonBtn" type="button">
+                            <i class="bi bi-person-plus-fill me-1"></i> Tambah Orang
                         </button>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="seizedItemTable">
-                                <thead class="table-danger text-center">
-                                    <tr>
-                                        <th style="width: 30%">Nama Barang<span class="text-danger">*</span></th>
-                                        <th style="width: 20%">Jenis / Kategori</th>
-                                        <th style="width: 15%">Jumlah</th>
-                                        <th style="width: 15%">Satuan</th>
-                                        <th style="width: 15%">Keterangan</th>
-                                        <th style="width: 5%">Opsi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="seizedItemTableBody">
-                                    @php
-                                        if (old('seized_items')) {
-                                            $renderItems = old('seized_items');
-                                        } elseif ($seizedItems && count($seizedItems) > 0) {
-                                            $renderItems = $seizedItems->map(function($s) {
-                                                return [
-                                                    'nama' => $s->nama,
-                                                    'jenis' => $s->jenis,
-                                                    'jumlah' => $s->jumlah,
-                                                    'satuan' => $s->satuan,
-                                                    'keterangan' => $s->keterangan,
-                                                ];
-                                            })->toArray();
-                                        } else {
-                                            $renderItems = [];
+                    <div class="card-body bg-light">
+                        <div class="alert alert-info">
+                            <strong>Pastikan data tersangka/terlapor sudah tersedia sebelum menambahkan orang dan barang sitaan:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Jika ada tersangka, pastikan <a href="{{ route('doc.laporan-hasil-gelar-perkara-document.create', ['accident_id' => $accidentId]) }}" class="fw-bold text-primary text-decoration-underline">LHGP (Penetapan Tersangka)</a> dan <a href="{{ route('doc.surat-ketetapan-tentang-penetapan-tersangka-document.create', ['accident_id' => $accidentId]) }}" class="fw-bold text-primary text-decoration-underline">Surat Ketetapan tentang Penetapan Tersangka</a> sudah dibuat.</li>
+                                <li>Jika tidak ada tersangka, pastikan <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page' => 'participants']) }}" class="fw-bold text-primary text-decoration-underline">Data Terlapor</a> sudah dimasukkan.</li>
+                            </ul>
+                        </div>
+                        <div id="persons-container">
+                            @php
+                                $renderPersons = [];
+                                if (old('persons')) {
+                                    $renderPersons = old('persons');
+                                } elseif (isset($persons) && count($persons) > 0) {
+                                    foreach ($persons as $personModel) {
+                                        $items = [];
+                                        foreach ($personModel->seizedItems as $itemModel) {
+                                            $items[] = [
+                                                'name' => $itemModel->name,
+                                                'quantity' => $itemModel->quantity,
+                                                'unit' => $itemModel->unit,
+                                                'description' => $itemModel->description,
+                                            ];
                                         }
-                                    @endphp
-                                    @foreach ($renderItems as $idx => $item)
-                                        <tr class="seized-item-row text-center" data-index="{{ $idx }}">
-                                            <td>
-                                                {{ $item['nama'] ?? '' }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][nama]" value="{{ $item['nama'] ?? '' }}">
-                                            </td>
-                                            <td>
-                                                {{ $item['jenis'] ?? '' }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][jenis]" value="{{ $item['jenis'] ?? '' }}">
-                                            </td>
-                                            <td class="text-center">
-                                                {{ $item['jumlah'] ?? 1 }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][jumlah]" value="{{ $item['jumlah'] ?? 1 }}">
-                                            </td>
-                                            <td>
-                                                {{ $item['satuan'] ?? 'Unit' }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][satuan]" value="{{ $item['satuan'] ?? 'Unit' }}">
-                                            </td>
-                                            <td>
-                                                {{ $item['keterangan'] ?? '' }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][keterangan]" value="{{ $item['keterangan'] ?? '' }}">
-                                            </td>
-                                            <td class="text-center align-middle">
-                                                <button type="button" class="btn btn-sm btn-danger remove-seized-item-row">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                        $renderPersons[] = [
+                                            'person_id' => $personModel->suspect_id ?? $personModel->witness_id ?? $personModel->reported_person_id,
+                                            'person_type' => $personModel->suspect_id ? 'suspect' : ($personModel->witness_id ? 'witness' : 'reported_person'),
+                                            'bap_number' => $personModel->bap_number,
+                                            'bap_date' => $personModel->bap_date ? (is_string($personModel->bap_date) ? date('Y-m-d', strtotime($personModel->bap_date)) : $personModel->bap_date->format('Y-m-d')) : '',
+                                            'is_seized_at_work_unit' => $personModel->is_seized_at_work_unit,
+                                            'seized_location' => $personModel->seized_location,
+                                            'seized_items' => $items,
+                                        ];
+                                    }
+                                }
+                            @endphp
+                            
+                            @foreach($renderPersons as $pIdx => $oldPerson)
+                                <div class="card mb-3 border-primary person-card" data-index="{{ $pIdx }}">
+                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                                        <h6 class="mb-0">Data Orang #{{ $pIdx + 1 }}</h6>
+                                        <button type="button" class="btn btn-sm btn-light text-danger remove-person-btn"><i class="bi bi-trash"></i> Hapus</button>
+                                    </div>
+                                    <div class="card-body bg-white">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3 d-flex flex-column">
+                                                <label class="fw-bold">Identitas Orang <span class="text-danger">*</span></label>
+                                                <select class="form-select person-select mt-auto" name="persons[{{ $pIdx }}][person_id]" required>
+                                                    <option value="">-- Pilih Identitas --</option>
+                                                    <optgroup label="Tersangka">
+                                                        @foreach($suspects as $s)
+                                                            <option value="{{ $s->id }}" data-type="suspect" {{ (isset($oldPerson['person_id']) && $oldPerson['person_id'] == $s->id) ? 'selected' : '' }}>{{ $s->name }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                    <optgroup label="Saksi">
+                                                        @foreach(isset($witnesses) ? $witnesses : [] as $s)
+                                                            <option value="{{ $s->id }}" data-type="witness" {{ (isset($oldPerson['person_id']) && $oldPerson['person_id'] == $s->id) ? 'selected' : '' }}>{{ $s->name }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                    <optgroup label="Terlapor">
+                                                        @foreach($reportedPersons as $s)
+                                                            <option value="{{ $s->id }}" data-type="reported_person" {{ (isset($oldPerson['person_id']) && $oldPerson['person_id'] == $s->id) ? 'selected' : '' }}>{{ $s->name }}</option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                </select>
+                                                <input type="hidden" class="person-type-input" name="persons[{{ $pIdx }}][person_type]" value="{{ $oldPerson['person_type'] ?? '' }}">
+                                            </div>
+                                            <div class="col-md-4 mb-3 d-flex flex-column">
+                                                <label class="fw-bold">No. Berita Acara Penyitaan <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control mt-auto" name="persons[{{ $pIdx }}][bap_number]" placeholder="No. Berita Acara Penyitaan" value="{{ $oldPerson['bap_number'] ?? '' }}" required>
+                                            </div>
+                                            <div class="col-md-2 mb-3 d-flex flex-column">
+                                                <label class="fw-bold">Tgl Berita Acara Penyitaan <span class="text-danger">*</span></label>
+                                                <input class="form-control datepicker mt-auto" name="persons[{{ $pIdx }}][bap_date]" placeholder="YYYY-MM-DD" autocomplete="off" value="{{ $oldPerson['bap_date'] ?? '' }}" required>
+                                            </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="fw-bold">Lokasi Penyitaan <span class="text-danger">*</span></label>
+                                                    @php $isWorkUnit = !isset($oldPerson['is_seized_at_work_unit']) || $oldPerson['is_seized_at_work_unit'] === '1' || $oldPerson['is_seized_at_work_unit'] === 'true' || $oldPerson['is_seized_at_work_unit'] === true; @endphp
+                                                    <div class="d-flex align-items-center mt-1 gap-3">
+                                                        <div class="form-check form-check-inline mb-0">
+                                                            <input class="form-check-input location-radio" type="radio" name="persons[{{ $pIdx }}][is_seized_at_work_unit]" value="1" {{ $isWorkUnit ? 'checked' : '' }} data-target="location-input-{{ $pIdx }}">
+                                                            <label class="form-check-label">Di Satker</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline mb-0">
+                                                            <input class="form-check-input location-radio" type="radio" name="persons[{{ $pIdx }}][is_seized_at_work_unit]" value="0" {{ !$isWorkUnit ? 'checked' : '' }} data-target="location-input-{{ $pIdx }}">
+                                                            <label class="form-check-label">Di luar Satker</label>
+                                                        </div>
+                                                        <div id="location-input-{{ $pIdx }}" style="display: {{ $isWorkUnit ? 'none' : 'block' }}; flex: 1;">
+                                                            <input type="text" class="form-control" name="persons[{{ $pIdx }}][seized_location]" placeholder="Contoh: Jl. Ahmad Yani No. 10 / Desa Bontoa" value="{{ $oldPerson['seized_location'] ?? '' }}" {{ !$isWorkUnit ? 'required' : 'disabled' }}>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <hr class="mt-0">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="fw-bold">Daftar Barang Sitaan</h6>
+                                            <button type="button" class="btn btn-sm btn-primary add-item-btn" data-person-index="{{ $pIdx }}"><i class="bi bi-plus"></i> Tambah Barang</button>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-sm items-table" id="items-table-{{ $pIdx }}">
+                                                <thead class="table-secondary text-center">
+                                                    <tr>
+                                                        <th>Nama Barang <span class="text-danger">*</span></th>
+                                                        <th style="width: 15%">Jumlah <span class="text-danger">*</span></th>
+                                                        <th style="width: 15%">Satuan <span class="text-danger">*</span></th>
+                                                        <th style="width: 25%">Keterangan</th>
+                                                        <th style="width: 5%">Opsi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if(isset($oldPerson['seized_items']))
+                                                        @foreach($oldPerson['seized_items'] as $itemIdx => $oldItem)
+                                                            <tr>
+                                                                <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][name]" value="{{ $oldItem['name'] ?? '' }}" placeholder="Contoh: Sepeda Motor Honda Vario No Pol AB 123 CD" required></td>
+                                                                <td><input type="number" step="any" min="0.01" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][quantity]" value="{{ $oldItem['quantity'] ?? '1' }}" required></td>
+                                                                <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][unit]" value="{{ $oldItem['unit'] ?? '' }}" placeholder="Contoh: Unit / Buah / Lembar" required></td>
+                                                                <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][description]" value="{{ $oldItem['description'] ?? '' }}" placeholder="Contoh: Kondisi rusak ringan / surat lengkap"></td>
+                                                                <td class="text-center align-middle">
+                                                                    <button type="button" class="btn btn-sm btn-danger remove-item-btn"><i class="bi bi-trash"></i></button>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -791,72 +754,19 @@
 
                 <!-- BUTTON SUBMIT & BATAL -->
                 <div class="text-center my-4">
-                    <button type="button" class="btn btn-dark-blue btn-lg px-4" id="suratPermintaanIzinPenyitaanFormSubmit">
-                        <i class="bi bi-save me-1"></i> Update Dokumen S-12
+                    <button type="button" class="btn btn-dark-blue btn-md px-4" id="suratPermintaanIzinPenyitaanFormSubmit">
+                        <i class="bi bi-save me-1"></i> Simpan
                     </button>
                     <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId]) }}"
-                        class="btn btn-danger btn-lg px-4 ms-2">
+                        class="btn btn-danger btn-md px-4 ms-2">
                         <i class="bi bi-x-circle me-1"></i> Batal
                     </a>
                 </div>
             </form>
         </div>
     </div>
-@endsection
 
-<!-- Modal Tambah Barang Sitaan -->
-<div class="modal fade" id="addSeizedItemModal" tabindex="-1" role="dialog" aria-labelledby="addSeizedItemModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold text-blue-dark" id="addSeizedItemModalLabel">Tambah Barang Sitaan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addSeizedItemForm">
-                    <div class="mb-3">
-                        <label class="fw-bold" for="seizedItemNamaModal">Nama Barang <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="seizedItemNamaModal"
-                            placeholder="Contoh: Sepeda Motor Honda Vario No Pol B 123 CD">
-                        <div class="text-danger small" id="seizedItemNamaModal-error"></div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold" for="seizedItemJenisModal">Jenis / Kategori <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="seizedItemJenisModal"
-                            placeholder="Contoh: Kendaraan / Dokumen / Barang Bukti">
-                        <div class="text-danger small" id="seizedItemJenisModal-error"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="fw-bold" for="seizedItemJumlahModal">Jumlah <span class="text-danger">*</span></label>
-                            <input type="number" step="any" min="0" class="form-control text-end" id="seizedItemJumlahModal" placeholder="Contoh: 1">
-                            <div class="text-danger small" id="seizedItemJumlahModal-error"></div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="fw-bold" for="seizedItemSatuanModal">Satuan <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="seizedItemSatuanModal"
-                                placeholder="Contoh: Unit / Lembar / Buah">
-                            <div class="text-danger small" id="seizedItemSatuanModal-error"></div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold" for="seizedItemKeteranganModal">Keterangan</label>
-                        <input type="text" class="form-control" id="seizedItemKeteranganModal"
-                            placeholder="Contoh: Kondisi rusak ringan / surat lengkap">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="cancelSeizedItemModal">
-                    <i class="bi bi-x-circle me-1"></i> Batal
-                </button>
-                <button type="button" class="btn btn-dark-blue" id="saveSeizedItemModalButton">
-                    <i class="bi bi-save me-1"></i> Simpan
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Modal Add Law -->
 <div class="modal fade" id="addLawModal" tabindex="-1" role="dialog" aria-labelledby="addLawModalLabel">
@@ -923,6 +833,8 @@
     </div>
 </div>
 
+@endsection
+
 @push('script')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js" defer></script>
     <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
@@ -936,22 +848,7 @@
                 $('#attentionBox').toggleClass('alert-danger alert-warning');
             }, 1000);
 
-            // Toggle Ada Tersangka / Tidak Ada Tersangka
-            $(document).on('change', '.isSuspectExists', function() {
-                var isSuspectExists = $(this).val();
 
-                if (isSuspectExists == 'true') {
-                    $('#suspectExistsSection').show();
-                    $('#suspectNotExistsSection').hide();
-                } else if (isSuspectExists == 'false') {
-                    $('#suspectExistsSection').hide();
-                    $('#suspectNotExistsSection').show();
-                }
-
-                $('#suspects, #reportedPerson, #informant').removeClass('is-invalid');
-                $('#suspects, #reportedPerson, #informant').next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
-                $('#suspectExistsSection, #suspectNotExistsSection').find('.frontend-error, .invalid-feedback').remove();
-            });
 
             $('.select2').select2({
                 theme: 'bootstrap4',
@@ -1188,7 +1085,7 @@
                 }
 
                 var rowHtml = `
-                    <tr class="law-row">
+                    <tr class="law-row text-center">
                         <td>
                             ${crimeTypeName}
                             <input type="hidden" name="lawCrimeTypeIds[]" value="${crimeTypeId}">
@@ -1258,108 +1155,155 @@
                 $(this).closest('tr').remove();
             });
 
-            // ─── MODAL TAMBAH BARANG SITAAN ────────────────────────────────
-            var seizedItemIndex = {{ count($renderItems) }};
+    var suspectsList = @json($suspects);
+    var witnessesList = @json(isset($witnesses) ? $witnesses : []);
+    var reportedPersonsList = @json($reportedPersons);
+    var personIndex = {{ count($renderPersons ?? []) }};
 
-            // Reset form modal saat dibuka
-            $('#addSeizedItemModal').on('show.bs.modal', function() {
-                $('#seizedItemNamaModal').val('').removeClass('is-invalid');
-                $('#seizedItemNamaModal-error').text('');
-                $('#seizedItemJenisModal').val('').removeClass('is-invalid');
-                $('#seizedItemJenisModal-error').text('');
-                $('#seizedItemJumlahModal').val('').removeClass('is-invalid');
-                $('#seizedItemJumlahModal-error').text('');
-                $('#seizedItemSatuanModal').val('').removeClass('is-invalid');
-                $('#seizedItemSatuanModal-error').text('');
-                $('#seizedItemKeteranganModal').val('');
-            });
+    function renderPersonSelect(index) {
+        var options = '<option value="">-- Pilih Identitas --</option>';
+        options += '<optgroup label="Tersangka">';
+        suspectsList.forEach(function(s) {
+            options += `<option value="${s.id}" data-type="suspect">${s.name}</option>`;
+        });
+        options += '</optgroup><optgroup label="Saksi">';
+        witnessesList.forEach(function(s) {
+            options += `<option value="${s.id}" data-type="witness">${s.name}</option>`;
+        });
+        options += '</optgroup><optgroup label="Terlapor">';
+        reportedPersonsList.forEach(function(s) {
+            options += `<option value="${s.id}" data-type="reported_person">${s.name}</option>`;
+        });
+        options += '</optgroup>';
+        return options;
+    }
 
-            $('#saveSeizedItemModalButton').on('click', function() {
-                var nama = $('#seizedItemNamaModal').val().trim();
-                var jenis = $('#seizedItemJenisModal').val().trim();
-                var jumlah = $('#seizedItemJumlahModal').val().trim();
-                var satuan = $('#seizedItemSatuanModal').val().trim();
-                var keterangan = $('#seizedItemKeteranganModal').val().trim();
+    $('#addPersonBtn').click(function() {
+        var html = `
+            <div class="card mb-3 border-primary person-card" data-index="${personIndex}">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                    <h6 class="mb-0">Data Orang #${personIndex + 1}</h6>
+                    <button type="button" class="btn btn-sm btn-light text-danger remove-person-btn"><i class="bi bi-trash"></i> Hapus</button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3 d-flex flex-column">
+                            <label class="fw-bold">Identitas Orang <span class="text-danger">*</span></label>
+                            <select class="form-select person-select mt-auto" name="persons[${personIndex}][person_id]" required>
+                                ${renderPersonSelect(personIndex)}
+                            </select>
+                            <input type="hidden" class="person-type-input" name="persons[${personIndex}][person_type]">
+                        </div>
+                        <div class="col-md-4 mb-3 d-flex flex-column">
+                            <label class="fw-bold">No. Berita Acara Penyitaan <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control mt-auto" name="persons[${personIndex}][bap_number]" placeholder="No. Berita Acara Penyitaan" required>
+                        </div>
+                        <div class="col-md-2 mb-3 d-flex flex-column">
+                            <label class="fw-bold">Tgl Berita Acara Penyitaan <span class="text-danger">*</span></label>
+                            <input class="form-control datepicker mt-auto" name="persons[${personIndex}][bap_date]" placeholder="YYYY-MM-DD" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="fw-bold">Lokasi Penyitaan <span class="text-danger">*</span></label>
+                            <div class="d-flex align-items-center mt-1 gap-3">
+                                <div class="form-check form-check-inline mb-0">
+                                    <input class="form-check-input location-radio" type="radio" name="persons[${personIndex}][is_seized_at_work_unit]" value="1" checked data-target="location-input-${personIndex}">
+                                    <label class="form-check-label">Di Satker</label>
+                                </div>
+                                <div class="form-check form-check-inline mb-0">
+                                    <input class="form-check-input location-radio" type="radio" name="persons[${personIndex}][is_seized_at_work_unit]" value="0" data-target="location-input-${personIndex}">
+                                    <label class="form-check-label">Di luar Satker</label>
+                                </div>
+                                <div id="location-input-${personIndex}" style="display: none; flex: 1;">
+                                    <input type="text" class="form-control" name="persons[${personIndex}][seized_location]" placeholder="Contoh: Jl. Ahmad Yani No. 10 / Desa Bontoa" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="mt-0">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="fw-bold">Daftar Barang Sitaan</h6>
+                        <button type="button" class="btn btn-sm btn-primary add-item-btn" data-person-index="${personIndex}"><i class="bi bi-plus"></i> Tambah Barang</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm items-table" id="items-table-${personIndex}">
+                            <thead class="table-secondary text-center">
+                                <tr>
+                                    <th>Nama Barang <span class="text-danger">*</span></th>
+                                    <th style="width: 15%">Jumlah <span class="text-danger">*</span></th>
+                                    <th style="width: 15%">Satuan <span class="text-danger">*</span></th>
+                                    <th style="width: 25%">Keterangan</th>
+                                    <th style="width: 5%">Opsi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('#persons-container').append(html);
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            todayHighlight: true
+        });
+        personIndex++;
+    });
 
-                var hasError = false;
+    $(document).on('change', '.person-select', function() {
+        var type = $(this).find('option:selected').data('type');
+        $(this).closest('.person-card').find('.person-type-input').val(type || '');
+    });
 
-                if (!nama) {
-                    $('#seizedItemNamaModal').addClass('is-invalid');
-                    $('#seizedItemNamaModal-error').text('Nama Barang wajib diisi.');
-                    hasError = true;
-                } else {
-                    $('#seizedItemNamaModal').removeClass('is-invalid');
-                    $('#seizedItemNamaModal-error').text('');
-                }
+    $(document).on('change', '.location-radio', function() {
+        var targetId = $(this).data('target');
+        var isWorkUnit = $(this).val() === '1';
+        var $inputContainer = $('#' + targetId);
+        var $input = $inputContainer.find('input');
+        
+        if (isWorkUnit) {
+            $inputContainer.hide();
+            $input.prop('disabled', true);
+            $input.prop('required', false);
+        } else {
+            $inputContainer.show();
+            $input.prop('disabled', false);
+            $input.prop('required', true);
+        }
+    });
 
-                if (!jenis) {
-                    $('#seizedItemJenisModal').addClass('is-invalid');
-                    $('#seizedItemJenisModal-error').text('Jenis / Kategori wajib diisi.');
-                    hasError = true;
-                } else {
-                    $('#seizedItemJenisModal').removeClass('is-invalid');
-                    $('#seizedItemJenisModal-error').text('');
-                }
+    $(document).on('click', '.remove-person-btn', function() {
+        $(this).closest('.person-card').remove();
+    });
 
-                if (!jumlah) {
-                    $('#seizedItemJumlahModal').addClass('is-invalid');
-                    $('#seizedItemJumlahModal-error').text('Jumlah wajib diisi.');
-                    hasError = true;
-                } else {
-                    $('#seizedItemJumlahModal').removeClass('is-invalid');
-                    $('#seizedItemJumlahModal-error').text('');
-                }
+    $(document).on('click', '.add-item-btn', function() {
+        var pIdx = $(this).data('person-index');
+        var tbody = $('#items-table-' + pIdx + ' tbody');
+        var itemIdx = tbody.find('tr').length;
+        var tr = `
+            <tr>
+                <td><input type="text" class="form-control form-control-sm" name="persons[${pIdx}][seized_items][${itemIdx}][name]" placeholder="Contoh: Sepeda Motor Honda Vario No Pol AB 123 CD" required></td>
+                <td><input type="number" step="any" min="0.01" class="form-control form-control-sm" name="persons[${pIdx}][seized_items][${itemIdx}][quantity]" value="1" required></td>
+                <td><input type="text" class="form-control form-control-sm" name="persons[${pIdx}][seized_items][${itemIdx}][unit]" placeholder="Contoh: Unit / Buah / Lembar" required></td>
+                <td><input type="text" class="form-control form-control-sm" name="persons[${pIdx}][seized_items][${itemIdx}][description]" placeholder="Contoh: Kondisi rusak ringan / surat lengkap"></td>
+                <td class="text-center align-middle">
+                    <button type="button" class="btn btn-sm btn-danger remove-item-btn"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+        `;
+        tbody.append(tr);
+    });
 
-                if (!satuan) {
-                    $('#seizedItemSatuanModal').addClass('is-invalid');
-                    $('#seizedItemSatuanModal-error').text('Satuan wajib diisi.');
-                    hasError = true;
-                } else {
-                    $('#seizedItemSatuanModal').removeClass('is-invalid');
-                    $('#seizedItemSatuanModal-error').text('');
-                }
+    $(document).on('click', '.remove-item-btn', function() {
+        $(this).closest('tr').remove();
+    });
 
-                if (hasError) return;
-
-                var newRow = `
-                    <tr class="seized-item-row text-center" data-index="${seizedItemIndex}">
-                        <td>
-                            ${nama}
-                            <input type="hidden" name="seized_items[${seizedItemIndex}][nama]" value="${nama}">
-                        </td>
-                        <td>
-                            ${jenis}
-                            <input type="hidden" name="seized_items[${seizedItemIndex}][jenis]" value="${jenis}">
-                        </td>
-                        <td class="text-center">
-                            ${jumlah}
-                            <input type="hidden" name="seized_items[${seizedItemIndex}][jumlah]" value="${jumlah}">
-                        </td>
-                        <td>
-                            ${satuan}
-                            <input type="hidden" name="seized_items[${seizedItemIndex}][satuan]" value="${satuan}">
-                        </td>
-                        <td>
-                            ${keterangan}
-                            <input type="hidden" name="seized_items[${seizedItemIndex}][keterangan]" value="${keterangan}">
-                        </td>
-                        <td class="text-center align-middle">
-                            <button type="button" class="btn btn-sm btn-danger remove-seized-item-row">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-
-                $('#seizedItemTableBody').append(newRow);
-                seizedItemIndex++;
-                $('#addSeizedItemModal').modal('hide');
-            });
-
-            $(document).on('click', '.remove-seized-item-row', function() {
-                $(this).closest('tr').remove();
-            });
-
+    // Remove old addSeizedItemModal if exists
+    $('#addSeizedItemModal').remove();
 
             // ─── CLIENT VALIDATION & SUBMIT ────────────────────────────────
             $('#suratPermintaanIzinPenyitaanFormSubmit').on('click', function(e) {
@@ -1383,14 +1327,14 @@
                 }
 
                 if (!$('#document_number').val().trim()) {
-                    markError($('#document_number'), 'Nomor Dokumen S-12 wajib diisi.');
+                    markError($('#document_number'), 'Nomor Dokumen wajib diisi.');
                 }
                 var docClassificationVal = $('#documentClassification').val() || $('#classification').val();
                 if (!docClassificationVal) {
                     markError($('#documentClassification').length ? $('#documentClassification') : $('#classification'), 'Klasifikasi Dokumen wajib dipilih.');
                 }
                 if (!$('#document_date').val().trim()) {
-                    markError($('#document_date'), 'Tanggal Dokumen S-12 wajib diisi.');
+                    markError($('#document_date'), 'Tanggal Dokumen wajib diisi.');
                 }
                 if (!$('#surat_perintah_penyidikan_document_id').val()) {
                     markError($('#surat_perintah_penyidikan_document_id'), 'No SP Penyidikan wajib dipilih.');
@@ -1402,6 +1346,12 @@
                 if (selSprindik.data('number') && !$('#sprindik_number').val()) {
                     $('#sprindik_number').val(selSprindik.data('number'));
                 }
+                if (!$('#court_id').val()) {
+                    markError($('#court_id'), 'Pengadilan Negeri Tujuan wajib dipilih.');
+                }
+                if (!$('#officerLeader').val()) {
+                    markError($('#officerLeader'), 'Ketua Tim Penyidik wajib dipilih.');
+                }
 
                 var selectedOfficers = $('#officers').val();
                 if (!selectedOfficers || selectedOfficers.length === 0) {
@@ -1409,8 +1359,70 @@
                 }
 
                 // Check Laws
-                if ($('#lawTable tbody tr.law-row').length === 0) {
+                var mainLawCount = $('#lawTable tbody tr.law-row').length;
+                var additionalLawCount = 0;
+                $('#additionalLawTable tbody tr input[type="hidden"]').each(function() {
+                    if ($(this).val().trim() !== '') {
+                        additionalLawCount++;
+                    }
+                });
+                if (mainLawCount === 0 && additionalLawCount === 0) {
                     markError($('#lawTable'), 'Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1 pasal.');
+                }
+
+                // Check Carbon Copies
+                var ccCount = $('#carbonCopiesContainer input[name="carbonCopies[]"]').length;
+                if (ccCount === 0) {
+                    markError($('#carbonCopiesContainer'), 'Tembusan wajib diisi minimal 1.');
+                } else {
+                    $('#carbonCopiesContainer input[name="carbonCopies[]"]').each(function() {
+                        if (!$(this).val().trim()) {
+                            markError($(this), 'Isi tembusan tidak boleh kosong.');
+                        }
+                    });
+                }
+
+                // Check Persons
+                var personCount = $('.person-card').length;
+                if (personCount === 0) {
+                    markError($('#persons-container'), 'Minimal harus ada 1 orang saksi/tersangka yang barangnya disita.');
+                } else {
+                    $('.person-card').each(function() {
+                        var $personSelect = $(this).find('select[name^="persons"][name$="[person_id]"]');
+                        if (!$personSelect.val()) {
+                            markError($personSelect, 'Identitas orang wajib dipilih.');
+                        }
+                        var $bapNumber = $(this).find('input[name^="persons"][name$="[bap_number]"]');
+                        if (!$bapNumber.val() || !$bapNumber.val().trim()) {
+                            markError($bapNumber, 'No. Berita Acara Penyitaan wajib diisi.');
+                        }
+                        var $bapDate = $(this).find('input[name^="persons"][name$="[bap_date]"]');
+                        if (!$bapDate.val() || !$bapDate.val().trim()) {
+                            markError($bapDate, 'Tgl Berita Acara Penyitaan wajib diisi.');
+                        }
+
+                        // Validate seized items
+                        var itemCount = $(this).find('.items-table tbody tr').length;
+                        if (itemCount === 0) {
+                            markError($(this).find('.items-table'), 'Minimal harus ada 1 barang sitaan.');
+                        } else {
+                            $(this).find('.items-table tbody tr').each(function() {
+                                var $itemName = $(this).find('input[name^="persons"][name$="[name]"]');
+                                if (!$itemName.val() || !$itemName.val().trim()) {
+                                    markError($itemName, 'Nama barang sitaan wajib diisi.');
+                                }
+                                var $itemQty = $(this).find('input[name^="persons"][name$="[quantity]"]');
+                                var qtyVal = parseFloat($itemQty.val());
+                                if (!$itemQty.val() || isNaN(qtyVal) || qtyVal <= 0) {
+                                    markError($itemQty, 'Jumlah barang sitaan harus lebih besar dari 0.');
+                                }
+                                var $itemUnit = $(this).find('input[name^="persons"][name$="[unit]"]');
+                                if (!$itemUnit.val() || !$itemUnit.val().trim()) {
+                                    markError($itemUnit, 'Satuan barang sitaan wajib diisi.');
+                                }
+                            });
+                        }
+                    });
                 }
 
                 if (errors.length > 0) {
@@ -1425,7 +1437,7 @@
 
                 Swal.fire({
                     title: 'Konfirmasi Perubahan',
-                    text: 'Apakah perubahan Surat Permintaan Izin Penyitaan sudah sesuai?',
+                    text: 'Apakah perubahan Surat Laporan Persetujuan Penyitaan sudah sesuai?',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#0b2f64',
