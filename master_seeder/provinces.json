@@ -234,14 +234,42 @@
         "PropinsiId": 91,
         "EmpId": 91,
         "CountryId": 101,
-        "Nama": "PAPUA BARAT",
+        "Nama": "PAPUA",
         "KodePuskarda": 91
+    },
+    {
+        "PropinsiId": 92,
+        "EmpId": 92,
+        "CountryId": 101,
+        "Nama": "PAPUA BARAT",
+        "KodePuskarda": 92
+    },
+    {
+        "PropinsiId": 93,
+        "EmpId": 93,
+        "CountryId": 101,
+        "Nama": "PAPUA SELATAN",
+        "KodePuskarda": 93
     },
     {
         "PropinsiId": 94,
         "EmpId": 94,
         "CountryId": 101,
-        "Nama": "PAPUA",
+        "Nama": "PAPUA TENGAH",
         "KodePuskarda": 94
+    },
+    {
+        "PropinsiId": 95,
+        "EmpId": 95,
+        "CountryId": 101,
+        "Nama": "PAPUA PEGUNUNGAN",
+        "KodePuskarda": 95
+    },
+    {
+        "PropinsiId": 96,
+        "EmpId": 96,
+        "CountryId": 101,
+        "Nama": "PAPUA BARAT DAYA",
+        "KodePuskarda": 96
     }
 ]

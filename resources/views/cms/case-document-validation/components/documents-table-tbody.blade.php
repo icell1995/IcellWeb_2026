@@ -79,7 +79,7 @@
                 $documentCategoryAltCode = $documentCategory->alt_code ?? NULL;
                 $documentValidationUrl = (!empty($documentCategoryAltCode)) ? route('cms.case-document-validation.module.' . $documentCategoryAltCode . '.validation', ['accident_id' => $document->accident->id, 'id' => $document->id, 'document_category_id' => $document->document_category_id]) : '#';
             @endphp
-            <a href="{{ $documentValidationUrl }}" target="_blank"
+            <a href="{{ $documentValidationUrl }}" target="_blank" rel="opener"
                 class="btn btn-primary">
                 <i class="bi bi-eye"></i> Validasi
             </a>

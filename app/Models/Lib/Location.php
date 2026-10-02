@@ -50,11 +50,11 @@ class Location extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Location::class, 'parent_id')->with('parent');
+        return $this->belongsTo(Location::class, 'parent_id');
     }
 
     public function children()
     {
-        return $this->hasMany(Location::class, 'parent_id')->with('children');
+        return $this->hasMany(Location::class, 'parent_id');
     }
 }

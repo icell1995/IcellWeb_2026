@@ -42,3 +42,6 @@ Route::get('/positions', [App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\P
 
 // Public API untuk masyarakat cek SP2HP (Surat Pemberitahuan Perkembangan Hasil Penyidikan)
 Route::post('/public/cek-sp2hp', [App\Http\Controllers\api\CekSP2HPController::class, 'getCekSP2HP'])->middleware('api-auth');
+
+// Alias untuk service GetTokenICELL
+Route::post('/values/GetTokenICELL', [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\AuthController::class, 'getToken']);
