@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\PusiknasApiToken;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -24,13 +25,44 @@ class ApiAuthMiddleware
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSUNFTEwtU1AySFAiLCJwcm92aWRlciI6IklDRUxMLUFQSSJ9.7kZ9mN2pQ8vWxJ4sL3rY6tH5uA1bC0gD9fE2_sp2hp', //ICELL-SP2HP        
         ];
 
-        if (!in_array($request->header('AUTHORIZATION'), $tokens)) {
-            return response()->json([
-                'code' => "401",
-                'status' => 'UNAUTHORIZED',
-            ], 401);
+        $rawAuth = $request->header('AUTHORIZATION') ?? $request->header('Authorization');
+
+        // 1. Cek static token bawaan ICELL
+        if ($rawAuth && in_array($rawAuth, $tokens)) {
+            return $next($request);
         }
- 
-        return $next($request);
+
+        // 2. Cek dynamic token (Pusiknas API Token)
+        $token = $request->bearerToken();
+        if (!$token && $rawAuth) {
+            $token = trim(preg_replace('/^Bearer\s+/i', '', $rawAuth));
+        }
+
+        if ($token) {
+            $pusiknasToken = PusiknasApiToken::where('token', $token)->first();
+
+            if ($pusiknasToken) {
+                if ($pusiknasToken->expires_at < now()) {
+                    return response()->json([
+                        'code'    => "401",
+                        'status'  => 'UNAUTHORIZED',
+                        'message' => 'Token has expired. Please generate a new token.',
+                    ], 401);
+                }
+
+                // Catat IP dan waktu penggunaan token setiap kali hit
+                $pusiknasToken->update([
+                    'last_used_ip' => $request->ip(),
+                    'last_used_at' => now(),
+                ]);
+
+                return $next($request);
+            }
+        }
+
+        return response()->json([
+            'code' => "401",
+            'status' => 'UNAUTHORIZED',
+        ], 401);
     }
 }
