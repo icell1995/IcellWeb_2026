@@ -236,7 +236,7 @@ $requiredKeyword = 'Kejaksaan';
 
 {{-- Modal Hasil Validasi --}}
 <div class="modal fade" id="validationResultModal" tabindex="-1" aria-labelledby="validationResultModalLabel"
-    aria-hidden="true">
+    aria-hidden="true" data-bs-focus="false">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
@@ -1033,7 +1033,7 @@ $requiredKeyword = 'Kejaksaan';
         }
 
         if (!silent) {
-            const modal = new bootstrap.Modal(document.getElementById('validationResultModal'));
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('validationResultModal'), { focus: false });
             modal.show();
             document.getElementById('validationLoading').style.display = 'block';
             document.getElementById('validationResults').style.display = 'none';
@@ -1644,6 +1644,14 @@ function initApproveForm() {
                 score = window.validationController.calculateOverallScore();
             }
 
+            const validationModalEl = document.getElementById('validationResultModal');
+            const isModalOpen = validationModalEl && validationModalEl.classList.contains('show');
+            const modalInstance = validationModalEl ? bootstrap.Modal.getInstance(validationModalEl) : null;
+
+            if (isModalOpen && modalInstance) {
+                modalInstance.hide();
+            }
+
             if (score > 0 && score < 70) {
                 Swal.fire({
                     icon: 'warning',
@@ -1670,6 +1678,8 @@ function initApproveForm() {
                 }).then(result => {
                     if (result.isConfirmed) {
                         submitFormAjax(form, 'Menyetujui dokumen secara paksa...');
+                    } else if (result.isDismissed && isModalOpen && modalInstance) {
+                        modalInstance.show();
                     }
                 });
             } else {
@@ -1686,6 +1696,8 @@ function initApproveForm() {
                 }).then(result => {
                     if (result.isConfirmed) {
                         submitFormAjax(form, 'Menyetujui dokumen...');
+                    } else if (result.isDismissed && isModalOpen && modalInstance) {
+                        modalInstance.show();
                     }
                 });
             }
@@ -1747,7 +1759,15 @@ const rejectReasons = [
                 `;
             }).join('');
 
-Swal.fire({
+            const validationModalEl = document.getElementById('validationResultModal');
+            const isModalOpen = validationModalEl && validationModalEl.classList.contains('show');
+            const modalInstance = validationModalEl ? bootstrap.Modal.getInstance(validationModalEl) : null;
+
+            if (isModalOpen && modalInstance) {
+                modalInstance.hide();
+            }
+
+            Swal.fire({
                 icon: 'warning',
 title: 'Kembalikan Dokumen',
                     html: `
@@ -1837,6 +1857,8 @@ const reasonInput = form.querySelector('input[name="reject_reason"]');
                         if (reasonInput) reasonInput.value = formattedReasons;
                         
                         submitFormAjax(form, 'Mengembalikan dokumen...');
+                        } else if (result.isDismissed && isModalOpen && modalInstance) {
+                            modalInstance.show();
                         }
                         });
                         });
