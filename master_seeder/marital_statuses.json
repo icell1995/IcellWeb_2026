@@ -1,18 +1,22 @@
 [
     {
         "Id": 1,
-        "Nama": "BELUM KAWIN"
+        "Nama": "BELUM KAWIN",
+        "IdPuskarda": 1
     },
     {
         "Id": 2,
-        "Nama": "KAWIN"
+        "Nama": "KAWIN",
+        "IdPuskarda": 2
     },
     {
         "Id": 3,
-        "Nama": "CERAI HIDUP"
+        "Nama": "CERAI HIDUP",
+        "IdPuskarda": 3
     },
     {
         "Id": 4,
-        "Nama": "CERAI MATI"
+        "Nama": "CERAI MATI",
+        "IdPuskarda": 4
     }
 ]
