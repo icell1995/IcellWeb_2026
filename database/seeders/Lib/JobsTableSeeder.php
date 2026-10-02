@@ -10,34 +10,32 @@ use App\Models\Lib\Job;
 
 class JobsTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         $jobs = File::get(base_path('master_seeder/jobs.json'));
         $jobs = json_decode($jobs, true);
 
         DB::beginTransaction();
-        try{
-            foreach($jobs as $job){
-                Job::updateOrCreate(
-                    [
-                        'id' => $job['IdEMP']
-                    ],
-                    [ 
-                        'id' => $job['IdEMP'],
-                        'emp_id' => $job['IdEMP'],
+        try {
+            foreach ($jobs as $job) {
+                $pusiknasId = $job['IdPuskarda'] ?? null;
+                // Jobs.json kadang punya nilai "None" (string) — konversi ke null
+                if ($pusiknasId === 'None' || $pusiknasId === '') {
+                    $pusiknasId = null;
+                }
 
-                        'name' => $job['Nama'],
+                Job::updateOrCreate(
+                    ['id' => $job['IdEMP']],
+                    [
+                        'id'          => $job['IdEMP'],
+                        'emp_id'      => $job['IdEMP'],
+                        'name'        => $job['Nama'],
+                        'pusiknas_id' => $pusiknasId,
                     ]
                 );
             }
 
             DB::commit();
-
             $this->command->info('Job table seeded!');
         } catch (\Exception $e) {
             DB::rollback();

@@ -31,6 +31,7 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
 use App\Models\LaporanHasilGelarPerkara;
 use App\Models\SuratKetetapanPenetapanTersangka;
 
@@ -524,7 +525,7 @@ class DocumentSignatureController extends Controller
     private function getDocumentRouter($documentCategoryId, $documentId, $accidentId)
     {
         $documentModels = [
-            '0204' => SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            '0204' => SpdpPusiknasDocument::class,
         ];
 
         if (array_key_exists($documentCategoryId, $documentModels)) {
@@ -540,7 +541,7 @@ class DocumentSignatureController extends Controller
 
     private function getDocumentsByStatus($user, $statusIds) {
         $documentTypes = [
-            SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            SpdpPusiknasDocument::class,
         ];
 
         $documentsCollection = Collection::make();

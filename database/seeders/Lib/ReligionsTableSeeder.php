@@ -10,34 +10,26 @@ use App\Models\Lib\Religion;
 
 class ReligionsTableSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         $religions = File::get(base_path('master_seeder/religions.json'));
         $religions = json_decode($religions, true);
 
         DB::beginTransaction();
-        try{
-            foreach($religions as $religion){
+        try {
+            foreach ($religions as $religion) {
                 Religion::updateOrCreate(
+                    ['id' => $religion['IdEMP']],
                     [
-                        'id' => $religion['IdEMP']
-                    ],
-                    [ 
-                        'id' => $religion['IdEMP'],
-                        'emp_id' => $religion['IdEMP'],
-                        
-                        'name' => $religion['Nama'],
+                        'id'          => $religion['IdEMP'],
+                        'emp_id'      => $religion['IdEMP'],
+                        'name'        => $religion['Nama'],
+                        'pusiknas_id' => $religion['IdPuskarda'] ?? null,
                     ]
                 );
             }
 
             DB::commit();
-
             $this->command->info('Religions table seeded!');
         } catch (\Throwable $e) {
             DB::rollback();

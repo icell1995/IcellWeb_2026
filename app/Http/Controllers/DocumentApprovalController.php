@@ -14,6 +14,10 @@ use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocu
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
 use App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument;
+use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
+use App\Models\Doc\Tahap1Document\Tahap1Document;
+use App\Models\Doc\Tahap2Document\Tahap2Document;
 
 use App\Traits\DocsOfficersTraits;
 
@@ -194,6 +198,10 @@ class DocumentApprovalController extends Controller
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
             SuratPermohonanPenetapanDiversiDocument::class,
+            SuratPemberitahuanPenghentianPenyidikanDocument::class,
+            SpdpPusiknasDocument::class,
+            Tahap1Document::class,
+            Tahap2Document::class,
         ];
 
         $documentsCollection = Collection::make();
@@ -220,22 +228,34 @@ class DocumentApprovalController extends Controller
         $documentModels = [
             '0101' => SuratPerintahPenyelidikanDocument::class,
             '0201' => SuratPerintahPenyidikanDocument::class,
-            '0204' => SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            '0204' => [
+                SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+                \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class
+            ],
             '0212' => SuratPermohonanPenetapanDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
-            // Add more document types here
+            '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
+            '0805' => Tahap1Document::class,
+            '0806' => Tahap1Document::class,
+            '0807' => Tahap2Document::class,
         ];
 
         if (array_key_exists($documentCategoryId, $documentModels)) {
-            $document = $documentModels[$documentCategoryId]::with(['accident','documentCategory', 'attachment'])
-                ->where('id', $documentId)
-                ->first();
-        } else {
-            return redirect()->route('document-approval.index');
+            $models = (array) $documentModels[$documentCategoryId];
+            
+            foreach ($models as $modelClass) {
+                $document = $modelClass::with(['accident', 'documentCategory', 'attachment'])
+                    ->where('id', $documentId)
+                    ->first();
+                
+                if ($document) {
+                    return $document;
+                }
+            }
         }
-
-        return $document;
+        
+        return redirect()->route('document-approval.index');
     }
 }
