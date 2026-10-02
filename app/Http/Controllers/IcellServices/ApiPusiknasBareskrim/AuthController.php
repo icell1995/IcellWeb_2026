@@ -13,7 +13,7 @@ class AuthController extends Controller
      * Endpoint Get Token untuk integrasi Pusiknas Bareskrim.
      * 
      * Method : POST
-     * Path   : /icell-services/api-pusiknasbareskrim/get-token
+     * Path   : /icell-services/api-pusiknasbareskrim/GetTokenICELL
      */
     public function getToken(Request $request)
     {

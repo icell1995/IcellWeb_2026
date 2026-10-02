@@ -9,8 +9,9 @@ use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\AuthController;
 |--------------------------------------------------------------------------
 |
 | Base URL : https://icell.korlantas.polri.go.id/icell-services/api-pusiknasbareskrim/
-| Endpoint : POST /get-token
+| Endpoint : POST /GetTokenICELL
 |
 */
 
+Route::post('/GetTokenICELL', [AuthController::class, 'getToken'])->name('api.pusiknasbareskrim.get-token-icell');
 Route::post('/get-token', [AuthController::class, 'getToken'])->name('api.pusiknasbareskrim.get-token');

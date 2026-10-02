@@ -27,17 +27,22 @@ class ApiAuthMiddleware
 
         $rawAuth = $request->header('AUTHORIZATION') ?? $request->header('Authorization');
 
-        // 1. Cek static token bawaan ICELL
-        if ($rawAuth && in_array($rawAuth, $tokens)) {
-            return $next($request);
-        }
-
-        // 2. Cek dynamic token (Pusiknas API Token)
+        // Normalisasi token string (bisa dikirim dengan 'Bearer ' atau raw token)
         $token = $request->bearerToken();
         if (!$token && $rawAuth) {
             $token = trim(preg_replace('/^Bearer\s+/i', '', $rawAuth));
         }
 
+        $isPusiknasDoc = $request->is('icell-services/api-pusiknasbareskrim/doc*');
+
+        // 1. Cek static token bawaan ICELL (HANYA untuk endpoint non-Pusiknas Dokumen)
+        if (!$isPusiknasDoc) {
+            if ($token && in_array($token, $tokens)) {
+                return $next($request);
+            }
+        }
+
+        // 2. Cek dynamic token (Pusiknas API Token)
         if ($token) {
             $pusiknasToken = PusiknasApiToken::where('token', $token)->first();
 
@@ -61,8 +66,11 @@ class ApiAuthMiddleware
         }
 
         return response()->json([
-            'code' => "401",
-            'status' => 'UNAUTHORIZED',
+            'code'    => "401",
+            'status'  => 'UNAUTHORIZED',
+            'message' => $isPusiknasDoc
+                ? 'Akses ditolak. Endpoint dokumen Pusiknas wajib menggunakan Bearer Token dari API GetTokenICELL.'
+                : 'Unauthorized.',
         ], 401);
     }
 }
