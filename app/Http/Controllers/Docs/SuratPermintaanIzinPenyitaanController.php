@@ -354,20 +354,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                     }
                 }
 
-                // Additional Laws
-                $lawAdditionalNames = $request->lawAdditionalNames ?? [];
-                foreach ($lawAdditionalNames as $additionalName) {
-                    if (!empty(trim($additionalName))) {
-                        $docLaw = new SuratPermintaanIzinPenyitaanDocumentLaw();
-                        $docLaw->surat_permintaan_izin_penyitaan_document_id = $documentId;
-                        $docLaw->crime_type_id = null;
-                        $docLaw->crime_class_id = null;
-                        $docLaw->crime_constitution_id = null;
-                        $docLaw->constitution = trim($additionalName);
-                        $docLaw->flag = 'ADDT';
-                        $docLaw->save();
-                    }
-                }
+
             } else {
                 $laws = (array) $request->input('laws', []);
                 foreach ($laws as $lawItem) {
@@ -380,20 +367,43 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                         $docLaw->constitution = $lawItem['constitution'] ?? null;
                         $docLaw->constitution_chapter = $lawItem['constitution_chapter'] ?? ($lawItem['pasal'] ?? null);
                         $docLaw->description = $lawItem['description'] ?? null;
-                        $docLaw->flag = in_array($lawItem['flag'] ?? '', ['MAIN', 'ADDITIONAL', 'ADDT']) ? $lawItem['flag'] : 'MAIN';
+                        $flag = $lawItem['flag'] ?? '';
+                        if ($flag === 'ADDT') $flag = 'ADDITIONAL';
+                        $docLaw->flag = in_array($flag, ['MAIN', 'ADDITIONAL']) ? $flag : 'MAIN';
                         $docLaw->save();
                     }
                 }
             }
 
-            // 4. Simpan tersangka melalui pivot (suspects)
-            $suspectIds = (array) $request->input('suspects', []);
-            foreach ($suspectIds as $suspectId) {
-                if (!empty($suspectId)) {
-                    $pivotSuspect = new SuratPermintaanIzinPenyitaanDocumentSuspect();
-                    $pivotSuspect->surat_permintaan_izin_penyitaan_document_id = $documentId;
-                    $pivotSuspect->suspect_id = $suspectId;
-                    $pivotSuspect->save();
+            // Additional Laws
+            $lawAdditionalNames = $request->lawAdditionalNames ?? [];
+            foreach ($lawAdditionalNames as $additionalName) {
+                if (!empty(trim($additionalName))) {
+                    $docLaw = new SuratPermintaanIzinPenyitaanDocumentLaw();
+                    $docLaw->surat_permintaan_izin_penyitaan_document_id = $documentId;
+                    $docLaw->crime_type_id = null;
+                    $docLaw->crime_class_id = null;
+                    $docLaw->crime_constitution_id = null;
+                    $docLaw->constitution = trim($additionalName);
+                    $docLaw->flag = 'ADDITIONAL';
+                    $docLaw->save();
+                }
+            }
+
+            // 4. Simpan tersangka atau terlapor
+            if ($request->input('isSuspectExists') === 'true') {
+                $suspectIds = (array) $request->input('suspects', []);
+                foreach ($suspectIds as $suspectId) {
+                    if (!empty($suspectId)) {
+                        $pivotSuspect = new SuratPermintaanIzinPenyitaanDocumentSuspect();
+                        $pivotSuspect->surat_permintaan_izin_penyitaan_document_id = $documentId;
+                        $pivotSuspect->suspect_id = $suspectId;
+                        $pivotSuspect->save();
+                    }
+                }
+            } else {
+                if ($request->filled('reportedPerson')) {
+                    $document->reportedPersons()->attach($request->input('reportedPerson'));
                 }
             }
 
@@ -605,6 +615,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
         $suspects = Suspect::where('accident_id', $accidentId)->get();
         $informants = Informant::where('accident_id', $accidentId)->get();
         $reportedPersons = ReportedPerson::where('accident_id', $accidentId)->get();
+        $selectedReportedPersonIds = $document->reportedPersons()->pluck('public.reported_persons.id')->toArray();
 
         $courts = Court::where('is_active', true)
             ->orderBy('sort')
@@ -670,6 +681,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             'suspects' => $suspects,
             'informants' => $informants,
             'reportedPersons' => $reportedPersons,
+            'selectedReportedPersonIds' => $selectedReportedPersonIds,
             'courts' => $courts,
             'prosecutors' => $prosecutors,
             'documentClassifications' => $documentClassifications,
@@ -878,19 +890,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                     }
                 }
 
-                $lawAdditionalNames = $request->lawAdditionalNames ?? [];
-                foreach ($lawAdditionalNames as $additionalName) {
-                    if (!empty(trim($additionalName))) {
-                        $docLaw = new SuratPermintaanIzinPenyitaanDocumentLaw();
-                        $docLaw->surat_permintaan_izin_penyitaan_document_id = $id;
-                        $docLaw->crime_type_id = null;
-                        $docLaw->crime_class_id = null;
-                        $docLaw->crime_constitution_id = null;
-                        $docLaw->constitution = trim($additionalName);
-                        $docLaw->flag = 'ADDT';
-                        $docLaw->save();
-                    }
-                }
+
             } else {
                 $laws = (array) $request->input('laws', []);
                 foreach ($laws as $lawItem) {
@@ -903,21 +903,45 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                         $docLaw->constitution = $lawItem['constitution'] ?? null;
                         $docLaw->constitution_chapter = $lawItem['constitution_chapter'] ?? ($lawItem['pasal'] ?? null);
                         $docLaw->description = $lawItem['description'] ?? null;
-                        $docLaw->flag = in_array($lawItem['flag'] ?? '', ['MAIN', 'ADDITIONAL', 'ADDT']) ? $lawItem['flag'] : 'MAIN';
+                        $flag = $lawItem['flag'] ?? '';
+                        if ($flag === 'ADDT') $flag = 'ADDITIONAL';
+                        $docLaw->flag = in_array($flag, ['MAIN', 'ADDITIONAL']) ? $flag : 'MAIN';
                         $docLaw->save();
                     }
                 }
             }
 
-            // 4. Sync / update tersangka melalui pivot (suspects)
+            $lawAdditionalNames = $request->lawAdditionalNames ?? [];
+            foreach ($lawAdditionalNames as $additionalName) {
+                if (!empty(trim($additionalName))) {
+                    $docLaw = new SuratPermintaanIzinPenyitaanDocumentLaw();
+                    $docLaw->surat_permintaan_izin_penyitaan_document_id = $id;
+                    $docLaw->crime_type_id = null;
+                    $docLaw->crime_class_id = null;
+                    $docLaw->crime_constitution_id = null;
+                    $docLaw->constitution = trim($additionalName);
+                    $docLaw->flag = 'ADDITIONAL';
+                    $docLaw->save();
+                }
+            }
+
+            // 4. Sync / update tersangka atau terlapor
             SuratPermintaanIzinPenyitaanDocumentSuspect::where('surat_permintaan_izin_penyitaan_document_id', $id)->delete();
-            $suspectIds = (array) $request->input('suspects', []);
-            foreach ($suspectIds as $suspectId) {
-                if (!empty($suspectId)) {
-                    $pivotSuspect = new SuratPermintaanIzinPenyitaanDocumentSuspect();
-                    $pivotSuspect->surat_permintaan_izin_penyitaan_document_id = $id;
-                    $pivotSuspect->suspect_id = $suspectId;
-                    $pivotSuspect->save();
+            $document->reportedPersons()->detach();
+            
+            if ($request->input('isSuspectExists') === 'true') {
+                $suspectIds = (array) $request->input('suspects', []);
+                foreach ($suspectIds as $suspectId) {
+                    if (!empty($suspectId)) {
+                        $pivotSuspect = new SuratPermintaanIzinPenyitaanDocumentSuspect();
+                        $pivotSuspect->surat_permintaan_izin_penyitaan_document_id = $id;
+                        $pivotSuspect->suspect_id = $suspectId;
+                        $pivotSuspect->save();
+                    }
+                }
+            } else {
+                if ($request->filled('reportedPerson')) {
+                    $document->reportedPersons()->attach($request->input('reportedPerson'));
                 }
             }
 
@@ -1115,12 +1139,13 @@ class SuratPermintaanIzinPenyitaanController extends Controller
         // 1. Rujukan (References)
         $document->loadMissing(['laws.crimeConstitution', 'laws.crimeType']);
         $rawReferences = [];
-        $rawReferences[] = 'Pasal 38 ayat (1) dan Pasal 47 ayat (1) Undang-Undang Nomor 8 tentang Hukum Acara Pidana;';
-        $rawReferences[] = 'Undang-Undang Republik Indonesia Nomor 2 Tahun 2002 tentang Kepolisian Negara Republik Indonesia;';
-        $rawReferences[] = 'Undang-Undang Republik Indonesia Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan;';
+        $rawReferences[] = 'Undang-Undang Nomor 2 Tahun 2002 tentang Kepolisian Negara Republik Indonesia;';
+        $rawReferences[] = 'Pasal 3 dan Pasal 618 Undang-Undang Nomor 1 Tahun 2023 tentang Kitab Undang-Undang Hukum Pidana;';
+        $rawReferences[] = 'Pasal 1 angka 14 dan angka 35, Pasal 5 ayat (2) huruf b, Pasal 7 ayat (1) huruf f, Pasal 44, Pasal 45, Pasal 46, Pasal 47, Pasal 89 huruf e, Pasal 113 ayat (3), Pasal 118, Pasal 119, Pasal 121, Pasal 122, Pasal 123, Pasal 124, Pasal 125, Pasal 128, Pasal 129, Pasal 130, Pasal 133, Pasal 156 ayat (1) huruf e dan Pasal 361 Undang-Undang Nomor 20 Tahun 2025 tentang Kitab Undang-Undang Hukum Acara Pidana;';
 
         // Pasal yang dipersangkakan dari form S-12 (jika ada, mulai dari poin d)
         if ($laws && $laws->isNotEmpty()) {
+            $groupedLaws = [];
             foreach ($laws as $l) {
                 $chapter = trim($l->constitution_chapter ?? '');
                 if (!empty($chapter) && stripos($chapter, 'pasal') !== 0) {
@@ -1133,34 +1158,57 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                 } elseif (!empty($l->constitution)) {
                     $constName = trim($l->constitution);
                 }
-
-                $lawText = '';
-                if ($l->flag === 'ADDITIONAL' || $l->flag === 'ADDT') {
-                    if (!empty($l->constitution)) {
-                        $lawText = trim($l->constitution);
-                    } elseif (!empty($chapter) && !empty($constName)) {
-                        $lawText = trim($chapter . ' ' . $constName);
-                    } elseif (!empty($constName)) {
-                        $lawText = $constName;
-                    } elseif (!empty($chapter)) {
-                        $lawText = $chapter;
-                    }
-                } else {
-                    if (!empty($chapter) && !empty($constName)) {
-                        $lawText = trim($chapter . ' ' . $constName);
-                    } elseif (!empty($constName)) {
-                        $lawText = $constName;
-                    } elseif (!empty($chapter)) {
-                        $lawText = $chapter;
-                    }
+                
+                if (empty($constName)) {
+                    $constName = 'Tanpa UU';
                 }
 
-                $lawText = trim($lawText);
-                if (!empty($lawText)) {
-                    if (!str_ends_with($lawText, ';')) {
-                        $lawText .= ';';
+                if ($l->flag === 'ADDITIONAL' || $l->flag === 'ADDT') {
+                    if (!empty($l->constitution)) {
+                        $groupedLaws[$constName][] = '';
+                    } elseif (!empty($chapter)) {
+                        $groupedLaws[$constName][] = $chapter;
+                    } else {
+                        $groupedLaws[$constName][] = '';
                     }
-                    $rawReferences[] = $lawText;
+                } else {
+                    if (!empty($chapter)) {
+                        $groupedLaws[$constName][] = $chapter;
+                    } else {
+                        $groupedLaws[$constName][] = '';
+                    }
+                }
+            }
+
+            foreach ($groupedLaws as $uu => $chapters) {
+                $chapters = array_values(array_unique(array_filter(array_map('trim', $chapters), function($c) { return !empty($c); })));
+                $text = '';
+                if (count($chapters) > 0) {
+                    if (count($chapters) > 1) {
+                        $last = array_pop($chapters);
+                        if (count($chapters) > 1) {
+                            $text = implode(', ', $chapters) . ', dan ' . $last;
+                        } else {
+                            $text = $chapters[0] . ' dan ' . $last;
+                        }
+                    } else {
+                        $text = $chapters[0];
+                    }
+                    if ($uu !== 'Tanpa UU') {
+                        $text .= ' ' . $uu;
+                    }
+                } else {
+                    if ($uu !== 'Tanpa UU') {
+                        $text = $uu;
+                    }
+                }
+                
+                $text = trim($text);
+                if (!empty($text)) {
+                    if (!str_ends_with($text, ';')) {
+                        $text .= ';';
+                    }
+                    $rawReferences[] = $text;
                 }
             }
         }
@@ -1317,8 +1365,8 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                 $suspectAddressVal = implode('; ', $sAddresses);
             }
         } else {
-            // Jika tidak ada tersangka, gunakan data reported_person yang terkait dengan accident_id sesuai pola SPDP
-            $reportedPersons = ReportedPerson::withRelated()->where('accident_id', $accidentId)->get();
+            // Jika tidak ada tersangka, gunakan data reported_person yang dipilih
+            $reportedPersons = $document->reportedPersons()->withRelated()->get();
 
             if ($reportedPersons->isNotEmpty()) {
                 $rNames = [];
@@ -1427,7 +1475,20 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             // Fetch fresh Officer record to ensure phone number is accurate
             $fullOfficer = null;
             if (!empty($investigatorOfficer->register_number)) {
-                $fullOfficer = Officer::with(['position'])->where('register_number', $investigatorOfficer->register_number)->first();
+                $fullOfficer = Officer::with(['position', 'rank'])->where('register_number', $investigatorOfficer->register_number)->first();
+            }
+
+            $rankName = '';
+            if ($investigatorOfficer->rank) {
+                $rankName = $investigatorOfficer->rank->name;
+            } elseif (!empty($investigatorOfficer->rank_name)) {
+                $rankName = $investigatorOfficer->rank_name;
+            } elseif ($fullOfficer && $fullOfficer->rank) {
+                $rankName = $fullOfficer->rank->name;
+            }
+
+            if (!empty($rankName)) {
+                $invName = trim($rankName . ' ' . $invName);
             }
 
             $invPhone = !empty($investigatorOfficer->phone_number)
@@ -1504,12 +1565,12 @@ class SuratPermintaanIzinPenyitaanController extends Controller
 
         if (!empty($courtNameRaw)) {
             if (stripos($courtNameRaw, 'PENGADILAN NEGERI') !== false) {
-                $courtNameVal = 'KEPALA ' . strtoupper(trim(preg_replace('/\s+/', ' ', $courtNameRaw)));
+                $courtNameVal = strtoupper(trim(preg_replace('/\s+/', ' ', $courtNameRaw)));
             } else {
-                $courtNameVal = 'KEPALA PENGADILAN NEGERI ' . strtoupper(trim(preg_replace('/\s+/', ' ', $cleanLocation)));
+                $courtNameVal = 'PENGADILAN NEGERI ' . strtoupper(trim(preg_replace('/\s+/', ' ', $cleanLocation)));
             }
         } else {
-            $courtNameVal = 'KEPALA PENGADILAN NEGERI ' . strtoupper($cleanLocation ?: 'SOLOK SELATAN');
+            $courtNameVal = 'PENGADILAN NEGERI ' . strtoupper($cleanLocation ?: 'SOLOK SELATAN');
         }
 
         if ($court && $court->regency && !empty($court->regency->name)) {
@@ -1700,6 +1761,16 @@ class SuratPermintaanIzinPenyitaanController extends Controller
 
         $effectiveAccidentId = $fixedAccidentId ?? $request->input('accident_id');
 
+        $hasValidAdditionalLaw = false;
+        if ($request->has('lawAdditionalNames') && is_array($request->lawAdditionalNames)) {
+            foreach ($request->lawAdditionalNames as $name) {
+                if (!empty(trim($name))) {
+                    $hasValidAdditionalLaw = true;
+                    break;
+                }
+            }
+        }
+
         $rules = [
             'accident_id' => [
                 'required',
@@ -1732,7 +1803,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             'spdp_number' => 'nullable|string|max:255',
             'spdp_date' => 'nullable|date',
             'court_id' => [
-                'nullable',
+                'required',
                 'string',
                 Rule::exists(Court::class, 'id'),
             ],
@@ -1753,7 +1824,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             ],
             'classification' => 'nullable|string',
             'document_classification_id' => 'nullable|string',
-            'carbonCopies' => 'nullable|array',
+            'carbonCopies' => 'required|array|min:1',
             'carbonCopies.*' => 'required|string|max:255',
 
             // Ketua Tim Penyidik wajib diisi
@@ -1778,30 +1849,8 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                 },
             ],
 
-            // Pejabat penandatangan wajib min 1 dan authorized untuk kesatuan polres
-            'officers' => 'required_without:signatories|nullable|array|min:1',
-            'officers.*' => [
-                'required',
-                'string',
-                Rule::exists(Officer::class, 'id'),
-                function ($attribute, $value, $fail) use ($effectiveAccidentId) {
-                    if (!empty($value) && !empty($effectiveAccidentId)) {
-                        $acc = Accident::find($effectiveAccidentId);
-                        if ($acc) {
-                            $polresIds = $this->getOldNewPolresIds($acc->polres_id);
-                            $isAuthorized = Officer::where('id', $value)
-                                ->whereIn('police_id', $polresIds)
-                                ->where('is_active', true)
-                                ->exists();
-                            if (!$isAuthorized) {
-                                $fail('Pejabat penandatangan yang dipilih tidak terdaftar pada kesatuan yang berwenang.');
-                            }
-                        }
-                    }
-                },
-            ],
-            'signatories' => 'required_without:officers|nullable|array|min:1',
-            'signatories.*' => [
+            // Pejabat penandatangan wajib 1 dan authorized untuk kesatuan polres
+            'officers' => [
                 'required',
                 'string',
                 Rule::exists(Officer::class, 'id'),
@@ -1824,7 +1873,8 @@ class SuratPermintaanIzinPenyitaanController extends Controller
 
             // Daftar UU / Pasal (Sprindik lawCrimeTypeIds atau legacy laws)
             'lawCrimeTypeIds' => [
-                Rule::requiredIf(function () use ($request) {
+                Rule::requiredIf(function () use ($request, $hasValidAdditionalLaw) {
+                    if ($hasValidAdditionalLaw) return false;
                     return $request->has('lawCrimeTypeIds') || (!$request->has('laws') && !$request->has('lawCrimeTypeIds'));
                 }),
                 'nullable',
@@ -1833,14 +1883,15 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             ],
             'lawCrimeTypeIds.*' => 'required',
             'laws' => [
-                Rule::requiredIf(function () use ($request) {
+                Rule::requiredIf(function () use ($request, $hasValidAdditionalLaw) {
+                    if ($hasValidAdditionalLaw) return false;
                     return $request->has('laws') && !$request->has('lawCrimeTypeIds');
                 }),
                 'nullable',
                 'array',
                 'min:1',
-                function ($attribute, $value, $fail) use ($request) {
-                    if (!$request->has('laws') || $request->has('lawCrimeTypeIds')) {
+                function ($attribute, $value, $fail) use ($request, $hasValidAdditionalLaw) {
+                    if (!$request->has('laws') || $request->has('lawCrimeTypeIds') || $hasValidAdditionalLaw) {
                         return;
                     }
                     if (!is_array($value) || empty($value)) {
@@ -1856,6 +1907,11 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                         $crimeId = $law['crime_constitution_id'] ?? null;
                         $chapter = trim($law['constitution_chapter'] ?? ($law['pasal'] ?? ''));
                         $const = trim($law['constitution'] ?? '');
+
+                        if (!empty($crimeId) && empty($chapter)) {
+                            $fail("Pasal UU Khusus harus diisi.");
+                            return;
+                        }
 
                         if (!empty($crimeId) || !empty($chapter) || !empty($const)) {
                             $validCount++;
@@ -1875,10 +1931,32 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             'laws.*.constitution_chapter' => 'nullable|string|max:255',
             'laws.*.constitution' => 'nullable|string|max:255',
             'laws.*.description' => 'nullable|string',
-            'laws.*.flag' => 'nullable|in:MAIN,ADDITIONAL,ADDT',
+            'laws.*.flag' => 'nullable|in:MAIN,ADDITIONAL',
+            'lawCrimeConstitutionChapters' => [
+                'nullable',
+                'array',
+                function ($attribute, $value, $fail) use ($request) {
+                    $crimeConstitutionIds = $request->input('lawCrimeConstitutionIds', []);
+                    if (is_array($value) && is_array($crimeConstitutionIds)) {
+                        foreach ($crimeConstitutionIds as $index => $crimeId) {
+                            $chapter = trim($value[$index] ?? '');
+                            if (!empty($crimeId) && empty($chapter)) {
+                                $fail('Pasal UU Khusus harus diisi.');
+                                return;
+                            }
+                        }
+                    }
+                }
+            ],
 
             // Daftar Tersangka optional, min 1 jika diisi dan harus terdaftar pada kasus kecelakaan
-            'suspects' => 'nullable|array',
+            'suspects' => [
+                Rule::requiredIf(function () use ($request) {
+                    return $request->input('isSuspectExists') === 'true';
+                }),
+                'nullable',
+                'array',
+            ],
             'suspects.*' => [
                 'required',
                 'uuid',
@@ -1893,6 +1971,16 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                         }
                     }
                 },
+            ],
+
+            // Terlapor wajib jika tidak ada tersangka
+            'reportedPerson' => [
+                Rule::requiredIf(function () use ($request) {
+                    return $request->input('isSuspectExists') === 'false';
+                }),
+                'nullable',
+                'uuid',
+                Rule::exists(ReportedPerson::class, 'id'),
             ],
 
             // Daftar Barang Sitaan optional, min 1 jika diisi
@@ -1922,21 +2010,20 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             'sprindik_date.date' => 'Format Tanggal Sprindik tidak valid.',
 
             'surat_perintah_penyidikan_document_id.exists' => 'Dokumen Sprindik yang dipilih tidak valid.',
+            'court_id.required' => 'Pengadilan Negeri Tujuan wajib dipilih.',
             'court_id.exists' => 'Pengadilan Negeri yang dipilih tidak valid.',
             'documentClassification.required' => 'Klasifikasi dokumen wajib dipilih.',
             'documentClassification.required_without_all' => 'Klasifikasi dokumen wajib dipilih.',
+            
+            'carbonCopies.required' => 'Tembusan wajib diisi.',
+            'carbonCopies.min' => 'Tembusan wajib diisi minimal 1.',
             'carbonCopies.*.required' => 'Mohon Jangan Kosongkan Isi Tembusan, Hapus Jika Memang Tidak Ada.',
 
             'officerLeader.required' => 'Ketua Tim Penyidik wajib dipilih.',
             'officerLeader.exists' => 'Ketua Tim Penyidik yang dipilih tidak valid.',
 
-            'officers.required' => 'Pejabat Penandatangan wajib dipilih minimal 1 orang.',
-            'officers.required_without' => 'Pejabat Penandatangan wajib dipilih minimal 1 orang.',
-            'officers.min' => 'Pejabat Penandatangan wajib dipilih minimal 1 orang.',
-            'signatories.required_without' => 'Pejabat Penandatangan wajib dipilih minimal 1 orang.',
-            'signatories.min' => 'Pejabat Penandatangan wajib dipilih minimal 1 orang.',
-            'officers.*.exists' => 'Pejabat Penandatangan yang dipilih tidak valid.',
-            'signatories.*.exists' => 'Pejabat Penandatangan yang dipilih tidak valid.',
+            'officers.required' => 'Pejabat Penandatangan wajib dipilih.',
+            'officers.exists' => 'Pejabat Penandatangan yang dipilih tidak valid.',
 
             'lawCrimeTypeIds.required' => 'Wajib memilih minimal 1 UU / Pasal.',
             'lawCrimeTypeIds.min' => 'Wajib memilih minimal 1 UU / Pasal.',
@@ -1946,7 +2033,11 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             'laws.min' => 'Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1.',
             'laws.*.crime_constitution_id.exists' => 'Dasar UU yang dipilih tidak valid.',
 
+            'suspects.required' => 'Tersangka yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan harus diisi.',
             'suspects.*.exists' => 'Tersangka yang dipilih tidak valid.',
+            
+            'reportedPerson.required' => 'Terlapor yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan harus diisi.',
+            'reportedPerson.exists' => 'Terlapor yang dipilih tidak valid.',
 
             'seized_items.*.nama.required_with' => 'Nama barang sitaan wajib diisi.',
         ];

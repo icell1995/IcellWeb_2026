@@ -347,7 +347,7 @@
                         <!-- Pengadilan Negeri Tujuan -->
                         <div class="form-group row mb-3 align-items-center">
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="court_id">
-                                Pengadilan Negeri Tujuan
+                                Pengadilan Negeri Tujuan<span class="text-danger fs-5">*</span>
                             </label>
                             <div class="col-lg-9 col-md-9 col-sm-12">
                                 <select class="form-control select2 @error('court_id') is-invalid @enderror"
@@ -425,7 +425,7 @@
 
                             <div class="input-group row mb-3 ms-0">
                                 <label class="fw-bold col-sm-3 col-form-label" for="suspects">
-                                    Tersangka Terkait
+                                    Tersangka yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan<span class="text-danger fs-5">*</span>
                                 </label>
                                 <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                                     <select class="form-control select2-multiple @error('suspects') is-invalid @enderror"
@@ -464,15 +464,43 @@
                                 </div>
                             </div>
 
-                            <!-- Pelapor -->
-                            <div class="form-group row mb-3">
-                                <label class="col-sm-3 col-form-label fw-bold" for="informant">Pilih Pelapor</label>
-                                <div class="col-sm-9">
-                                    <select class="form-control select2 @error('informant') is-invalid @enderror" name="informant" id="informant">
-                                        <option value="">-- Pilih Pelapor --</option>
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold col-sm-3 col-form-label" for="reportedPerson">
+                                    Pilih Terlapor<span class="text-danger fs-5">*</span>
+                                </label>
+                                <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                                    <select class="form-control select2 @error('reportedPerson') is-invalid @enderror"
+                                        name="reportedPerson" id="reportedPerson" data-placeholder="Pilih Terlapor">
+                                        <option value="" disabled {{ (old('reportedPerson') || empty($selectedReportedPersonIds)) ? 'selected' : '' }}>Pilih Terlapor</option>
+                                        @foreach ($reportedPersons as $reportedPerson)
+                                            @php
+                                                $isRpSelected = old('reportedPerson') == $reportedPerson->id || in_array($reportedPerson->id, $selectedReportedPersonIds);
+                                            @endphp
+                                            <option value="{{ $reportedPerson->id }}" {{ $isRpSelected ? 'selected' : '' }}>
+                                                {{ $reportedPerson->name ?? '-' }} (NIK: {{ $reportedPerson->identity_number ?? '-' }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('reportedPerson')
+                                        <span class="invalid-feedback d-block" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold col-sm-3 col-form-label" for="informant">
+                                    Pilih Pelapor
+                                </label>
+                                <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                                    <select class="form-control select2 @error('informant') is-invalid @enderror"
+                                        name="informant" id="informant" data-placeholder="Pilih Pelapor">
+                                        <option value="" disabled {{ old('informant') ? '' : 'selected' }}>Pilih Pelapor</option>
                                         @foreach ($informants as $informant)
-                                            <option value="{{ $informant->id }}" {{ old('informant') == $informant->id ? 'selected' : '' }}>
-                                                {{ $informant->name }}
+                                            <option value="{{ $informant->id }}"
+                                                {{ old('informant') == $informant->id ? 'selected' : '' }}>
+                                                {{ $informant->name ?? '-' }} (NIK: {{ $informant->identity_number ?? '-' }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -484,25 +512,6 @@
                                 </div>
                             </div>
 
-                            <!-- Terlapor -->
-                            <div class="form-group row mb-3">
-                                <label class="col-sm-3 col-form-label fw-bold" for="reportedPerson">Pilih Terlapor</label>
-                                <div class="col-sm-9">
-                                    <select class="form-control select2 @error('reportedPerson') is-invalid @enderror" name="reportedPerson" id="reportedPerson">
-                                        <option value="">-- Pilih Terlapor --</option>
-                                        @foreach ($reportedPersons as $reportedPerson)
-                                            <option value="{{ $reportedPerson->id }}" {{ old('reportedPerson') == $reportedPerson->id ? 'selected' : '' }}>
-                                                {{ $reportedPerson->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('reportedPerson')
-                                        <span class="invalid-feedback d-block" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Ketua Tim Penyidik -->
@@ -535,22 +544,26 @@
 
                         <!-- Yang Menandatangani (Pejabat Penandatangan) -->
                         @php
-                            $selectedOfficerIds = old('officers', $existingOfficerIds);
+                            $oldOfficer = old('officers');
+                            if (!$oldOfficer) {
+                                $oldOfficer = !empty($existingOfficerIds) && is_array($existingOfficerIds) ? $existingOfficerIds[0] : null;
+                            }
                         @endphp
                         <div class="input-group row mb-3 ms-0">
                             <label class="fw-bold col-sm-3 col-form-label" for="officers">
                                 Yang Menandatangani<span class="text-danger fs-5">*</span>
                             </label>
                             <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                <select class="form-control select2-multiple @error('officers') is-invalid @enderror"
-                                    name="officers[]" id="officers" multiple="multiple"
-                                    data-placeholder="Pilih Pejabat Penandatangan (Bisa Lebih Dari Satu)">
+                                <select class="form-control select2 @error('officers') is-invalid @enderror"
+                                    name="officers" id="officers"
+                                    data-placeholder="Pilih Pejabat Penandatangan">
+                                    <option value=""></option>
                                     @foreach ($authorizedSignatories as $signatory)
                                         @php
                                             $positionName = $signatory->position->name ?? '';
                                             $rankName = $signatory->rank->name ?? '';
                                             $fullName = \App\Helpers\PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title);
-                                            $isSelected = is_array($selectedOfficerIds) && in_array($signatory->id, $selectedOfficerIds);
+                                            $isSelected = $oldOfficer == $signatory->id;
                                         @endphp
                                         <option value="{{ $signatory->id }}" {{ $isSelected ? 'selected' : '' }}>
                                             {{ $signatory->register_number }} - {{ $fullName }} ({{ $rankName }} / {{ $positionName }})
@@ -568,7 +581,7 @@
 
                         <!-- Tembusan -->
                         <div class="input-group row mb-3 ms-0">
-                            <label class="fw-bold col-sm-3 col-form-label" for="carbonCopies">Tembusan</label>
+                            <label class="fw-bold col-sm-3 col-form-label" for="carbonCopies">Tembusan<span class="text-danger fs-5">*</span></label>
                             <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                                 <div id="carbonCopiesContainer">
                                     @php
@@ -791,18 +804,17 @@
 
                 <!-- BUTTON SUBMIT & BATAL -->
                 <div class="text-center my-4">
-                    <button type="button" class="btn btn-dark-blue btn-lg px-4" id="suratPermintaanIzinPenyitaanFormSubmit">
-                        <i class="bi bi-save me-1"></i> Update Dokumen S-12
+                    <button type="button" class="btn btn-dark-blue btn-md px-4" id="suratPermintaanIzinPenyitaanFormSubmit">
+                        <i class="bi bi-save me-1"></i> Simpan
                     </button>
                     <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId]) }}"
-                        class="btn btn-danger btn-lg px-4 ms-2">
+                        class="btn btn-danger btn-md px-4 ms-2">
                         <i class="bi bi-x-circle me-1"></i> Batal
                     </a>
                 </div>
             </form>
         </div>
     </div>
-@endsection
 
 <!-- Modal Tambah Barang Sitaan -->
 <div class="modal fade" id="addSeizedItemModal" tabindex="-1" role="dialog" aria-labelledby="addSeizedItemModalLabel">
@@ -922,6 +934,8 @@
         </div>
     </div>
 </div>
+
+@endsection
 
 @push('script')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js" defer></script>
@@ -1187,6 +1201,15 @@
                     return;
                 }
 
+                if (crimeConstitutionId && !chapter) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Perhatian',
+                        text: 'Pasal UU Khusus harus diisi.'
+                    });
+                    return;
+                }
+
                 var rowHtml = `
                     <tr class="law-row">
                         <td>
@@ -1398,9 +1421,25 @@
                 if (!$('#sprindik_date').val().trim()) {
                     markError($('#sprindik_date'), 'Tanggal SP Penyidikan wajib diisi.');
                 }
+                if (!$('#court_id').val()) {
+                    markError($('#court_id'), 'Pengadilan Negeri Tujuan wajib dipilih.');
+                }
+                if ($('.isSuspectExists:checked').val() === 'true') {
+                    if (!$('#suspects').val() || $('#suspects').val().length === 0) {
+                        markError($('#suspects'), 'Tersangka yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan harus diisi.');
+                    }
+                } else {
+                    if (!$('#reportedPerson').val()) {
+                        markError($('#reportedPerson'), 'Terlapor yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan harus diisi.');
+                    }
+                }
                 var selSprindik = $('#surat_perintah_penyidikan_document_id').find(':selected');
                 if (selSprindik.data('number') && !$('#sprindik_number').val()) {
                     $('#sprindik_number').val(selSprindik.data('number'));
+                }
+
+                if (!$('#officerLeader').val()) {
+                    markError($('#officerLeader'), 'Ketua Tim Penyidik wajib dipilih.');
                 }
 
                 var selectedOfficers = $('#officers').val();
@@ -1409,8 +1448,31 @@
                 }
 
                 // Check Laws
-                if ($('#lawTable tbody tr.law-row').length === 0) {
+                var mainLawCount = $('#lawTable tbody tr.law-row').length;
+                var additionalLawCount = 0;
+                $('#additionalLawTable tbody tr input[type="hidden"]').each(function() {
+                    if ($(this).val().trim() !== '') {
+                        additionalLawCount++;
+                    }
+                });
+                if (mainLawCount === 0 && additionalLawCount === 0) {
                     markError($('#lawTable'), 'Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1 pasal.');
+                }
+
+                // Check Tembusan
+                var carbonCopiesCount = 0;
+                $('#carbonCopiesContainer input[name="carbonCopies[]"]').each(function() {
+                    if ($(this).val().trim() !== '') {
+                        carbonCopiesCount++;
+                    }
+                });
+                if (carbonCopiesCount === 0) {
+                    markError($('#carbonCopiesContainer'), 'Tembusan wajib diisi.');
+                }
+
+                // Check Seized Items
+                if ($('#seizedItemTable tbody tr.seized-item-row').length === 0) {
+                    markError($('#seizedItemTable'), 'Daftar Barang yang Dimintakan Izin Penyitaan harus diisi minimal 1 barang.');
                 }
 
                 if (errors.length > 0) {

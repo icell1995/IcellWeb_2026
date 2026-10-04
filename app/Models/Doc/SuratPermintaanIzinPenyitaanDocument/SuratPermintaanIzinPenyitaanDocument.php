@@ -217,4 +217,14 @@ class SuratPermintaanIzinPenyitaanDocument extends Model
             'suspect_id'
         );
     }
+
+    public function reportedPersons()
+    {
+        return $this->belongsToMany(
+            'App\Models\ReportedPerson',
+            'pivot.surat_permintaan_izin_penyitaan_doc_reported_person',
+            'surat_permintaan_izin_penyitaan_document_id',
+            'reported_person_id'
+        )->withRelated();
+    }
 }
