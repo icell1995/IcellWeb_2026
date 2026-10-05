@@ -1387,6 +1387,11 @@ class AccidentController extends Controller
             'laporanHasilGelarPerkaraDocuments',
             'suratKetetapanTentangPenetapanTersangkaDocuments',
             'suratPemberitahuanDimulainyaPenyidikanDocuments',
+            'suratPemberitahuanPerkembanganHasilPenyidikanDocuments',
+            'suratPerintahPenahananDocuments',
+            'suratPerintahPenangguhanPenahananDocuments',
+            'suratPerintahPencabutanPenangguhanPenahananDocuments',
+            'suratPermohonanPerpanjanganPenahananKejaksaanDocuments'
             'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments',
             'suratPemberitahuanPerkembanganHasilPenyidikanDocuments',
             'suratPemberitahuanPenghentianPenyidikanDocuments',
