@@ -159,7 +159,9 @@ class SpudDocumentController extends Controller
                         'tempat_lahir'       => $suspect->birth_place ?? null,
                         'tanggal_lahir'      => $birthDate,
                         'umur'               => $age,
-                        'kode_jenis_kelamin' => isset($suspect->gender->emp_id) ? intval($suspect->gender->emp_id) : null,
+                        'kode_jenis_kelamin' => isset($suspect->gender->pusiknas_id)
+                            ? intval($suspect->gender->pusiknas_id)
+                            : (isset($suspect->gender->emp_id) ? intval($suspect->gender->emp_id) : null),
                         'kode_warga_negara'  => !empty($suspect->country->code_alpha_3)
                             ? strtolower($suspect->country->code_alpha_3)
                             : ($suspect->country->emp_id ?? ($suspect->nationality ?? null)),
@@ -169,9 +171,15 @@ class SpudDocumentController extends Controller
                             'kabupaten' => $suspect->regency->name ?? null,
                             'provinsi'  => $suspect->province->name ?? null,
                         ],
-                        'kode_agama'         => isset($suspect->religion->emp_id) ? intval($suspect->religion->emp_id) : null,
-                        'kode_pekerjaan'     => isset($suspect->job->emp_id) ? intval($suspect->job->emp_id) : null,
-                        'kode_pendidikan'    => isset($suspect->education->emp_id) ? intval($suspect->education->emp_id) : null,
+                        'kode_agama'         => isset($suspect->religion->pusiknas_id)
+                            ? intval($suspect->religion->pusiknas_id)
+                            : (isset($suspect->religion->emp_id) ? intval($suspect->religion->emp_id) : null),
+                        'kode_pekerjaan'     => isset($suspect->job->pusiknas_id)
+                            ? intval($suspect->job->pusiknas_id)
+                            : (isset($suspect->job->emp_id) ? intval($suspect->job->emp_id) : null),
+                        'kode_pendidikan'    => isset($suspect->education->pusiknas_id)
+                            ? intval($suspect->education->pusiknas_id)
+                            : (isset($suspect->education->emp_id) ? intval($suspect->education->emp_id) : null),
                     ];
                 }
 
@@ -210,7 +218,9 @@ class SpudDocumentController extends Controller
                                 'kabupaten' => $victim->regency->name ?? null,
                                 'provinsi'  => $victim->province->name ?? null,
                             ],
-                            'kode_agama'        => isset($victim->religion->emp_id) ? intval($victim->religion->emp_id) : null,
+                            'kode_agama'        => isset($victim->religion->pusiknas_id)
+                                ? intval($victim->religion->pusiknas_id)
+                                : (isset($victim->religion->emp_id) ? intval($victim->religion->emp_id) : null),
                         ];
                     }
                 }
