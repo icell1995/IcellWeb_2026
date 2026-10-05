@@ -962,6 +962,14 @@ class RefSeeder extends Seeder
         ]);
 
         \App\Models\Ref::create([
+            'id' => 'D110115',
+            'name' => 'SURAT PEMBERITAHUAN PENGHENTIAN PENYIDIKAN',
+            'grp_id' => 'D11',
+            'sort' => '15',
+            'state' => '1',
+        ]);
+
+        \App\Models\Ref::create([
             'id' => 'D110107',
             'name' => 'SURAT PERINTAH PENGHENTIAN PENYIDIKAN',
             'grp_id' => 'D11',

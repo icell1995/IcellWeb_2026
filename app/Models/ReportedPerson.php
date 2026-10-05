@@ -41,6 +41,7 @@ class ReportedPerson extends Model
             'religion',
             'maritalStatus',
             'nationality',
+            'ethnic',
             'country',
             'province',
             'regency',
@@ -67,6 +68,11 @@ class ReportedPerson extends Model
     public function job()
     {
         return $this->belongsTo('App\Models\Lib\Job', 'job_id', 'id');
+    }
+
+    public function ethnic()
+    {
+        return $this->belongsTo('App\Models\Lib\Ethnic', 'ethnic_id', 'id');
     }
    
     public function gender()
