@@ -54,6 +54,50 @@ Route::prefix('tahap-2-pusiknas')->group(function () {
     )->name('api.pusiknasbareskrim.doc.tahap-2-pusiknas.index');
 });
 
+Route::prefix('s17')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S17DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s17.index');
+    Route::get(
+        '/{id}',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S17DocumentController::class, 'show']
+    )->name('api.pusiknasbareskrim.doc.s17.show');
+});
+
+Route::prefix('s18')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S18DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s18.index');
+    Route::get(
+        '/{id}',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S18DocumentController::class, 'show']
+    )->name('api.pusiknasbareskrim.doc.s18.show');
+});
+
+Route::prefix('s19')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S19DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s19.index');
+    Route::get(
+        '/{id}',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S19DocumentController::class, 'show']
+    )->name('api.pusiknasbareskrim.doc.s19.show');
+});
+
+Route::prefix('s21')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S21DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s21.index');
+    Route::get(
+        '/{id}',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S21DocumentController::class, 'show']
+    )->name('api.pusiknasbareskrim.doc.s21.show');
+});
+
 Route::prefix('s22')->group(function () {
     Route::get(
         '/',

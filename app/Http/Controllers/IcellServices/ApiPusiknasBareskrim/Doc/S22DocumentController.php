@@ -32,7 +32,7 @@ class S22DocumentController extends Controller
         $service = $this->s22Service;
 
         // 1. Ambil Query Parameter
-        $type = strtolower($request->query('type', 'all')); // 'all', 'pertama', 'kedua', '0603', '0604'
+        $type = strtolower($request->query('type', 'all')); // 'all', 'pertama', 'kedua', '0606', '0607'
         $id = $request->query('id'); // Filter UUID spesifik jika ada
         $mode = $request->query('mode');
         $startReleaseDate = $request->query('start_release_date');
@@ -76,12 +76,12 @@ class S22DocumentController extends Controller
                 'prison',
             ];
 
-            $fetchPertama = in_array($type, ['all', 'pertama', '0603', '']);
-            $fetchKedua = in_array($type, ['all', 'kedua', '0604', '']);
+            $fetchPertama = in_array($type, ['all', 'pertama', '0606', '']);
+            $fetchKedua = in_array($type, ['all', 'kedua', '0607', '']);
 
             $results = collect();
 
-            // 3. Query S-22 Pertama (0603)
+            // 3. Query S-22 Pertama (0606)
             if ($fetchPertama) {
                 $q1 = SuratPermintaanPerpanjanganPenahananLanjutanDocument::with($eagerRelations)
                     ->where('status_id', '11')
@@ -96,7 +96,7 @@ class S22DocumentController extends Controller
                 $results = $results->merge($docsPertama);
             }
 
-            // 4. Query S-22 Kedua (0604)
+            // 4. Query S-22 Kedua (0607)
             if ($fetchKedua) {
                 $q2 = SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::with($eagerRelations)
                     ->where('status_id', '11')
@@ -223,7 +223,7 @@ class S22DocumentController extends Controller
             $ipAddress = $request->header('X-Forwarded-For')
                 ?: ($request->header('X-Real-IP') ?: $request->ip());
 
-            $categoryId = $document->document_category_id ?? '0603';
+            $categoryId = $document->document_category_id ?? '0606';
 
             DocumentApiSyncHistory::create([
                 'document_category_id' => $categoryId,

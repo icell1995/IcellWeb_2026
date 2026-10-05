@@ -38,7 +38,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument extends Model
         self::creating(function ($model) {
             $model->id = (string) Uuid::generate();
             $model->status_id = '2'; // Dokumen Dibuat
-            $model->document_category_id = '0604';
+            $model->document_category_id = '0607';
         });
 
         self::created(function ($model) {

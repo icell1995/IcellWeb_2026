@@ -288,7 +288,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
 
             $document = SuratPermintaanPerpanjanganPenahananLanjutanDocument::create([
                 'accident_id' => $accidentId,
-                'document_category_id' => '0603',
+                'document_category_id' => '0606',
                 'status_id' => '2', // Dokumen Dibuat
                 'nomor_surat' => $request->nomor_surat,
                 'tanggal_surat' => $request->tanggal_surat ? Carbon::parse($request->tanggal_surat)->format('Y-m-d') : null,

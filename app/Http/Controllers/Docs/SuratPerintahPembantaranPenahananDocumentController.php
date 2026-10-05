@@ -203,7 +203,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
         try {
             $document = new SuratPerintahPembantaranPenahananDocument();
             $document->accident_id = $accidentId;
-            $document->document_category_id = '0605';
+            $document->document_category_id = '0608';
             $document->status_id = '2'; // Dokumen Dibuat
             $document->nomor_surat = $request->nomor_surat;
             $document->tanggal_surat = $request->tanggal_surat ? Carbon::parse($request->tanggal_surat)->format('Y-m-d') : null;

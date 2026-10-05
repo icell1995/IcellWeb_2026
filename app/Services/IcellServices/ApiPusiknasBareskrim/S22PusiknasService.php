@@ -14,7 +14,7 @@ class S22PusiknasService
 {
     /**
      * Membentuk struktur payload JSON Dokumen S-22 sesuai Swagger SPPT-TI (HAN-10.30)
-     * Berlaku untuk S-22 Pertama (0603) maupun S-22 Kedua (0604).
+     * Berlaku untuk S-22 Pertama (0606) maupun S-22 Kedua (0607).
      *
      * @param mixed $document Model dokumen S-22
      * @return array

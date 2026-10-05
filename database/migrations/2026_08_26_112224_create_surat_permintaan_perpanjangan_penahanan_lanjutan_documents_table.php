@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('doc.surat_permintaan_perpanjangan_penahanan_lanjutan_documents', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('accident_id')->index();
-            $table->string('document_category_id')->nullable();
+            $table->string('document_category_id')->nullable()->default('0606');
             $table->string('status_id')->nullable();
 
             $table->string('nomor_surat')->nullable();

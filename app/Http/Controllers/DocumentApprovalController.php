@@ -13,6 +13,10 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocument;
+use App\Models\Doc\SuratPerintahPencabutanPenangguhanPenahananDocument\SuratPerintahPencabutanPenangguhanPenahananDocument;
+use App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument;
 use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument;
 use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument;
 use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument;
@@ -158,7 +162,7 @@ class DocumentApprovalController extends Controller
                 }
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
-                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706'])){
+                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706', '0601', '0603'])){
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
@@ -206,6 +210,10 @@ class DocumentApprovalController extends Controller
             LaporanHasilGelarPerkaraDocument::class,
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            SuratPerintahPenahananDocument::class,
+            SuratPerintahPenangguhanPenahananDocument::class,
+            SuratPerintahPencabutanPenangguhanPenahananDocument::class,
+            SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
             SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
             SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
             SuratPerintahPembantaranPenahananDocument::class,
@@ -246,9 +254,13 @@ class DocumentApprovalController extends Controller
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
-            '0603' => SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
-            '0604' => SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
-            '0605' => SuratPerintahPembantaranPenahananDocument::class,
+            '0601' => SuratPerintahPenahananDocument::class,
+            '0603' => SuratPerintahPenangguhanPenahananDocument::class,
+            '0604' => SuratPerintahPencabutanPenangguhanPenahananDocument::class,
+            '0605' => SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
+            '0606' => SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
+            '0607' => SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
+            '0608' => SuratPerintahPembantaranPenahananDocument::class,
             '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
             '0805' => Tahap1Document::class,
             '0806' => Tahap1Document::class,

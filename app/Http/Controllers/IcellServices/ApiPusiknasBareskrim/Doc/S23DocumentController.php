@@ -75,7 +75,7 @@ class S23DocumentController extends Controller
                 'officers',
             ];
 
-            // 3. Query Dokumen S-23 (0605)
+            // 3. Query Dokumen S-23 (0608)
             $query = SuratPerintahPembantaranPenahananDocument::with($eagerRelations);
 
             // Filter status rilis (bisa override via parameter status_id=all atau status_id=<id>)
@@ -228,7 +228,7 @@ class S23DocumentController extends Controller
                 ?: ($request->header('X-Real-IP') ?: $request->ip());
 
             DocumentApiSyncHistory::create([
-                'document_category_id' => '0605',
+                'document_category_id' => $document->document_category_id ?? '0608',
                 'document_id' => $document->id,
                 'document_type' => get_class($document),
                 'accident_id' => $document->accident_id,

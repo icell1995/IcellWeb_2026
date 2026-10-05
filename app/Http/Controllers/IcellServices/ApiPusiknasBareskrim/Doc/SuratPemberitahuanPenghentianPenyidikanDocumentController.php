@@ -62,12 +62,16 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
 
             $documents = $documents->paginate($perPage, ['*'], 'page', $page);
 
+            $totalData = $documents->total();
+            $totalPage = $documents->lastPage();
+
             $regenciesPath = base_path('master_seeder/regencies-new1.json');
             $allRegencies = file_exists($regenciesPath) ? json_decode(file_get_contents($regenciesPath), true) ?? [] : [];
             $districtsPath = base_path('master_seeder/districts-new1.json');
             $allDistricts = file_exists($districtsPath) ? json_decode(file_get_contents($districtsPath), true) ?? [] : [];
 
             $responseData = [];
+            $arrayKey = 0;
 
             foreach ($documents as $doc) {
                 $messages = $doc->messages ?? [];
@@ -202,53 +206,94 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
                     'url' => ''
                 ];
 
-                $responseData[] = [
-                    'kode_jenis_dokumen' => 'sp3',
-                    'identitas_dokumen' => [
-                        'nomor' => $doc->document_number ?? '-',
-                        'tanggal' => $doc->document_date ? date('Y-m-d', strtotime($doc->document_date)) : date('Y-m-d'),
-                        'nomor_spdp' => $doc->no_spdp ?? null
-                    ],
-                    'konten_dokumen' => [
-                        'kode_alasan' => (function() use ($doc) {
-                            // Prioritas: kolom kode_alasan (JSON), lalu messages kode_alasan_raw
-                            $raw = $doc->kode_alasan;
-                            if (is_string($raw)) {
-                                $decoded = json_decode($raw, true);
-                                if (is_array($decoded) && count($decoded) > 0) {
-                                    return array_map('intval', $decoded);
-                                }
-                            } elseif (is_array($raw) && count($raw) > 0) {
-                                return array_map('intval', $raw);
-                            }
-                            $rawMsg = $doc->messages['kode_alasan_raw'] ?? [];
-                            if (is_array($rawMsg) && count($rawMsg) > 0) {
-                                return array_map('intval', $rawMsg);
-                            }
-                            return [1]; // fallback
-                        })(),
-                        'pejabat_penandatangan' => $pejabat,
-                        'daftar_terlapor_atau_tersangka' => count($daftarTerlaporTersangka) > 0 ? $daftarTerlaporTersangka : null,
-                        'daftar_dokumen_digital' => $daftarDokumenDigital
-                    ]
+                $identitasDokumen = [
+                    'nomor' => $doc->document_number ?? '-',
+                    'tanggal' => $doc->document_date ? date('Y-m-d', strtotime($doc->document_date)) : date('Y-m-d'),
+                    'nomor_spdp' => $doc->no_spdp ?? null
                 ];
+
+                $kontenDokumen = [
+                    'kode_alasan' => (function() use ($doc) {
+                        // Prioritas: kolom kode_alasan (JSON), lalu messages kode_alasan_raw
+                        $raw = $doc->kode_alasan;
+                        if (is_string($raw)) {
+                            $decoded = json_decode($raw, true);
+                            if (is_array($decoded) && count($decoded) > 0) {
+                                return array_map('intval', $decoded);
+                            }
+                        } elseif (is_array($raw) && count($raw) > 0) {
+                            return array_map('intval', $raw);
+                        }
+                        $rawMsg = $doc->messages['kode_alasan_raw'] ?? [];
+                        if (is_array($rawMsg) && count($rawMsg) > 0) {
+                            return array_map('intval', $rawMsg);
+                        }
+                        return [1]; // fallback
+                    })(),
+                    'pejabat_penandatangan' => $pejabat,
+                    'daftar_terlapor_atau_tersangka' => count($daftarTerlaporTersangka) > 0 ? $daftarTerlaporTersangka : null,
+                    'daftar_dokumen_digital' => $daftarDokumenDigital
+                ];
+
+                // --- root document ---
+                $responseData[$arrayKey] = [
+                    'kode_jenis_dokumen'    => 'sp3',
+                    'identitas_dokumen'     => $identitasDokumen,
+                    'konten_dokumen'        => $kontenDokumen,
+                    'terenkripsi'           => false,
+                    'daftar_kunci_enkripsi' => [],
+                    'tanda_tangan_digital'  => null,
+                ];
+
+                $arrayKey++;
             }
 
+            // Check if data array is empty
+            if ($documents->isEmpty()) {
+                return response()->json([
+                    "code"       => "404",
+                    "status"     => "NOT_FOUND",
+                    "message"    => "Data not found.",
+                    "pagination" => [
+                        "Page"          => $page,
+                        "TotalData"     => 0,
+                        "TotalPage"     => 0,
+                        "TotalDataSent" => 0,
+                    ],
+                    "data" => [],
+                ], 404);
+            }
+
+            // Commit transaction
             DB::commit();
 
+            // Return Result JSON
             return response()->json([
-                'status'  => 'success',
-                'message' => 'Data ditemukan.',
-                'total'   => count($responseData),
-                'page'    => $page,
-                'data'    => $responseData
+                "code"       => "200",
+                "status"     => "OK",
+                "message"    => "Success",
+                "pagination" => [
+                    "Page"          => $page,
+                    "TotalData"     => $totalData,
+                    "TotalPage"     => $totalPage,
+                    "TotalDataSent" => count($responseData),
+                ],
+                "data" => $responseData,
             ], 200);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            DB::rollback();
             return response()->json([
-                'status'  => 'error',
-                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                "code"       => "500",
+                "status"     => "INTERNAL_SERVER_ERROR",
+                "message"    => "An error occurred while processing your request.",
+                "pagination" => [
+                    "Page"          => $page,
+                    "TotalData"     => 0,
+                    "TotalPage"     => 0,
+                    "TotalDataSent" => 0,
+                ],
+                "data" => [],
             ], 500);
         }
     }

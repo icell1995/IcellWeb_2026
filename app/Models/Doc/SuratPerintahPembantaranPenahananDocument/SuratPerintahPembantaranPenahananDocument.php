@@ -38,7 +38,7 @@ class SuratPerintahPembantaranPenahananDocument extends Model
         self::creating(function ($model) {
             $model->id = (string) Uuid::generate();
             $model->status_id = '2'; // Dokumen Dibuat
-            $model->document_category_id = '0605';
+            $model->document_category_id = '0608';
         });
 
         self::created(function ($model) {
