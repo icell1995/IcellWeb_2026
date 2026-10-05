@@ -172,7 +172,7 @@ class LocationsTableSeeder extends Seeder
 
     private function getCountries()
     {
-        $countries = File::get(base_path('master_seeder/countries.json'));
+        $countries = File::get(base_path('master_seeder/countries-new1.json'));
 
         return $countries;
     }
@@ -186,21 +186,21 @@ class LocationsTableSeeder extends Seeder
 
     private function getRegencies()
     {
-        $regencies = File::get(base_path('master_seeder/regencies.json'));
+        $regencies = File::get(base_path('master_seeder/regencies-new1.json'));
 
         return $regencies;
     }
 
     private function getDistricts()
     {
-        $districts = File::get(base_path('master_seeder/districts.json'));
+        $districts = File::get(base_path('master_seeder/districts-new1.json'));
 
         return $districts;
     }
 
     private function getVillages()
     {
-        $villages = File::get(base_path('master_seeder/villages.json'));
+        $villages = File::get(base_path('master_seeder/villages-new1.json'));
 
         return $villages;
     }

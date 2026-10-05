@@ -317,7 +317,7 @@
                                                                         $leaderboardItem['polda'];
                                                                 @endphp
 
-                                                                <tr class="{{ $cellColor }} {{ 'resort-police-2025-table-row-polda-' . $leaderboardItem['polda'] }}"
+                                                                <tr class="{{ $cellColor }} {{ 'resort-police-2026-table-row-polda-' . $leaderboardItem['polda'] }}"
                                                                     style="display:none;">
                                                                     <th scope="row" class="text-center">
                                                                         {{ $loop->iteration }}</th>
@@ -952,6 +952,12 @@
         setInterval(function() {
             $('.marked-text').toggleClass('text-danger text-success');
         }, 1500);
+
+        $('.regional-police-2026-table-row-button').click(function() {
+            var id = $(this).attr('id');
+            console.log(id);
+            $('.resort-police-2026-table-row-' + id).toggle();
+        });
 
         $('.regional-police-2025-table-row-button').click(function() {
             var id = $(this).attr('id');

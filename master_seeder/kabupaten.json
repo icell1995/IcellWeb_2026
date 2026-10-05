@@ -1,0 +1,3086 @@
+[
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.01",
+        "Nama Wilayah": "Kabupaten Aceh Selatan",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.02",
+        "Nama Wilayah": "Kabupaten Aceh Tenggara",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.03",
+        "Nama Wilayah": "Kabupaten Aceh Timur",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.04",
+        "Nama Wilayah": "Kabupaten Aceh Tengah",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.05",
+        "Nama Wilayah": "Kabupaten Aceh Barat",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.06",
+        "Nama Wilayah": "Kabupaten Aceh Besar",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.07",
+        "Nama Wilayah": "Kabupaten Pidie",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.08",
+        "Nama Wilayah": "Kabupaten Aceh Utara",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.09",
+        "Nama Wilayah": "Kabupaten Simeulue",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.10",
+        "Nama Wilayah": "Kabupaten Aceh Singkil",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.11",
+        "Nama Wilayah": "Kabupaten Bireuen",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.12",
+        "Nama Wilayah": "Kabupaten Aceh Barat Daya",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.13",
+        "Nama Wilayah": "Kabupaten Gayo Lues",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.14",
+        "Nama Wilayah": "Kabupaten Aceh Jaya",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.15",
+        "Nama Wilayah": "Kabupaten Nagan Raya",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.16",
+        "Nama Wilayah": "Kabupaten Aceh Tamiang",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.17",
+        "Nama Wilayah": "Kabupaten Bener Meriah",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.18",
+        "Nama Wilayah": "Kabupaten Pidie Jaya",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.71",
+        "Nama Wilayah": "Kota Banda Aceh",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.72",
+        "Nama Wilayah": "Kota Sabang",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.73",
+        "Nama Wilayah": "Kota Lhokseumawe",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.74",
+        "Nama Wilayah": "Kota Langsa",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "11.75",
+        "Nama Wilayah": "Kota Subulussalam",
+        "Provinsi Induk": "Aceh"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.01",
+        "Nama Wilayah": "Kabupaten Tapanuli Tengah",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.02",
+        "Nama Wilayah": "Kabupaten Tapanuli Utara",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.03",
+        "Nama Wilayah": "Kabupaten Tapanuli Selatan",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.04",
+        "Nama Wilayah": "Kabupaten Nias",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.05",
+        "Nama Wilayah": "Kabupaten Langkat",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.06",
+        "Nama Wilayah": "Kabupaten Karo",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.07",
+        "Nama Wilayah": "Kabupaten Deli Serdang",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.08",
+        "Nama Wilayah": "Kabupaten Simalungun",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.09",
+        "Nama Wilayah": "Kabupaten Asahan",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.10",
+        "Nama Wilayah": "Kabupaten Labuhanbatu",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.11",
+        "Nama Wilayah": "Kabupaten Dairi",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.12",
+        "Nama Wilayah": "Kabupaten Toba",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.13",
+        "Nama Wilayah": "Kabupaten Mandailing Natal",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.14",
+        "Nama Wilayah": "Kabupaten Nias Selatan",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.15",
+        "Nama Wilayah": "Kabupaten Pakpak Bharat",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.16",
+        "Nama Wilayah": "Kabupaten Humbang Hasundutan",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.17",
+        "Nama Wilayah": "Kabupaten Samosir",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.18",
+        "Nama Wilayah": "Kabupaten Serdang Bedagai",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.19",
+        "Nama Wilayah": "Kabupaten Batu Bara",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.20",
+        "Nama Wilayah": "Kabupaten Padang Lawas Utara",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.21",
+        "Nama Wilayah": "Kabupaten Padang Lawas",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.22",
+        "Nama Wilayah": "Kabupaten Labuhanbatu Selatan",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.23",
+        "Nama Wilayah": "Kabupaten Labuhanbatu Utara",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.24",
+        "Nama Wilayah": "Kabupaten Nias Utara",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.25",
+        "Nama Wilayah": "Kabupaten Nias Barat",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.71",
+        "Nama Wilayah": "Kota Medan",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.72",
+        "Nama Wilayah": "Kota Pematangsiantar",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.73",
+        "Nama Wilayah": "Kota Sibolga",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.74",
+        "Nama Wilayah": "Kota Tanjungbalai",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.75",
+        "Nama Wilayah": "Kota Binjai",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.76",
+        "Nama Wilayah": "Kota Tebing Tinggi",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.77",
+        "Nama Wilayah": "Kota Padangsidimpuan",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "12.78",
+        "Nama Wilayah": "Kota Gunungsitoli",
+        "Provinsi Induk": "Sumatera Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.01",
+        "Nama Wilayah": "Kabupaten Pesisir Selatan",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.02",
+        "Nama Wilayah": "Kabupaten Solok",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.03",
+        "Nama Wilayah": "Kabupaten Sijunjung",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.04",
+        "Nama Wilayah": "Kabupaten Tanah Datar",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.05",
+        "Nama Wilayah": "Kabupaten Padang Pariaman",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.06",
+        "Nama Wilayah": "Kabupaten Agam",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.07",
+        "Nama Wilayah": "Kabupaten Lima Puluh Kota",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.08",
+        "Nama Wilayah": "Kabupaten Pasaman",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.09",
+        "Nama Wilayah": "Kabupaten Kepulauan Mentawai",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.10",
+        "Nama Wilayah": "Kabupaten Dharmasraya",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.11",
+        "Nama Wilayah": "Kabupaten Solok Selatan",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.12",
+        "Nama Wilayah": "Kabupaten Pasaman Barat",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.71",
+        "Nama Wilayah": "Kota Padang",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.72",
+        "Nama Wilayah": "Kota Solok",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.73",
+        "Nama Wilayah": "Kota Sawahlunto",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.74",
+        "Nama Wilayah": "Kota Padang Panjang",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.75",
+        "Nama Wilayah": "Kota Bukittinggi",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.76",
+        "Nama Wilayah": "Kota Payakumbuh",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "13.77",
+        "Nama Wilayah": "Kota Pariaman",
+        "Provinsi Induk": "Sumatera Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.01",
+        "Nama Wilayah": "Kabupaten Kampar",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.02",
+        "Nama Wilayah": "Kabupaten Indragiri Hulu",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.03",
+        "Nama Wilayah": "Kabupaten Bengkalis",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.04",
+        "Nama Wilayah": "Kabupaten Indragiri Hilir",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.05",
+        "Nama Wilayah": "Kabupaten Pelalawan",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.06",
+        "Nama Wilayah": "Kabupaten Rokan Hulu",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.07",
+        "Nama Wilayah": "Kabupaten Rokan Hilir",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.08",
+        "Nama Wilayah": "Kabupaten Siak",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.09",
+        "Nama Wilayah": "Kabupaten Kuantan Singingi",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.10",
+        "Nama Wilayah": "Kabupaten Kepulauan Meranti",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.71",
+        "Nama Wilayah": "Kota Pekanbaru",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "14.72",
+        "Nama Wilayah": "Kota Dumai",
+        "Provinsi Induk": "Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.01",
+        "Nama Wilayah": "Kabupaten Kerinci",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.02",
+        "Nama Wilayah": "Kabupaten Merangin",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.03",
+        "Nama Wilayah": "Kabupaten Sarolangun",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.04",
+        "Nama Wilayah": "Kabupaten Batanghari",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.05",
+        "Nama Wilayah": "Kabupaten Muaro Jambi",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.06",
+        "Nama Wilayah": "Kabupaten Tanjung Jabung Barat",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.07",
+        "Nama Wilayah": "Kabupaten Tanjung Jabung Timur",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.08",
+        "Nama Wilayah": "Kabupaten Bungo",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.09",
+        "Nama Wilayah": "Kabupaten Tebo",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.71",
+        "Nama Wilayah": "Kota Jambi",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "15.72",
+        "Nama Wilayah": "Kota Sungai Penuh",
+        "Provinsi Induk": "Jambi"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.01",
+        "Nama Wilayah": "Kabupaten Ogan Komering Ulu",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.02",
+        "Nama Wilayah": "Kabupaten Ogan Komering Ilir",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.03",
+        "Nama Wilayah": "Kabupaten Muara Enim",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.04",
+        "Nama Wilayah": "Kabupaten Lahat",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.05",
+        "Nama Wilayah": "Kabupaten Musi Rawas",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.06",
+        "Nama Wilayah": "Kabupaten Musi Banyuasin",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.07",
+        "Nama Wilayah": "Kabupaten Banyuasin",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.08",
+        "Nama Wilayah": "Kabupaten Ogan Komering Ulu Timur",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.09",
+        "Nama Wilayah": "Kabupaten Ogan Komering Ulu Selatan",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.10",
+        "Nama Wilayah": "Kabupaten Ogan Ilir",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.11",
+        "Nama Wilayah": "Kabupaten Empat Lawang",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.12",
+        "Nama Wilayah": "Kabupaten Penukal Abab Lematang Ilir",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.13",
+        "Nama Wilayah": "Kabupaten Musi Rawas Utara",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.71",
+        "Nama Wilayah": "Kota Palembang",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.72",
+        "Nama Wilayah": "Kota Pagar Alam",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.73",
+        "Nama Wilayah": "Kota Lubuk Linggau",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "16.74",
+        "Nama Wilayah": "Kota Prabumulih",
+        "Provinsi Induk": "Sumatera Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.01",
+        "Nama Wilayah": "Kabupaten Bengkulu Selatan",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.02",
+        "Nama Wilayah": "Kabupaten Rejang Lebong",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.03",
+        "Nama Wilayah": "Kabupaten Bengkulu Utara",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.04",
+        "Nama Wilayah": "Kabupaten Kaur",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.05",
+        "Nama Wilayah": "Kabupaten Seluma",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.06",
+        "Nama Wilayah": "Kabupaten Mukomuko",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.07",
+        "Nama Wilayah": "Kabupaten Lebong",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.08",
+        "Nama Wilayah": "Kabupaten Kepahiang",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.09",
+        "Nama Wilayah": "Kabupaten Bengkulu Tengah",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "17.71",
+        "Nama Wilayah": "Kota Bengkulu",
+        "Provinsi Induk": "Bengkulu"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.01",
+        "Nama Wilayah": "Kabupaten Lampung Selatan",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.02",
+        "Nama Wilayah": "Kabupaten Lampung Tengah",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.03",
+        "Nama Wilayah": "Kabupaten Lampung Utara",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.04",
+        "Nama Wilayah": "Kabupaten Lampung Barat",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.05",
+        "Nama Wilayah": "Kabupaten Tulang Bawang",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.06",
+        "Nama Wilayah": "Kabupaten Tanggamus",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.07",
+        "Nama Wilayah": "Kabupaten Lampung Timur",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.08",
+        "Nama Wilayah": "Kabupaten Way Kanan",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.09",
+        "Nama Wilayah": "Kabupaten Pesawaran",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.10",
+        "Nama Wilayah": "Kabupaten Pringsewu",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.11",
+        "Nama Wilayah": "Kabupaten Mesuji",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.12",
+        "Nama Wilayah": "Kabupaten Tulang Bawang Barat",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.13",
+        "Nama Wilayah": "Kabupaten Pesisir Barat",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.71",
+        "Nama Wilayah": "Kota Bandar Lampung",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "18.72",
+        "Nama Wilayah": "Kota Metro",
+        "Provinsi Induk": "Lampung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "19.01",
+        "Nama Wilayah": "Kabupaten Bangka",
+        "Provinsi Induk": "Kepulauan Bangka Belitung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "19.02",
+        "Nama Wilayah": "Kabupaten Belitung",
+        "Provinsi Induk": "Kepulauan Bangka Belitung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "19.03",
+        "Nama Wilayah": "Kabupaten Bangka Selatan",
+        "Provinsi Induk": "Kepulauan Bangka Belitung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "19.04",
+        "Nama Wilayah": "Kabupaten Bangka Tengah",
+        "Provinsi Induk": "Kepulauan Bangka Belitung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "19.05",
+        "Nama Wilayah": "Kabupaten Bangka Barat",
+        "Provinsi Induk": "Kepulauan Bangka Belitung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "19.06",
+        "Nama Wilayah": "Kabupaten Belitung Timur",
+        "Provinsi Induk": "Kepulauan Bangka Belitung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "19.71",
+        "Nama Wilayah": "Kota Pangkal Pinang",
+        "Provinsi Induk": "Kepulauan Bangka Belitung"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "21.01",
+        "Nama Wilayah": "Kabupaten Bintan",
+        "Provinsi Induk": "Kepulauan Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "21.02",
+        "Nama Wilayah": "Kabupaten Karimun",
+        "Provinsi Induk": "Kepulauan Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "21.03",
+        "Nama Wilayah": "Kabupaten Natuna",
+        "Provinsi Induk": "Kepulauan Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "21.04",
+        "Nama Wilayah": "Kabupaten Lingga",
+        "Provinsi Induk": "Kepulauan Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "21.05",
+        "Nama Wilayah": "Kabupaten Kepulauan Anambas",
+        "Provinsi Induk": "Kepulauan Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "21.71",
+        "Nama Wilayah": "Kota Batam",
+        "Provinsi Induk": "Kepulauan Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "21.72",
+        "Nama Wilayah": "Kota Tanjung Pinang",
+        "Provinsi Induk": "Kepulauan Riau"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "31.01",
+        "Nama Wilayah": "Kabupaten Administrasi Kepulauan Seribu",
+        "Provinsi Induk": "Daerah Khusus Ibukota Jakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "31.71",
+        "Nama Wilayah": "Kota Administrasi Jakarta Pusat",
+        "Provinsi Induk": "Daerah Khusus Ibukota Jakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "31.72",
+        "Nama Wilayah": "Kota Administrasi Jakarta Utara ",
+        "Provinsi Induk": "Daerah Khusus Ibukota Jakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "31.73",
+        "Nama Wilayah": "Kota Administrasi Jakarta Barat",
+        "Provinsi Induk": "Daerah Khusus Ibukota Jakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "31.74",
+        "Nama Wilayah": "Kota Administrasi Jakarta Selatan",
+        "Provinsi Induk": "Daerah Khusus Ibukota Jakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "31.75",
+        "Nama Wilayah": "Kota Administrasi Jakarta Timur",
+        "Provinsi Induk": "Daerah Khusus Ibukota Jakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.01",
+        "Nama Wilayah": "Kabupaten Bogor",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.02",
+        "Nama Wilayah": "Kabupaten Sukabumi",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.03",
+        "Nama Wilayah": "Kabupaten Cianjur",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.04",
+        "Nama Wilayah": "Kabupaten Bandung",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.05",
+        "Nama Wilayah": "Kabupaten Garut",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.06",
+        "Nama Wilayah": "Kabupaten Tasikmalaya",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.07",
+        "Nama Wilayah": "Kabupaten Ciamis",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.08",
+        "Nama Wilayah": "Kabupaten Kuningan",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.09",
+        "Nama Wilayah": "Kabupaten Cirebon",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.10",
+        "Nama Wilayah": "Kabupaten Majalengka",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.11",
+        "Nama Wilayah": "Kabupaten Sumedang",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.12",
+        "Nama Wilayah": "Kabupaten Indramayu",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.13",
+        "Nama Wilayah": "Kabupaten Subang",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.14",
+        "Nama Wilayah": "Kabupaten Purwakarta",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.15",
+        "Nama Wilayah": "Kabupaten Karawang",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.16",
+        "Nama Wilayah": "Kabupaten Bekasi",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.17",
+        "Nama Wilayah": "Kabupaten Bandung Barat",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.18",
+        "Nama Wilayah": "Kabupaten Pangandaran",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.71",
+        "Nama Wilayah": "Kota Bogor",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.72",
+        "Nama Wilayah": "Kota Sukabumi",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.73",
+        "Nama Wilayah": "Kota Bandung",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.74",
+        "Nama Wilayah": "Kota Cirebon",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.75",
+        "Nama Wilayah": "Kota Bekasi",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.76",
+        "Nama Wilayah": "Kota Depok",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.77",
+        "Nama Wilayah": "Kota Cimahi",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.78",
+        "Nama Wilayah": "Kota Tasikmalaya",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "32.79",
+        "Nama Wilayah": "Kota Banjar",
+        "Provinsi Induk": "Jawa Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.01",
+        "Nama Wilayah": "Kabupaten Cilacap",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.02",
+        "Nama Wilayah": "Kabupaten Banyumas",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.03",
+        "Nama Wilayah": "Kabupaten Purbalingga",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.04",
+        "Nama Wilayah": "Kabupaten Banjarnegara",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.05",
+        "Nama Wilayah": "Kabupaten Kebumen",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.06",
+        "Nama Wilayah": "Kabupaten Purworejo",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.07",
+        "Nama Wilayah": "Kabupaten Wonosobo",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.08",
+        "Nama Wilayah": "Kabupaten Magelang",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.09",
+        "Nama Wilayah": "Kabupaten Boyolali",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.10",
+        "Nama Wilayah": "Kabupaten Klaten",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.11",
+        "Nama Wilayah": "Kabupaten Sukoharjo",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.12",
+        "Nama Wilayah": "Kabupaten Wonogiri",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.13",
+        "Nama Wilayah": "Kabupaten Karanganyar",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.14",
+        "Nama Wilayah": "Kabupaten Sragen",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.15",
+        "Nama Wilayah": "Kabupaten Grobogan",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.16",
+        "Nama Wilayah": "Kabupaten Blora",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.17",
+        "Nama Wilayah": "Kabupaten Rembang",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.18",
+        "Nama Wilayah": "Kabupaten Pati",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.19",
+        "Nama Wilayah": "Kabupaten Kudus",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.20",
+        "Nama Wilayah": "Kabupaten Jepara",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.21",
+        "Nama Wilayah": "Kabupaten Demak",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.22",
+        "Nama Wilayah": "Kabupaten Semarang",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.23",
+        "Nama Wilayah": "Kabupaten Temanggung",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.24",
+        "Nama Wilayah": "Kabupaten Kendal",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.25",
+        "Nama Wilayah": "Kabupaten Batang",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.26",
+        "Nama Wilayah": "Kabupaten Pekalongan",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.27",
+        "Nama Wilayah": "Kabupaten Pemalang",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.28",
+        "Nama Wilayah": "Kabupaten Tegal",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.29",
+        "Nama Wilayah": "Kabupaten Brebes",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.71",
+        "Nama Wilayah": "Kota Magelang",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.72",
+        "Nama Wilayah": "Kota Surakarta",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.73",
+        "Nama Wilayah": "Kota Salatiga",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.74",
+        "Nama Wilayah": "Kota Semarang",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.75",
+        "Nama Wilayah": "Kota Pekalongan",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "33.76",
+        "Nama Wilayah": "Kota Tegal",
+        "Provinsi Induk": "Jawa Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "34.01",
+        "Nama Wilayah": "Kabupaten Kulon Progo",
+        "Provinsi Induk": "Daerah Istimewa Yogyakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "34.02",
+        "Nama Wilayah": "Kabupaten Bantul",
+        "Provinsi Induk": "Daerah Istimewa Yogyakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "34.03",
+        "Nama Wilayah": "Kabupaten Gunungkidul",
+        "Provinsi Induk": "Daerah Istimewa Yogyakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "34.04",
+        "Nama Wilayah": "Kabupaten Sleman",
+        "Provinsi Induk": "Daerah Istimewa Yogyakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "34.71",
+        "Nama Wilayah": "Kota Yogyakarta",
+        "Provinsi Induk": "Daerah Istimewa Yogyakarta"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.01",
+        "Nama Wilayah": "Kabupaten Pacitan",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.02",
+        "Nama Wilayah": "Kabupaten Ponorogo",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.03",
+        "Nama Wilayah": "Kabupaten Trenggalek",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.04",
+        "Nama Wilayah": "Kabupaten Tulungagung",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.05",
+        "Nama Wilayah": "Kabupaten Blitar",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.06",
+        "Nama Wilayah": "Kabupaten Kediri",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.07",
+        "Nama Wilayah": "Kabupaten Malang",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.08",
+        "Nama Wilayah": "Kabupaten Lumajang",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.09",
+        "Nama Wilayah": "Kabupaten Jember",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.10",
+        "Nama Wilayah": "Kabupaten Banyuwangi",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.11",
+        "Nama Wilayah": "Kabupaten Bondowoso",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.12",
+        "Nama Wilayah": "Kabupaten Situbondo",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.13",
+        "Nama Wilayah": "Kabupaten Probolinggo",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.14",
+        "Nama Wilayah": "Kabupaten Pasuruan",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.15",
+        "Nama Wilayah": "Kabupaten Sidoarjo",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.16",
+        "Nama Wilayah": "Kabupaten Mojokerto",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.17",
+        "Nama Wilayah": "Kabupaten Jombang",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.18",
+        "Nama Wilayah": "Kabupaten Nganjuk",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.19",
+        "Nama Wilayah": "Kabupaten Madiun",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.20",
+        "Nama Wilayah": "Kabupaten Magetan",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.21",
+        "Nama Wilayah": "Kabupaten Ngawi",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.22",
+        "Nama Wilayah": "Kabupaten Bojonegoro",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.23",
+        "Nama Wilayah": "Kabupaten Tuban",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.24",
+        "Nama Wilayah": "Kabupaten Lamongan",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.25",
+        "Nama Wilayah": "Kabupaten Gresik",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.26",
+        "Nama Wilayah": "Kabupaten Bangkalan",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.27",
+        "Nama Wilayah": "Kabupaten Sampang",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.28",
+        "Nama Wilayah": "Kabupaten Pamekasan",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.29",
+        "Nama Wilayah": "Kabupaten Sumenep",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.71",
+        "Nama Wilayah": "Kota Kediri",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.72",
+        "Nama Wilayah": "Kota Blitar",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.73",
+        "Nama Wilayah": "Kota Malang",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.74",
+        "Nama Wilayah": "Kota Probolinggo",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.75",
+        "Nama Wilayah": "Kota Pasuruan",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.76",
+        "Nama Wilayah": "Kota Mojokerto",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.77",
+        "Nama Wilayah": "Kota Madiun",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.78",
+        "Nama Wilayah": "Kota Surabaya",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "35.79",
+        "Nama Wilayah": "Kota Batu",
+        "Provinsi Induk": "Jawa Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "36.01",
+        "Nama Wilayah": "Kabupaten Pandeglang",
+        "Provinsi Induk": "Banten"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "36.02",
+        "Nama Wilayah": "Kabupaten Lebak",
+        "Provinsi Induk": "Banten"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "36.03",
+        "Nama Wilayah": "Kabupaten Tangerang",
+        "Provinsi Induk": "Banten"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "36.04",
+        "Nama Wilayah": "Kabupaten Serang",
+        "Provinsi Induk": "Banten"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "36.71",
+        "Nama Wilayah": "Kota Tangerang",
+        "Provinsi Induk": "Banten"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "36.72",
+        "Nama Wilayah": "Kota Cilegon",
+        "Provinsi Induk": "Banten"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "36.73",
+        "Nama Wilayah": "Kota Serang",
+        "Provinsi Induk": "Banten"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "36.74",
+        "Nama Wilayah": "Kota Tangerang Selatan",
+        "Provinsi Induk": "Banten"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.01",
+        "Nama Wilayah": "Kabupaten Jembrana",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.02",
+        "Nama Wilayah": "Kabupaten Tabanan",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.03",
+        "Nama Wilayah": "Kabupaten Badung",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.04",
+        "Nama Wilayah": "Kabupaten Gianyar",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.05",
+        "Nama Wilayah": "Kabupaten Klungkung",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.06",
+        "Nama Wilayah": "Kabupaten Bangli",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.07",
+        "Nama Wilayah": "Kabupaten Karangasem",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.08",
+        "Nama Wilayah": "Kabupaten Buleleng",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "51.71",
+        "Nama Wilayah": "Kota Denpasar",
+        "Provinsi Induk": "Bali"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.01",
+        "Nama Wilayah": "Kabupaten Lombok Barat",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.02",
+        "Nama Wilayah": "Kabupaten Lombok Tengah",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.03",
+        "Nama Wilayah": "Kabupaten Lombok Timur",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.04",
+        "Nama Wilayah": "Kabupaten Sumbawa",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.05",
+        "Nama Wilayah": "Kabupaten Dompu",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.06",
+        "Nama Wilayah": "Kabupaten Bima",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.07",
+        "Nama Wilayah": "Kabupaten Sumbawa Barat",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.08",
+        "Nama Wilayah": "Kabupaten Lombok Utara",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.71",
+        "Nama Wilayah": "Kota Mataram",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "52.72",
+        "Nama Wilayah": "Kota Bima",
+        "Provinsi Induk": "Nusa Tenggara Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.01",
+        "Nama Wilayah": "Kabupaten Kupang",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.02",
+        "Nama Wilayah": "Kabupaten Timor Tengah Selatan",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.03",
+        "Nama Wilayah": "Kabupaten Timor Tengah Utara",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.04",
+        "Nama Wilayah": "Kabupaten Belu",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.05",
+        "Nama Wilayah": "Kabupaten Alor",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.06",
+        "Nama Wilayah": "Kabupaten Flores Timur",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.07",
+        "Nama Wilayah": "Kabupaten Sikka",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.08",
+        "Nama Wilayah": "Kabupaten Ende",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.09",
+        "Nama Wilayah": "Kabupaten Ngada",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.10",
+        "Nama Wilayah": "Kabupaten Manggarai",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.11",
+        "Nama Wilayah": "Kabupaten Sumba Timur",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.12",
+        "Nama Wilayah": "Kabupaten Sumba Barat",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.13",
+        "Nama Wilayah": "Kabupaten Lembata",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.14",
+        "Nama Wilayah": "Kabupaten Rote Ndao",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.15",
+        "Nama Wilayah": "Kabupaten Manggarai Barat",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.16",
+        "Nama Wilayah": "Kabupaten Nagekeo",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.17",
+        "Nama Wilayah": "Kabupaten Sumba Tengah",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.18",
+        "Nama Wilayah": "Kabupaten Sumba Barat Daya",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.19",
+        "Nama Wilayah": "Kabupaten Manggarai Timur",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.20",
+        "Nama Wilayah": "Kabupaten Sabu Raijua",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.21",
+        "Nama Wilayah": "Kabupaten Malaka",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "53.71",
+        "Nama Wilayah": "Kota Kupang",
+        "Provinsi Induk": "Nusa Tenggara Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.01",
+        "Nama Wilayah": "Kabupaten Sambas",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.02",
+        "Nama Wilayah": "Kabupaten Mempawah",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.03",
+        "Nama Wilayah": "Kabupaten Sanggau",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.04",
+        "Nama Wilayah": "Kabupaten Ketapang",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.05",
+        "Nama Wilayah": "Kabupaten Sintang",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.06",
+        "Nama Wilayah": "Kabupaten Kapuas Hulu",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.07",
+        "Nama Wilayah": "Kabupaten Bengkayang",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.08",
+        "Nama Wilayah": "Kabupaten Landak",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.09",
+        "Nama Wilayah": "Kabupaten Sekadau",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.10",
+        "Nama Wilayah": "Kabupaten Melawi",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.11",
+        "Nama Wilayah": "Kabupaten Kayong Utara",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.12",
+        "Nama Wilayah": "Kabupaten Kubu Raya",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.71",
+        "Nama Wilayah": "Kota Pontianak",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "61.72",
+        "Nama Wilayah": "Kota Singkawang",
+        "Provinsi Induk": "Kalimantan Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.01",
+        "Nama Wilayah": "Kabupaten Kotawaringin Barat",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.02",
+        "Nama Wilayah": "Kabupaten Kotawaringin Timur",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.03",
+        "Nama Wilayah": "Kabupaten Kapuas",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.04",
+        "Nama Wilayah": "Kabupaten Barito Selatan",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.05",
+        "Nama Wilayah": "Kabupaten Barito Utara",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.06",
+        "Nama Wilayah": "Kabupaten Katingan",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.07",
+        "Nama Wilayah": "Kabupaten Seruyan",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.08",
+        "Nama Wilayah": "Kabupaten Sukamara",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.09",
+        "Nama Wilayah": "Kabupaten Lamandau",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.10",
+        "Nama Wilayah": "Kabupaten Gunung Mas",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.11",
+        "Nama Wilayah": "Kabupaten Pulang Pisau",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.12",
+        "Nama Wilayah": "Kabupaten Murung Raya",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.13",
+        "Nama Wilayah": "Kabupaten Barito Timur",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "62.71",
+        "Nama Wilayah": "Kota Palangkaraya",
+        "Provinsi Induk": "Kalimantan Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.01",
+        "Nama Wilayah": "Kabupaten Tanah Laut",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.02",
+        "Nama Wilayah": "Kabupaten Kotabaru",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.03",
+        "Nama Wilayah": "Kabupaten Banjar",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.04",
+        "Nama Wilayah": "Kabupaten Barito Kuala",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.05",
+        "Nama Wilayah": "Kabupaten Tapin",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.06",
+        "Nama Wilayah": "Kabupaten Hulu Sungai Selatan",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.07",
+        "Nama Wilayah": "Kabupaten Hulu Sungai Tengah",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.08",
+        "Nama Wilayah": "Kabupaten Hulu Sungai Utara",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.09",
+        "Nama Wilayah": "Kabupaten Tabalong",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.10",
+        "Nama Wilayah": "Kabupaten Tanah Bumbu",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.11",
+        "Nama Wilayah": "Kabupaten Balangan",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.71",
+        "Nama Wilayah": "Kota Banjarmasin",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "63.72",
+        "Nama Wilayah": "Kota Banjarbaru",
+        "Provinsi Induk": "Kalimantan Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.01",
+        "Nama Wilayah": "Kabupaten Paser",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.02",
+        "Nama Wilayah": "Kabupaten Kutai Kartanegara",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.03",
+        "Nama Wilayah": "Kabupaten Berau",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.07",
+        "Nama Wilayah": "Kabupaten Kutai Barat",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.08",
+        "Nama Wilayah": "Kabupaten Kutai Timur",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.09",
+        "Nama Wilayah": "Kabupaten Penajam Paser Utara",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.11",
+        "Nama Wilayah": "Kabupaten Mahakam Ulu",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.71",
+        "Nama Wilayah": "Kota Balikpapan",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.72",
+        "Nama Wilayah": "Kota Samarinda",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "64.74",
+        "Nama Wilayah": "Kota Bontang",
+        "Provinsi Induk": "Kalimantan Timur"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "65.01",
+        "Nama Wilayah": "Kabupaten Bulungan",
+        "Provinsi Induk": "Kalimantan Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "65.02",
+        "Nama Wilayah": "Kabupaten Malinau",
+        "Provinsi Induk": "Kalimantan Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "65.03",
+        "Nama Wilayah": "Kabupaten Nunukan",
+        "Provinsi Induk": "Kalimantan Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "65.04",
+        "Nama Wilayah": "Kabupaten Tana Tidung",
+        "Provinsi Induk": "Kalimantan Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "65.71",
+        "Nama Wilayah": "Kota Tarakan",
+        "Provinsi Induk": "Kalimantan Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.01",
+        "Nama Wilayah": "Kabupaten Bolaang Mongondow",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.02",
+        "Nama Wilayah": "Kabupaten Minahasa",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.03",
+        "Nama Wilayah": "Kabupaten Kepulauan Sangihe",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.04",
+        "Nama Wilayah": "Kabupaten Kepulauan Talaud",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.05",
+        "Nama Wilayah": "Kabupaten Minahasa Selatan",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.06",
+        "Nama Wilayah": "Kabupaten Minahasa Utara",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.07",
+        "Nama Wilayah": "Kabupaten Minahasa Tenggara",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.08",
+        "Nama Wilayah": "Kabupaten Bolaang Mongondow Utara",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.09",
+        "Nama Wilayah": "Kabupaten Kep. Siau Tagulandang Biaro",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.10",
+        "Nama Wilayah": "Kabupaten Bolaang Mongondow Timur",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.11",
+        "Nama Wilayah": "Kabupaten Bolaang Mongondow Selatan",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.71",
+        "Nama Wilayah": "Kota Manado",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.72",
+        "Nama Wilayah": "Kota Bitung",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.73",
+        "Nama Wilayah": "Kota Tomohon",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "71.74",
+        "Nama Wilayah": "Kota Kotamobagu",
+        "Provinsi Induk": "Sulawesi Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.01",
+        "Nama Wilayah": "Kabupaten Banggai",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.02",
+        "Nama Wilayah": "Kabupaten Poso",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.03",
+        "Nama Wilayah": "Kabupaten Donggala",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.04",
+        "Nama Wilayah": "Kabupaten Toli-Toli",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.05",
+        "Nama Wilayah": "Kabupaten Buol",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.06",
+        "Nama Wilayah": "Kabupaten Morowali",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.07",
+        "Nama Wilayah": "Kabupaten Banggai Kepulauan",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.08",
+        "Nama Wilayah": "Kabupaten Parigi Moutong",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.09",
+        "Nama Wilayah": "Kabupaten Tojo Una Una",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.10",
+        "Nama Wilayah": "Kabupaten Sigi",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.11",
+        "Nama Wilayah": "Kabupaten Banggai Laut",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.12",
+        "Nama Wilayah": "Kabupaten Morowali Utara",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "72.71",
+        "Nama Wilayah": "Kota Palu",
+        "Provinsi Induk": "Sulawesi Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.01",
+        "Nama Wilayah": "Kabupaten Kepulauan Selayar",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.02",
+        "Nama Wilayah": "Kabupaten Bulukumba",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.03",
+        "Nama Wilayah": "Kabupaten Bantaeng",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.04",
+        "Nama Wilayah": "Kabupaten Jeneponto",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.05",
+        "Nama Wilayah": "Kabupaten Takalar",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.06",
+        "Nama Wilayah": "Kabupaten Gowa",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.07",
+        "Nama Wilayah": "Kabupaten Sinjai",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.08",
+        "Nama Wilayah": "Kabupaten Bone",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.09",
+        "Nama Wilayah": "Kabupaten Maros",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.10",
+        "Nama Wilayah": "Kabupaten Pangkajene dan Kepulauan",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.11",
+        "Nama Wilayah": "Kabupaten Barru",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.12",
+        "Nama Wilayah": "Kabupaten Soppeng",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.13",
+        "Nama Wilayah": "Kabupaten Wajo",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.14",
+        "Nama Wilayah": "Kabupaten Sidenreng Rappang",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.15",
+        "Nama Wilayah": "Kabupaten Pinrang",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.16",
+        "Nama Wilayah": "Kabupaten Enrekang",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.17",
+        "Nama Wilayah": "Kabupaten Luwu",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.18",
+        "Nama Wilayah": "Kabupaten Tana Toraja",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.22",
+        "Nama Wilayah": "Kabupaten Luwu Utara",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.24",
+        "Nama Wilayah": "Kabupaten Luwu Timur",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.26",
+        "Nama Wilayah": "Kabupaten Toraja Utara",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.71",
+        "Nama Wilayah": "Kota Makassar",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.72",
+        "Nama Wilayah": "Kota Parepare",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "73.73",
+        "Nama Wilayah": "Kota Palopo",
+        "Provinsi Induk": "Sulawesi Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.01",
+        "Nama Wilayah": "Kabupaten Kolaka",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.02",
+        "Nama Wilayah": "Kabupaten Konawe",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.03",
+        "Nama Wilayah": "Kabupaten Muna",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.04",
+        "Nama Wilayah": "Kabupaten Buton",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.05",
+        "Nama Wilayah": "Kabupaten Konawe Selatan",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.06",
+        "Nama Wilayah": "Kabupaten Bombana",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.07",
+        "Nama Wilayah": "Kabupaten Wakatobi",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.08",
+        "Nama Wilayah": "Kabupaten Kolaka Utara",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.09",
+        "Nama Wilayah": "Kabupaten Konawe Utara",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.10",
+        "Nama Wilayah": "Kabupaten Buton Utara",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.11",
+        "Nama Wilayah": "Kabupaten Kolaka Timur",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.12",
+        "Nama Wilayah": "Kabupaten Konawe Kepulauan",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.13",
+        "Nama Wilayah": "Kabupaten Muna Barat",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.14",
+        "Nama Wilayah": "Kabupaten Buton Tengah",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.15",
+        "Nama Wilayah": "Kabupaten Buton Selatan",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.71",
+        "Nama Wilayah": "Kota Kendari",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "74.72",
+        "Nama Wilayah": "Kota Bau Bau",
+        "Provinsi Induk": "Sulawesi Tenggara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "75.01",
+        "Nama Wilayah": "Kabupaten Gorontalo",
+        "Provinsi Induk": "Gorontalo"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "75.02",
+        "Nama Wilayah": "Kabupaten Boalemo",
+        "Provinsi Induk": "Gorontalo"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "75.03",
+        "Nama Wilayah": "Kabupaten Bone Bolango",
+        "Provinsi Induk": "Gorontalo"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "75.04",
+        "Nama Wilayah": "Kabupaten Pohuwato",
+        "Provinsi Induk": "Gorontalo"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "75.05",
+        "Nama Wilayah": "Kabupaten Gorontalo Utara",
+        "Provinsi Induk": "Gorontalo"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "75.71",
+        "Nama Wilayah": "Kota Gorontalo",
+        "Provinsi Induk": "Gorontalo"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "76.01",
+        "Nama Wilayah": "Kabupaten Pasangkayu",
+        "Provinsi Induk": "Sulawesi Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "76.02",
+        "Nama Wilayah": "Kabupaten Mamuju",
+        "Provinsi Induk": "Sulawesi Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "76.03",
+        "Nama Wilayah": "Kabupaten Mamasa",
+        "Provinsi Induk": "Sulawesi Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "76.04",
+        "Nama Wilayah": "Kabupaten Polewali Mandar",
+        "Provinsi Induk": "Sulawesi Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "76.05",
+        "Nama Wilayah": "Kabupaten Majene",
+        "Provinsi Induk": "Sulawesi Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "76.06",
+        "Nama Wilayah": "Kabupaten Mamuju Tengah",
+        "Provinsi Induk": "Sulawesi Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.01",
+        "Nama Wilayah": "Kabupaten Maluku Tengah",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.02",
+        "Nama Wilayah": "Kabupaten Maluku Tenggara",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.03",
+        "Nama Wilayah": "Kabupaten Kepulauan Tanimbar",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.04",
+        "Nama Wilayah": "Kabupaten Buru",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.05",
+        "Nama Wilayah": "Kabupaten Seram Bagian Timur",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.06",
+        "Nama Wilayah": "Kabupaten Seram Bagian Barat",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.07",
+        "Nama Wilayah": "Kabupaten Kepulauan Aru",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.08",
+        "Nama Wilayah": "Kabupaten Maluku Barat Daya",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.09",
+        "Nama Wilayah": "Kabupaten Buru Selatan",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.71",
+        "Nama Wilayah": "Kota Ambon",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "81.72",
+        "Nama Wilayah": "Kota Tual",
+        "Provinsi Induk": "Maluku"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.01",
+        "Nama Wilayah": "Kabupaten Halmahera Barat",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.02",
+        "Nama Wilayah": "Kabupaten Halmahera Tengah",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.03",
+        "Nama Wilayah": "Kabupaten Halmahera Utara",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.04",
+        "Nama Wilayah": "Kabupaten Halmahera Selatan",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.05",
+        "Nama Wilayah": "Kabupaten Kepulauan Sula",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.06",
+        "Nama Wilayah": "Kabupaten Halmahera Timur",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.07",
+        "Nama Wilayah": "Kabupaten Pulau Morotai",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.08",
+        "Nama Wilayah": "Kabupaten Pulau Taliabu",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.71",
+        "Nama Wilayah": "Kota Ternate",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "82.72",
+        "Nama Wilayah": "Kota Tidore Kepulauan",
+        "Provinsi Induk": "Maluku Utara"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.03",
+        "Nama Wilayah": "Kabupaten Jayapura",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.05",
+        "Nama Wilayah": "Kabupaten Kepulauan Yapen",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.06",
+        "Nama Wilayah": "Kabupaten Biak Numfor",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.10",
+        "Nama Wilayah": "Kabupaten Sarmi",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.11",
+        "Nama Wilayah": "Kabupaten Keerom",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.15",
+        "Nama Wilayah": "Kabupaten Waropen",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.19",
+        "Nama Wilayah": "Kabupaten Supiori",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.20",
+        "Nama Wilayah": "Kabupaten Mamberamo Raya",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "91.71",
+        "Nama Wilayah": "Kota Jayapura",
+        "Provinsi Induk": "Papua"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "92.02",
+        "Nama Wilayah": "Kabupaten Manokwari",
+        "Provinsi Induk": "Papua Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "92.03",
+        "Nama Wilayah": "Kabupaten Fak Fak",
+        "Provinsi Induk": "Papua Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "92.06",
+        "Nama Wilayah": "Kabupaten Teluk Bintuni",
+        "Provinsi Induk": "Papua Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "92.07",
+        "Nama Wilayah": "Kabupaten Teluk Wondama",
+        "Provinsi Induk": "Papua Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "92.08",
+        "Nama Wilayah": "Kabupaten Kaimana",
+        "Provinsi Induk": "Papua Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "92.11",
+        "Nama Wilayah": "Kabupaten Manokwari Selatan",
+        "Provinsi Induk": "Papua Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "92.12",
+        "Nama Wilayah": "Kabupaten Pegunungan Arfak",
+        "Provinsi Induk": "Papua Barat"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "93.01",
+        "Nama Wilayah": "Kabupaten Merauke",
+        "Provinsi Induk": "Papua Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "93.02",
+        "Nama Wilayah": "Kabupaten Boven Digoel",
+        "Provinsi Induk": "Papua Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "93.03",
+        "Nama Wilayah": "Kabupaten Mappi",
+        "Provinsi Induk": "Papua Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "93.04",
+        "Nama Wilayah": "Kabupaten Asmat",
+        "Provinsi Induk": "Papua Selatan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "94.01",
+        "Nama Wilayah": "Kabupaten Nabire",
+        "Provinsi Induk": "Papua Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "94.02",
+        "Nama Wilayah": "Kabupaten Puncak Jaya",
+        "Provinsi Induk": "Papua Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "94.03",
+        "Nama Wilayah": "Kabupaten Paniai",
+        "Provinsi Induk": "Papua Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "94.04",
+        "Nama Wilayah": "Kabupaten Mimika",
+        "Provinsi Induk": "Papua Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "94.05",
+        "Nama Wilayah": "Kabupaten Puncak",
+        "Provinsi Induk": "Papua Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "94.06",
+        "Nama Wilayah": "Kabupaten Dogiyai",
+        "Provinsi Induk": "Papua Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "94.07",
+        "Nama Wilayah": "Kabupaten Intan Jaya",
+        "Provinsi Induk": "Papua Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "94.08",
+        "Nama Wilayah": "Kabupaten Deiyai",
+        "Provinsi Induk": "Papua Tengah"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "95.01",
+        "Nama Wilayah": "Kabupaten Jayawijaya",
+        "Provinsi Induk": "Papua Pegunungan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "95.02",
+        "Nama Wilayah": "Kabupaten Pegunungan Bintang",
+        "Provinsi Induk": "Papua Pegunungan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "95.03",
+        "Nama Wilayah": "Kabupaten Yahukimo",
+        "Provinsi Induk": "Papua Pegunungan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "95.04",
+        "Nama Wilayah": "Kabupaten Tolikara",
+        "Provinsi Induk": "Papua Pegunungan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "95.05",
+        "Nama Wilayah": "Kabupaten Mamberamo Tengah",
+        "Provinsi Induk": "Papua Pegunungan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "95.06",
+        "Nama Wilayah": "Kabupaten Yalimo",
+        "Provinsi Induk": "Papua Pegunungan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "95.07",
+        "Nama Wilayah": "Kabupaten Lanny Jaya",
+        "Provinsi Induk": "Papua Pegunungan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "95.08",
+        "Nama Wilayah": "Kabupaten Nduga",
+        "Provinsi Induk": "Papua Pegunungan"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "96.01",
+        "Nama Wilayah": "Kabupaten Sorong",
+        "Provinsi Induk": "Papua Barat Daya"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "96.02",
+        "Nama Wilayah": "Kabupaten Sorong Selatan",
+        "Provinsi Induk": "Papua Barat Daya"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "96.03",
+        "Nama Wilayah": "Kabupaten Raja Ampat",
+        "Provinsi Induk": "Papua Barat Daya"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "96.04",
+        "Nama Wilayah": "Kabupaten Tambrauw",
+        "Provinsi Induk": "Papua Barat Daya"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "96.05",
+        "Nama Wilayah": "Kabupaten Maybrat",
+        "Provinsi Induk": "Papua Barat Daya"
+    },
+    {
+        "Tingkat": "KABUPATEN/KOTA",
+        "Kode": "96.71",
+        "Nama Wilayah": "Kota Sorong",
+        "Provinsi Induk": "Papua Barat Daya"
+    }
+]

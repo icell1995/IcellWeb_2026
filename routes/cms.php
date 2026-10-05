@@ -151,6 +151,15 @@ Route::prefix('/case-document-validation')->group(function(){
             Route::post('/{id}/validation/reject', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController::class, 'rejectValidation'])
                 ->name('cms.case-document-validation.module.surat-pemberitahuan-dimulainya-penyidikan-document.validation.reject');
         });
+
+        Route::prefix('/surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document')->group(function(){
+            Route::get('/{id}/validation', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController::class, 'validation'])
+                ->name('cms.case-document-validation.module.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.validation');
+            Route::post('/{id}/validation/approve', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController::class, 'approveValidation'])
+                ->name('cms.case-document-validation.module.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.validation.approve');
+            Route::post('/{id}/validation/reject', [App\Http\Controllers\CMS\CaseDocumentValidation\Module\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController::class, 'rejectValidation'])
+                ->name('cms.case-document-validation.module.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.validation.reject');
+        });
     });
 });
 
