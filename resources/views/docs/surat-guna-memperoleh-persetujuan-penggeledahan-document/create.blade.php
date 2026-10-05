@@ -85,16 +85,21 @@
                                     <option value="">-- Pilih Nomor Surat Permintaan Penggeledahan --</option>
                                     @foreach ($suratPermintaanPenggeledahanDocuments as $permintaanPenggeledahan)
                                         @php
-                                            $daftar = $permintaanPenggeledahan->daftar_penggeledahan;
-                                            if (is_string($daftar)) {
-                                                $decoded = json_decode($daftar, true);
-                                                $daftar = is_array($decoded) ? $decoded : [$daftar];
-                                            } elseif (!is_array($daftar)) {
-                                                $daftar = [];
+                                            $daftarNames = $permintaanPenggeledahan->daftar_penggeledahan_names ?? [];
+                                            $daftarText = $permintaanPenggeledahan->daftar_penggeledahan_text ?? '';
+                                            if (empty($daftarNames)) {
+                                                $daftar = $permintaanPenggeledahan->daftar_penggeledahan;
+                                                if (is_string($daftar)) {
+                                                    $decoded = json_decode($daftar, true);
+                                                    $daftarNames = is_array($decoded) ? $decoded : [$daftar];
+                                                } elseif (is_array($daftar)) {
+                                                    $daftarNames = $daftar;
+                                                }
                                             }
                                         @endphp
                                         <option value="{{ $permintaanPenggeledahan->id }}" 
-                                                data-daftar-penggeledahan="{{ json_encode($daftar) }}"
+                                                data-daftar-penggeledahan="{{ json_encode($daftarNames) }}"
+                                                data-daftar-penggeledahan-text="{{ $daftarText }}"
                                                 {{ old('nomorSuratPermintaanPenggeledahan') == $permintaanPenggeledahan->id ? 'selected' : '' }}>
                                             {{ $permintaanPenggeledahan->document_number }} ({{ $permintaanPenggeledahan->document_date ? date('d/m/Y', strtotime($permintaanPenggeledahan->document_date)) : '-' }})
                                         </option>
@@ -326,24 +331,19 @@
 
             // Auto-load daftar_penggeledahan dari Nomor Surat Permintaan Penggeledahan yang dipilih
             var oldDaftarPenggeledahan = @json(old('daftar_penggeledahan', []));
+            var tipeLokasiMap = @json(isset($tipeLokasi) ? $tipeLokasi->pluck('name', 'id') : []);
             var permintaanPenggeledahanMap = @json($suratPermintaanPenggeledahanDocuments->keyBy('id'));
-            var defaultLokasiList = [
-                "Rumah / Tempat Kediaman",
-                "Tempat Tertutup Lainnya",
-                "Alat Angkut / Kendaraan",
-                "Badan / Pakaian",
-                "Pekarangan / Area Terbuka",
-                "Kantor / Tempat Usaha / Bangunan",
-                "Lainnya"
-            ];
 
             $('#nomorSuratPermintaanPenggeledahan').on('change', function () {
                 var selectedId = $(this).val();
                 var list = [];
+                var textValue = '';
 
                 if (selectedId && permintaanPenggeledahanMap[selectedId]) {
                     var docData = permintaanPenggeledahanMap[selectedId];
-                    if (docData.daftar_penggeledahan) {
+                    if (docData.daftar_penggeledahan_text) {
+                        textValue = docData.daftar_penggeledahan_text;
+                    } else if (docData.daftar_penggeledahan) {
                         if (Array.isArray(docData.daftar_penggeledahan)) {
                             list = docData.daftar_penggeledahan;
                         } else if (typeof docData.daftar_penggeledahan === 'string') {
@@ -357,25 +357,32 @@
                 }
 
                 // Fallback to data attribute if empty
-                if (selectedId && (!list || list.length === 0)) {
-                    var rawData = $(this).find('option:selected').data('daftar-penggeledahan') || $(this).find('option:selected').attr('data-daftar-penggeledahan');
-                    if (Array.isArray(rawData)) {
-                        list = rawData;
-                    } else if (typeof rawData === 'string') {
-                        try {
-                            list = JSON.parse(rawData);
-                        } catch (e) {
-                            list = rawData ? [rawData] : [];
+                if (!textValue && selectedId) {
+                    var selectedOpt = $(this).find('option:selected');
+                    var textAttr = selectedOpt.data('daftar-penggeledahan-text') || selectedOpt.attr('data-daftar-penggeledahan-text');
+                    if (textAttr) {
+                        textValue = textAttr;
+                    } else {
+                        var rawData = selectedOpt.data('daftar-penggeledahan') || selectedOpt.attr('data-daftar-penggeledahan');
+                        if (Array.isArray(rawData)) {
+                            list = rawData;
+                        } else if (typeof rawData === 'string') {
+                            try {
+                                list = JSON.parse(rawData);
+                            } catch (e) {
+                                list = rawData ? [rawData] : [];
+                            }
                         }
                     }
                 }
 
-                // If still empty but a document is selected, fallback to standard locations
-                if (selectedId && (!list || list.length === 0)) {
-                    list = defaultLokasiList;
+                if (!textValue && Array.isArray(list) && list.length > 0) {
+                    var nameList = list.map(function (item) {
+                        return (tipeLokasiMap && tipeLokasiMap[item]) ? tipeLokasiMap[item] : item;
+                    });
+                    textValue = nameList.join(', ');
                 }
 
-                var textValue = Array.isArray(list) ? list.join(', ') : (list || '');
                 $('#daftar_penggeledahan').val(textValue);
             });
 

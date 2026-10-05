@@ -132,6 +132,16 @@
 
         $suspectList = $document->suspects ?? collect();
         $suspectNames = $suspectList->pluck('name')->implode(', ');
+
+        $lokasiRefs = \Illuminate\Support\Facades\DB::table('ref')->where('grp_id', 'L01')->pluck('name', 'id')->toArray();
+        $daftarPenggeledahanList = is_array($document->daftar_penggeledahan)
+            ? array_map(function ($val) use ($lokasiRefs) {
+                return $lokasiRefs[$val] ?? $val;
+            }, $document->daftar_penggeledahan)
+            : ($document->daftar_penggeledahan ? [$document->daftar_penggeledahan] : []);
+        $daftarPenggeledahanText = !empty($daftarPenggeledahanList)
+            ? implode(', ', $daftarPenggeledahanList)
+            : ($document->jenis_penggeledahan ?? 'rumah/tempat tertutup lainnya atau alat angkut');
     @endphp
 
     {{-- Toolbar Aksi --}}
@@ -243,7 +253,7 @@
 
                 {{-- 3. Permintaan Izin Penggeledahan --}}
                 <li>
-                    Berkaitan dengan hal tersebut, diajukan kepada Ketua permintaan izin penggeledahan {{ strtolower($document->jenis_penggeledahan ?? 'rumah/tempat tertutup lainnya atau alat angkut') }} milik atau yang dihuni/digunakan oleh {{ $suspectNames ?: '....................................' }} yang terletak di {{ $document->alamat_penggeledahan ?? '....................................' }}, yang diduga sebagai tempat kejadian perkara/tempat persembunyian tersangka/tempat disembunyikan barang-barang bukti*), berdasarkan hasil pemeriksaan terhadap tersangka/saksi:
+                    Berkaitan dengan hal tersebut, diajukan kepada Ketua permintaan izin penggeledahan {{ strtolower($daftarPenggeledahanText) }} milik atau yang dihuni/digunakan oleh {{ $suspectNames ?: '....................................' }} yang terletak di {{ $document->alamat_penggeledahan ?? '....................................' }}, yang diduga sebagai tempat kejadian perkara/tempat persembunyian tersangka/tempat disembunyikan barang-barang bukti*), berdasarkan hasil pemeriksaan terhadap tersangka/saksi:
 
                     @if ($suspectList->isNotEmpty())
                         @foreach ($suspectList as $suspect)

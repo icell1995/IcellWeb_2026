@@ -167,17 +167,15 @@
                         <hr>
 
                         {{-- Jenis Target Penggeledahan --}}
-                         <div class="form-group row mb-3">
+                        <div class="form-group row mb-3">
                             <label class="col-sm-3 col-form-label fw-bold" for="daftar_penggeledahan">Daftar / Jenis Lokasi Penggeledahan <span class="text-danger">*</span></label>
                             <div class="col-sm-9">
                                 <select class="form-control select2-multiple" name="daftar_penggeledahan[]" id="daftar_penggeledahan" multiple="multiple" required>
-                                    <option value="Rumah / Tempat Kediaman" {{ (is_array(old('daftar_penggeledahan')) && in_array('Rumah / Tempat Kediaman', old('daftar_penggeledahan'))) ? 'selected' : '' }}>Rumah / Tempat Kediaman</option>
-                                    <option value="Tempat Tertutup Lainnya" {{ (is_array(old('daftar_penggeledahan')) && in_array('Tempat Tertutup Lainnya', old('daftar_penggeledahan'))) ? 'selected' : '' }}>Tempat Tertutup Lainnya</option>
-                                    <option value="Alat Angkut / Kendaraan" {{ (is_array(old('daftar_penggeledahan')) && in_array('Alat Angkut / Kendaraan', old('daftar_penggeledahan'))) ? 'selected' : '' }}>Alat Angkut / Kendaraan</option>
-                                    <option value="Badan / Pakaian" {{ (is_array(old('daftar_penggeledahan')) && in_array('Badan / Pakaian', old('daftar_penggeledahan'))) ? 'selected' : '' }}>Badan / Pakaian</option>
-                                    <option value="Pekarangan / Area Terbuka" {{ (is_array(old('daftar_penggeledahan')) && in_array('Pekarangan / Area Terbuka', old('daftar_penggeledahan'))) ? 'selected' : '' }}>Pekarangan / Area Terbuka</option>
-                                    <option value="Kantor / Tempat Usaha / Bangunan" {{ (is_array(old('daftar_penggeledahan')) && in_array('Kantor / Tempat Usaha / Bangunan', old('daftar_penggeledahan'))) ? 'selected' : '' }}>Kantor / Tempat Usaha / Bangunan</option>
-                                    <option value="Lainnya" {{ (is_array(old('daftar_penggeledahan')) && in_array('Lainnya', old('daftar_penggeledahan'))) ? 'selected' : '' }}>Lainnya</option>
+                                    @foreach ($tipeLokasi as $lokasi)
+                                        <option value="{{ $lokasi->id }}" {{ (is_array(old('daftar_penggeledahan')) && (in_array($lokasi->id, old('daftar_penggeledahan')) || in_array($lokasi->name, old('daftar_penggeledahan')))) ? 'selected' : '' }}>
+                                            {{ $lokasi->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>

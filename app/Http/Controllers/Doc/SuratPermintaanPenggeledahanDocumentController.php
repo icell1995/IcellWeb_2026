@@ -21,6 +21,7 @@ use App\Models\Suspect;
 use App\Models\Lib\Ref;
 use App\Models\Opt\Status;
 
+
 use App\Traits\DocsOfficersTraits;
 
 class SuratPermintaanPenggeledahanDocumentController extends Controller
@@ -50,6 +51,8 @@ class SuratPermintaanPenggeledahanDocumentController extends Controller
             ->where('accident_id', $accidentId)
             ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->get();
+        $tipeLokasi = DB::table('ref')->where('grp_id','=','L01')->get();
+       
 
         foreach ($sprindikDocuments as $sprindik) {
             $pasalParts = [];
@@ -86,6 +89,7 @@ class SuratPermintaanPenggeledahanDocumentController extends Controller
         return view('docs.surat-permintaan-penggeledahan-document.create', compact(
             'accidentId',
             'accident',
+            'tipeLokasi',
             'spdpDocuments',
             'sprindikDocuments',
             'suspects',
@@ -523,9 +527,15 @@ class SuratPermintaanPenggeledahanDocumentController extends Controller
         $templateProcessor->setValue('tindakPidanaText', $tindakPidanaText);
         $templateProcessor->setValue('hariKejadian', $accidentDay);
         $templateProcessor->setValue('tglKejadian', $accidentDate);
-        $daftarPenggeledahanText = is_array($document->daftar_penggeledahan)
-            ? implode(', ', $document->daftar_penggeledahan)
-            : ($document->daftar_penggeledahan ?? ($document->jenis_penggeledahan ?? 'rumah/tempat tertutup lainnya atau alat angkut'));
+        $lokasiRefs = DB::table('ref')->where('grp_id', 'L01')->pluck('name', 'id')->toArray();
+        $daftarPenggeledahanList = is_array($document->daftar_penggeledahan)
+            ? array_map(function ($val) use ($lokasiRefs) {
+                return $lokasiRefs[$val] ?? $val;
+            }, $document->daftar_penggeledahan)
+            : ($document->daftar_penggeledahan ? [$document->daftar_penggeledahan] : []);
+        $daftarPenggeledahanText = !empty($daftarPenggeledahanList)
+            ? implode(', ', $daftarPenggeledahanList)
+            : ($document->jenis_penggeledahan ?? 'rumah/tempat tertutup lainnya atau alat angkut');
         $templateProcessor->setValue('daftar_penggeledahan', strtolower($daftarPenggeledahanText));
         $templateProcessor->setValue('jenisPenggeledahan', strtolower($daftarPenggeledahanText));
         $templateProcessor->setValue('alamatPenggeledahan', $document->alamat_penggeledahan ?? '-');

@@ -79,6 +79,24 @@ class SuratGunaMemperolehPersetujuanPenggeledahanDocumentController extends Cont
                 ->with('error', 'Dokumen Permintaan Penggeledahan belum dibuat, mohon untuk buat Surat Permintaan Penggeledahan terlebih dahulu.');
         }
 
+        $tipeLokasi = DB::table('ref')->where('grp_id', '=', 'L01')->get();
+        $tipeLokasiMap = $tipeLokasi->pluck('name', 'id')->toArray();
+
+        foreach ($suratPermintaanPenggeledahanDocuments as $permintaanPenggeledahan) {
+            $daftar = $permintaanPenggeledahan->daftar_penggeledahan;
+            if (is_string($daftar)) {
+                $decoded = json_decode($daftar, true);
+                $daftar = is_array($decoded) ? $decoded : [$daftar];
+            } elseif (!is_array($daftar)) {
+                $daftar = [];
+            }
+            $names = array_map(function ($val) use ($tipeLokasiMap) {
+                return $tipeLokasiMap[$val] ?? $val;
+            }, $daftar);
+            $permintaanPenggeledahan->daftar_penggeledahan_names = $names;
+            $permintaanPenggeledahan->daftar_penggeledahan_text = implode(', ', $names);
+        }
+
         // Tersangka di perkara ini
         $suspects = Suspect::where('accident_id', $accidentId)
             ->where('flag', Suspect::getEnumOption('flag', 'TERSANGKA'))
@@ -100,7 +118,8 @@ class SuratGunaMemperolehPersetujuanPenggeledahanDocumentController extends Cont
             'sprindikDocuments',
             'suratPermintaanPenggeledahanDocuments',
             'suspects',
-            'authorizedSignatories'
+            'authorizedSignatories',
+            'tipeLokasi'
         ));
     }
 
@@ -548,9 +567,15 @@ class SuratGunaMemperolehPersetujuanPenggeledahanDocumentController extends Cont
         $templateProcessor->setValue('tindakPidanaText', $tindakPidanaText);
         $templateProcessor->setValue('hariKejadian', $accidentDay);
         $templateProcessor->setValue('tglKejadian', $accidentDate);
-        $daftarPenggeledahanText = is_array($document->daftar_penggeledahan)
-            ? implode(', ', $document->daftar_penggeledahan)
-            : ($document->daftar_penggeledahan ?? ($document->jenis_penggeledahan ?? 'rumah/tempat tertutup lainnya atau alat angkut'));
+        $lokasiRefs = DB::table('ref')->where('grp_id', 'L01')->pluck('name', 'id')->toArray();
+        $daftarPenggeledahanList = is_array($document->daftar_penggeledahan)
+            ? array_map(function ($val) use ($lokasiRefs) {
+                return $lokasiRefs[$val] ?? $val;
+            }, $document->daftar_penggeledahan)
+            : ($document->daftar_penggeledahan ? [$document->daftar_penggeledahan] : []);
+        $daftarPenggeledahanText = !empty($daftarPenggeledahanList)
+            ? implode(', ', $daftarPenggeledahanList)
+            : ($document->jenis_penggeledahan ?? 'rumah/tempat tertutup lainnya atau alat angkut');
         $templateProcessor->setValue('daftar_penggeledahan', strtolower($daftarPenggeledahanText));
         $templateProcessor->setValue('jenisPenggeledahan', strtolower($daftarPenggeledahanText));
         $templateProcessor->setValue('suspectNames', $suspectNames);
