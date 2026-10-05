@@ -17,6 +17,11 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
+use App\Models\Doc\Tahap1Document\Tahap1Document;
+use App\Models\Doc\Tahap2Document\Tahap2Document;
 
 class DocumentActionController extends Controller
 {
@@ -172,8 +177,23 @@ class DocumentActionController extends Controller
             $document = $this->getDocumentRouter($documentCategoryId, $documentId, $accidentId);
             $documentId = $document->id;
             
+            \Illuminate\Support\Facades\Log::info('UPLOAD DEBUG', [
+                'documentId' => $documentId,
+                'documentCategoryId' => $documentCategoryId,
+                'status_id' => $document->status_id,
+                'is_digital_signature' => $document->documentCategory->is_digital_signature ?? null,
+                'document_category_id' => $document->document_category_id,
+            ]);
+            
             if(!empty($document)){
-                if(!in_array($document->status_id, [5, 6])){
+                if ($document->documentCategory->is_digital_signature) {
+                    $allowed = [5, 6, 8];
+                } else {
+                    $allowed = [1, 2, 4, 5, 6, 7];
+                }
+                
+                if(!in_array($document->status_id, $allowed)){
+                    \Illuminate\Support\Facades\Log::warning('UPLOAD ABORT: status not allowed', ['status_id' => $document->status_id, 'allowed' => $allowed]);
                     abort(419);
                 }
 
@@ -217,13 +237,15 @@ class DocumentActionController extends Controller
                     $document->status_id = '7';
                 }
 
-                $document->save();
+                $saved = $document->save();
+                \Illuminate\Support\Facades\Log::info('UPLOAD SAVE RESULT', ['saved' => $saved, 'new_status_id' => $document->status_id]);
 
                 DB::commit();
             }
         }catch(\Exception $e){
             DB::rollback();
-            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId]);
+            \Illuminate\Support\Facades\Log::error('uploadDocumentUploadSave ERROR: ' . $e->getMessage() . ' | File: ' . $e->getFile() . ' Line: ' . $e->getLine());
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', 'Upload gagal: ' . $e->getMessage());
         }
 
         return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId]);
@@ -253,24 +275,37 @@ class DocumentActionController extends Controller
         $documentModels = [
             '0101' => SuratPerintahPenyelidikanDocument::class,
             '0201' => SuratPerintahPenyidikanDocument::class,
-            '0204' => SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            '0204' => [
+                SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+                \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class
+            ],
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0404' => \App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument::class,
             '0405' => \App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0601' => SuratPerintahPenahananDocument::class,
+            '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
+            '0806' => Tahap1Document::class,
+            '0807' => Tahap2Document::class,
             // Add more document types here
         ];
 
         if (array_key_exists($documentCategoryId, $documentModels)) {
-            $document = $documentModels[$documentCategoryId]::with(['accident','documentCategory'])
-                ->where('id', $documentId)
-                ->first();
-        } else {
-            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId]);
+            $models = (array) $documentModels[$documentCategoryId];
+            
+            foreach ($models as $modelClass) {
+                $document = $modelClass::with(['accident', 'documentCategory'])
+                    ->where('id', $documentId)
+                    ->first();
+                
+                if ($document) {
+                    return $document;
+                }
+            }
         }
-
-        return $document;
+        
+        return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId]);
     }
 
     /*

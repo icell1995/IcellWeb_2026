@@ -9,17 +9,11 @@ use Carbon\Carbon;
 
 class IntegrationMonitorController extends Controller
 {
-    /**
-     * Menampilkan view utama untuk monitor integrasi.
-     */
     public function index()
     {
         return view('cms.integration-monitor.index');
     }
 
-    /**
-     * Mengambil data log spesifik per aplikasi menggunakan DataTables.
-     */
     public function getData(Request $request)
     {
         $appType = $request->input('app_type', 'tar'); // Default ke tar
@@ -50,7 +44,6 @@ class IntegrationMonitorController extends Controller
 
         $logs = [];
 
-        // Ambil data sesuai aplikasi yang dipilih
         if ($appType === 'tar') {
             $logs = DB::table('log_api_tar_korlantas_transmit_accidents')
                 ->selectRaw("'Success' as status, CONCAT('Transmit Accident ID: ', accident_id::text) as detail, ip_address, created_at")
@@ -78,7 +71,6 @@ class IntegrationMonitorController extends Controller
                 ->get();
         }
 
-        // Format hasil untuk response DataTable
         $data = [];
         $no = 1;
         foreach ($logs as $log) {
@@ -91,7 +83,6 @@ class IntegrationMonitorController extends Controller
                 $badgeColor = 'warning';
             }
 
-            // Normalisasi status name
             $statusName = $log->status;
             if ($statusName == '200') $statusName = 'Success';
 
@@ -107,5 +98,134 @@ class IntegrationMonitorController extends Controller
         return response()->json([
             'data' => $data
         ]);
+    }
+
+    public function monthlyIndex()
+    {
+        return view('cms.integration-monitor.monthly');
+    }
+
+    public function getMonthlyData(Request $request)
+    {
+        $appType = $request->input('app_type', 'tar');
+        $month = (int) $request->input('month', Carbon::now()->month);
+        $year = (int) $request->input('year', Carbon::now()->year);
+
+        $now = Carbon::now();
+
+        if ($year == $now->year && $month > $now->month) {
+            $month = $now->month;
+        }
+        $startOfMonth = Carbon::create($year, $month, 1)->startOfDay();
+        $endOfPeriod = ($year == $now->year && $month == $now->month)
+            ? $now->copy()->endOfDay()
+            : $startOfMonth->copy()->endOfMonth()->endOfDay();
+
+        $lastDay = ($year == $now->year && $month == $now->month)
+            ? $now->day
+            : $startOfMonth->daysInMonth;
+
+        $aggregatedData = $this->getAggregatedLogs($appType, $startOfMonth, $endOfPeriod);
+
+        $data = [];
+        $totalLog = 0;
+        $totalSuccess = 0;
+        $totalFailed = 0;
+
+        for ($day = 1; $day <= $lastDay; $day++) {
+            $date = Carbon::create($year, $month, $day);
+            $dateKey = $date->format('Y-m-d');
+
+            $dayData = $aggregatedData->get($dateKey);
+
+            $dayTotal = $dayData ? (int) $dayData->total_log : 0;
+            $daySuccess = $dayData ? (int) $dayData->success_count : 0;
+            $dayFailed = $dayData ? (int) $dayData->failed_count : 0;
+
+            // Tentukan status
+            if ($dayTotal === 0) {
+                $status = 'NO DATA';
+                $badgeClass = 'bg-secondary';
+            } elseif ($dayFailed === 0) {
+                $status = 'SUCCESS';
+                $badgeClass = 'bg-success';
+            } elseif ($daySuccess === 0) {
+                $status = 'FAILED';
+                $badgeClass = 'bg-danger';
+            } else {
+                $status = 'WARNING';
+                $badgeClass = 'bg-warning text-dark';
+            }
+
+            $data[] = [
+                'no' => $day,
+                'tanggal' => $date->format('d M Y'),
+                'total_log' => $dayTotal,
+                'success' => $daySuccess,
+                'failed' => $dayFailed,
+                'status' => '<span class="badge ' . $badgeClass . ' px-3 rounded-pill shadow-sm">' . $status . '</span>',
+                'status_raw' => $status,
+            ];
+
+            $totalLog += $dayTotal;
+            $totalSuccess += $daySuccess;
+            $totalFailed += $dayFailed;
+        }
+
+        $successRate = $totalLog > 0
+            ? round(($totalSuccess / $totalLog) * 100, 2)
+            : 0;
+
+        return response()->json([
+            'data' => $data,
+            'summary' => [
+                'total_hari' => $lastDay,
+                'total_log' => $totalLog,
+                'total_success' => $totalSuccess,
+                'total_failed' => $totalFailed,
+                'success_rate' => $successRate,
+            ],
+        ]);
+    }
+
+    private function getAggregatedLogs(string $appType, Carbon $startDate, Carbon $endDate)
+    {
+        $table = '';
+        $statusCondition = '';
+
+        switch ($appType) {
+            case 'tar':
+                $table = 'log_api_tar_korlantas_transmit_accidents';
+                $statusCondition = "COUNT(*) as success_count, 0 as failed_count";
+                break;
+
+            case 'irsms':
+                $table = 'log_api_irsms_korlantas_post_stg_dors_accidents';
+                $statusCondition = "SUM(CASE WHEN LOWER(status) = 'success' OR status = '200' THEN 1 ELSE 0 END) as success_count, "
+                    . "SUM(CASE WHEN LOWER(status) != 'success' AND status != '200' THEN 1 ELSE 0 END) as failed_count";
+                break;
+
+            case 'divtik':
+                $table = 'log_api_divtik_polri';
+                $statusCondition = "COUNT(*) as success_count, 0 as failed_count";
+                break;
+
+            case 'emp':
+                $table = 'history.document_api_sync_histories';
+                $statusCondition = "COUNT(*) as success_count, 0 as failed_count";
+                break;
+
+            default:
+                return collect();
+        }
+
+        $results = DB::table($table)
+            ->selectRaw("DATE(created_at) as log_date, COUNT(*) as total_log, {$statusCondition}")
+            ->where('created_at', '>=', $startDate)
+            ->where('created_at', '<=', $endDate)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->get();
+
+        return $results->keyBy('log_date');
     }
 }
