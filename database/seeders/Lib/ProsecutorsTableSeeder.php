@@ -98,7 +98,7 @@ class ProsecutorsTableSeeder extends Seeder
     }
 
     private function getProsecutors(){
-        $prosecutors = File::get(base_path('master_seeder/prosecutors.json'));
+        $prosecutors = File::get(base_path('master_seeder/prosecutors-new1.json'));
         $prosecutors = json_decode($prosecutors, true);
 
         return collect($prosecutors);
