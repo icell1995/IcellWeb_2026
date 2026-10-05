@@ -1211,7 +1211,7 @@
                 }
 
                 var rowHtml = `
-                    <tr class="law-row">
+                    <tr class="law-row text-center">
                         <td>
                             ${crimeTypeName}
                             <input type="hidden" name="lawCrimeTypeIds[]" value="${crimeTypeId}">
