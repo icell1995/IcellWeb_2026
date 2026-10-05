@@ -96,21 +96,24 @@
                                             count($accident->suratPerintahTugasDocuments) +
                                             count($accident->laporanHasilGelarPerkaraDocuments) +
                                             count($accident->suratKetetapanTentangPenetapanTersangkaDocuments) +
-                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments);
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments) +
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments);
 
                                             $totalDocumentFinal = count($accident->suratPerintahPenyelidikanDocuments->whereIn('status_id', ['86', '85'])) +
                                             count($accident->suratPerintahPenyidikanDocuments->whereIn('status_id', ['86', '85'])) +
                                             count($accident->suratPerintahTugasDocuments->whereIn('status_id', ['86', '85'])) +
                                             count($accident->laporanHasilGelarPerkaraDocuments->whereIn('status_id', ['86', '85'])) +
                                             count($accident->suratKetetapanTentangPenetapanTersangkaDocuments->whereIn('status_id', ['86', '85'])) +
-                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments->whereIn('status_id', ['86', '85']));
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments->whereIn('status_id', ['86', '85'])) +
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments->whereIn('status_id', ['86', '85']));
                                             
                                             $totalDocumentEntry = count($accident->suratPerintahPenyelidikanDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
                                             count($accident->suratPerintahPenyidikanDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
                                             count($accident->suratPerintahTugasDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
                                             count($accident->laporanHasilGelarPerkaraDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
                                             count($accident->suratKetetapanTentangPenetapanTersangkaDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
-                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments->whereIn('status_id', ['12', '11', '10', '9']));
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments->whereIn('status_id', ['12', '11', '10', '9']));
                                         @endphp
 
                                         Dokumen Dibuat : {{ $totalDocumentCreated }}
@@ -213,6 +216,37 @@
                     accidentId: accidentId
                 },
                 success: function(response) {
+                    var tempDiv = $('<div>').html(response);
+                    var hasRows = tempDiv.find('tr').length > 0;
+
+                    if (!hasRows) {
+                        if ($.fn.DataTable.isDataTable('#documentsTable')) {
+                            $('#documentsTable').DataTable().destroy();
+                        }
+                        $('#documentsTable tbody').html(`
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-success fw-bold">
+                                    <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success"></i>
+                                    Semua dokumen pada LP ini telah selesai divalidasi.
+                                </td>
+                            </tr>
+                        `);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Pembaruan Dokumen Selesai',
+                            text: 'Seluruh dokumen untuk LP ini telah selesai divalidasi. Modal akan ditutup dan daftar akan diperbarui otomatis.',
+                            timer: 2500,
+                            timerProgressBar: true,
+                            confirmButtonColor: '#0d6efd',
+                            confirmButtonText: '<i class="bi bi-check-circle me-1"></i> Tutup Sekarang',
+                            allowOutsideClick: false
+                        }).then(function() {
+                            $('#documentListModal').modal('hide');
+                        });
+                        return;
+                    }
+
                     if ($.fn.DataTable.isDataTable('#documentsTable')) {
                         $('#documentsTable').DataTable().destroy();
                     }
@@ -226,6 +260,18 @@
                     if (accidentNumber) {
                         $('#documentListModalTitle').text('LP : ' + accidentNumber);
                     }
+
+                    // Toast pemberitahuan update saat masih ada sisa dokumen lain
+                    Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    }).fire({
+                        icon: 'info',
+                        title: 'Daftar dokumen berhasil diperbarui.'
+                    });
                 },
                 error: function() {
                     $('#documentsTable tbody').html(`
