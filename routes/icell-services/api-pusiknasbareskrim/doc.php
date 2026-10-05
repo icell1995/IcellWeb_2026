@@ -2,6 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController;
+use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
+use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Tahap1PusiknasDocumentController;
+use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Tahap2PusiknasDocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,18 +26,32 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('spdp')->group(function () {
+Route::prefix('spdp-pusiknas')->group(function () {
     Route::get(
         '/',
-        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SpdpDocumentController::class, 'index']
-    )->name('api.pusiknasbareskrim.doc.spdp.index');
+        [SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.spdp-pusiknas.index');
 });
 
-Route::prefix('sp3')->group(function () {
+Route::prefix('sp3-pusiknas')->group(function () {
     Route::get(
         '/',
-        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Sp3DocumentController::class, 'index']
-    )->name('api.pusiknasbareskrim.doc.sp3.index');
+        [SuratPemberitahuanPenghentianPenyidikanDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.sp3-pusiknas.index');
+});
+
+Route::prefix('tahap-1-pusiknas')->group(function () {
+    Route::get(
+        '/',
+        [Tahap1PusiknasDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.tahap-1-pusiknas.index');
+});
+
+Route::prefix('tahap-2-pusiknas')->group(function () {
+    Route::get(
+        '/',
+        [Tahap2PusiknasDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.tahap-2-pusiknas.index');
 });
 
 Route::prefix('s22')->group(function () {

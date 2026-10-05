@@ -1,0 +1,255 @@
+<?php
+
+namespace App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Services\IcellServices\ApiPusiknasBareskrim\DocService;
+use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
+
+class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controller
+{
+    protected $docService;
+
+    public function __construct(DocService $docService)
+    {
+        $this->docService = $docService;
+    }
+
+    public function index(Request $request)
+    {
+        $docService = $this->docService;
+
+        // Get request data
+        $startDocumentDate = $request->input('start_doc_date');
+        $endDocumentDate   = $request->input('end_doc_date');
+        $startReleaseDate  = $request->input('start_release_date');
+        $endReleaseDate    = $request->input('end_release_date');
+        $perPage           = $request->query('perPage', 100);
+        $page              = $request->query('page', 1);
+
+        $page = is_numeric($page) ? intval($page) : 1;
+        $perPage = is_numeric($perPage) ? intval($perPage) : 100;
+
+        // Validate date parameter
+        $dateParams = [$startDocumentDate, $endDocumentDate, $startReleaseDate, $endReleaseDate];
+        foreach ($dateParams as $dateParam) {
+            $validateDateParamRequestResponse = $docService->validateDateParamRequest($dateParam, $page);
+            if (!empty($validateDateParamRequestResponse)) {
+                return $validateDateParamRequestResponse;
+            }
+        }
+
+        DB::beginTransaction();
+        try {
+            $documents = SuratPemberitahuanPenghentianPenyidikanDocument::with([
+                'accident.polres',
+                'suratPemberitahuanPenghentianPenyidikanDocumentOfficers.position',
+                'suratPemberitahuanPenghentianPenyidikanDocumentOfficers.rank',
+                'suratPemberitahuanPenghentianPenyidikanDocumentAttachment',
+                'suratPerintahPenyidikanDocument.attachment',
+                'suspects',
+            ])
+            ->whereHas('accident', function ($query) {
+                // Asumsi kecelakaan sudah valid
+            })
+            // ->whereIn('status_id', $docService->requiredDocumentStatusIds)
+            ->orderBy('document_date', 'ASC');
+
+            $documents = $docService->applyDateRangeFilter($documents, 'released_at', $startReleaseDate, $endReleaseDate);
+            $documents = $docService->applyDateRangeFilter($documents, 'document_date', $startDocumentDate, $endDocumentDate);
+
+            $documents = $documents->paginate($perPage, ['*'], 'page', $page);
+
+            $regenciesPath = base_path('master_seeder/regencies-new1.json');
+            $allRegencies = file_exists($regenciesPath) ? json_decode(file_get_contents($regenciesPath), true) ?? [] : [];
+            $districtsPath = base_path('master_seeder/districts-new1.json');
+            $allDistricts = file_exists($districtsPath) ? json_decode(file_get_contents($districtsPath), true) ?? [] : [];
+
+            $responseData = [];
+
+            foreach ($documents as $doc) {
+                $messages = $doc->messages ?? [];
+                
+                $kodeWilayah = !empty($messages['kode_wilayah']) ? $messages['kode_wilayah'] : '00.00.00';
+                if ($kodeWilayah === '00.00.00' && $doc->accident) {
+                    $regencyName = $doc->accident->polres->polres_regency ?? '';
+                    $regencyNameClean = preg_replace('/^(KABUPATEN|KOTA)\s+/i', '', trim($regencyName));
+                    $regencyCode = '';
+                    if ($regencyNameClean && !empty($allRegencies)) {
+                        foreach ($allRegencies as $reg) {
+                            $regNamaClean = preg_replace('/^(KABUPATEN|KOTA)\s+/i', '', strtoupper(trim($reg['Nama'] ?? '')));
+                            if ($regNamaClean === strtoupper($regencyNameClean)) {
+                                $regencyCode = $reg['KodePuskarda'] ?? '';
+                                break;
+                            }
+                        }
+                    }
+                    if (!$regencyCode) {
+                        $regencyId = $doc->accident->polres->regency_id ?? '';
+                        if (strlen($regencyId) === 4) {
+                            $regencyCode = substr($regencyId, 0, 2) . '.' . substr($regencyId, 2, 2);
+                        }
+                    }
+                    $districts = [];
+                    if (!empty($allDistricts)) {
+                        if ($regencyCode) {
+                            $districts = array_filter($allDistricts, function($d) use ($regencyCode) {
+                                return isset($d['KodePuskarda']) && strpos($d['KodePuskarda'], $regencyCode . '.') === 0;
+                            });
+                        } else {
+                            $districts = $allDistricts;
+                        }
+                    }
+                    $roadName = $doc->accident->road_name ?? '';
+                    $extractedDistrict = '';
+                    if (preg_match('/(?:KECAMATAN|KEC)\.?\s*([A-Za-z\s]+?)\s*(?:KABUPATEN|KAB\.|KAB|KOTA|,|$)/i', $roadName, $matches)) {
+                        $extractedDistrict = trim(preg_replace('/[^a-zA-Z0-9 ]/', '', $matches[1]));
+                        $extractedDistrict = preg_replace('/\s+/', ' ', $extractedDistrict);
+                    }
+                    if ($extractedDistrict && !empty($districts)) {
+                        $extractedClean = strtoupper(str_replace(' ', '', $extractedDistrict));
+                        foreach ($districts as $d) {
+                            if (isset($d['Nama'])) {
+                                $dNameClean = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', $d['Nama']));
+                                if ($dNameClean === $extractedClean) {
+                                    $kodeWilayah = $d['KodePuskarda'];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Map Suspects
+                $daftarTerlaporTersangka = [];
+                $people = $doc->suspects;
+                foreach ($people as $suspect) {
+                    $daftarTerlaporTersangka[] = [
+                        'nama' => $suspect->name ?? '-',
+                        'tempat_lahir' => $suspect->birth_place ?? '-',
+                        'kode_jenis_kelamin' => ($suspect->gender_id == '1' || $suspect->gender == 'L') ? 1 : 2,
+                        'alamat' => $suspect->address ?? '-',
+                        'kode_wilayah' => $kodeWilayah,
+                        'kode_pendidikan' => (int) ($suspect->education_id ?? 1),
+                        'kode_pekerjaan' => (int) ($suspect->job_id ?? 1),
+                        'nama_ibu' => '-',
+                        'kode_agama' => (int) ($suspect->religion_id ?? 1),
+                        'kode_status_perkawinan' => (int) ($suspect->marital_status_id ?? 1),
+                        'kode_warga_negara' => 'idn',
+                        'umur_saat_tindak_pidana' => (function() use ($suspect, $doc) {
+                            if ($suspect->birth_date) {
+                                $refDate = $doc->accident->accident_date ?? now()->toDateString();
+                                return \Carbon\Carbon::parse($suspect->birth_date)->diffInYears(\Carbon\Carbon::parse($refDate));
+                            }
+                            return $suspect->age ?? null;
+                        })(),
+                        'daftar_uu_pasal' => ['Pasal 310 UU LLAJ']
+                    ];
+                }
+
+                // Map Officers
+                $pejabat = [];
+                foreach ($doc->suratPemberitahuanPenghentianPenyidikanDocumentOfficers as $officer) {
+                    $pejabat[] = [
+                        'nama' => trim(($officer->first_title ? $officer->first_title . ' ' : '') . $officer->first_name . ' ' . $officer->last_name . ($officer->last_title ? ' ' . $officer->last_title : '')),
+                        'nomor_induk' => $officer->register_number ?? '-',
+                        'jabatan' => $officer->position->name ?? $officer->position_id ?? '-',
+                        'pangkat' => $officer->rank->name ?? $officer->rank_id ?? '-'
+                    ];
+                }
+                if (count($pejabat) == 0) $pejabat[] = ['nama' => '-', 'nomor_induk' => '-', 'jabatan' => '-', 'pangkat' => '-'];
+
+                // Map Digital Documents
+                $daftarDokumenDigital = [];
+                $sp3Att = $doc->suratPemberitahuanPenghentianPenyidikanDocumentAttachment;
+                if ($sp3Att) {
+                    $daftarDokumenDigital[] = [
+                        'kode_jenis_dokumen' => 'sp3',
+                        'mime_type' => 'application/pdf',
+                        'url' => asset("documents/attachments/{$sp3Att->name}")
+                    ];
+                } else {
+                    $daftarDokumenDigital[] = [
+                        'kode_jenis_dokumen' => 'sp3',
+                        'mime_type' => 'application/pdf',
+                        'url' => ''
+                    ];
+                }
+
+                // 2. sprindik
+                $sprindikDoc = $doc->suratPerintahPenyidikanDocument;
+                if ($sprindikDoc && $sprindikDoc->attachment) {
+                    $sprindikAtt = $sprindikDoc->attachment;
+                    $daftarDokumenDigital[] = [
+                        'kode_jenis_dokumen' => 'sprindik',
+                        'mime_type' => 'application/pdf',
+                        'url' => asset("documents/attachments/{$sprindikAtt->name}")
+                    ];
+                } else {
+                    $daftarDokumenDigital[] = [
+                        'kode_jenis_dokumen' => 'sprindik',
+                        'mime_type' => 'application/pdf',
+                        'url' => ''
+                    ];
+                }
+
+                // 3. lp (Laporan Polisi)
+                $daftarDokumenDigital[] = [
+                    'kode_jenis_dokumen' => 'lp',
+                    'mime_type' => 'application/pdf',
+                    'url' => ''
+                ];
+
+                $responseData[] = [
+                    'kode_jenis_dokumen' => 'sp3',
+                    'identitas_dokumen' => [
+                        'nomor' => $doc->document_number ?? '-',
+                        'tanggal' => $doc->document_date ? date('Y-m-d', strtotime($doc->document_date)) : date('Y-m-d'),
+                        'nomor_spdp' => $doc->no_spdp ?? null
+                    ],
+                    'konten_dokumen' => [
+                        'kode_alasan' => (function() use ($doc) {
+                            // Prioritas: kolom kode_alasan (JSON), lalu messages kode_alasan_raw
+                            $raw = $doc->kode_alasan;
+                            if (is_string($raw)) {
+                                $decoded = json_decode($raw, true);
+                                if (is_array($decoded) && count($decoded) > 0) {
+                                    return array_map('intval', $decoded);
+                                }
+                            } elseif (is_array($raw) && count($raw) > 0) {
+                                return array_map('intval', $raw);
+                            }
+                            $rawMsg = $doc->messages['kode_alasan_raw'] ?? [];
+                            if (is_array($rawMsg) && count($rawMsg) > 0) {
+                                return array_map('intval', $rawMsg);
+                            }
+                            return [1]; // fallback
+                        })(),
+                        'pejabat_penandatangan' => $pejabat,
+                        'daftar_terlapor_atau_tersangka' => count($daftarTerlaporTersangka) > 0 ? $daftarTerlaporTersangka : null,
+                        'daftar_dokumen_digital' => $daftarDokumenDigital
+                    ]
+                ];
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Data ditemukan.',
+                'total'   => count($responseData),
+                'page'    => $page,
+                'data'    => $responseData
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+}
