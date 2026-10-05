@@ -174,7 +174,10 @@ class SkdPolDocumentController extends Controller
 
                     $kodeAgama = null;
                     if (!empty($payload['childReligion']) && is_numeric($payload['childReligion'])) {
-                        $kodeAgama = intval($payload['childReligion']);
+                        $rel = \App\Models\Lib\Religion::find($payload['childReligion']);
+                        $kodeAgama = $rel ? ($rel->pusiknas_id ?? ($rel->emp_id ?? intval($payload['childReligion']))) : intval($payload['childReligion']);
+                    } elseif ($suspect && isset($suspect->religion->pusiknas_id) && is_numeric($suspect->religion->pusiknas_id)) {
+                        $kodeAgama = intval($suspect->religion->pusiknas_id);
                     } elseif ($suspect && isset($suspect->religion->emp_id) && is_numeric($suspect->religion->emp_id)) {
                         $kodeAgama = intval($suspect->religion->emp_id);
                     }
@@ -230,7 +233,8 @@ class SkdPolDocumentController extends Controller
 
                     $vAgama = null;
                     if (!empty($payload['victimReligion']) && is_numeric($payload['victimReligion'])) {
-                        $vAgama = intval($payload['victimReligion']);
+                        $vRel = \App\Models\Lib\Religion::find($payload['victimReligion']);
+                        $vAgama = $vRel ? ($vRel->pusiknas_id ?? ($vRel->emp_id ?? intval($payload['victimReligion']))) : intval($payload['victimReligion']);
                     }
 
                     $vKodeWargaNegara = 'idn';
@@ -276,7 +280,9 @@ class SkdPolDocumentController extends Controller
                                 'kabupaten' => $victim->regency->name ?? null,
                                 'provinsi'  => $victim->province->name ?? null,
                             ],
-                            'kode_agama'        => isset($victim->religion->emp_id) ? intval($victim->religion->emp_id) : null,
+                            'kode_agama'        => isset($victim->religion->pusiknas_id)
+                                ? intval($victim->religion->pusiknas_id)
+                                : (isset($victim->religion->emp_id) ? intval($victim->religion->emp_id) : null),
                         ];
                     }
                 }
