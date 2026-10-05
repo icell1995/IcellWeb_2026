@@ -35,4 +35,9 @@ return [
         'verify_token_url' => env('IRSMS_VERIFY_TOKEN_URL'),
     ],
 
+    'pusiknas' => [
+        'api_username' => env('PUSIKNAS_API_USERNAME'),
+        'api_password' => env('PUSIKNAS_API_PASSWORD'),
+    ],
+
 ];

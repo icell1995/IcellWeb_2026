@@ -46,6 +46,7 @@ use App\Models\Lib\DocumentCategory;
 use App\Models\InvolvedPeople;
 use App\Models\Lib\Police;
 use App\Models\ReportedPerson;
+use App\Models\ReportingPerson;
 
 use App\Traits\AccidentQueryTraits;
 use App\Models\Log\CaseResolutionValidation as LogSelra;
@@ -1388,6 +1389,14 @@ class AccidentController extends Controller
             'suratPemberitahuanDimulainyaPenyidikanDocuments',
             'suratPemberitahuanPerkembanganHasilPenyidikanDocuments',
             'beritaAcaraPenahananDocuments',
+            'suratPerintahPenahananDocuments',
+            'suratPerintahPenangguhanPenahananDocuments',
+            'suratPerintahPencabutanPenangguhanPenahananDocuments',
+            'suratPermohonanPerpanjanganPenahananKejaksaanDocuments',
+            'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments',
+            'suratPemberitahuanPenghentianPenyidikanDocuments',
+            'tahap1Documents',
+            'tahap2Documents',
         ];
 
         $accidentDocument = Accident::with($documentTypes)
@@ -1430,8 +1439,10 @@ class AccidentController extends Controller
 
         if (!empty($page) && $page == 'participants') {
             $reportedPersons = ReportedPerson::where('accident_id', $get_accident)->get();
+            $reportingPersons = ReportingPerson::where('accident_id', $get_accident)->get();
 
             $data['reportedPersons'] = $reportedPersons;
+            $data['reportingPersons'] = $reportingPersons;
         }
 
         $data['id'] = $accident[0]->id;

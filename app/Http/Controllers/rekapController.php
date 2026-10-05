@@ -72,6 +72,7 @@ class rekapController extends Controller
         $status   = trim((string) $request->input('status',''));
         $poldaId  = trim((string) $request->input('polda',''));
         $polresId = trim((string) $request->input('polres',''));
+        $dateType = trim((string) $request->input('date_type', 'accident_date'));
         $dateFrom = $request->input('date_from');
         $dateTo   = $request->input('date_to');
 
@@ -100,6 +101,7 @@ class rekapController extends Controller
                 a.id,
                 a.no_lp,
                 to_char(a.accident_date, 'DD-MM-YYYY') as accident_date,
+                to_char(a.report_date, 'DD-MM-YYYY') as report_date,
                 to_char(a.created_at,    'DD-MM-YYYY') as accident_tindak_lanjut,
                 (
                     CASE
@@ -125,7 +127,13 @@ class rekapController extends Controller
         // filters tambahan
         if ($noLp !== '')   $q->where('a.no_lp', 'ilike', "%{$noLp}%");
         if ($status !== '') $q->where('a.selra_flag', $status);
-        if ($df && $dt)     $q->whereBetween('a.accident_date', [$df, $dt]);
+        if ($df && $dt) {
+            if ($dateType === 'report_date') {
+                $q->whereBetween('a.report_date', [$df, $dt]);
+            } else {
+                $q->whereBetween('a.accident_date', [$df, $dt]);
+            }
+        }
 
         $q->orderByDesc('a.accident_date')->orderByDesc('a.id');
 
