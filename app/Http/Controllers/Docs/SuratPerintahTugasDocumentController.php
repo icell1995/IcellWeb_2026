@@ -20,6 +20,7 @@ use App\Models\Doc\SuratPerintahPenyelidikanDocument\SuratPerintahPenyelidikanDo
 use App\Models\Doc\SuratPerintahPenyelidikanDocument\SuratPerintahPenyelidikanDocumentOfficer;
 use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument;
 use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocumentOfficer;
+use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
 
 use App\Models\Officer;
 use App\Models\Accident;
@@ -531,11 +532,20 @@ class SuratPerintahTugasDocumentController extends Controller
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $suratPerintahTugasDocumentId = $id;
 
+        // Validasi relasi dokumen turunan aktif
+        $hasSpdp = SuratPemberitahuanDimulainyaPenyidikanDocument::where('surat_perintah_tugas_document_id', $suratPerintahTugasDocumentId)->exists();
+        if ($hasSpdp) {
+            $message = "Surat Perintah Tugas (Sprintas) tidak dapat dihapus karena masih terhubung dengan dokumen: Surat Pemberitahuan Dimulainya Penyidikan (SPDP). Silakan hapus dokumen SPDP terlebih dahulu sebelum menghapus Sprintas ini.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+
         DB::beginTransaction();
         try{
             // Delete from database
             $suratPerintahTugasDocument = SuratPerintahTugasDocument::where('id', $suratPerintahTugasDocumentId)->first();
-            $suratPerintahTugasDocument->delete();
+            if ($suratPerintahTugasDocument) {
+                $suratPerintahTugasDocument->delete();
+            }
 
             DB::commit();
         } catch (\Exception $e) {
