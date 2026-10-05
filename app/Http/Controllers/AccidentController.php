@@ -1391,9 +1391,8 @@ class AccidentController extends Controller
             'suratPerintahPenahananDocuments',
             'suratPerintahPenangguhanPenahananDocuments',
             'suratPerintahPencabutanPenangguhanPenahananDocuments',
-            'suratPermohonanPerpanjanganPenahananKejaksaanDocuments'
+            'suratPermohonanPerpanjanganPenahananKejaksaanDocuments',
             'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments',
-            'suratPemberitahuanPerkembanganHasilPenyidikanDocuments',
             'suratPemberitahuanPenghentianPenyidikanDocuments',
             'suratPermintaanPerpanjanganPenahananLanjutanDocuments',
             'suratPermintaanPerpanjanganPenahananLanjutanKeduaDocuments',
