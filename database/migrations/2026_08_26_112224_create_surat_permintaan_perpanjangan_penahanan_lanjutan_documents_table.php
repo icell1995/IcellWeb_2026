@@ -50,6 +50,7 @@ return new class extends Migration
             $table->text('dugaan_tindak_pidana')->nullable();
 
             $table->integer('waktu_penahanan_hari')->default(30);
+            $table->unsignedBigInteger('prison_id')->nullable()->index('s22_doc_prison_id_idx');
             $table->string('rutan_name')->nullable();
             $table->string('kode_satker_tempat_penahanan')->nullable();
 

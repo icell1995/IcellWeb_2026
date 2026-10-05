@@ -45,9 +45,15 @@ class S22PusiknasService
             'nomor_surat_perintah_penahanan' => (string) ($document->nomor_surat_perintah_penahanan ?? ''),
         ];
 
+        // Satker tempat penahanan (prioritas: kode di dokumen -> spptti_id rutan -> satker penerbit)
+        $kodeTempatPenahanan = $document->kode_satker_tempat_penahanan ?: ($document->prison->spptti_id ?? null);
+        if (empty($kodeTempatPenahanan)) {
+            $kodeTempatPenahanan = $satkerPenerbit;
+        }
+
         // 4. Susun Konten Dokumen
         $kontenDokumen = [
-            'kode_satker_tempat_penahanan' => $document->kode_satker_tempat_penahanan ?: null,
+            'kode_satker_tempat_penahanan' => (string) ($kodeTempatPenahanan ?: ''),
             'tanggal_mulai_perpanjangan_penahanan' => $document->tanggal_mulai_perpanjangan_penahanan
                 ? Carbon::parse($document->tanggal_mulai_perpanjangan_penahanan)->format('Y-m-d')
                 : null,

@@ -13,6 +13,7 @@ use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\Sur
 use App\Models\Lib\CrimeClass;
 use App\Models\Lib\CrimeConstitution;
 use App\Models\Lib\CrimeType;
+use App\Models\Lib\Prison;
 use App\Models\Lib\Prosecutor;
 use App\Models\Officer;
 use App\Models\Polres;
@@ -161,6 +162,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
 
         // Default Rutan
         $defaultRutanName = $firstExtensionDoc->rutan_name ?? ('Rutan '.($accident->polres->full_name ?? ''));
+        $defaultPrisonId = $firstExtensionDoc->prison_id ?? null;
 
         // Default Pasal Diduga & Dugaan Tindak Pidana
         $defaultPasalDiduga = $firstExtensionDoc->pasal_diduga ?? null;
@@ -282,10 +284,12 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             'defaultTanggalMulai' => $defaultTanggalMulai,
             'defaultTanggalAkhir' => $defaultTanggalAkhir,
             'defaultRutanName' => $defaultRutanName,
+            'defaultPrisonId' => $defaultPrisonId,
             'defaultPasalDiduga' => $defaultPasalDiduga,
             'defaultDugaanTindakPidana' => $defaultDugaanTindakPidana,
             'defaultAlasan' => $defaultAlasan,
             'selectedSuspectIds' => $selectedSuspectIds,
+            'prisonsGrouped' => Prison::active()->orderBy('province')->orderBy('name')->get()->groupBy('province'),
         ];
 
         return view('docs.surat-permintaan-perpanjangan-penahanan-lanjutan-kedua-document.create', $viewData);
@@ -310,7 +314,21 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
         $kodeSatkerPenerbitSpdp = $request->kode_satker_penerbit_spdp ?: $satkerCode;
         $kodeSatkerTempatPenahanan = $request->kode_satker_tempat_penahanan ?: $satkerCode;
 
-        $rutanName = $request->rutan_name ?: ('Rutan '.($accident->polres->full_name ?? ''));
+        // Resolusi Tempat Penahanan / Rutan
+        $prisonId = null;
+        if ($request->filled('prison_id') && is_numeric($request->prison_id)) {
+            $prison = Prison::find($request->prison_id);
+            if ($prison) {
+                $prisonId = $prison->id;
+                $rutanName = $prison->name;
+                if (!empty($prison->spptti_id)) {
+                    $kodeSatkerTempatPenahanan = $prison->spptti_id;
+                }
+            }
+        }
+        if (empty($rutanName)) {
+            $rutanName = $request->rutan_name ?: ('Rutan '.($accident->polres->full_name ?? ''));
+        }
         $lampiranSurat = $request->lampiran_surat ?: null;
 
         $rawTembusan = $request->tembusan ?? $request->carbonCopies ?? [];
@@ -363,6 +381,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
                 'pasal_diduga' => $request->pasal_diduga,
                 'dugaan_tindak_pidana' => $request->dugaan_tindak_pidana,
                 'waktu_penahanan_hari' => $request->waktu_penahanan_hari ?: 30,
+                'prison_id' => $prisonId,
                 'rutan_name' => $rutanName,
                 'kode_satker_tempat_penahanan' => $kodeSatkerTempatPenahanan,
                 'tanggal_mulai_perpanjangan_penahanan' => $request->tanggal_mulai_perpanjangan_penahanan ? Carbon::parse($request->tanggal_mulai_perpanjangan_penahanan)->format('Y-m-d') : null,
@@ -566,6 +585,8 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             'defaultNamaPengadilanNegeri' => $defaultNamaPengadilanNegeri,
             'defaultPasalDiduga' => $defaultPasalDiduga,
             'defaultDugaanTindakPidana' => $defaultDugaanTindakPidana,
+            'defaultRutanName' => 'Rutan '.($accident->polres->full_name ?? ''),
+            'prisonsGrouped' => Prison::active()->orderBy('province')->orderBy('name')->get()->groupBy('province'),
         ];
 
         return view('docs.surat-permintaan-perpanjangan-penahanan-lanjutan-kedua-document.edit', $viewData);
@@ -598,7 +619,25 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             $kodeSatkerPenerbitSpdp = $request->kode_satker_penerbit_spdp ?: ($document->kode_satker_penerbit_spdp ?: $satkerCode);
             $kodeSatkerTempatPenahanan = $request->kode_satker_tempat_penahanan ?: ($document->kode_satker_tempat_penahanan ?: $satkerCode);
 
-            $rutanName = $request->rutan_name ?: ($document->rutan_name ?: ('Rutan '.($accident->polres->full_name ?? '')));
+            // Resolusi Tempat Penahanan / Rutan
+            $prisonId = null;
+            if ($request->filled('prison_id') && is_numeric($request->prison_id)) {
+                $prison = Prison::find($request->prison_id);
+                if ($prison) {
+                    $prisonId = $prison->id;
+                    $rutanName = $prison->name;
+                    if (!empty($prison->spptti_id)) {
+                        $kodeSatkerTempatPenahanan = $prison->spptti_id;
+                    }
+                }
+            } elseif ($request->prison_id === 'polres') {
+                $prisonId = null;
+                $rutanName = 'Rutan '.($accident->polres->full_name ?? '');
+                $kodeSatkerTempatPenahanan = $satkerCode;
+            } else {
+                $prisonId = $document->prison_id;
+                $rutanName = $request->rutan_name ?: ($document->rutan_name ?: ('Rutan '.($accident->polres->full_name ?? '')));
+            }
             $lampiranSurat = $request->has('lampiran_surat') && $request->lampiran_surat ? $request->lampiran_surat : ($document->lampiran_surat ?: null);
 
             $rawTembusan = $request->tembusan ?? $request->carbonCopies ?? [];
@@ -646,6 +685,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
                 'pasal_diduga' => $request->pasal_diduga,
                 'dugaan_tindak_pidana' => $request->dugaan_tindak_pidana,
                 'waktu_penahanan_hari' => $request->waktu_penahanan_hari,
+                'prison_id' => $prisonId,
                 'rutan_name' => $rutanName,
                 'kode_satker_tempat_penahanan' => $kodeSatkerTempatPenahanan,
                 'tanggal_mulai_perpanjangan_penahanan' => $request->tanggal_mulai_perpanjangan_penahanan ? Carbon::parse($request->tanggal_mulai_perpanjangan_penahanan)->format('Y-m-d') : null,
@@ -1152,6 +1192,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             // 4. Detail Masa Perpanjangan (Poin 3)
             'pengadilan_negeri_akhir_tanggal' => 'required|date',
             'waktu_penahanan_hari' => 'required|numeric|min:1|max:60',
+            'prison_id' => 'nullable',
             'rutan_name' => 'required|max:255',
             'tanggal_mulai_perpanjangan_penahanan' => 'required|date',
             'tanggal_akhir_perpanjangan_penahanan' => 'required|date',

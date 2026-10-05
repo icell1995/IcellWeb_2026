@@ -73,6 +73,7 @@ return new class extends Migration
 
             // Durasi & Fasilitas Penahanan
             $table->integer('waktu_penahanan_hari')->default(30);
+            $table->unsignedBigInteger('prison_id')->nullable()->index('s22_kedua_doc_prison_id_idx');
             $table->string('rutan_name')->nullable();
             $table->string('kode_satker_tempat_penahanan')->nullable();
             $table->date('tanggal_mulai_perpanjangan_penahanan')->nullable();

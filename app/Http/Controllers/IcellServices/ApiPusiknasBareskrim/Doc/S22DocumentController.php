@@ -73,6 +73,7 @@ class S22DocumentController extends Controller
                 'accident.suratPerintahPenyidikanDocuments.attachment',
                 'officers',
                 'attachment',
+                'prison',
             ];
 
             $fetchPertama = in_array($type, ['all', 'pertama', '0603', '']);

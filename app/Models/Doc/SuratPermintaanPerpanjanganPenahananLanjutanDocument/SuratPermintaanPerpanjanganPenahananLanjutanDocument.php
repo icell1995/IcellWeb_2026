@@ -129,6 +129,11 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocument extends Model
         return $this->belongsTo('App\Models\User', 'updated_by_user_id', 'id');
     }
 
+    public function prison()
+    {
+        return $this->belongsTo(\App\Models\Lib\Prison::class, 'prison_id', 'id');
+    }
+
     public function getDocumentNumberAttribute()
     {
         return $this->nomor_surat;

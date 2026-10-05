@@ -400,10 +400,27 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="rutan_name">Tempat Penahanan / Rutan<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="prison_id">Tempat Penahanan / Rutan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <input id="rutan_name" type="text" class="form-control @error('rutan_name') is-invalid @enderror" name="rutan_name"
-                            value="{{ old('rutan_name', $defaultRutanName) }}" placeholder="Contoh: Rutan Polres Simalungun" required>
+                        <select id="prison_id" name="prison_id" class="form-select select2 @error('rutan_name') is-invalid @enderror" required>
+                            <option value="polres" data-name="{{ $defaultRutanName }}" {{ old('prison_id', $defaultPrisonId) == 'polres' || (empty(old('prison_id', $defaultPrisonId)) && (!old('rutan_name') || old('rutan_name') == $defaultRutanName)) ? 'selected' : '' }}>
+                                {{ $defaultRutanName }} (Internal Kepolisian)
+                            </option>
+                            @if(isset($prisonsGrouped) && $prisonsGrouped->isNotEmpty())
+                                @foreach ($prisonsGrouped as $province => $prisons)
+                                    <optgroup label="Provinsi {{ $province }}">
+                                        @foreach ($prisons as $prison)
+                                            <option value="{{ $prison->id }}" data-name="{{ $prison->name }}"
+                                                {{ (string) old('prison_id', $defaultPrisonId) === (string) $prison->id || old('rutan_name') === $prison->name ? 'selected' : '' }}>
+                                                {{ $prison->name }}{{ $prison->branch ? ' ('.$prison->branch.')' : '' }}
+                                            </option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            @endif
+                        </select>
+                        <input type="hidden" id="rutan_name" name="rutan_name" value="{{ old('rutan_name', $defaultRutanName) }}">
+                        <small class="text-muted fst-italic">Pilih Rutan dari master data atau opsi Rutan internal kepolisian setempat.</small>
                         @error('rutan_name')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -731,6 +748,12 @@
             $('#nama_pengadilan_negeri').on('input', function() {
                 var val = $(this).val();
                 $(this).val(val.toUpperCase());
+            });
+
+            $('#prison_id').on('change select2:select', function() {
+                var selectedOption = $(this).find('option:selected');
+                var selectedName = selectedOption.data('name') || selectedOption.text().trim();
+                $('#rutan_name').val(selectedName);
             });
 
             // Setup Master Laws
