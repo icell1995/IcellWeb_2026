@@ -1,5 +1,5 @@
 @php
-    $_title = 'Edit Surat Perintah Penahanan';
+    $_title = 'Surat Perintah Pencabutan Penangguhan Penahanan (S-19)';
 @endphp
 
 @extends('layouts.app')
@@ -35,7 +35,8 @@
 
     <div class="box">
         <div class="box-header">
-            <h5 class="fw-bold text-blue-dark">Edit Surat Perintah Penahanan (S-17)</h5>
+            <h5 class="fw-bold text-blue-dark">Surat Perintah Pencabutan Penangguhan Penahanan (S-19 / SPRIN CABUT GUHAN)</h5>
+            <small class="text-muted d-block mb-3">Kode Dokumen: <b>s19</b> │ Kategori: <b>0604</b></small>
 
             <div class="alert alert-danger" id="attentionBox">
                 <div class="text-center">
@@ -67,8 +68,8 @@
         </div>
 
         <div class="box-body">
-            <form action="{{ route('doc.surat-perintah-penahanan-document.update', ['id' => $document->id, 'accident_id' => $accidentId]) }}"
-                method="POST" id="suratPerintahPenahananForm" novalidate>
+            <form action="{{ route('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.store', ['accident_id' => $accidentId]) }}"
+                method="POST" id="suratPerintahPencabutanPenangguhanPenahananForm" novalidate>
                 @csrf
                 <input type="hidden" name="accident_id" id="accident_id" value="{{ $accidentId }}">
 
@@ -84,16 +85,16 @@
                     </div>
                 </div>
 
-                {{-- Nomor Dokumen SP-Han --}}
+                {{-- Nomor Dokumen S-19 --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="document_number">Nomor Dokumen
-                        <small class="text-muted d-block font-weight-normal">(Bisa dikosongkan saat draft, diisi saat aksi "Isi Nomor")</small>
+                    <label class="fw-bold col-sm-3 col-form-label" for="nomor">Nomor Dokumen S-19<span class="text-danger fs-5">*</span>
+                        <small class="text-muted d-block font-weight-normal">(Nomor Surat Perintah Pencabutan Penangguhan Penahanan)</small>
                     </label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <input id="document_number" type="text"
+                        <input id="nomor" type="text"
                             class="form-control @error('nomor') is-invalid @enderror font-weight-bold"
-                            name="nomor" value="{{ old('nomor', $document->document_number ?? $document->nomor) }}"
-                            placeholder="Contoh: SP.Han/01/X/2026/Reskrim">
+                            name="nomor" value="{{ old('nomor') }}" required
+                            placeholder="Contoh: SP.CabutGuhan/01/X/2026/Reskrim">
                         @error('nomor')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -102,19 +103,13 @@
                     </div>
                 </div>
 
-                {{-- Tanggal Dokumen --}}
+                {{-- Tanggal Dokumen S-19 --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="documentDate">Tanggal Ditandatangani Dokumen<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="tanggal">Tanggal S-19<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <input class="form-control @error('documentDate') is-invalid @enderror @error('tanggal') is-invalid @enderror"
-                            id="documentDate" name="documentDate" placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('documentDate', old('tanggal', $document->document_date ? \Carbon\Carbon::parse($document->document_date)->format('Y-m-d') : ($document->tanggal ? \Carbon\Carbon::parse($document->tanggal)->format('Y-m-d') : ''))) }}"
-                            data-provide="datepicker">
-                        @error('documentDate')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+                        <input class="form-control @error('tanggal') is-invalid @enderror" id="tanggal" name="tanggal"
+                            placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('tanggal', date('Y-m-d')) }}"
+                            data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
                         @error('tanggal')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -129,7 +124,7 @@
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="nomor_spdp" type="text"
                             class="form-control @error('nomor_spdp') is-invalid @enderror font-weight-bold"
-                            name="nomor_spdp" value="{{ old('nomor_spdp', $document->nomor_spdp ?: $nomorSpdp) }}" readonly
+                            name="nomor_spdp" value="{{ old('nomor_spdp', $nomorSpdp) }}" readonly
                             placeholder="Nomor SPDP otomatis dari sistem" style="background-color: #e9ecef;">
                         <small class="text-muted">(*Nomor SPDP bersifat tetap dan diambil otomatis dari dokumen SPDP perkara ini)</small>
                         @error('nomor_spdp')
@@ -148,7 +143,7 @@
                             class="form-control @error('tanggal_spdp') is-invalid @enderror font-weight-bold"
                             name="tanggal_spdp"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_spdp', $document->tanggal_spdp ? date('Y-m-d', strtotime($document->tanggal_spdp)) : ($tanggalSpdp ? date('Y-m-d', strtotime($tanggalSpdp)) : date('Y-m-d'))) }}"
+                            value="{{ old('tanggal_spdp', $tanggalSpdp ? date('Y-m-d', strtotime($tanggalSpdp)) : date('Y-m-d')) }}"
                             readonly style="background-color: #e9ecef;">
                         <small class="text-muted">(*Tanggal SPDP bersifat tetap dan diambil otomatis dari dokumen SPDP perkara ini)</small>
                         @error('tanggal_spdp')
@@ -159,14 +154,13 @@
                     </div>
                 </div>
 
-                {{-- Kode Satker Penerbit SPDP (Read Only sesuai Polres pada No LP) --}}
+                {{-- Kode Satker Penerbit SPDP (Read Only) --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-3 col-form-label" for="kode_satker_penerbit_spdp">Kode Satker Penerbit SPDP<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="kode_satker_penerbit_spdp" type="text"
                             class="form-control @error('kode_satker_penerbit_spdp') is-invalid @enderror font-weight-bold"
-                            name="kode_satker_penerbit_spdp"
-                            value="{{ old('kode_satker_penerbit_spdp', $document->kode_satker_penerbit_spdp ?: $kodeSatkerDefault) }}" readonly
+                            name="kode_satker_penerbit_spdp" value="{{ old('kode_satker_penerbit_spdp', $kodeSatkerDefault) }}" readonly
                             style="background-color: #e9ecef;">
                         <small class="text-muted">(*Kode Satker Kepolisian penerbit SPDP sesuai dengan Polres pada Nomor LP: {{ $accident->polres->full_name ?? $accident->polres->name ?? '-' }})</small>
                         @error('kode_satker_penerbit_spdp')
@@ -177,58 +171,46 @@
                     </div>
                 </div>
 
-                {{-- Nomor Surat Perintah Penangkapan (Jika ada) --}}
+                {{-- Nomor Surat Perintah Penahanan (S-17) (Read Only) --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="nomor_surat_perintah_penangkapan">Nomor Surat Perintah Penangkapan
-                        <small class="text-muted d-block font-weight-normal">(Opsional jika dilakukan penangkapan sebelumnya)</small>
-                    </label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="nomor_surat_perintah_penahanan">Nomor Surat Perintah Penahanan (S-17)<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <input id="nomor_surat_perintah_penangkapan" type="text"
-                            class="form-control" name="nomor_surat_perintah_penangkapan"
-                            value="{{ old('nomor_surat_perintah_penangkapan', $document->nomor_surat_perintah_penangkapan) }}"
-                            placeholder="Contoh: SP.Kap/01/X/2026/Reskrim">
+                        <input id="nomor_surat_perintah_penahanan" type="text"
+                            class="form-control @error('nomor_surat_perintah_penahanan') is-invalid @enderror font-weight-bold"
+                            name="nomor_surat_perintah_penahanan"
+                            value="{{ old('nomor_surat_perintah_penahanan', $suratPerintahPenahanan->nomor ?? $suratPerintahPenahanan->document_number ?? '') }}"
+                            placeholder="Contoh: SP.Han/01/X/2026/Reskrim" readonly style="background-color: #e9ecef;">
+                        <small class="text-muted">(*Nomor Surat Perintah Penahanan diambil otomatis dari dokumen S-17 perkara ini)</small>
+                        @error('nomor_surat_perintah_penahanan')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
                     </div>
                 </div>
 
-                {{-- Surat Perintah Penyidikan (Dasar Poin 6) (Read Only) --}}
+                {{-- Nomor Surat Perintah Penangguhan Penahanan (S-18) (Read Only) --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="surat_perintah_penyidikan_document_id">Surat Perintah Penyidikan
-                        <small class="text-muted d-block font-weight-normal">(Dasar Poin 6 pada Surat)</small>
-                    </label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="nomor_surat_perintah_penangguhan">Nomor Surat Perintah Penangguhan (S-18)<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        @php
-                            $selectedSprindik = $sprindikDocuments->where('id', $document->surat_perintah_penyidikan_document_id)->first() ?? $sprindikDocuments->sortByDesc('id')->first();
-                            $sprindikText = $selectedSprindik ? ($selectedSprindik->document_number ?? $selectedSprindik->nomor) . ' (Tgl: ' . ($selectedSprindik->document_date ? date('d-m-Y', strtotime($selectedSprindik->document_date)) : ($selectedSprindik->tanggal ? date('d-m-Y', strtotime($selectedSprindik->tanggal)) : '-')) . ')' : '-';
-                        @endphp
-                        <input type="text" class="form-control font-weight-bold"
-                            value="{{ $sprindikText }}" readonly style="background-color: #e9ecef;">
-                        <input type="hidden" name="surat_perintah_penyidikan_document_id" id="surat_perintah_penyidikan_document_id"
-                            value="{{ old('surat_perintah_penyidikan_document_id', $selectedSprindik->id ?? $document->surat_perintah_penyidikan_document_id) }}">
-                        <small class="text-muted">(*Diambil otomatis dari Surat Perintah Penyidikan perkara ini)</small>
-                    </div>
-                </div>
-
-                {{-- Surat Ketetapan Penetapan Tersangka (Dasar Poin 7) (Read Only) --}}
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="surat_ketetapan_penetapan_tersangka_id">Surat Ketetapan Tersangka
-                        <small class="text-muted d-block font-weight-normal">(Dasar Poin 7 pada Surat)</small>
-                    </label>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        @php
-                            $selectedSpt = $penetapanTersangkaDocuments->where('id', $document->surat_ketetapan_penetapan_tersangka_id)->first() ?? $penetapanTersangkaDocuments->sortByDesc('id')->first();
-                            $sptText = $selectedSpt ? ($selectedSpt->document_number ?? $selectedSpt->nomor) . ' (Tgl: ' . ($selectedSpt->document_date ? date('d-m-Y', strtotime($selectedSpt->document_date)) : ($selectedSpt->tanggal ? date('d-m-Y', strtotime($selectedSpt->tanggal)) : '-')) . ')' : '-';
-                        @endphp
-                        <input type="text" class="form-control font-weight-bold"
-                            value="{{ $sptText }}" readonly style="background-color: #e9ecef;">
-                        <input type="hidden" name="surat_ketetapan_penetapan_tersangka_id" id="surat_ketetapan_penetapan_tersangka_id"
-                            value="{{ old('surat_ketetapan_penetapan_tersangka_id', $selectedSpt->id ?? $document->surat_ketetapan_penetapan_tersangka_id) }}">
-                        <small class="text-muted">(*Diambil otomatis dari Surat Ketetapan Penetapan Tersangka perkara ini)</small>
+                        <input id="nomor_surat_perintah_penangguhan" type="text"
+                            class="form-control @error('nomor_surat_perintah_penangguhan') is-invalid @enderror font-weight-bold"
+                            name="nomor_surat_perintah_penangguhan"
+                            value="{{ old('nomor_surat_perintah_penangguhan', $suratPerintahPenangguhan->nomor ?? $suratPerintahPenangguhan->document_number ?? '') }}"
+                            placeholder="Contoh: SP.Guhan/01/X/2026/Reskrim" readonly style="background-color: #e9ecef;">
+                        <small class="text-muted">(*Nomor Surat Perintah Penangguhan Penahanan diambil otomatis dari dokumen S-18 yang dicabut)</small>
+                        @error('nomor_surat_perintah_penangguhan')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
                     </div>
                 </div>
 
                 <hr class="my-4">
 
-                <h5 class="fw-bold text-blue-dark">2. Konten Dokumen & Penahanan</h5>
+                {{-- 2. KETENTUAN PENEMPATAN & SISA WAKTU MASA PENAHANAN --}}
+                <h5 class="fw-bold text-blue-dark">2. Ketentuan Penempatan & Sisa Waktu Masa Penahanan</h5>
 
                 {{-- Jenis Penahanan --}}
                 <div class="input-group row mb-3 ms-0">
@@ -236,95 +218,78 @@
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <select class="form-control select2" name="kode_jenis_penahanan" id="kode_jenis_penahanan" required>
                             @foreach ($masterJenisPenahanan as $val => $lbl)
-                                <option value="{{ $val }}" {{ old('kode_jenis_penahanan', $document->kode_jenis_penahanan) == $val ? 'selected' : '' }}>
-                                    {{ $lbl }}
+                                <option value="{{ $val }}" {{ old('kode_jenis_penahanan', 1) == $val ? 'selected' : '' }}>
+                                    {{ $val . ' - ' . $lbl }}
                                 </option>
                             @endforeach
                         </select>
-                        @error('kode_jenis_penahanan')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+                        <small class="text-muted">(*1 = Rutan, 2 = Rumah, 3 = Kota)</small>
                     </div>
                 </div>
 
-                {{-- Satker Rutan / Lapas (Khusus Rutan) --}}
-                <div class="input-group row mb-3 ms-0" id="rutanSection">
-                    <label class="fw-bold col-sm-3 col-form-label" for="kode_satker_tempat_penahanan">Rutan / Lapas Tempat Penahanan</label>
+                {{-- Tempat Penahanan / Rutan --}}
+                <div class="input-group row mb-3 ms-0" id="tempatPenahananSection">
+                    <label class="fw-bold col-sm-3 col-form-label" for="kode_satker_tempat_penahanan">Tempat / Lokasi Penahanan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <select class="form-control select2" name="kode_satker_tempat_penahanan" id="kode_satker_tempat_penahanan">
-                            <option value="">--Pilih Rutan / Lapas--</option>
+                            <option value="">-- Pilih Rutan / Tempat Penahanan --</option>
+                            <option value="Rutan {{ $accident->polres->full_name ?? $accident->polres->name ?? 'Polres' }}" selected>
+                                Rutan {{ $accident->polres->full_name ?? $accident->polres->name ?? 'Polres' }}
+                            </option>
                             @foreach ($prisons as $p)
-                                <option value="{{ $p->emp_id ?? $p->id }}" {{ old('kode_satker_tempat_penahanan', $document->kode_satker_tempat_penahanan) == ($p->emp_id ?? $p->id) ? 'selected' : '' }}>
-                                    {{ $p->name }} ({{ $p->emp_id ?? '-' }})
+                                <option value="{{ $p->name }}" {{ old('kode_satker_tempat_penahanan') == $p->name ? 'selected' : '' }}>
+                                    {{ $p->name }}
                                 </option>
                             @endforeach
                         </select>
-                        <small class="text-muted">(*Pilih Rutan/Lapas tujuan penahanan untuk pelaporan SPPT-TI)</small>
+                        <input type="text" class="form-control mt-2" name="tempat_penahanan" id="tempat_penahanan"
+                            placeholder="Atau ketik kustom nama tempat penahanan..."
+                            value="{{ old('tempat_penahanan') }}">
+                        <small class="text-muted">(*Tempat penahanan tersangka saat ditahan kembali)</small>
                     </div>
                 </div>
 
-                {{-- Keterangan Tempat Penahanan --}}
+                {{-- Sisa Waktu Masa Penahanan (Hari) --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="lokasi_penahanan">Keterangan Tempat Penahanan<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="jumlah_hari">Sisa Waktu Penahanan (Hari)<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <input id="lokasi_penahanan" type="text"
-                            class="form-control @error('lokasi_penahanan') is-invalid @enderror font-weight-bold"
-                            name="lokasi_penahanan"
-                            value="{{ old('lokasi_penahanan', $document->lokasi_penahanan ?: ($document->messages['tempat_penahanan_nama'] ?? '')) }}"
-                            placeholder="Contoh: RUTAN POLRES ... / Jl. Merdeka No. 10 / KOTA ...">
-                        @error('lokasi_penahanan')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+                        <input id="jumlah_hari" type="number" min="1" max="120"
+                            class="form-control font-weight-bold"
+                            name="jumlah_hari" value="{{ old('jumlah_hari', 20) }}" required>
+                        <small class="text-muted">(*Jumlah sisa hari penahanan yang harus dijalani tersangka)</small>
                     </div>
                 </div>
 
-                {{-- Tanggal Mulai Penahanan --}}
+                {{-- Tanggal Mulai & Tanggal Akhir --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="tanggal_mulai">Tanggal Mulai Penahanan<span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                    <label class="fw-bold col-sm-3 col-form-label" for="tanggal_mulai">Periode Penahanan Kembali<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-12">
+                        <label class="small text-muted mb-1">Tanggal Mulai:</label>
                         <input class="form-control @error('tanggal_mulai') is-invalid @enderror" id="tanggal_mulai" name="tanggal_mulai"
-                            placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_mulai', $document->tanggal_mulai ? date('Y-m-d', strtotime($document->tanggal_mulai)) : ($document->start_date ? date('Y-m-d', strtotime($document->start_date)) : date('Y-m-d'))) }}"
+                            placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('tanggal_mulai', date('Y-m-d')) }}"
                             data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
-                        @error('tanggal_mulai')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+                    </div>
+                    <div class="col-lg-5 col-md-5 col-sm-6 col-12">
+                        <label class="small text-muted mb-1">Tanggal Berakhir (s.d.):</label>
+                        <input class="form-control @error('tanggal_akhir') is-invalid @enderror" id="tanggal_akhir" name="tanggal_akhir"
+                            placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('tanggal_akhir', date('Y-m-d', strtotime('+19 days'))) }}"
+                            data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
                     </div>
                 </div>
 
-                {{-- Tanggal Akhir Penahanan --}}
+                {{-- Alasan Pencabutan --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="tanggal_akhir">Tanggal Akhir Penahanan<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="alasan_pencabutan">Alasan Pencabutan Penangguhan</label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <input class="form-control @error('tanggal_akhir') is-invalid @enderror" id="tanggal_akhir" name="tanggal_akhir"
-                            placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_akhir', $document->tanggal_akhir ? date('Y-m-d', strtotime($document->tanggal_akhir)) : ($document->end_date ? date('Y-m-d', strtotime($document->end_date)) : date('Y-m-d', strtotime('+20 days')))) }}"
-                            data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
-                        <small class="text-muted d-block mt-1">
-                            <span id="durasiPenahananText" class="badge bg-secondary">Durasi: 21 Hari</span>
-                        </small>
-                        @error('tanggal_akhir')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+                        <textarea id="alasan_pencabutan" class="form-control" name="alasan_pencabutan" rows="2"
+                            placeholder="Contoh: Tersangka melanggar persyaratan yang telah ditetapkan dan/atau tidak mematuhi kewajiban wajib lapor.">{{ old('alasan_pencabutan', 'tersangka melanggar persyaratan yang telah ditetapkan') }}</textarea>
                     </div>
                 </div>
 
                 <hr class="my-4">
 
                 {{-- 3. DAFTAR TERSANGKA --}}
-                <h5 class="fw-bold text-blue-dark">3. Tersangka yang Ditahan<span class="text-danger fs-5">*</span></h5>
-
-                @php
-                    $selectedSuspectIds = old('suspects', $document->suspects->pluck('id')->toArray());
-                @endphp
+                <h5 class="fw-bold text-blue-dark">3. Tersangka yang Dicabut Penangguhannya<span class="text-danger fs-5">*</span></h5>
 
                 @if ($suspects->count() == 0)
                     <div class="alert alert-warning" role="alert">
@@ -345,7 +310,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($suspects as $suspect)
+                                @foreach ($suspects as $idx => $suspect)
                                     @php
                                         $age = $suspect->age ?? ($suspect->birth_date ? \Carbon\Carbon::parse($suspect->birth_date)->age : '-');
                                     @endphp
@@ -353,7 +318,7 @@
                                         <td class="text-center align-middle">
                                             <input type="checkbox" name="suspects[]" value="{{ $suspect->id }}"
                                                 class="suspect-checkbox" id="suspect_{{ $suspect->id }}"
-                                                {{ in_array($suspect->id, $selectedSuspectIds) ? 'checked' : '' }}>
+                                                {{ (is_array(old('suspects')) && in_array($suspect->id, old('suspects'))) || ($idx === 0 && !old('suspects')) ? 'checked' : '' }}>
                                         </td>
                                         <td class="align-middle fw-bold">
                                             <label for="suspect_{{ $suspect->id }}" class="mb-0 cursor-pointer">
@@ -383,36 +348,8 @@
 
                 <hr class="my-4">
 
-                {{-- 4. PASAL YANG DISANGKAKAN (INHERITED AUTOMATICALLY) --}}
-                <h5 class="fw-bold text-blue-dark">4. Pasal yang Disangkakan</h5>
-
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label">Daftar UU & Pasal</label>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <div class="p-3 border rounded bg-light">
-                            @if (!empty($pasalList) && count($pasalList) > 0)
-                                <ul class="mb-0 ps-3">
-                                    @foreach ($pasalList as $pasal)
-                                        <li><strong class="text-dark">{{ $pasal }}</strong></li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <span class="text-muted fst-italic">Pasal diambil secara otomatis dari Surat Perintah Penyidikan terkait.</span>
-                            @endif
-                        </div>
-                        <small class="text-muted">(*Pasal yang disangkakan diproses secara otomatis oleh sistem dari Surat Perintah Penyidikan)</small>
-                    </div>
-                </div>
-
-                <hr class="my-4">
-
-                {{-- 5. PETUGAS YANG DIPERINTAHKAN --}}
-                <h5 class="fw-bold text-blue-dark">5. Petugas yang Diperintahkan</h5>
-
-                @php
-                    $currentLeader = $document->suratPerintahPenahananDocumentOfficers->where('class', 'LEADER')->first();
-                    $currentLeaderVal = $currentLeader->register_number ?? ($currentLeader->id ?? '');
-                @endphp
+                {{-- 4. PETUGAS YANG DIPERINTAHKAN --}}
+                <h5 class="fw-bold text-blue-dark">4. Petugas yang Diperintahkan</h5>
 
                 {{-- Ketua Tim --}}
                 <div class="input-group row mb-3 ms-0">
@@ -424,9 +361,8 @@
                                 @php
                                     $fullName = \App\Helpers\PeopleNameHelper::getFullName($data->first_title, $data->first_name, $data->last_name, $data->last_title);
                                     $positionName = $data->position->name ?? '';
-                                    $isSelected = (old('officerLeader', $currentLeaderVal) == $data->id || old('officerLeader', $currentLeaderVal) == $data->register_number);
                                 @endphp
-                                <option value="{{ $data->id }}" {{ $isSelected ? 'selected' : '' }}
+                                <option value="{{ $data->id }}" {{ old('officerLeader') == $data->id ? 'selected' : '' }}
                                     data-register-number="{{ $data->register_number }}">
                                     {{ $data->register_number . ' - ' . $fullName . ' | ' . $positionName }}
                                 </option>
@@ -442,7 +378,7 @@
 
                 <div class="row col-12 my-2 ms-0">
                     <div id="internalOfficer">
-                        <label class="fw-bold mb-2">Anggota Petugas yang Diperintahkan<span class="text-danger fs-5">*</span></label>
+                        <label class="fw-bold mb-2">Anggota Petugas yang Diperintahkan</label>
                         <div class="alert alert-primary my-2" role="alert">
                             Pilih personel lalu klik tombol 'Tambah' untuk menambahkan personel sebagai petugas yang diperintahkan.
                         </div>
@@ -460,7 +396,7 @@
                                                 $rankName = $data->rank->name ?? '';
                                                 $policeName = $data->police->name ?? '';
                                             @endphp
-                                            <option value="{{ $data->register_number }}"
+                                            <option value="{{ $data->id }}"
                                                 data-register-number="{{ $data->register_number }}"
                                                 data-rank-name="{{ $rankName }}"
                                                 data-name="{{ $fullName }}"
@@ -491,27 +427,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if(isset($document->memberOfficers))
-                                        @foreach ($document->memberOfficers as $member)
-                                            @php
-                                                $fullName = \App\Helpers\PeopleNameHelper::getFullName($member->first_title, $member->first_name, $member->last_name, $member->last_title);
-                                                $rankName = $member->rank->name ?? '';
-                                                $positionName = $member->position->name ?? '';
-                                                $policeName = $member->police->name ?? '';
-                                            @endphp
-                                            <tr class="text-center">
-                                                <td>{{ $fullName }}</td>
-                                                <td>{{ $rankName }}</td>
-                                                <td class="registerNumber">{{ $member->register_number }}</td>
-                                                <td>{{ $positionName }}</td>
-                                                <td>{{ $policeName }}</td>
-                                                <td>
-                                                    <input type="hidden" name="internalOfficers[]" value="{{ $member->register_number }}">
-                                                    <button class="btn btn-danger btn-sm deleteInternalOfficer" type="button"><i class="bi bi-trash"></i></button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @endif
                                 </tbody>
                             </table>
                         </div>
@@ -520,16 +435,8 @@
 
                 <hr class="my-4">
 
-                {{-- 6. PEJABAT PENANDATANGAN --}}
-                <h5 class="fw-bold text-blue-dark">6. Pejabat Penandatangan</h5>
-
-                @php
-                    $selectedSignatoryId = null;
-                    if ($document->signatory) {
-                        $matchedOfficer = $authorizedSignatories->where('register_number', $document->signatory->register_number)->first();
-                        $selectedSignatoryId = $matchedOfficer ? $matchedOfficer->id : null;
-                    }
-                @endphp
+                {{-- 5. PEJABAT PENANDATANGAN --}}
+                <h5 class="fw-bold text-blue-dark">5. Pejabat Penandatangan</h5>
 
                 <div class="input-group row mb-4 ms-0">
                     <label class="fw-bold col-sm-3 col-form-label" for="signatory">Pejabat Penandatangan<span class="text-danger fs-5">*</span></label>
@@ -541,14 +448,13 @@
                                     $fullName = \App\Helpers\PeopleNameHelper::getFullName($data->first_title, $data->first_name, $data->last_name, $data->last_title);
                                     $positionName = $data->position->name ?? '';
                                     $rankName = $data->rank->name ?? '';
-                                    $isSelected = (old('signatory', $selectedSignatoryId) == $data->id);
                                 @endphp
-                                <option value="{{ $data->id }}" {{ $isSelected ? 'selected' : '' }}>
+                                <option value="{{ $data->id }}" {{ old('signatory') == $data->id ? 'selected' : '' }}>
                                     {{ $data->register_number . ' - ' . $fullName . ' | ' . $positionName . ' (' . $rankName . ')' }}
                                 </option>
                             @endforeach
                         </select>
-                        <small class="text-muted">(*Pejabat yang berwenang menandatangani Surat Perintah Penahanan)</small>
+                        <small class="text-muted">(*Pejabat yang berwenang menandatangani Surat Perintah Pencabutan Penangguhan Penahanan)</small>
                         @error('signatory')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -564,7 +470,7 @@
                             Batal
                         </a>
                         <button class="btn btn-primary" type="button" id="btnSubmitForm">
-                            <i class="bi bi-save"></i> Perbarui Dokumen
+                            <i class="bi bi-save"></i> Simpan Dokumen
                         </button>
                     </div>
                 </div>
@@ -591,82 +497,38 @@
             });
 
             // Datepicker Init
-            $('#documentDate').datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: "true",
-                orientation: 'auto bottom',
-                startDate: new Date()
-            });
-            $('#documentDate').keydown(function(e) {
-                e.preventDefault();
-                return false;
-            });
-
-            $('#tanggal_mulai').datepicker({
+            $('#tanggal, #tanggal_mulai, #tanggal_akhir').datepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: true,
                 todayHighlight: true,
                 orientation: 'auto bottom'
-            }).on('changeDate', function(selected) {
-                if (selected.date) {
-                    var startDate = new Date(selected.date.valueOf());
-                    $('#tanggal_akhir').datepicker('setStartDate', startDate);
-                }
+            }).on('changeDate', function() {
                 $(this).trigger('change');
-                updateDurasi();
             });
 
-            $('#tanggal_akhir').datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: true,
-                todayHighlight: true,
-                orientation: 'auto bottom'
-            }).on('changeDate', function(selected) {
-                if (selected.date) {
-                    var endDate = new Date(selected.date.valueOf());
-                    $('#tanggal_mulai').datepicker('setEndDate', endDate);
-                }
-                $(this).trigger('change');
-                updateDurasi();
-            });
-
-            // Toggle Satker Rutan based on jenis penahanan
-            function toggleRutanSection() {
-                var jenis = $('#kode_jenis_penahanan').val();
-                if (jenis == '1') {
-                    $('#rutanSection').slideDown();
-                } else {
-                    $('#rutanSection').slideUp();
-                }
-            }
-            $('#kode_jenis_penahanan').on('change', toggleRutanSection);
-            toggleRutanSection();
-
-            // Hitung durasi hari otomatis
-            function updateDurasi() {
-                var tglMulai = $('#tanggal_mulai').val();
-                var tglAkhir = $('#tanggal_akhir').val();
-                if (tglMulai && tglAkhir) {
-                    var d1 = new Date(tglMulai);
-                    var d2 = new Date(tglAkhir);
-                    var diffTime = d2.getTime() - d1.getTime();
-                    var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                    if (diffDays > 0) {
-                        $('#durasiPenahananText').text('Durasi: ' + diffDays + ' Hari').removeClass('bg-danger').addClass('bg-secondary');
-                    } else {
-                        $('#durasiPenahananText').text('Tanggal Akhir harus sama atau setelah Tanggal Mulai').removeClass('bg-secondary').addClass('bg-danger');
+            // Auto calculate tanggal_akhir when tanggal_mulai or jumlah_hari changes
+            function calculateTanggalAkhir() {
+                var startVal = $('#tanggal_mulai').val();
+                var days = parseInt($('#jumlah_hari').val(), 10);
+                if (startVal && !isNaN(days) && days > 0) {
+                    var startDate = new Date(startVal);
+                    if (!isNaN(startDate.getTime())) {
+                        startDate.setDate(startDate.getDate() + (days - 1));
+                        var yyyy = startDate.getFullYear();
+                        var mm = String(startDate.getMonth() + 1).padStart(2, '0');
+                        var dd = String(startDate.getDate()).padStart(2, '0');
+                        $('#tanggal_akhir').val(yyyy + '-' + mm + '-' + dd).datepicker('update');
                     }
                 }
             }
-            $('#tanggal_mulai, #tanggal_akhir').on('change', updateDurasi);
-            updateDurasi();
+            $('#jumlah_hari, #tanggal_mulai').on('change input', calculateTanggalAkhir);
 
-            // Tambah Petugas yang Diperintahkan (Poin 6)
+            // Tambah Petugas yang Diperintahkan
             $('#officerInternalMemberOptionAddButtton').on('click', function() {
                 var selectedOption = $('#officerInternalMemberOption').find('option:selected');
-                var registerNumber = selectedOption.val();
+                var officerId = selectedOption.val();
 
-                if (!registerNumber) {
+                if (!officerId) {
                     return Swal.fire({
                         title: 'Perhatian',
                         text: 'Silahkan pilih petugas terlebih dahulu',
@@ -675,6 +537,7 @@
                     });
                 }
 
+                var registerNumber = selectedOption.data('register-number') || '-';
                 var rankName = selectedOption.data('rank-name') || '-';
                 var name = selectedOption.data('name') || '-';
                 var positionName = selectedOption.data('position-name') || '-';
@@ -692,79 +555,52 @@
 
                 if (isAppended) {
                     return Swal.fire({
-                        title: 'Gagal',
-                        text: 'Petugas sudah ada dalam daftar',
-                        icon: 'error',
+                        title: 'Perhatian',
+                        text: 'Petugas tersebut sudah ditambahkan dalam daftar!',
+                        icon: 'warning',
                         confirmButtonText: 'Ok'
                     });
                 }
 
-                var newRow = $('<tr class="text-center"></tr>');
-                newRow.append('<td>' + name + '</td>');
-                newRow.append('<td>' + rankName + '</td>');
-                newRow.append('<td class="registerNumber">' + registerNumber + '</td>');
-                newRow.append('<td>' + positionName + '</td>');
-                newRow.append('<td>' + policeName + '</td>');
-                newRow.append('<td><input type="hidden" name="internalOfficers[]" value="' + registerNumber + '">' +
-                    '<button class="btn btn-danger btn-sm deleteInternalOfficer" type="button"><i class="bi bi-trash"></i></button></td>'
-                );
+                var rowHtml = '<tr>' +
+                    '<td><input type="hidden" name="officers[]" value="' + officerId + '">' + name + '</td>' +
+                    '<td>' + rankName + '</td>' +
+                    '<td class="registerNumber">' + registerNumber + '</td>' +
+                    '<td>' + positionName + '</td>' +
+                    '<td>' + policeName + '</td>' +
+                    '<td class="text-center">' +
+                    '<button type="button" class="btn btn-danger btn-sm btn-delete-officer"><i class="bi bi-trash"></i></button>' +
+                    '</td>' +
+                    '</tr>';
 
-                $('#internalOfficerMemberTable tbody').append(newRow);
+                $('#internalOfficerMemberTable tbody').append(rowHtml);
                 $('#officerInternalMemberOption').val('').trigger('change');
             });
 
-            // Hapus baris petugas
-            $(document).on('click', '.deleteInternalOfficer', function() {
+            // Hapus Petugas dari tabel
+            $(document).on('click', '.btn-delete-officer', function() {
                 $(this).closest('tr').remove();
             });
 
-            // Helper scroll ke error pertama
-            function scrollToFirstError() {
-                var $firstError = $('.frontend-error, .invalid-feedback.d-block').first();
-                if (!$firstError.length) {
-                    $firstError = $('.is-invalid, .border-danger').first();
-                }
-                if ($firstError && $firstError.length) {
-                    var el = $firstError[0];
-                    if (el && typeof el.scrollIntoView === 'function') {
-                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                    var topPos = $firstError.offset() ? $firstError.offset().top : 0;
-                    $('html, body, .content-wrapper, .wrapper, main').stop().animate({
-                        scrollTop: Math.max(0, topPos - 140)
-                    }, 400);
-                } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-            }
-
-            // Real-time pembersihan error saat user mengetik atau memilih opsi
-            $(document).on('input change', 'input, select, textarea', function() {
-                $(this).removeClass('is-invalid');
-                if ($(this).next('.select2-container').length) {
-                    $(this).next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
-                }
-                $(this).siblings('.frontend-error, .invalid-feedback').remove();
-                $(this).next('.frontend-error, .invalid-feedback').remove();
-                var $container = $(this).closest('.table-responsive, .input-group');
-                if ($container.length) {
-                    $container.siblings('.frontend-error, .invalid-feedback').remove();
-                    $container.next('.frontend-error, .invalid-feedback').remove();
-                }
-            });
-
-            // Form Submit validation dengan pesan error di bawah masing-masing field
+            // Handle Submit Form with Inline markError & AJAX Validation
             $('#btnSubmitForm').on('click', function(e) {
                 e.preventDefault();
 
-                // Bersihkan pesan error sebelumnya
-                $('.is-invalid').removeClass('is-invalid');
-                $('.border.border-danger').removeClass('border border-danger');
-                $('.select2-selection').removeClass('border border-danger is-invalid');
+                // Bersihkan error sebelumnya
                 $('.frontend-error').remove();
-                $('.invalid-feedback').remove();
+                $('.is-invalid').removeClass('is-invalid');
+                $('.border-danger').removeClass('border-danger');
 
                 var errors = [];
+
+                function scrollToFirstError() {
+                    var $firstError = $('.is-invalid, .frontend-error').first();
+                    if ($firstError.length) {
+                        $('html, body').animate({
+                            scrollTop: $firstError.offset().top - 120
+                        }, 500);
+                    }
+                }
 
                 function markError(fieldSelector, message) {
                     var $field = $(fieldSelector);
@@ -821,52 +657,24 @@
                 }
 
                 // 1. Validasi Identitas Dokumen
-                checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
-                var docDateVal = ($('#documentDate').val() || '').trim();
-                if (docDateVal) {
-                    var selectedDate = new Date(docDateVal);
-                    var today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    selectedDate.setHours(0, 0, 0, 0);
-                    if (selectedDate < today) {
-                        markError('#documentDate', 'Tanggal Ditandatangani Dokumen minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
-                    }
-                }
+                checkInput('#nomor', 'Nomor Dokumen S-19');
+                checkInput('#tanggal', 'Tanggal S-19');
                 checkInput('#nomor_spdp', 'Nomor SPDP');
                 checkInput('#tanggal_spdp', 'Tanggal SPDP');
                 checkInput('#kode_satker_penerbit_spdp', 'Kode Satker Penerbit SPDP');
+                checkInput('#nomor_surat_perintah_penahanan', 'Nomor Surat Perintah Penahanan (S-17)');
+                checkInput('#nomor_surat_perintah_penangguhan', 'Nomor Surat Perintah Penangguhan (S-18)');
 
-                // 2. Validasi Konten Dokumen & Penahanan
+                // 2. Validasi Ketentuan Penahanan
                 checkSelect('#kode_jenis_penahanan', 'Jenis Penahanan');
-                if ($('#kode_jenis_penahanan').val() == '1') {
-                    checkSelect('#kode_satker_tempat_penahanan', 'Rutan / Lapas Tempat Penahanan');
-                }
-                checkInput('#lokasi_penahanan', 'Keterangan Tempat Penahanan');
-                checkInput('#tanggal_mulai', 'Tanggal Mulai Penahanan');
-                checkInput('#tanggal_akhir', 'Tanggal Akhir Penahanan');
-
-                var tglMulai = $('#tanggal_mulai').val();
-                var tglAkhir = $('#tanggal_akhir').val();
-                if (tglMulai && tglAkhir) {
-                    var d1 = new Date(tglMulai);
-                    var d2 = new Date(tglAkhir);
-                    if (d2 < d1) {
-                        markError('#tanggal_akhir', 'Tanggal Akhir harus sama atau setelah Tanggal Mulai');
-                    }
-                }
 
                 // 3. Validasi Tersangka minimal 1
                 if ($('.suspect-checkbox:checked').length === 0) {
-                    markError('#suspectTable', 'Tersangka yang Ditahan harus dipilih minimal 1 orang');
+                    markError('#suspectTable', 'Tersangka yang Dicabut Penangguhannya harus dipilih minimal 1 orang');
                 }
 
-                // 4. Validasi Petugas yang Diperintahkan
+                // 4. Validasi Ketua Tim & Pejabat Penandatangan
                 checkSelect('#officerLeader', 'Ketua Tim');
-                if ($('#internalOfficerMemberTable tbody tr').length === 0) {
-                    markError('#internalOfficerMemberTable', 'Petugas yang Diperintahkan harus ditambahkan minimal 1 orang');
-                }
-
-                // 5. Validasi Pejabat Penandatangan
                 checkSelect('#signatory', 'Pejabat Penandatangan');
 
                 // Jika terdapat error di sisi frontend, scroll ke elemen pertama dan batalkan submit
@@ -877,19 +685,19 @@
 
                 // Validasi AJAX ke server
                 $.ajax({
-                    url: "{{ route('doc.surat-perintah-penahanan-document.api.validate-request-form', ['accident_id' => $accidentId]) }}",
+                    url: "{{ route('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.api.validate-request-form', ['accident_id' => $accidentId]) }}",
                     type: 'POST',
                     dataType: 'json',
-                    data: $('#suratPerintahPenahananForm').serialize(),
+                    data: $('#suratPerintahPencabutanPenangguhanPenahananForm').serialize(),
                     success: function(response) {
                         if (response.success) {
                             Swal.fire({
                                 title: 'Berhasil',
-                                text: response.message || 'Silahkan menunggu proses perbarui data',
+                                text: response.message || 'Silahkan menunggu proses simpan data',
                                 icon: 'success',
                                 confirmButtonText: 'Ok'
                             }).then((result) => {
-                                $('#suratPerintahPenahananForm')[0].submit();
+                                $('#suratPerintahPencabutanPenangguhanPenahananForm')[0].submit();
                             });
                         }
                     },
@@ -904,8 +712,10 @@
                                         markError($target, msg);
                                     } else if (key === 'suspects') {
                                         markError('#suspectTable', msg);
-                                    } else if (key === 'internalOfficers' || key === 'officers') {
-                                        markError('#internalOfficerMemberTable', msg);
+                                    } else if (key === 'officerLeader') {
+                                        markError('#officerLeader', msg);
+                                    } else if (key === 'signatory') {
+                                        markError('#signatory', msg);
                                     }
                                 });
                                 scrollToFirstError();

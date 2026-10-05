@@ -8,6 +8,24 @@
     <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+    <style>
+        .input-group > .select2-container--bootstrap4 {
+            flex: 1 1 auto;
+            width: 1% !important;
+        }
+        .input-group > .select2-container--bootstrap4 .select2-selection--single {
+            height: calc(1.5em + .75rem + 2px) !important;
+            display: flex;
+            align-items: center;
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+        .input-group > .btn {
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            white-space: nowrap;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -62,7 +80,7 @@
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="accidentNumber" type="text"
                             class="form-control font-weight-bold"
-                            value="{{ $accident->no_lp }}" readonly>
+                            value="{{ $accident->no_lp }}" readonly style="background-color: #e9ecef;">
                     </div>
                 </div>
 
@@ -86,11 +104,16 @@
 
                 {{-- Tanggal Dokumen --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="tanggal">Tanggal Ditandatangani Dokumen<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="documentDate">Tanggal Ditandatangani Dokumen<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <input class="form-control @error('tanggal') is-invalid @enderror" id="tanggal" name="tanggal"
-                            placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('tanggal', date('Y-m-d')) }}"
-                            data-provide="datepicker">
+                        <input class="form-control @error('documentDate') is-invalid @enderror @error('tanggal') is-invalid @enderror"
+                            id="documentDate" name="documentDate" placeholder="YYYY-MM-DD"
+                            autocomplete="off" value="{{ old('documentDate', old('tanggal')) }}" data-provide="datepicker">
+                        @error('documentDate')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
                         @error('tanggal')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -106,7 +129,7 @@
                         <input id="nomor_spdp" type="text"
                             class="form-control @error('nomor_spdp') is-invalid @enderror font-weight-bold"
                             name="nomor_spdp" value="{{ old('nomor_spdp', $nomorSpdp) }}" readonly
-                            placeholder="Nomor SPDP otomatis dari sistem">
+                            placeholder="Nomor SPDP otomatis dari sistem" style="background-color: #e9ecef;">
                         <small class="text-muted">(*Nomor SPDP bersifat tetap dan diambil otomatis dari dokumen SPDP perkara ini)</small>
                         @error('nomor_spdp')
                             <span class="invalid-feedback" role="alert">
@@ -125,7 +148,7 @@
                             name="tanggal_spdp"
                             placeholder="YYYY-MM-DD" autocomplete="off"
                             value="{{ old('tanggal_spdp', $tanggalSpdp ? date('Y-m-d', strtotime($tanggalSpdp)) : date('Y-m-d')) }}"
-                            readonly>
+                            readonly style="background-color: #e9ecef;">
                         <small class="text-muted">(*Tanggal SPDP bersifat tetap dan diambil otomatis dari dokumen SPDP perkara ini)</small>
                         @error('tanggal_spdp')
                             <span class="invalid-feedback" role="alert">
@@ -141,7 +164,8 @@
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="kode_satker_penerbit_spdp" type="text"
                             class="form-control @error('kode_satker_penerbit_spdp') is-invalid @enderror font-weight-bold"
-                            name="kode_satker_penerbit_spdp" value="{{ old('kode_satker_penerbit_spdp', $kodeSatkerDefault) }}" readonly>
+                            name="kode_satker_penerbit_spdp" value="{{ old('kode_satker_penerbit_spdp', $kodeSatkerDefault) }}" readonly
+                            style="background-color: #e9ecef;">
                         <small class="text-muted">(*Kode Satker Kepolisian penerbit SPDP sesuai dengan Polres pada Nomor LP: {{ $accident->polres->full_name ?? $accident->polres->name ?? '-' }})</small>
                         @error('kode_satker_penerbit_spdp')
                             <span class="invalid-feedback" role="alert">
@@ -161,6 +185,42 @@
                             class="form-control" name="nomor_surat_perintah_penangkapan"
                             value="{{ old('nomor_surat_perintah_penangkapan') }}"
                             placeholder="Contoh: SP.Kap/01/X/2026/Reskrim">
+                    </div>
+                </div>
+
+                {{-- Surat Perintah Penyidikan (Dasar Poin 6) (Read Only) --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-3 col-form-label" for="surat_perintah_penyidikan_document_id">Surat Perintah Penyidikan
+                        <small class="text-muted d-block font-weight-normal">(Dasar Poin 6 pada Surat)</small>
+                    </label>
+                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                        @php
+                            $selectedSprindik = $sprindikDocuments->sortByDesc('id')->first();
+                            $sprindikText = $selectedSprindik ? ($selectedSprindik->document_number ?? $selectedSprindik->nomor) . ' (Tgl: ' . ($selectedSprindik->document_date ? date('d-m-Y', strtotime($selectedSprindik->document_date)) : ($selectedSprindik->tanggal ? date('d-m-Y', strtotime($selectedSprindik->tanggal)) : '-')) . ')' : '-';
+                        @endphp
+                        <input type="text" class="form-control font-weight-bold"
+                            value="{{ $sprindikText }}" readonly style="background-color: #e9ecef;">
+                        <input type="hidden" name="surat_perintah_penyidikan_document_id" id="surat_perintah_penyidikan_document_id"
+                            value="{{ old('surat_perintah_penyidikan_document_id', $selectedSprindik->id ?? '') }}">
+                        <small class="text-muted">(*Diambil otomatis dari Surat Perintah Penyidikan perkara ini)</small>
+                    </div>
+                </div>
+
+                {{-- Surat Ketetapan Penetapan Tersangka (Dasar Poin 7) (Read Only) --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-3 col-form-label" for="surat_ketetapan_penetapan_tersangka_id">Surat Ketetapan Tersangka
+                        <small class="text-muted d-block font-weight-normal">(Dasar Poin 7 pada Surat)</small>
+                    </label>
+                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                        @php
+                            $selectedSpt = $penetapanTersangkaDocuments->sortByDesc('id')->first();
+                            $sptText = $selectedSpt ? ($selectedSpt->document_number ?? $selectedSpt->nomor) . ' (Tgl: ' . ($selectedSpt->document_date ? date('d-m-Y', strtotime($selectedSpt->document_date)) : ($selectedSpt->tanggal ? date('d-m-Y', strtotime($selectedSpt->tanggal)) : '-')) . ')' : '-';
+                        @endphp
+                        <input type="text" class="form-control font-weight-bold"
+                            value="{{ $sptText }}" readonly style="background-color: #e9ecef;">
+                        <input type="hidden" name="surat_ketetapan_penetapan_tersangka_id" id="surat_ketetapan_penetapan_tersangka_id"
+                            value="{{ old('surat_ketetapan_penetapan_tersangka_id', $selectedSpt->id ?? '') }}">
+                        <small class="text-muted">(*Diambil otomatis dari Surat Ketetapan Penetapan Tersangka perkara ini)</small>
                     </div>
                 </div>
 
@@ -226,7 +286,7 @@
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input class="form-control @error('tanggal_mulai') is-invalid @enderror" id="tanggal_mulai" name="tanggal_mulai"
                             placeholder="YYYY-MM-DD" autocomplete="off" value="{{ old('tanggal_mulai', date('Y-m-d')) }}"
-                            data-provide="datepicker" required>
+                            data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
                         @error('tanggal_mulai')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -242,7 +302,7 @@
                         <input class="form-control @error('tanggal_akhir') is-invalid @enderror" id="tanggal_akhir" name="tanggal_akhir"
                             placeholder="YYYY-MM-DD" autocomplete="off"
                             value="{{ old('tanggal_akhir', date('Y-m-d', strtotime('+20 days'))) }}"
-                            data-provide="datepicker" required>
+                            data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
                         <small class="text-muted d-block mt-1">
                             <span id="durasiPenahananText" class="badge bg-secondary">Durasi: 21 Hari</span>
                         </small>
@@ -342,8 +402,34 @@
                 {{-- 5. PETUGAS YANG DIPERINTAHKAN --}}
                 <h5 class="fw-bold text-blue-dark">5. Petugas yang Diperintahkan</h5>
 
+                {{-- Ketua Tim --}}
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-3 col-form-label" for="officerLeader">Ketua Tim<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                        <select class="form-control select2" name="officerLeader" id="officerLeader" required>
+                            <option value="">--Pilih Ketua Tim--</option>
+                            @foreach ($leaderOfficers as $data)
+                                @php
+                                    $fullName = \App\Helpers\PeopleNameHelper::getFullName($data->first_title, $data->first_name, $data->last_name, $data->last_title);
+                                    $positionName = $data->position->name ?? '';
+                                @endphp
+                                <option value="{{ $data->id }}" {{ old('officerLeader') == $data->id ? 'selected' : '' }}
+                                    data-register-number="{{ $data->register_number }}">
+                                    {{ $data->register_number . ' - ' . $fullName . ' | ' . $positionName }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('officerLeader')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+                </div>
+
                 <div class="row col-12 my-2 ms-0">
                     <div id="internalOfficer">
+                        <label class="fw-bold mb-2">Anggota Petugas yang Diperintahkan<span class="text-danger fs-5">*</span></label>
                         <div class="alert alert-primary my-2" role="alert">
                             Pilih personel lalu klik tombol 'Tambah' untuk menambahkan personel sebagai petugas yang diperintahkan.
                         </div>
@@ -351,7 +437,7 @@
                         <div class="row my-2">
                             <div class="col-md-7">
                                 <div class="input-group">
-                                    <select class="custom-select select2" id="officerInternalMemberOption"
+                                    <select class="custom-select select2-input-group" id="officerInternalMemberOption"
                                         aria-describedby="officerInternalMemberOptionAddButtton">
                                         <option value="">--Pilih Petugas--</option>
                                         @foreach ($internalOfficers as $data)
@@ -457,6 +543,50 @@
                 width: '100%'
             });
 
+            $('.select2-input-group').select2({
+                theme: 'bootstrap4'
+            });
+
+            // Datepicker Init
+            $('#documentDate').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: "true",
+                orientation: 'auto bottom',
+                startDate: new Date()
+            });
+            $('#documentDate').keydown(function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            $('#tanggal_mulai').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true,
+                orientation: 'auto bottom'
+            }).on('changeDate', function(selected) {
+                if (selected.date) {
+                    var startDate = new Date(selected.date.valueOf());
+                    $('#tanggal_akhir').datepicker('setStartDate', startDate);
+                }
+                $(this).trigger('change');
+                updateDurasi();
+            });
+
+            $('#tanggal_akhir').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true,
+                orientation: 'auto bottom'
+            }).on('changeDate', function(selected) {
+                if (selected.date) {
+                    var endDate = new Date(selected.date.valueOf());
+                    $('#tanggal_mulai').datepicker('setEndDate', endDate);
+                }
+                $(this).trigger('change');
+                updateDurasi();
+            });
+
             // Toggle Satker Rutan based on jenis penahanan
             function toggleRutanSection() {
                 var jenis = $('#kode_jenis_penahanan').val();
@@ -537,6 +667,7 @@
                 );
 
                 $('#internalOfficerMemberTable tbody').append(newRow);
+                $('#officerInternalMemberOption').val('').trigger('change');
             });
 
             // Hapus baris petugas
@@ -647,7 +778,17 @@
                 }
 
                 // 1. Validasi Identitas Dokumen
-                checkInput('#tanggal', 'Tanggal Ditandatangani Dokumen');
+                checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
+                var docDateVal = ($('#documentDate').val() || '').trim();
+                if (docDateVal) {
+                    var selectedDate = new Date(docDateVal);
+                    var today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    selectedDate.setHours(0, 0, 0, 0);
+                    if (selectedDate < today) {
+                        markError('#documentDate', 'Tanggal Ditandatangani Dokumen minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                    }
+                }
                 checkInput('#nomor_spdp', 'Nomor SPDP');
                 checkInput('#tanggal_spdp', 'Tanggal SPDP');
                 checkInput('#kode_satker_penerbit_spdp', 'Kode Satker Penerbit SPDP');
@@ -676,7 +817,8 @@
                     markError('#suspectTable', 'Tersangka yang Ditahan harus dipilih minimal 1 orang');
                 }
 
-                // 4. Validasi Petugas yang Diperintahkan minimal 1
+                // 4. Validasi Petugas yang Diperintahkan
+                checkSelect('#officerLeader', 'Ketua Tim');
                 if ($('#internalOfficerMemberTable tbody tr').length === 0) {
                     markError('#internalOfficerMemberTable', 'Petugas yang Diperintahkan harus ditambahkan minimal 1 orang');
                 }

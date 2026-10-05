@@ -372,8 +372,8 @@
                                     @endswitch
                                 @endif
 
-                                @if(!$isSp2hpDocument && $accidentDocument->document_category_id == '0601')
-                                    <a href="{{ route('doc.surat-perintah-penahanan-document.show', ['id' => $accidentDocument->id, 'accident_id' => $id]) }}"
+                                @if(!$isSp2hpDocument && in_array($accidentDocument->document_category_id, ['0601', '0603', '0604', '0605', '0903']))
+                                    <a href="{{ route(($accidentDocument->documentCategory->base_route ?? 'doc.surat-perintah-penahanan-document') . '.show', ['id' => $accidentDocument->id, 'accident_id' => $id]) }}"
                                         class="btn btn-info btn-sm m-1 text-white" target="_blank">
                                         <i class="bi bi-eye"></i> Detail / JSON
                                     </a>

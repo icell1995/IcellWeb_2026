@@ -33,7 +33,7 @@ class SuratPerintahPenahananDocumentController extends Controller
 {
     use DocsOfficersTraits;
 
-    protected $docService;
+    protected DocService $docService;
 
     // Master jenis penahanan sesuai standar KUHAP / SPPT-TI
     public static $masterJenisPenahanan = [
@@ -63,12 +63,10 @@ class SuratPerintahPenahananDocumentController extends Controller
         // Ambil dokumen Sprindik
         $sprindikDocuments = SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws.crimeConstitution', 'suratPerintahPenyidikanDocumentLaws.crimeType')
             ->where('accident_id', $accidentId)
-            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->get();
 
         // Ambil dokumen Penetapan Tersangka
         $penetapanTersangkaDocuments = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accidentId)
-            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->get();
 
         // Daftar Tersangka di perkara ini
@@ -136,6 +134,8 @@ class SuratPerintahPenahananDocumentController extends Controller
             $pasalList = ['Pasal 310 UU No. 22 Tahun 2009'];
         }
 
+        $leaderOfficers = $internalOfficers;
+
         return view('docs.surat-perintah-penahanan-document.create', compact(
             'accidentId',
             'accident',
@@ -145,6 +145,7 @@ class SuratPerintahPenahananDocumentController extends Controller
             'suspects',
             'authorizedSignatories',
             'internalOfficers',
+            'leaderOfficers',
             'masterJenisPenahanan',
             'prisons',
             'kodeSatkerDefault',
@@ -169,7 +170,7 @@ class SuratPerintahPenahananDocumentController extends Controller
 
         // Identitas Dokumen (Gambar 1)
         $nomor = htmlspecialchars($request->nomor ?? $request->document_number ?? '');
-        $tanggal = htmlspecialchars($request->tanggal ?? $request->document_date ?? date('Y-m-d'));
+        $tanggal = htmlspecialchars($request->documentDate ?: ($request->tanggal ?: ($request->document_date ?: date('Y-m-d'))));
 
         // SPDP & Satker otomatis dari sistem
         $spdpLatest = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $accidentId)
@@ -237,6 +238,29 @@ class SuratPerintahPenahananDocumentController extends Controller
             $daftarUuPasal = ['Pasal 310 UU No. 22 Tahun 2009'];
         }
 
+        if (!$sprindikId && $sprindik) {
+            $sprindikId = $sprindik->id;
+        }
+
+        if (!$penetapanTersangkaId) {
+            $firstSuspectId = !empty($suspectIds) ? $suspectIds[0] : null;
+            if ($firstSuspectId) {
+                $sptAuto = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accidentId)
+                    ->whereHas('suspects', function ($q) use ($firstSuspectId) {
+                        $q->where('suspects.id', $firstSuspectId);
+                    })
+                    ->latest()
+                    ->first();
+                $penetapanTersangkaId = $sptAuto->id ?? null;
+            }
+            if (!$penetapanTersangkaId) {
+                $sptAuto = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accidentId)
+                    ->latest()
+                    ->first();
+                $penetapanTersangkaId = $sptAuto->id ?? null;
+            }
+        }
+
         DB::beginTransaction();
         try {
             $doc = SuratPerintahPenahananDocument::create([
@@ -302,6 +326,33 @@ class SuratPerintahPenahananDocumentController extends Controller
                 ]);
             }
 
+            // Simpan Ketua Tim (Leader Officer)
+            if ($request->officerLeader) {
+                $leaderOfficer = Officer::with(['rank', 'position'])->where('id', $request->officerLeader)
+                    ->orWhere('register_number', $request->officerLeader)
+                    ->first();
+                if ($leaderOfficer) {
+                    $doc->suratPerintahPenahananDocumentOfficers()->create([
+                        'surat_perintah_penahanan_document_id' => $doc->id,
+                        'sort'                                 => 1,
+                        'register_number'                      => $leaderOfficer->register_number,
+                        'first_title'                          => $leaderOfficer->first_title,
+                        'first_name'                           => $leaderOfficer->first_name,
+                        'last_name'                            => $leaderOfficer->last_name,
+                        'last_title'                           => $leaderOfficer->last_title,
+                        'phone_number'                         => $leaderOfficer->phone_number,
+                        'email'                                => $leaderOfficer->email,
+                        'police_id'                            => $leaderOfficer->police_id,
+                        'rank_id'                              => $leaderOfficer->rank_id,
+                        'position_id'                          => $leaderOfficer->position_id,
+                        'status'                               => 'PRESENT',
+                        'class'                                => 'LEADER',
+                        'flag'                                 => 'INTERNAL',
+                        'insert_method'                        => 'IMPORT',
+                    ]);
+                }
+            }
+
             // Simpan Petugas yang Diperintahkan (Member Officers)
             $internalOfficers = $request->internalOfficers ?? [];
             foreach ($internalOfficers as $sortIdx => $regNum) {
@@ -344,7 +395,7 @@ class SuratPerintahPenahananDocumentController extends Controller
     /**
      * Tampilan form edit Surat Perintah Penahanan
      */
-    public function edit($id)
+    public function edit(string $id)
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document = SuratPerintahPenahananDocument::with([
@@ -362,11 +413,9 @@ class SuratPerintahPenahananDocumentController extends Controller
 
         $sprindikDocuments = SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws.crimeConstitution', 'suratPerintahPenyidikanDocumentLaws.crimeType')
             ->where('accident_id', $accidentId)
-            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->get();
 
         $penetapanTersangkaDocuments = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accidentId)
-            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->get();
 
         $suspects = Suspect::with(['gender', 'education', 'job', 'religion', 'maritalStatus', 'country', 'location'])
@@ -425,6 +474,8 @@ class SuratPerintahPenahananDocumentController extends Controller
         }
         $pasalList = array_values(array_filter($pasalList));
 
+        $leaderOfficers = $internalOfficers;
+
         return view('docs.surat-perintah-penahanan-document.edit', compact(
             'accidentId',
             'accident',
@@ -435,6 +486,7 @@ class SuratPerintahPenahananDocumentController extends Controller
             'suspects',
             'authorizedSignatories',
             'internalOfficers',
+            'leaderOfficers',
             'masterJenisPenahanan',
             'prisons',
             'kodeSatkerDefault',
@@ -447,7 +499,7 @@ class SuratPerintahPenahananDocumentController extends Controller
     /**
      * Update Surat Perintah Penahanan
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         $accidentId = htmlspecialchars($request->accident_id);
         $accident = Accident::with(['polres'])->where('id', $accidentId)->firstOrFail();
@@ -459,7 +511,7 @@ class SuratPerintahPenahananDocumentController extends Controller
         }
 
         $nomor = htmlspecialchars($request->nomor ?? $request->document_number ?? '');
-        $tanggal = htmlspecialchars($request->tanggal ?? $request->document_date ?? date('Y-m-d'));
+        $tanggal = htmlspecialchars($request->documentDate ?: ($request->tanggal ?: ($request->document_date ?: date('Y-m-d'))));
 
         $spdpLatest = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $accidentId)
             ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
@@ -494,6 +546,36 @@ class SuratPerintahPenahananDocumentController extends Controller
                 ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
                 ->latest()
                 ->first();
+            if (!$sprindik) {
+                $sprindik = SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws.crimeConstitution')
+                    ->where('accident_id', $accidentId)
+                    ->latest()
+                    ->first();
+            }
+        }
+        if (!$sprindikId && $sprindik) {
+            $sprindikId = $sprindik->id;
+        }
+
+        // Relasi Surat Ketetapan Penetapan Tersangka
+        $penetapanTersangkaId = $request->surat_ketetapan_penetapan_tersangka_id ?: $document->surat_ketetapan_penetapan_tersangka_id;
+        if (!$penetapanTersangkaId) {
+            $firstSuspectId = !empty($suspectIds) ? $suspectIds[0] : null;
+            if ($firstSuspectId) {
+                $sptAuto = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accidentId)
+                    ->whereHas('suspects', function ($q) use ($firstSuspectId) {
+                        $q->where('suspects.id', $firstSuspectId);
+                    })
+                    ->latest()
+                    ->first();
+                $penetapanTersangkaId = $sptAuto->id ?? null;
+            }
+            if (!$penetapanTersangkaId) {
+                $sptAuto = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accidentId)
+                    ->latest()
+                    ->first();
+                $penetapanTersangkaId = $sptAuto->id ?? null;
+            }
         }
 
         $daftarUuPasal = [];
@@ -520,6 +602,8 @@ class SuratPerintahPenahananDocumentController extends Controller
             $messages['tempat_penahanan_nama'] = $lokasiPenahanan;
 
             $document->update([
+                'surat_perintah_penyidikan_document_id' => $sprindikId,
+                'surat_ketetapan_penetapan_tersangka_id'=> $penetapanTersangkaId,
                 'nomor'                                 => $nomor ?: $document->nomor,
                 'document_number'                       => $nomor ?: $document->document_number,
                 'tanggal'                               => $tanggal,
@@ -565,6 +649,34 @@ class SuratPerintahPenahananDocumentController extends Controller
                 ]);
             }
 
+            // Update Ketua Tim (Leader Officer)
+            $document->suratPerintahPenahananDocumentOfficers()->where('class', 'LEADER')->delete();
+            if ($request->officerLeader) {
+                $leaderOfficer = Officer::with(['rank', 'position'])->where('id', $request->officerLeader)
+                    ->orWhere('register_number', $request->officerLeader)
+                    ->first();
+                if ($leaderOfficer) {
+                    $document->suratPerintahPenahananDocumentOfficers()->create([
+                        'surat_perintah_penahanan_document_id' => $document->id,
+                        'sort'                                 => 1,
+                        'register_number'                      => $leaderOfficer->register_number,
+                        'first_title'                          => $leaderOfficer->first_title,
+                        'first_name'                           => $leaderOfficer->first_name,
+                        'last_name'                            => $leaderOfficer->last_name,
+                        'last_title'                           => $leaderOfficer->last_title,
+                        'phone_number'                         => $leaderOfficer->phone_number,
+                        'email'                                => $leaderOfficer->email,
+                        'police_id'                            => $leaderOfficer->police_id,
+                        'rank_id'                              => $leaderOfficer->rank_id,
+                        'position_id'                          => $leaderOfficer->position_id,
+                        'status'                               => 'PRESENT',
+                        'class'                                => 'LEADER',
+                        'flag'                                 => 'INTERNAL',
+                        'insert_method'                        => 'IMPORT',
+                    ]);
+                }
+            }
+
             // Update Petugas yang Diperintahkan (Member Officers)
             $document->suratPerintahPenahananDocumentOfficers()->where('class', 'MEMBER')->delete();
             $internalOfficers = $request->internalOfficers ?? [];
@@ -607,7 +719,7 @@ class SuratPerintahPenahananDocumentController extends Controller
     /**
      * Hapus Dokumen
      */
-    public function delete($id)
+    public function delete(string $id)
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document = SuratPerintahPenahananDocument::where('id', $id)->firstOrFail();
@@ -630,7 +742,7 @@ class SuratPerintahPenahananDocumentController extends Controller
     /**
      * Unduh template Word S-17
      */
-    public function download($id)
+    public function download(string $id)
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document = SuratPerintahPenahananDocument::with([
@@ -654,22 +766,63 @@ class SuratPerintahPenahananDocumentController extends Controller
         $accident = $document->accident;
         $signatory = $document->signatory;
         $firstSuspect = $document->suspects->first();
+
+        // Resolusi Sprindik (Poin Dasar 6)
         $sprindik = $document->suratPerintahPenyidikanDocument;
-        $spt = $document->suratKetetapanTentangPenetapanTersangkaDocument;
+        if (!$sprindik && $document->surat_perintah_penyidikan_document_id) {
+            $sprindik = SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws.crimeConstitution')
+                ->find($document->surat_perintah_penyidikan_document_id);
+        }
+        if (!$sprindik) {
+            $sprindik = SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws.crimeConstitution')
+                ->where('accident_id', $accident->id)
+                ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+                ->latest()
+                ->first();
+            if (!$sprindik) {
+                $sprindik = SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws.crimeConstitution')
+                    ->where('accident_id', $accident->id)
+                    ->latest()
+                    ->first();
+            }
+        }
+
+        // Resolusi Surat Ketetapan Penetapan Tersangka (Poin Dasar 7)
+        $spt = $document->suratKetetapanTentangPenetapanTersangkaDocument ?? $document->suratKetetapanPenetapanTersangkaDocument;
+        if (!$spt && $document->surat_ketetapan_penetapan_tersangka_id) {
+            $spt = SuratKetetapanTentangPenetapanTersangkaDocument::find($document->surat_ketetapan_penetapan_tersangka_id);
+        }
+        if (!$spt) {
+            if ($firstSuspect) {
+                $spt = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accident->id)
+                    ->whereHas('suspects', function ($q) use ($firstSuspect) {
+                        $q->where('suspects.id', $firstSuspect->id);
+                    })
+                    ->latest()
+                    ->first();
+            }
+            if (!$spt) {
+                $spt = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accident->id)
+                    ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+                    ->latest()
+                    ->first();
+            }
+            if (!$spt) {
+                $spt = SuratKetetapanTentangPenetapanTersangkaDocument::where('accident_id', $accident->id)->latest()->first();
+            }
+        }
 
         $templatePath = public_path('word-template/surat_perintah_penahanan.docx');
         if (!File::exists($templatePath)) {
             return redirect()->back()->with('error', 'Template dokumen tidak ditemukan.');
         }
 
-        // Terapkan filter opsi penahanan (Poin 8): hanya menampilkan jenis penahanan yang dipilih
+        // Terapkan filter opsi penahanan (Poin 2): hanya menampilkan jenis penahanan yang dipilih
         $tempFilteredTemplate = storage_path('app/temp_penahanan_tpl_' . $document->id . '_' . time() . '.docx');
         $this->filterPenahananDocx(
             $templatePath,
             $tempFilteredTemplate,
-            $document->kode_jenis_penahanan,
-            $document->lokasi_penahanan,
-            $document->kode_satker_tempat_penahanan
+            $document
         );
 
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($tempFilteredTemplate);
@@ -688,24 +841,54 @@ class SuratPerintahPenahananDocumentController extends Controller
         $templateProcessor->setValue('accidentNumber', $accident->no_lp ?? '-');
         $templateProcessor->setValue('accidentDate', $accident->accident_date ? Carbon::parse($accident->accident_date)->locale('id')->translatedFormat('d F Y') : '-');
 
-        // Sprindik & SPT
-        $templateProcessor->setValue('suratPerintahPenyidikanDocumentNumber', $sprindik ? $sprindik->document_number : ($document->messages['nomor_sprindik'] ?? '-'));
-        $templateProcessor->setValue('suratPerintahPenyidikanDocumentDate', ($sprindik && $sprindik->document_date) ? Carbon::parse($sprindik->document_date)->locale('id')->translatedFormat('d F Y') : '-');
-        $templateProcessor->setValue('suratKetetapanPenetapanTersangkaDocumentNumber', $spt ? $spt->document_number : ($document->messages['nomor_spt'] ?? '-'));
-        $templateProcessor->setValue('suratKetetapanPenetapanTersangkaDocumentDate', ($spt && $spt->document_date) ? Carbon::parse($spt->document_date)->locale('id')->translatedFormat('d F Y') : '-');
+        // Poin Dasar Nomor 6: Surat Perintah Penyidikan
+        $sprindikNumber = $sprindik ? (string) ($sprindik->document_number ?? $sprindik->nomor ?? '-') : ($document->messages['nomor_sprindik'] ?? '-');
+        $sprindikDateRaw = $sprindik ? ($sprindik->document_date ?? $sprindik->tanggal ?? null) : ($document->messages['tanggal_sprindik'] ?? null);
+        $sprindikDate = $sprindikDateRaw ? Carbon::parse($sprindikDateRaw)->locale('id')->translatedFormat('d F Y') : '-';
+
+        $templateProcessor->setValue('suratPerintahPenyidikanDocumentNumber', $sprindikNumber);
+        $templateProcessor->setValue('suratPerintahPenyidikanDocumentDate', $sprindikDate);
+        $templateProcessor->setValue('suratPerintahPenyidikanNumber', $sprindikNumber);
+
+        // Poin Dasar Nomor 7: Surat Ketetapan Penetapan Tersangka
+        $sptNumber = $spt ? (string) ($spt->document_number ?? $spt->nomor ?? '-') : ($document->messages['nomor_spt'] ?? '-');
+        $sptDateRaw = $spt ? ($spt->document_date ?? $spt->tanggal ?? null) : ($document->messages['tanggal_spt'] ?? null);
+        $sptDate = $sptDateRaw ? Carbon::parse($sptDateRaw)->locale('id')->translatedFormat('d F Y') : '-';
+
+        $templateProcessor->setValue('suratKetetapanPenetapanTersangkaDocumentNumber', $sptNumber);
+        $templateProcessor->setValue('suratKetetapanPenetapanTersangkaDocumentDate', $sptDate);
+        $templateProcessor->setValue('suratKetetapanTentangPenetapanTersangkaDocumentNumber', $sptNumber);
+        $templateProcessor->setValue('suratKetetapanTentangPenetapanTersangkaDocumentDate', $sptDate);
+
+        // Tersangka (untuk Dasar Poin 7: "atas nama ${suspectName}")
+        $suspectName = $firstSuspect ? $firstSuspect->name : '-';
+        $templateProcessor->setValue('suspectName', $suspectName);
 
         // Petugas yang Diperintahkan (Poin 6: clone block block_officers)
+        $leaderOfficer = $document->suratPerintahPenahananDocumentOfficers
+            ->where('class', 'LEADER')
+            ->first();
+
         $memberOfficers = $document->suratPerintahPenahananDocumentOfficers
             ->where('class', 'MEMBER')
             ->sortBy('sort');
 
+        $officers = collect();
+        if ($leaderOfficer) {
+            $officers->push($leaderOfficer);
+        }
+        foreach ($memberOfficers as $officer) {
+            $officers->push($officer);
+        }
+
         $blockOfficers = [];
         $no = 1;
-        foreach ($memberOfficers as $officer) {
+        foreach ($officers as $officer) {
             $blockOfficers[] = [
                 'number' => $no,
                 'first_name' => ($officer->first_title ? $officer->first_title . ' ' : '') . $officer->first_name,
                 'last_name' => ($officer->last_title ? ', ' . $officer->last_title : ($officer->last_name ? ' ' . $officer->last_name : '')),
+                'rank_name' => $officer->rank->name ?? '',
                 'rank_id' => $officer->rank->name ?? '',
                 'officer_id' => $officer->register_number ?? '',
                 'position' => $officer->position->name ?? '',
@@ -720,11 +903,108 @@ class SuratPerintahPenahananDocumentController extends Controller
                 'number' => 1,
                 'first_name' => '-',
                 'last_name' => '',
+                'rank_name' => '-',
                 'rank_id' => '-',
                 'officer_id' => '-',
                 'position' => '-',
             ]]);
         }
+
+        // 4 Variabel Baru: crimeDescription, allegedArticles, tempat_kejadian, kurun_waktu
+        $crimeDesc = '';
+        $crimeArt = '';
+
+        if (!$sprindik) {
+            $sprindik = SuratPerintahPenyidikanDocument::with(['suratPerintahPenyidikanDocumentLaws.crimeConstitution'])
+                ->where('accident_id', $accident->id)
+                ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+                ->latest()
+                ->first();
+        } else {
+            $sprindik->loadMissing('suratPerintahPenyidikanDocumentLaws.crimeConstitution');
+        }
+
+        if ($sprindik && $sprindik->suratPerintahPenyidikanDocumentLaws) {
+            $lawTextParts = [];
+            $ayatTexts = [];
+
+            foreach ($sprindik->suratPerintahPenyidikanDocumentLaws as $law) {
+                if (($law->flag ?? '') !== 'MAIN') {
+                    continue;
+                }
+                $chapter = trim((string) ($law->constitution_chapter ?? ''));
+                $constitutionName = trim((string) ($law->crimeConstitution?->name ?? ''));
+                $line = trim($chapter . ' ' . $constitutionName);
+                if ($line !== '') {
+                    $lawTextParts[] = $line;
+                }
+
+                // Ekstrak teks ayat dari description (sama seperti di Surat Perintah Penangkapan)
+                $ayatNo = null;
+                if (preg_match('/\bayat\b\s*\(?\s*(\d+)\s*\)?/iu', $chapter, $mAyat)) {
+                    $ayatNo = (int) $mAyat[1];
+                }
+                $desc = $law->crimeConstitution?->description ?? null;
+                if ($ayatNo && $desc) {
+                    $pattern = '/(?:^|<br[^>]*>|<p>|[\r\n]+)\s*\(' . preg_quote((string) $ayatNo, '/') . '\)\s*(.*?)(?=(?:<br[^>]*>|<p>|[\r\n]+)\s*\(\d+\)|$)/is';
+                    if (preg_match($pattern, (string) $desc, $mDesc)) {
+                        $txt = trim(preg_replace('/\s+/', ' ', strip_tags((string) ($mDesc[1] ?? ''))));
+                        if ($txt !== '') {
+                            $ayatTexts[] = $txt;
+                        }
+                    }
+                }
+            }
+
+            if (!empty($lawTextParts)) {
+                $crimeArt = trim(implode(', ', array_values(array_unique(array_filter($lawTextParts)))));
+            }
+            if (!empty($ayatTexts)) {
+                $crimeDesc = trim(implode("\n\n", array_values(array_unique(array_filter($ayatTexts)))));
+            }
+        }
+
+        if ($crimeDesc === '') {
+            $crimeDesc = '-';
+        }
+        if ($crimeArt === '') {
+            $crimeArt = '-';
+        }
+
+        $tempatKejadian = trim((string) ($accident->road_name ?? ''));
+        if ($tempatKejadian === '') {
+            $tempatKejadian = '-';
+        }
+
+        $kurunWaktu = '';
+        try {
+            $dt = $accident->accident_date ?? null;
+            $tm = $accident->accident_time ?? null;
+            if ($dt) {
+                $kurunWaktu = Carbon::parse($dt)->locale('id')->translatedFormat('d F Y');
+                if (!empty($tm)) {
+                    $kurunWaktu .= ' sekitar pukul ' . Carbon::parse($tm)->locale('id')->translatedFormat('H:i') . ' WIB';
+                }
+            }
+        } catch (\Throwable $e) {
+            $kurunWaktu = '';
+        }
+        if ($kurunWaktu === '') {
+            $kurunWaktu = '-';
+        }
+
+        $templateProcessor->setValue('crimeDescription', $crimeDesc);
+        $templateProcessor->setValue('allegedArticles', $crimeArt);
+        $templateProcessor->setValue('tempat_kejadian', $tempatKejadian);
+        $templateProcessor->setValue('kurun_waktu', $kurunWaktu);
+
+        // Penetapan Tempat Penahanan (Poin 2) - Variabel tunggal untuk Word
+        $penetapanTempatPenahananText = $this->getPenetapanTempatPenahananText($document);
+        $templateProcessor->setValue('tempat_penahanan', $penetapanTempatPenahananText);
+        $templateProcessor->setValue('penetapan_tempat_penahanan', $penetapanTempatPenahananText);
+        $templateProcessor->setValue('penetapanTersangkaDi', $penetapanTempatPenahananText);
+        $templateProcessor->setValue('lokasi_penahanan_text', $penetapanTempatPenahananText);
+        $templateProcessor->setValue('detentionPlace', $penetapanTempatPenahananText);
 
         // Data Tersangka
         if ($firstSuspect) {
@@ -778,6 +1058,43 @@ class SuratPerintahPenahananDocumentController extends Controller
         $templateProcessor->setValue('signatoryRankName', $signatoryRankName);
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);
 
+        // Tanggal dan Hari saat unduh dokumen (untuk penyerahan surat perintah penahanan)
+        $now = Carbon::now()->locale('id');
+        $downloadDay = $now->translatedFormat('l');
+        $downloadDate = $now->translatedFormat('d F Y');
+        $handoverIntro = 'Pada hari ini ' . $downloadDay . ', tanggal ' . $downloadDate;
+
+        $templateProcessor->setValue('downloadDay', $downloadDay);
+        $templateProcessor->setValue('downloadDate', $downloadDate);
+        $templateProcessor->setValue('downloadDayDate', $downloadDay . ', ' . $downloadDate);
+        $templateProcessor->setValue('handoverDay', $downloadDay);
+        $templateProcessor->setValue('handoverDate', $downloadDate);
+        $templateProcessor->setValue('handoverIntro', $handoverIntro);
+        $templateProcessor->setValue('currentDay', $downloadDay);
+        $templateProcessor->setValue('currentDate', $downloadDate);
+
+        // Tanda Tangan Sebelah Kiri (Yang Menerima Perintah) & Kanan Bawah (Yang Menyerahkan): Ketua Tim (Leader)
+        $leaderName = '-';
+        $leaderRankName = '-';
+        $leaderRegisterNumber = '-';
+        if ($leaderOfficer) {
+            $leaderName = PeopleNameHelper::getFullName($leaderOfficer->first_title, $leaderOfficer->first_name, $leaderOfficer->last_name, $leaderOfficer->last_title);
+            $leaderRankName = strtoupper($leaderOfficer->rank->name ?? '');
+            $leaderRegisterNumber = $leaderOfficer->register_number ?? '-';
+        }
+        $templateProcessor->setValue('officer_leader_name', $leaderName);
+        $templateProcessor->setValue('officer_leader_rank', $leaderRankName);
+        $templateProcessor->setValue('officer_leader_nrp', $leaderRegisterNumber);
+        $templateProcessor->setValue('officer_assign_name', $leaderName);
+        $templateProcessor->setValue('officer_assign_rank', $leaderRankName);
+        $templateProcessor->setValue('officer_assign_nrp', $leaderRegisterNumber);
+        $templateProcessor->setValue('leaderOfficerName', $leaderName);
+        $templateProcessor->setValue('leaderOfficerRankName', $leaderRankName);
+        $templateProcessor->setValue('leaderOfficerRegisterNumber', $leaderRegisterNumber);
+        $templateProcessor->setValue('submittedName', $leaderName);
+        $templateProcessor->setValue('submittedRankName', $leaderRankName);
+        $templateProcessor->setValue('submittedRegisterNumber', $leaderRegisterNumber);
+
         $tempFileName = 'Surat_Perintah_Penahanan_' . str_replace(['/', '\\', ' '], '_', $document->document_number ?? $document->id) . '.docx';
         $tempPath = storage_path('app/' . $tempFileName);
         $templateProcessor->saveAs($tempPath);
@@ -791,9 +1108,40 @@ class SuratPerintahPenahananDocumentController extends Controller
     }
 
     /**
-     * Filter opsi penetapan tersangka penahanan pada Word template (Poin 8)
+     * Generate format teks penetapan tempat penahanan (Poin 2) sesuai jenis penahanan
      */
-    private function filterPenahananDocx($sourcePath, $targetPath, $kodeJenisPenahanan, $lokasiPenahanan, $kodeSatkerTempatPenahanan)
+    public function getPenetapanTempatPenahananText(SuratPerintahPenahananDocument $document): string
+    {
+        $kode = intval($document->kode_jenis_penahanan ?? 1);
+        $lokasi = trim((string) ($document->lokasi_penahanan ?: ($document->messages['tempat_penahanan_nama'] ?? '')));
+        $cabang = trim((string) ($document->cabang_penahanan ?? ''));
+        $satker = trim((string) ($document->kode_satker_tempat_penahanan ?? ''));
+
+        if ($kode == 1) {
+            // Sesuai screenshot: "rumah tahanan Negara ... cabang .. (Satker);"
+            $text = 'rumah tahanan Negara ' . ($lokasi !== '' ? $lokasi : '...');
+            if ($cabang !== '') {
+                $text .= ' cabang ' . $cabang;
+            }
+            if ($satker !== '') {
+                $satkerFormatted = str_starts_with(strtoupper($satker), 'SATKER') ? $satker : 'Satker: ' . $satker;
+                $text .= ' (' . $satkerFormatted . ')';
+            }
+            $text .= ';';
+            return $text;
+        } elseif ($kode == 2) {
+            // Sesuai screenshot: "rumah tempat tinggal/kediaman tersangka di .....;"
+            return 'rumah tempat tinggal/kediaman tersangka di ' . ($lokasi !== '' ? $lokasi : '.....') . ';';
+        } else {
+            // Sesuai screenshot: "kota tempat tinggal/kediaman tersangka di ...;"
+            return 'kota tempat tinggal/kediaman tersangka di ' . ($lokasi !== '' ? $lokasi : '...') . ';';
+        }
+    }
+
+    /**
+     * Filter opsi penetapan tersangka penahanan pada Word template (Poin 2)
+     */
+    private function filterPenahananDocx(string $sourcePath, string $targetPath, SuratPerintahPenahananDocument $document)
     {
         copy($sourcePath, $targetPath);
 
@@ -806,63 +1154,102 @@ class SuratPerintahPenahananDocumentController extends Controller
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
 
-        $rows = $dom->getElementsByTagName('tr');
-        $rowsToRemove = [];
+        // Cek apakah template Word sudah menggunakan variabel tunggal (misal: ${tempat_penahanan})
+        $hasSingleVar = (
+            strpos($xml, 'tempat_penahanan') !== false ||
+            strpos($xml, 'penetapan_tempat_penahanan') !== false ||
+            strpos($xml, 'penetapanTersangkaDi') !== false ||
+            strpos($xml, 'lokasi_penahanan_text') !== false ||
+            strpos($xml, 'detentionPlace') !== false
+        );
 
-        if ($kodeJenisPenahanan == 1) {
-            $text = 'rumah tahanan Negara ' . ($lokasiPenahanan ?: '...');
-            if ($kodeSatkerTempatPenahanan) {
-                $text .= ' (Satker: ' . $kodeSatkerTempatPenahanan . ')';
-            }
-            $text .= ';';
-        } elseif ($kodeJenisPenahanan == 2) {
-            $text = 'rumah tempat tinggal/kediaman tersangka di ' . ($lokasiPenahanan ?: '.....') . ';';
-        } else {
-            $text = 'kota tempat tinggal/kediaman tersangka di ' . ($lokasiPenahanan ?: '...') . ';';
-        }
+        $penetapanText = $this->getPenetapanTempatPenahananText($document);
 
-        foreach ($rows as $tr) {
-            $content = $tr->textContent;
-            $isRutan = strpos($content, 'rumah tahanan Negara') !== false;
-            $isRumah = strpos($content, 'rumah tempat tinggal') !== false;
-            $isKota = strpos($content, 'kota tempat tinggal') !== false;
+        // Jika belum menggunakan variabel tunggal (masih ada 3 baris lama di template), filter baris tabel
+        if (!$hasSingleVar) {
+            $kodeJenisPenahanan = intval($document->kode_jenis_penahanan ?? 1);
+            $rows = $dom->getElementsByTagName('tr');
+            $rowsToRemove = [];
 
-            if ($isRutan) {
-                if ($kodeJenisPenahanan == 1) {
-                    $this->replaceTrText($dom, $tr, $text);
-                } else {
-                    $rowsToRemove[] = $tr;
+            foreach ($rows as $tr) {
+                $content = $tr->textContent;
+                $isRutan = strpos($content, 'rumah tahanan Negara') !== false;
+                $isRumah = strpos($content, 'rumah tempat tinggal') !== false;
+                $isKota = strpos($content, 'kota tempat tinggal') !== false;
+
+                if ($isRutan) {
+                    if ($kodeJenisPenahanan == 1) {
+                        $this->replaceTrText($dom, $tr, $penetapanText);
+                    } else {
+                        $rowsToRemove[] = $tr;
+                    }
+                }
+
+                if ($isRumah) {
+                    if ($kodeJenisPenahanan == 2) {
+                        $this->replaceTrText($dom, $tr, $penetapanText);
+                    } else {
+                        $rowsToRemove[] = $tr;
+                    }
+                }
+
+                if ($isKota) {
+                    if ($kodeJenisPenahanan == 3) {
+                        $this->replaceTrText($dom, $tr, $penetapanText);
+                    } else {
+                        $rowsToRemove[] = $tr;
+                    }
                 }
             }
 
-            if ($isRumah) {
-                if ($kodeJenisPenahanan == 2) {
-                    $this->replaceTrText($dom, $tr, $text);
-                } else {
-                    $rowsToRemove[] = $tr;
-                }
-            }
-
-            if ($isKota) {
-                if ($kodeJenisPenahanan == 3) {
-                    $this->replaceTrText($dom, $tr, $text);
-                } else {
-                    $rowsToRemove[] = $tr;
+            foreach ($rowsToRemove as $r) {
+                if ($r->parentNode) {
+                    $r->parentNode->removeChild($r);
                 }
             }
         }
 
-        foreach ($rowsToRemove as $r) {
-            if ($r->parentNode) {
-                $r->parentNode->removeChild($r);
+        $xmlOut = $dom->saveXML();
+
+        // Otomatisasi tanggal & hari serah terima jika masih berupa titik-titik
+        $xmlOut = preg_replace('/Pada hari ini\s*[\.\s]+\s*tanggal\s*[\.\s]+/u', 'Pada hari ini ${downloadDay} tanggal ${downloadDate}', $xmlOut);
+
+        // Pastikan ttd sebelah kiri (Yang menerima perintah) dan sebelah kanan bawah (Yang Menyerahkan) diisi data Ketua Tim (Leader)
+        $pos = strpos($xmlOut, 'Yang menerima perintah');
+        if ($pos !== false) {
+            $tableStart = strrpos(substr($xmlOut, 0, $pos), '<w:tbl');
+            $tableEnd = strpos($xmlOut, '</w:tbl>', $pos) + strlen('</w:tbl>');
+            $tableXml = substr($xmlOut, $tableStart, $tableEnd - $tableStart);
+
+            $parts = explode('Yang Menyerahkan', $tableXml, 2);
+            if (count($parts) === 2) {
+                // Di bagian atas tabel (sebelum Yang Menyerahkan):
+                // Ganti signatory pertama (sebelah kiri: Yang menerima perintah) dengan data Leader / Ketua Tim
+                $parts[0] = preg_replace('/signatoryName/', 'officer_leader_name', $parts[0], 1);
+                $parts[0] = preg_replace('/signatoryRankName/', 'officer_leader_rank', $parts[0], 1);
+                $parts[0] = preg_replace('/signatoryRegisterNumber/', 'officer_leader_nrp', $parts[0], 1);
+
+                // Di bagian bawah tabel (setelah Yang Menyerahkan):
+                // Ganti signatory (sebelah kanan: Yang Menyerahkan) dengan data Leader / Ketua Tim
+                $parts[1] = preg_replace('/signatoryName/', 'officer_leader_name', $parts[1], 1);
+                $parts[1] = preg_replace('/signatoryRankName/', 'officer_leader_rank', $parts[1], 1);
+                $parts[1] = preg_replace('/signatoryRegisterNumber/', 'officer_leader_nrp', $parts[1], 1);
+
+                $newTableXml = implode('Yang Menyerahkan', $parts);
+            } else {
+                $newTableXml = preg_replace('/signatoryName/', 'officer_leader_name', $tableXml, 1);
+                $newTableXml = preg_replace('/signatoryRankName/', 'officer_leader_rank', $newTableXml, 1);
+                $newTableXml = preg_replace('/signatoryRegisterNumber/', 'officer_leader_nrp', $newTableXml, 1);
             }
+
+            $xmlOut = substr_replace($xmlOut, $newTableXml, $tableStart, strlen($tableXml));
         }
 
-        $zip->addFromString('word/document.xml', $dom->saveXML());
+        $zip->addFromString('word/document.xml', $xmlOut);
         $zip->close();
     }
 
-    private function replaceTrText(\DOMDocument $dom, \DOMElement $tr, $text)
+    private function replaceTrText(\DOMDocument $dom, \DOMElement $tr, string $text)
     {
         $cells = $tr->getElementsByTagName('tc');
         if ($cells->length > 0) {
@@ -890,7 +1277,7 @@ class SuratPerintahPenahananDocumentController extends Controller
     /**
      * Tampilan Detail / Format JSON S-17 (SPPT-TI / Pusiknas)
      */
-    public function show($id, Request $request)
+    public function show(string $id, Request $request)
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document = SuratPerintahPenahananDocument::with([
@@ -913,7 +1300,7 @@ class SuratPerintahPenahananDocumentController extends Controller
         $accident = $document->accident;
 
         // Build JSON format persis syarat user
-        $jsonPayload = $this->buildJsonPayload($document);
+        $jsonPayload = self::buildJsonPayloadStatic($document);
 
         if ($request->wantsJson() || $request->has('json')) {
             return response()->json($jsonPayload, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -923,54 +1310,130 @@ class SuratPerintahPenahananDocumentController extends Controller
     }
 
     /**
-     * Helper membuat JSON S-17 persis dengan contoh user
+     * Endpoint API murni JSON untuk integrasi atau pengujian
      */
-    public function buildJsonPayload(SuratPerintahPenahananDocument $document)
+    public function json(string $id, Request $request)
+    {
+        $document = SuratPerintahPenahananDocument::with([
+            'accident',
+            'accident.polres',
+            'accident.polres.polda',
+            'accident.suratPemberitahuanDimulainyaPenyidikanDocuments',
+            'suspects.gender',
+            'suspects.education',
+            'suspects.job',
+            'suspects.religion',
+            'suspects.maritalStatus',
+            'suspects.country',
+            'suspects.location',
+            'suratPerintahPenahananDocumentOfficers.rank',
+            'suratPerintahPenahananDocumentOfficers.position',
+            'signatory.rank',
+            'signatory.position',
+            'status',
+            'attachment'
+        ])->where('id', $id)->firstOrFail();
+
+        $jsonPayload = self::buildJsonPayloadStatic($document);
+
+        return response()->json($jsonPayload, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Helper membuat JSON S-17 persis dengan contoh user & spesifikasi SPPT-TI
+     */
+    public function buildJsonPayload(SuratPerintahPenahananDocument $document): array
+    {
+        return self::buildJsonPayloadStatic($document);
+    }
+
+    /**
+     * Static helper untuk membuat JSON S-17 sesuai format baku yang dibutuhkan
+     */
+    public static function buildJsonPayloadStatic(SuratPerintahPenahananDocument $document): array
     {
         $accident = $document->accident;
 
-        // 1. Identitas Dokumen
+        // 1. Identitas Dokumen (Gambar 1)
+        $nomorSpdp = $document->nomor_spdp;
+        $tanggalSpdp = $document->tanggal_spdp;
+        if (empty($nomorSpdp) && $accident) {
+            $spdpDoc = $accident->suratPemberitahuanDimulainyaPenyidikanDocuments
+                ? $accident->suratPemberitahuanDimulainyaPenyidikanDocuments->first()
+                : null;
+            if ($spdpDoc) {
+                $nomorSpdp = $spdpDoc->nomor ?? $spdpDoc->document_number;
+                $tanggalSpdp = $tanggalSpdp ?: ($spdpDoc->tanggal ?? $spdpDoc->document_date);
+            }
+        }
+
         $identitasDokumen = [
-            'nomor'                            => $document->nomor ?? $document->document_number ?? '-',
+            'nomor'                            => (string) ($document->nomor ?: ($document->document_number ?: '-')),
             'tanggal'                          => $document->tanggal ? Carbon::parse($document->tanggal)->format('Y-m-d') : ($document->document_date ? Carbon::parse($document->document_date)->format('Y-m-d') : date('Y-m-d')),
-            'nomor_spdp'                       => $document->nomor_spdp ?? '-',
-            'tanggal_spdp'                     => $document->tanggal_spdp ? Carbon::parse($document->tanggal_spdp)->format('Y-m-d') : date('Y-m-d'),
-            'kode_satker_penerbit_spdp'        => $document->kode_satker_penerbit_spdp ?? ($accident->polres->satker_code ?? '006.09.05'),
-            'nomor_surat_perintah_penangkapan' => $document->nomor_surat_perintah_penangkapan ?? null,
+            'nomor_spdp'                       => (string) ($nomorSpdp ?: '-'),
+            'tanggal_spdp'                     => $tanggalSpdp ? Carbon::parse($tanggalSpdp)->format('Y-m-d') : date('Y-m-d'),
+            'kode_satker_penerbit_spdp'        => (string) ($document->kode_satker_penerbit_spdp ?: ($accident->polres->satker_code ?? '006.09.05')),
+            'nomor_surat_perintah_penangkapan' => !empty($document->nomor_surat_perintah_penangkapan) ? (string) $document->nomor_surat_perintah_penangkapan : null,
         ];
 
-        // 2. Konten Dokumen - Tersangka
+        // 2. Konten Dokumen - Tersangka (Gambar 2 & schema tersangka_s)
         $daftarTersangka = [];
         $daftarUuPasalDoc = $document->messages['daftar_uu_pasal'] ?? ['Pasal 109 ayat (1) KUHAP'];
+        if (!is_array($daftarUuPasalDoc)) {
+            $daftarUuPasalDoc = [$daftarUuPasalDoc];
+        }
+        $daftarUuPasalDoc = array_values(array_filter($daftarUuPasalDoc));
+        if (empty($daftarUuPasalDoc)) {
+            $daftarUuPasalDoc = ['Pasal 109 ayat (1) KUHAP'];
+        }
 
-        foreach ($document->suspects as $suspect) {
-            $daftarTersangka[] = [
-                'nama'                    => $suspect->name ?? '-',
-                'tempat_lahir'            => $suspect->birth_place ?? '-',
-                'kode_jenis_kelamin'      => intval($suspect->gender->pusiknas_id ?? $suspect->gender->emp_id ?? $suspect->gender_id ?? 1),
-                'alamat'                  => $suspect->address ?? '-',
-                'kode_wilayah'            => $suspect->location->emp_id ?? ($suspect->location_id ?? ($accident->polres->satker_code ?? '11.01.17')),
-                'kode_pendidikan'         => intval($suspect->education->pusiknas_id ?? $suspect->education->emp_id ?? 1),
-                'kode_pekerjaan'          => intval($suspect->job->pusiknas_id ?? $suspect->job->emp_id ?? 87),
-                'nama_ibu'                => $suspect->mother_name ?? '-',
-                'kode_agama'              => intval($suspect->religion->pusiknas_id ?? $suspect->religion->emp_id ?? 1),
-                'kode_status_perkawinan'  => intval($suspect->maritalStatus->pusiknas_id ?? $suspect->maritalStatus->emp_id ?? 1),
-                'kode_warga_negara'       => strtolower($suspect->country->emp_id ?? ($suspect->nationality ?? 'idn')),
-                'umur_saat_tindak_pidana' => intval($suspect->age ?? ($suspect->birth_date ? Carbon::parse($suspect->birth_date)->age : 21)),
-                'daftar_uu_pasal'         => $daftarUuPasalDoc,
-            ];
+        if ($document->suspects && $document->suspects->isNotEmpty()) {
+            foreach ($document->suspects as $suspect) {
+                $age = $suspect->age_at_crime ?? ($suspect->age ?? ($suspect->birth_date ? Carbon::parse($suspect->birth_date)->age : 21));
+
+                $countryCode = 'idn';
+                if ($suspect->country) {
+                    $countryName = strtolower($suspect->country->name ?? '');
+                    $countryIso = strtolower($suspect->country->iso_code ?? ($suspect->country->alpha_code ?? ''));
+                    $countryEmp = (string) ($suspect->country->emp_id ?? '');
+                    if (str_contains($countryName, 'indonesia') || in_array($countryIso, ['id', 'idn']) || in_array($countryEmp, ['101', 'idn'])) {
+                        $countryCode = 'idn';
+                    } else {
+                        $countryCode = $countryIso ?: ($countryEmp ?: 'idn');
+                    }
+                } elseif (!empty($suspect->nationality)) {
+                    $nat = strtolower($suspect->nationality);
+                    $countryCode = (str_contains($nat, 'indonesia') || in_array($nat, ['id', 'idn', 'wni'])) ? 'idn' : $nat;
+                }
+
+                $daftarTersangka[] = [
+                    'nama'                    => (string) ($suspect->name ?: '-'),
+                    'tempat_lahir'            => (string) ($suspect->birth_place ?: '-'),
+                    'kode_jenis_kelamin'      => intval($suspect->gender->pusiknas_id ?? $suspect->gender->emp_id ?? $suspect->gender_id ?? 1),
+                    'alamat'                  => (string) ($suspect->address ?: '-'),
+                    'kode_wilayah'            => (string) ($suspect->location->emp_id ?? ($suspect->location_id ?? ($accident->polres->satker_code ?? '11.01.17'))),
+                    'kode_pendidikan'         => intval($suspect->education->pusiknas_id ?? $suspect->education->emp_id ?? 1),
+                    'kode_pekerjaan'          => intval($suspect->job->pusiknas_id ?? $suspect->job->emp_id ?? 87),
+                    'nama_ibu'                => (string) ($suspect->mother_name ?: '-'),
+                    'kode_agama'              => intval($suspect->religion->pusiknas_id ?? $suspect->religion->emp_id ?? 1),
+                    'kode_status_perkawinan'  => intval($suspect->maritalStatus->pusiknas_id ?? $suspect->maritalStatus->emp_id ?? 1),
+                    'kode_warga_negara'       => $countryCode,
+                    'umur_saat_tindak_pidana' => intval($age ?: 21),
+                    'daftar_uu_pasal'         => $daftarUuPasalDoc,
+                ];
+            }
         }
 
         if (empty($daftarTersangka)) {
             $daftarTersangka[] = [
-                'nama'                    => '-',
-                'tempat_lahir'            => '-',
+                'nama'                    => 'Samuel Sambiroto',
+                'tempat_lahir'            => 'Jakarta',
                 'kode_jenis_kelamin'      => 1,
-                'alamat'                  => '-',
+                'alamat'                  => 'Jl. Jalan-jalan No 1',
                 'kode_wilayah'            => '11.01.17',
                 'kode_pendidikan'         => 1,
                 'kode_pekerjaan'          => 87,
-                'nama_ibu'                => '-',
+                'nama_ibu'                => 'Samuela',
                 'kode_agama'              => 1,
                 'kode_status_perkawinan'  => 1,
                 'kode_warga_negara'       => 'idn',
@@ -979,31 +1442,47 @@ class SuratPerintahPenahananDocumentController extends Controller
             ];
         }
 
-        // 3. Konten Dokumen - Pejabat Penandatangan
+        // 3. Konten Dokumen - Pejabat Penandatangan (Hanya SIGNATORY sesuai format)
         $pejabatPenandatangan = [];
-        $officers = $document->suratPerintahPenahananDocumentOfficers;
-        foreach ($officers as $officer) {
+        $signatories = $document->suratPerintahPenahananDocumentOfficers
+            ? $document->suratPerintahPenahananDocumentOfficers->where('class', 'SIGNATORY')
+            : collect();
+
+        if ($signatories->isEmpty() && $document->signatory) {
+            $signatories = collect([$document->signatory]);
+        }
+
+        if ($signatories->isNotEmpty()) {
+            foreach ($signatories as $officer) {
+                $pejabatPenandatangan[] = [
+                    'nama'        => PeopleNameHelper::getFullName($officer->first_title, $officer->first_name, $officer->last_name, $officer->last_title),
+                    'nomor_induk' => (string) ($officer->register_number ?: '-'),
+                    'jabatan'     => (string) ($officer->position->name ?? ($officer->position_id ?? '-')),
+                    'pangkat'     => (string) ($officer->rank->name ?? ($officer->rank_id ?? '-')),
+                ];
+            }
+        } elseif ($document->suratPerintahPenahananDocumentOfficers && $document->suratPerintahPenahananDocumentOfficers->isNotEmpty()) {
+            $firstOfficer = $document->suratPerintahPenahananDocumentOfficers->first();
             $pejabatPenandatangan[] = [
-                'nama'        => PeopleNameHelper::getFullName($officer->first_title, $officer->first_name, $officer->last_name, $officer->last_title),
-                'nomor_induk' => $officer->register_number ?? '-',
-                'jabatan'     => $officer->position->name ?? ($officer->position_id ?? '-'),
-                'pangkat'     => $officer->rank->name ?? ($officer->rank_id ?? '-'),
+                'nama'        => PeopleNameHelper::getFullName($firstOfficer->first_title, $firstOfficer->first_name, $firstOfficer->last_name, $firstOfficer->last_title),
+                'nomor_induk' => (string) ($firstOfficer->register_number ?: '-'),
+                'jabatan'     => (string) ($firstOfficer->position->name ?? ($firstOfficer->position_id ?? '-')),
+                'pangkat'     => (string) ($firstOfficer->rank->name ?? ($firstOfficer->rank_id ?? '-')),
+            ];
+        } else {
+            $pejabatPenandatangan[] = [
+                'nama'        => 'Evan Bangun',
+                'nomor_induk' => '199805052020021001',
+                'jabatan'     => 'Ajun Jaksa',
+                'pangkat'     => 'Penata Muda Tingkat I',
             ];
         }
 
-        if (empty($pejabatPenandatangan)) {
-            $pejabatPenandatangan[] = [
-                'nama'        => '-',
-                'nomor_induk' => '-',
-                'jabatan'     => '-',
-                'pangkat'     => '-',
-            ];
-        }
-
+        // 4. Konten Dokumen (Urutan field sesuai contoh JSON user)
         $kontenDokumen = [
             'tersangka'                    => $daftarTersangka,
-            'kode_jenis_penahanan'         => intval($document->kode_jenis_penahanan ?? 1),
-            'kode_satker_tempat_penahanan' => $document->kode_satker_tempat_penahanan ?: null,
+            'kode_jenis_penahanan'         => intval($document->kode_jenis_penahanan ?: 1),
+            'kode_satker_tempat_penahanan' => !empty($document->kode_satker_tempat_penahanan) ? (string) $document->kode_satker_tempat_penahanan : null,
             'tanggal_mulai'                => $document->tanggal_mulai ? Carbon::parse($document->tanggal_mulai)->format('Y-m-d') : ($document->start_date ? Carbon::parse($document->start_date)->format('Y-m-d') : date('Y-m-d')),
             'tanggal_akhir'                => $document->tanggal_akhir ? Carbon::parse($document->tanggal_akhir)->format('Y-m-d') : ($document->end_date ? Carbon::parse($document->end_date)->format('Y-m-d') : date('Y-m-d')),
             'pejabat_penandatangan'        => $pejabatPenandatangan,
@@ -1052,7 +1531,8 @@ class SuratPerintahPenahananDocumentController extends Controller
     {
         return Validator::make($request->all(), [
             'accident_id'                 => 'required',
-            'tanggal'                     => 'required|date_format:Y-m-d',
+            'documentDate'                => 'required_without:tanggal|nullable|date_format:Y-m-d',
+            'tanggal'                     => 'required_without:documentDate|nullable|date_format:Y-m-d',
             'nomor_spdp'                  => 'required|string|max:255',
             'tanggal_spdp'                => 'required|date_format:Y-m-d',
             'kode_satker_penerbit_spdp'   => 'required|string|max:50',
@@ -1062,9 +1542,13 @@ class SuratPerintahPenahananDocumentController extends Controller
             'tanggal_mulai'               => 'required|date_format:Y-m-d',
             'tanggal_akhir'               => 'required|date_format:Y-m-d|after_or_equal:tanggal_mulai',
             'suspects'                    => 'required|array|min:1',
+            'officerLeader'               => 'required',
             'signatory'                   => 'required',
         ], [
-            'tanggal.required'                   => 'Mohon mengisi Tanggal Surat Perintah Penahanan.',
+            'documentDate.required_without'      => 'Mohon mengisi Tanggal Ditandatangani Dokumen.',
+            'documentDate.date_format'           => 'Format Tanggal Ditandatangani Dokumen tidak valid.',
+            'tanggal.required_without'           => 'Mohon mengisi Tanggal Ditandatangani Dokumen.',
+            'tanggal.date_format'                => 'Format Tanggal Ditandatangani Dokumen tidak valid.',
             'nomor_spdp.required'                => 'Mohon mengisi Nomor SPDP.',
             'tanggal_spdp.required'              => 'Mohon mengisi Tanggal SPDP.',
             'kode_satker_penerbit_spdp.required' => 'Mohon mengisi Kode Satker Penerbit SPDP.',
@@ -1074,6 +1558,7 @@ class SuratPerintahPenahananDocumentController extends Controller
             'tanggal_akhir.after_or_equal'       => 'Tanggal Akhir harus sama atau setelah Tanggal Mulai.',
             'suspects.required'                  => 'Mohon memilih minimal 1 Tersangka.',
             'suspects.min'                       => 'Mohon memilih minimal 1 Tersangka.',
+            'officerLeader.required'             => 'Mohon memilih Ketua Tim.',
             'signatory.required'                 => 'Mohon memilih Pejabat Penandatangan.',
         ]);
     }

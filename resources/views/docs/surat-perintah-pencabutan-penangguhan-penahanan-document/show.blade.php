@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Surat Perintah Penahanan (S-17) — SPPT-TI Pusiknas</title>
+    <title>Surat Perintah Pencabutan Penangguhan Penahanan (S-19) — SPPT-TI Pusiknas</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
@@ -39,12 +39,8 @@
             font-weight: 600;
             font-size: 0.95rem;
         }
-        .table-subsection {
-            background-color: #f1f5f9;
-            font-weight: 600;
-        }
-        .badge-s17 {
-            background-color: #0284c7;
+        .badge-s19 {
+            background-color: #dc2626;
             color: #fff;
             padding: 6px 12px;
             border-radius: 6px;
@@ -79,13 +75,13 @@
             <div class="text-center mb-4 pb-3 border-bottom">
                 <img src="{{ asset('images/logo.png') }}" class="header-logo" alt="Logo Polri"><br>
                 <strong class="header-title fs-5">KEPOLISIAN NEGARA REPUBLIK INDONESIA</strong><br>
-                <span class="fw-bold">DAERAH {{ strtoupper($accident->polres->polda->full_name ?? '') }}</span><br>
-                <span class="fw-bold">RESOR {{ strtoupper($accident->polres->full_name ?? '') }}</span><br>
+                <span class="fw-bold">DAERAH {{ strtoupper($accident->polres->polda->name ?? '') }}</span><br>
+                <span class="fw-bold">RESOR {{ strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? '')) }}</span><br>
                 <span class="header-sub small">{{ ucwords($accident->polres->address ?? '') }}</span>
                 <div class="my-3">
-                    <span class="badge badge-s17">KODE DOKUMEN SPPT-TI: S-17</span>
+                    <span class="badge badge-s19">KODE DOKUMEN SPPT-TI: S-19 │ PENCABUTAN PENANGGUHAN PENAHANAN</span>
                 </div>
-                <h4 class="fw-bold mt-2"><u>SURAT PERINTAH PENAHANAN</u></h4>
+                <h4 class="fw-bold mt-2"><u>SURAT PERINTAH PENCABUTAN PENANGGUHAN PENAHANAN</u></h4>
                 <h5 class="text-muted">NOMOR: {{ $document->nomor ?? $document->document_number ?? '-' }}</h5>
             </div>
 
@@ -118,40 +114,90 @@
                         <tbody>
                             <tr>
                                 <td class="fw-bold" width="35%">kode_jenis_dokumen</td>
-                                <td><code>s17</code> (Surat Perintah Penahanan)</td>
+                                <td><span class="badge bg-danger">s19</span> (Surat Perintah Pencabutan Penangguhan Penahanan)</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">nomor</td>
-                                <td><span class="badge bg-light text-dark border">{{ $document->nomor ?? $document->document_number ?? '-' }}</span></td>
+                                <td class="fw-bold">Nomor S-19 (nomor)</td>
+                                <td class="fw-bold text-primary">{{ $document->nomor ?? $document->document_number ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">tanggal</td>
-                                <td>{{ $document->tanggal ? date('d-m-Y', strtotime($document->tanggal)) : ($document->document_date ? date('d-m-Y', strtotime($document->document_date)) : '-') }}</td>
+                                <td class="fw-bold">Tanggal S-19 (tanggal)</td>
+                                <td>{{ $document->tanggal ? \Carbon\Carbon::parse($document->tanggal)->isoFormat('D MMMM Y') : ($document->document_date ? \Carbon\Carbon::parse($document->document_date)->isoFormat('D MMMM Y') : '-') }}</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">nomor_spdp</td>
+                                <td class="fw-bold">Nomor SPDP (nomor_spdp)</td>
                                 <td>{{ $document->nomor_spdp ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">tanggal_spdp</td>
-                                <td>{{ $document->tanggal_spdp ? date('d-m-Y', strtotime($document->tanggal_spdp)) : '-' }}</td>
+                                <td class="fw-bold">Tanggal SPDP (tanggal_spdp)</td>
+                                <td>{{ $document->tanggal_spdp ? \Carbon\Carbon::parse($document->tanggal_spdp)->isoFormat('D MMMM Y') : '-' }}</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">kode_satker_penerbit_spdp</td>
+                                <td class="fw-bold">Kode Satker Penerbit SPDP</td>
                                 <td><code>{{ $document->kode_satker_penerbit_spdp ?? '-' }}</code></td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">nomor_surat_perintah_penangkapan</td>
-                                <td>{{ $document->nomor_surat_perintah_penangkapan ?? '-' }}</td>
+                                <td class="fw-bold">Nomor Surat Perintah Penahanan (S-17)</td>
+                                <td>{{ $document->nomor_surat_perintah_penahanan ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Nomor Surat Perintah Penangguhan Penahanan (S-18)</td>
+                                <td>{{ $document->nomor_surat_perintah_penangguhan ?? '-' }}</td>
                             </tr>
                         </tbody>
                     </table>
 
-                    {{-- Tabel Konten Dokumen --}}
+                    {{-- Rujukan Dokumen Terkait --}}
                     <table class="table table-bordered table-sm mb-4">
                         <thead>
                             <tr class="table-section-title">
-                                <th colspan="2"><i class="bi bi-card-checklist me-1"></i> KONTEN DOKUMEN (konten_dokumen)</th>
+                                <th colspan="2"><i class="bi bi-file-earmark-ruled me-1"></i> DASAR RUJUKAN DOKUMEN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold" width="35%">Laporan Polisi (LP)</td>
+                                <td>
+                                    Nomor: <b>{{ $accident->no_lp ?? '-' }}</b>, 
+                                    Tanggal: {{ $accident->accident_date ? \Carbon\Carbon::parse($accident->accident_date)->isoFormat('D MMMM Y') : '-' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Surat Perintah Penyidikan (Sprindik)</td>
+                                <td>
+                                    Nomor: <b>{{ $document->suratPerintahPenyidikanDocument->nomor ?? $document->suratPerintahPenyidikanDocument->document_number ?? '-' }}</b>, 
+                                    Tanggal: {{ ($document->suratPerintahPenyidikanDocument && ($document->suratPerintahPenyidikanDocument->tanggal ?? $document->suratPerintahPenyidikanDocument->document_date)) ? \Carbon\Carbon::parse($document->suratPerintahPenyidikanDocument->tanggal ?? $document->suratPerintahPenyidikanDocument->document_date)->isoFormat('D MMMM Y') : '-' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Surat Ketetapan Penetapan Tersangka</td>
+                                <td>
+                                    Nomor: <b>{{ $document->suratKetetapanTentangPenetapanTersangkaDocument->nomor ?? $document->suratKetetapanTentangPenetapanTersangkaDocument->document_number ?? '-' }}</b>, 
+                                    Tanggal: {{ ($document->suratKetetapanTentangPenetapanTersangkaDocument && ($document->suratKetetapanTentangPenetapanTersangkaDocument->tanggal ?? $document->suratKetetapanTentangPenetapanTersangkaDocument->document_date)) ? \Carbon\Carbon::parse($document->suratKetetapanTentangPenetapanTersangkaDocument->tanggal ?? $document->suratKetetapanTentangPenetapanTersangkaDocument->document_date)->isoFormat('D MMMM Y') : '-' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Surat Perintah Penahanan (S-17)</td>
+                                <td>
+                                    Nomor: <b>{{ $document->nomor_surat_perintah_penahanan ?? '-' }}</b>, 
+                                    Tanggal: {{ $document->tanggal_surat_perintah_penahanan ? \Carbon\Carbon::parse($document->tanggal_surat_perintah_penahanan)->isoFormat('D MMMM Y') : '-' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Surat Perintah Penangguhan Penahanan (S-18)</td>
+                                <td>
+                                    Nomor: <b>{{ $document->nomor_surat_perintah_penangguhan ?? '-' }}</b>, 
+                                    Tanggal: {{ $document->tanggal_surat_perintah_penangguhan ? \Carbon\Carbon::parse($document->tanggal_surat_perintah_penangguhan)->isoFormat('D MMMM Y') : '-' }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    {{-- Konten Dokumen: Penahanan Kembali & Sisa Waktu --}}
+                    <table class="table table-bordered table-sm mb-4">
+                        <thead>
+                            <tr class="table-section-title">
+                                <th colspan="2"><i class="bi bi-card-checklist me-1"></i> KONTEN DOKUMEN (konten_dokumen) — PENAHANAN KEMBALI</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -160,36 +206,32 @@
                                 $jenisPenahananText = $jenisPenahananMap[$document->kode_jenis_penahanan] ?? 'RUTAN';
                             @endphp
                             <tr>
-                                <td class="fw-bold" width="35%">kode_jenis_penahanan</td>
+                                <td class="fw-bold" width="35%">Jenis Penahanan</td>
                                 <td>
                                     <span class="badge bg-primary">{{ $document->kode_jenis_penahanan }} ({{ $jenisPenahananText }})</span>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">kode_satker_tempat_penahanan</td>
-                                <td><code>{{ $document->kode_satker_tempat_penahanan ?? '-' }}</code></td>
+                                <td class="fw-bold">Tempat Penahanan</td>
+                                <td>{{ $document->tempat_penahanan ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">keterangan_tempat_penahanan</td>
-                                <td>{{ $document->lokasi_penahanan ?? ($document->messages['tempat_penahanan_nama'] ?? '-') }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">tanggal_mulai</td>
-                                <td>{{ $document->tanggal_mulai ? date('d-m-Y', strtotime($document->tanggal_mulai)) : ($document->start_date ? date('d-m-Y', strtotime($document->start_date)) : '-') }}</td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">tanggal_akhir</td>
+                                <td class="fw-bold">Sisa Waktu Masa Penahanan</td>
                                 <td>
-                                    {{ $document->tanggal_akhir ? date('d-m-Y', strtotime($document->tanggal_akhir)) : ($document->end_date ? date('d-m-Y', strtotime($document->end_date)) : '-') }}
-                                    @if($document->tanggal_mulai && $document->tanggal_akhir)
-                                        @php
-                                            $tglM = \Carbon\Carbon::parse($document->tanggal_mulai);
-                                            $tglA = \Carbon\Carbon::parse($document->tanggal_akhir);
-                                            $durasi = $tglM->diffInDays($tglA) + 1;
-                                        @endphp
-                                        <span class="badge bg-secondary ms-2">Durasi: {{ $durasi }} Hari</span>
-                                    @endif
+                                    <span class="badge bg-secondary fs-6">{{ $document->jumlah_hari ?? '-' }} Hari</span>
                                 </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Periode Tanggal Penahanan Kembali</td>
+                                <td>
+                                    Mulai: <b>{{ $document->tanggal_mulai ? \Carbon\Carbon::parse($document->tanggal_mulai)->isoFormat('D MMMM Y') : '-' }}</b>
+                                    s.d. 
+                                    <b>{{ $document->tanggal_akhir ? \Carbon\Carbon::parse($document->tanggal_akhir)->isoFormat('D MMMM Y') : '-' }}</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Alasan Pencabutan Penangguhan</td>
+                                <td class="text-danger fw-bold">{{ $document->alasan_pencabutan ?? 'Tersangka melanggar syarat-syarat penangguhan penahanan.' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -197,7 +239,7 @@
                     {{-- Daftar Tersangka --}}
                     <div class="card mb-4 border">
                         <div class="card-header bg-light fw-bold">
-                            <i class="bi bi-people me-1"></i> DAFTAR TERSANGKA YANG DITAHAN (tersangka)
+                            <i class="bi bi-people me-1"></i> DAFTAR TERSANGKA YANG DICABUT PENANGGUHANNYA (tersangka)
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
@@ -210,35 +252,24 @@
                                             <th>L/P</th>
                                             <th>Pekerjaan</th>
                                             <th>Alamat</th>
-                                            <th>Pasal Disangkakan</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($document->suspects as $s)
                                             @php
                                                 $umur = $s->age ?? ($s->birth_date ? \Carbon\Carbon::parse($s->birth_date)->age : '-');
-                                                $pasals = $document->messages['daftar_uu_pasal'] ?? ['Pasal 310 ayat (4) UU RI No. 22 Tahun 2009'];
                                             @endphp
                                             <tr>
-                                                <td class="fw-bold">{{ $s->name }}</td>
+                                                <td class="fw-bold text-uppercase">{{ $s->name }}</td>
                                                 <td>{{ $s->identity_number ?? '-' }}</td>
-                                                <td>{{ $s->birth_place ?? '-' }}, {{ $s->birth_date ? date('d-m-Y', strtotime($s->birth_date)) : '-' }} ({{ $umur }} thn)</td>
+                                                <td>{{ $s->birth_place ?? '-' }}, {{ $s->birth_date ? \Carbon\Carbon::parse($s->birth_date)->isoFormat('D MMMM Y') : '-' }} ({{ $umur }} thn)</td>
                                                 <td>{{ $s->gender->name ?? '-' }}</td>
                                                 <td>{{ $s->job->name ?? '-' }}</td>
                                                 <td>{{ $s->address ?? '-' }}</td>
-                                                <td>
-                                                    @if(is_array($pasals))
-                                                        <ul class="mb-0 ps-3">
-                                                            @foreach($pasals as $p)<li>{{ $p }}</li>@endforeach
-                                                        </ul>
-                                                    @else
-                                                        {{ $pasals }}
-                                                    @endif
-                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center text-muted py-3">Tidak ada data tersangka yang terhubung.</td>
+                                                <td colspan="6" class="text-center text-muted py-3">Tidak ada data tersangka yang terhubung.</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -267,8 +298,8 @@
                                     </thead>
                                     <tbody>
                                         @php
-                                            $leader = $document->suratPerintahPenahananDocumentOfficers->where('class', 'LEADER')->first();
-                                            $members = $document->suratPerintahPenahananDocumentOfficers->where('class', 'MEMBER');
+                                            $leader = $document->suratPerintahPencabutanPenangguhanPenahananDocumentOfficers->where('class', 'LEADER')->first();
+                                            $members = $document->suratPerintahPencabutanPenangguhanPenahananDocumentOfficers->where('class', 'MEMBER');
                                         @endphp
                                         @if($leader)
                                             @php
@@ -317,23 +348,23 @@
                         </thead>
                         <tbody>
                             @php
-                                $signatory = $document->suratPerintahPenahananDocumentOfficers->where('class', 'SIGNATORY')->first();
+                                $signatory = $document->suratPerintahPencabutanPenangguhanPenahananDocumentOfficers->where('class', 'SIGNATORY')->first();
                             @endphp
                             @if($signatory)
                                 <tr>
-                                    <td class="fw-bold" width="35%">nama</td>
+                                    <td class="fw-bold" width="35%">Nama Pejabat</td>
                                     <td>{{ \App\Helpers\PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title) }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">nomor_induk (NRP)</td>
+                                    <td class="fw-bold">NRP / Nomor Induk</td>
                                     <td>{{ $signatory->register_number ?? '-' }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">pangkat</td>
+                                    <td class="fw-bold">Pangkat</td>
                                     <td>{{ $signatory->rank->name ?? '-' }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-bold">jabatan</td>
+                                    <td class="fw-bold">Jabatan</td>
                                     <td>{{ $signatory->position->name ?? '-' }}</td>
                                 </tr>
                             @else
@@ -349,8 +380,8 @@
                 {{-- TAB 2: FORMAT JSON SPPT-TI --}}
                 <div class="tab-pane fade" id="jsonView" role="tabpanel">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small">JSON Payload S-17 untuk Integrasi SPPT-TI Pusiknas Bareskrim:</span>
-                        <a href="{{ route('doc.surat-perintah-penahanan-document.show', ['id' => $document->id, 'accident_id' => $accident->id, 'json' => 1]) }}"
+                        <span class="text-muted small">JSON Payload S-19 untuk Integrasi SPPT-TI Pusiknas Bareskrim:</span>
+                        <a href="{{ route('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.show', ['id' => $document->id, 'accident_id' => $accident->id, 'json' => 1]) }}"
                            target="_blank" class="btn btn-sm btn-outline-info">
                             <i class="bi bi-box-arrow-up-right me-1"></i> Buka Raw JSON
                         </a>
@@ -367,13 +398,13 @@
                 </a>
 
                 <div class="d-flex gap-2">
-                    <a href="{{ route('doc.surat-perintah-penahanan-document.download', ['id' => $document->id, 'accident_id' => $accident->id]) }}"
+                    <a href="{{ route('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.download', ['id' => $document->id, 'accident_id' => $accident->id]) }}"
                        class="btn btn-success me-2">
-                        <i class="bi bi-file-earmark-word me-1"></i> Unduh Word (S-17)
+                        <i class="bi bi-file-earmark-word me-1"></i> Unduh Word (S-19)
                     </a>
 
                     @if(in_array($document->status_id, ['2', '4']))
-                        <a href="{{ route('doc.surat-perintah-penahanan-document.edit', ['id' => $document->id, 'accident_id' => $accident->id]) }}"
+                        <a href="{{ route('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.edit', ['id' => $document->id, 'accident_id' => $accident->id]) }}"
                            class="btn btn-warning">
                             <i class="bi bi-pencil me-1"></i> Edit Dokumen
                         </a>

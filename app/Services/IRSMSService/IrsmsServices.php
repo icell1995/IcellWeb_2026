@@ -33,7 +33,7 @@ class IrsmsServices
                 ->json();
 
             return collect($response['result']);
-        } catch (\Throwable $th){
+        } catch (\Throwable $th) {
             return collect([]);
         }
     }

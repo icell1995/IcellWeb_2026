@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Doc\SuratPerintahPenahananDocument;
+namespace App\Models\Doc\SuratPerintahPenangguhanPenahananDocument;
 
 use App\Observers\UserActionObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Webpatser\Uuid\Uuid;
 use Carbon\Carbon;
 
-class SuratPerintahPenahananDocument extends Model
+class SuratPerintahPenangguhanPenahananDocument extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = "doc.surat_perintah_penahanan_documents";
+    protected $table = "doc.surat_perintah_penangguhan_penahanan_documents";
 
     protected $primaryKey = 'id';
     protected $keyType = 'uuid';
@@ -30,13 +30,24 @@ class SuratPerintahPenahananDocument extends Model
         'nomor_spdp' => 'string',
         'tanggal_spdp' => 'date',
         'kode_satker_penerbit_spdp' => 'string',
-        'nomor_surat_perintah_penangkapan' => 'string',
-        'kode_jenis_penahanan' => 'integer',
-        'kode_satker_tempat_penahanan' => 'string',
-        'tanggal_mulai' => 'date',
-        'tanggal_akhir' => 'date',
+        'nomor_surat_perintah_penahanan' => 'string',
+        'tanggal_surat_permohonan' => 'date',
+        'has_perpanjangan_penahanan' => 'boolean',
+        'has_surat_perpanjangan_penahanan' => 'boolean',
+        'nomor_surat_perpanjangan_penahanan' => 'string',
+        'tanggal_surat_perpanjangan_penahanan' => 'date',
+        'has_sprin_perpanjangan_penahanan' => 'boolean',
+        'nomor_sprin_perpanjangan_penahanan' => 'string',
+        'tanggal_sprin_perpanjangan_penahanan' => 'date',
+        'jenis_jaminan' => 'integer',
+        'besaran_uang_jaminan' => 'double',
+        'nomor_identitas_penjamin' => 'string',
+        'nama_penjamin' => 'string',
+        'alamat_penjamin' => 'string',
+        'lokasi_penyimpanan_jaminan' => 'string',
         'messages' => 'json',
         'ip_addresses' => 'json',
+        'payload' => 'json',
         'is_active' => 'boolean',
         'is_legacy' => 'boolean',
     ];
@@ -55,7 +66,7 @@ class SuratPerintahPenahananDocument extends Model
                 $model->status_id = '2';
             }
             if (empty($model->document_category_id)) {
-                $model->document_category_id = '0601';
+                $model->document_category_id = '0603';
             }
         });
 
@@ -97,9 +108,10 @@ class SuratPerintahPenahananDocument extends Model
             'documentCategory',
             'suratPerintahPenyidikanDocument',
             'suratKetetapanTentangPenetapanTersangkaDocument',
+            'suratPerintahPenahananDocument',
             'suspects',
             'attachment',
-            'suratPerintahPenahananDocumentOfficers',
+            'suratPerintahPenangguhanPenahananDocumentOfficers',
             'createdByUser',
             'updatedByUser',
             'deletedByUser',
@@ -107,7 +119,7 @@ class SuratPerintahPenahananDocument extends Model
         ]);
     }
 
-    // Accessors / Mutators untuk sinkronisasi nama field Gambar 1-2 vs sistem internal
+    // Accessors / Mutators untuk sinkronisasi nama field identitas vs internal
     public function getDocumentNumberAttribute()
     {
         return $this->attributes['document_number'] ?? $this->attributes['nomor'] ?? null;
@@ -152,54 +164,6 @@ class SuratPerintahPenahananDocument extends Model
         $this->attributes['document_date'] = $value;
     }
 
-    public function getStartDateAttribute()
-    {
-        return $this->attributes['start_date'] ?? $this->attributes['tanggal_mulai'] ?? null;
-    }
-
-    public function setStartDateAttribute($value)
-    {
-        $this->attributes['start_date'] = $value;
-        if (empty($this->attributes['tanggal_mulai'])) {
-            $this->attributes['tanggal_mulai'] = $value ? date('Y-m-d', strtotime($value)) : null;
-        }
-    }
-
-    public function getTanggalMulaiAttribute()
-    {
-        return $this->attributes['tanggal_mulai'] ?? ($this->attributes['start_date'] ? date('Y-m-d', strtotime($this->attributes['start_date'])) : null);
-    }
-
-    public function setTanggalMulaiAttribute($value)
-    {
-        $this->attributes['tanggal_mulai'] = $value;
-        $this->attributes['start_date'] = $value;
-    }
-
-    public function getEndDateAttribute()
-    {
-        return $this->attributes['end_date'] ?? $this->attributes['tanggal_akhir'] ?? null;
-    }
-
-    public function setEndDateAttribute($value)
-    {
-        $this->attributes['end_date'] = $value;
-        if (empty($this->attributes['tanggal_akhir'])) {
-            $this->attributes['tanggal_akhir'] = $value ? date('Y-m-d', strtotime($value)) : null;
-        }
-    }
-
-    public function getTanggalAkhirAttribute()
-    {
-        return $this->attributes['tanggal_akhir'] ?? ($this->attributes['end_date'] ? date('Y-m-d', strtotime($this->attributes['end_date'])) : null);
-    }
-
-    public function setTanggalAkhirAttribute($value)
-    {
-        $this->attributes['tanggal_akhir'] = $value;
-        $this->attributes['end_date'] = $value;
-    }
-
     // Relationships
     public function documentCategory()
     {
@@ -221,58 +185,58 @@ class SuratPerintahPenahananDocument extends Model
         return $this->belongsTo('App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument', 'surat_ketetapan_penetapan_tersangka_id', 'id');
     }
 
-    public function suratKetetapanPenetapanTersangkaDocument()
+    public function suratPerintahPenahananDocument()
     {
-        return $this->belongsTo('App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument', 'surat_ketetapan_penetapan_tersangka_id', 'id');
+        return $this->belongsTo('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument', 'surat_perintah_penahanan_document_id', 'id');
     }
 
     public function suspects()
     {
         return $this->belongsToMany(
             'App\Models\Suspect',
-            'pivot.surat_perintah_penahanan_document_suspect',
-            'surat_perintah_penahanan_document_id',
+            'pivot.surat_perintah_penangguhan_penahanan_document_suspect',
+            'surat_perintah_penangguhan_penahanan_document_id',
             'suspect_id'
         )->withTimestamps();
     }
 
     public function officers()
     {
-        return $this->hasMany('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocumentOfficer', 'surat_perintah_penahanan_document_id', 'id');
+        return $this->hasMany('App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocumentOfficer', 'surat_perintah_penangguhan_penahanan_document_id', 'id');
     }
 
-    public function suratPerintahPenahananDocumentOfficers()
+    public function suratPerintahPenangguhanPenahananDocumentOfficers()
     {
-        return $this->hasMany('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocumentOfficer', 'surat_perintah_penahanan_document_id', 'id');
+        return $this->hasMany('App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocumentOfficer', 'surat_perintah_penangguhan_penahanan_document_id', 'id');
     }
 
     public function signatory()
     {
-        return $this->hasOne('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocumentOfficer', 'surat_perintah_penahanan_document_id', 'id')
+        return $this->hasOne('App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocumentOfficer', 'surat_perintah_penangguhan_penahanan_document_id', 'id')
             ->where('class', 'SIGNATORY');
     }
 
     public function leaderOfficer()
     {
-        return $this->hasOne('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocumentOfficer', 'surat_perintah_penahanan_document_id', 'id')
+        return $this->hasOne('App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocumentOfficer', 'surat_perintah_penangguhan_penahanan_document_id', 'id')
             ->where('class', 'LEADER');
     }
 
     public function memberOfficers()
     {
-        return $this->hasMany('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocumentOfficer', 'surat_perintah_penahanan_document_id', 'id')
+        return $this->hasMany('App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocumentOfficer', 'surat_perintah_penangguhan_penahanan_document_id', 'id')
             ->where('class', 'MEMBER')
             ->orderBy('sort');
     }
 
     public function attachment()
     {
-        return $this->hasOne('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocumentAttachment', 'surat_perintah_penahanan_document_id', 'id');
+        return $this->hasOne('App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocumentAttachment', 'surat_perintah_penangguhan_penahanan_document_id', 'id');
     }
 
-    public function suratPerintahPenahananDocumentAttachment()
+    public function suratPerintahPenangguhanPenahananDocumentAttachment()
     {
-        return $this->hasOne('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocumentAttachment', 'surat_perintah_penahanan_document_id', 'id');
+        return $this->hasOne('App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocumentAttachment', 'surat_perintah_penangguhan_penahanan_document_id', 'id');
     }
 
     public function status()
