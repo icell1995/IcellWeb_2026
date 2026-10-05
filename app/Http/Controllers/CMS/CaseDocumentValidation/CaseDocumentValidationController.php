@@ -96,7 +96,7 @@ class CaseDocumentValidationController extends Controller
                 //         });
                 //     });
                 // })
-                ->whereIn('status_id', ['12'])
+                ->whereIn('status_id', ['9', '12', '11', '10'])
                 ->where('accident_id', $accidentId)
                 ->get();
 
