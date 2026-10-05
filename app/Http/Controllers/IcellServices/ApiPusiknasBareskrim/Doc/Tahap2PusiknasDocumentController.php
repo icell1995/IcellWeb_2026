@@ -61,12 +61,16 @@ class Tahap2PusiknasDocumentController extends Controller
 
             $documents = $documents->paginate($perPage, ['*'], 'page', $page);
 
+            $totalData = $documents->total();
+            $totalPage = $documents->lastPage();
+
             $regenciesPath = base_path('master_seeder/regencies-new1.json');
             $allRegencies = file_exists($regenciesPath) ? json_decode(file_get_contents($regenciesPath), true) ?? [] : [];
             $districtsPath = base_path('master_seeder/districts-new1.json');
             $allDistricts = file_exists($districtsPath) ? json_decode(file_get_contents($districtsPath), true) ?? [] : [];
 
             $responseData = [];
+            $arrayKey = 0;
 
             foreach ($documents as $doc) {
                 $messages = $doc->messages ?? [];
@@ -288,49 +292,90 @@ class Tahap2PusiknasDocumentController extends Controller
                 
                 $messages = $doc->messages ?? [];
 
-                $responseData[] = [
-                    'kode_jenis_dokumen' => 'bpt2',
-                    'identitas_dokumen' => [
-                        'nomor_surat_pengantar' => $doc->document_number ?? '-',
-                        'tanggal_surat_pengantar' => $doc->document_date ? date('Y-m-d', strtotime($doc->document_date)) : date('Y-m-d'),
-                        'nomor_berkas_perkara' => $doc->berkas_perkara_number ?? '-',
-                        'nomor_spdp' => $doc->no_spdp ?? '-',
-                        'tanggal_terima_p21' => $doc->tanggal_terima_p21 ? date('Y-m-d', strtotime($doc->tanggal_terima_p21)) : date('Y-m-d')
-                    ],
-                    'konten_dokumen' => [
-                        'uraian_singkat_perkara' => $messages['uraian_singkat_perkara'] ?? $doc->description ?? $doc->accident->damage_lose_desc ?? 'Laka Lantas',
-                        'tempat_kejadian_perkara' => [
-                            'lokasi' => !empty($messages['lokasi_kejadian']) ? $messages['lokasi_kejadian'] : ($doc->accident->road_name ?? '-'),
-                            'kode_wilayah' => $kodeWilayah
-                        ],
-                        'waktu_kejadian' => $messages['waktu_kejadian'] ?? $doc->accident->accident_time ?? '-',
-                        'tahun_kejadian' => $doc->accident->accident_date ? (int) date('Y', strtotime($doc->accident->accident_date)) : (int) date('Y'),
-                        'bulan_kejadian' => $doc->accident->accident_date ? (int) date('n', strtotime($doc->accident->accident_date)) : (int) date('n'),
-                        'tanggal_kejadian' => $doc->accident->accident_date ? (int) date('j', strtotime($doc->accident->accident_date)) : (int) date('j'),
-                        'daftar_tersangka' => $daftarTersangka,
-                        'daftar_barang_bukti' => $daftarBarangBukti,
-                        'daftar_saksi' => $daftarSaksi,
-                        'pejabat_penandatangan' => $pejabat,
-                        'daftar_dokumen_digital' => $daftarDokumenDigital
-                    ]
+                $identitasDokumen = [
+                    'nomor_surat_pengantar' => $doc->document_number ?? '-',
+                    'tanggal_surat_pengantar' => $doc->document_date ? date('Y-m-d', strtotime($doc->document_date)) : date('Y-m-d'),
+                    'nomor_berkas_perkara' => $doc->berkas_perkara_number ?? '-',
+                    'nomor_spdp' => $doc->no_spdp ?? '-',
+                    'tanggal_terima_p21' => $doc->tanggal_terima_p21 ? date('Y-m-d', strtotime($doc->tanggal_terima_p21)) : date('Y-m-d')
                 ];
+
+                $kontenDokumen = [
+                    'uraian_singkat_perkara' => $messages['uraian_singkat_perkara'] ?? $doc->description ?? $doc->accident->damage_lose_desc ?? 'Laka Lantas',
+                    'tempat_kejadian_perkara' => [
+                        'lokasi' => !empty($messages['lokasi_kejadian']) ? $messages['lokasi_kejadian'] : ($doc->accident->road_name ?? '-'),
+                        'kode_wilayah' => $kodeWilayah
+                    ],
+                    'waktu_kejadian' => $messages['waktu_kejadian'] ?? $doc->accident->accident_time ?? '-',
+                    'tahun_kejadian' => $doc->accident->accident_date ? (int) date('Y', strtotime($doc->accident->accident_date)) : (int) date('Y'),
+                    'bulan_kejadian' => $doc->accident->accident_date ? (int) date('n', strtotime($doc->accident->accident_date)) : (int) date('n'),
+                    'tanggal_kejadian' => $doc->accident->accident_date ? (int) date('j', strtotime($doc->accident->accident_date)) : (int) date('j'),
+                    'daftar_tersangka' => $daftarTersangka,
+                    'daftar_barang_bukti' => $daftarBarangBukti,
+                    'daftar_saksi' => $daftarSaksi,
+                    'pejabat_penandatangan' => $pejabat,
+                    'daftar_dokumen_digital' => $daftarDokumenDigital
+                ];
+
+                // --- root document ---
+                $responseData[$arrayKey] = [
+                    'kode_jenis_dokumen'    => 'bpt2',
+                    'identitas_dokumen'     => $identitasDokumen,
+                    'konten_dokumen'        => $kontenDokumen,
+                    'terenkripsi'           => false,
+                    'daftar_kunci_enkripsi' => [],
+                    'tanda_tangan_digital'  => null,
+                ];
+
+                $arrayKey++;
             }
 
+            // Check if data array is empty
+            if ($documents->isEmpty()) {
+                return response()->json([
+                    "code"       => "404",
+                    "status"     => "NOT_FOUND",
+                    "message"    => "Data not found.",
+                    "pagination" => [
+                        "Page"          => $page,
+                        "TotalData"     => 0,
+                        "TotalPage"     => 0,
+                        "TotalDataSent" => 0,
+                    ],
+                    "data" => [],
+                ], 404);
+            }
+
+            // Commit transaction
             DB::commit();
 
+            // Return Result JSON
             return response()->json([
-                'status'  => 'success',
-                'message' => 'Data ditemukan.',
-                'total'   => count($responseData),
-                'page'    => $page,
-                'data'    => $responseData
+                "code"       => "200",
+                "status"     => "OK",
+                "message"    => "Success",
+                "pagination" => [
+                    "Page"          => $page,
+                    "TotalData"     => $totalData,
+                    "TotalPage"     => $totalPage,
+                    "TotalDataSent" => count($responseData),
+                ],
+                "data" => $responseData,
             ], 200);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            DB::rollback();
             return response()->json([
-                'status'  => 'error',
-                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                "code"       => "500",
+                "status"     => "INTERNAL_SERVER_ERROR",
+                "message"    => "An error occurred while processing your request.",
+                "pagination" => [
+                    "Page"          => $page,
+                    "TotalData"     => 0,
+                    "TotalPage"     => 0,
+                    "TotalDataSent" => 0,
+                ],
+                "data" => [],
             ], 500);
         }
     }
