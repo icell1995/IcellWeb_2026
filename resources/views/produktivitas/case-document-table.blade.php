@@ -422,11 +422,11 @@
                                             $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm = $countAccidentDocuments['suratPerintahPenyelidikanDocumentsRequiredUnlockForm']['count'] ?? 0;
                                         @endphp
                                         @foreach ($documentStages as $documentStage)
-                                            @if($documentStage->id == '01' || $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm > 0)
+                                            {{-- @if($documentStage->id == '01' || $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm > 0) --}}
                                                 <option value="{{ $documentStage->id }}">
                                                     {{ $documentStage->name }}
                                                 </option>
-                                            @endif
+                                            {{-- @endif --}}
                                         @endforeach
                                     </select>
                                 </div>

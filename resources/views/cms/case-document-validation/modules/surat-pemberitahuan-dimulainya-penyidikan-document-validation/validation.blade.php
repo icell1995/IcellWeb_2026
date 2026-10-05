@@ -774,11 +774,6 @@
             } catch (e) {}
 
             window.close();
-
-            // Fallback jika browser memblokir window.close() pada tab baru
-            setTimeout(function() {
-                window.location.href = "{{ route('cms.case-document-validation.index') }}";
-            }, 300);
         }
 
         // AJAX Submit for Approve Form
