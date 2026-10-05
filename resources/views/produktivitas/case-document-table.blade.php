@@ -369,10 +369,15 @@
                                             <i class="bi bi-file-earmark-pdf"></i> Lihat Dokumen Unggah</a>
                                     @break
 
-                                    @default
-                                        <h6>-</h6>
-                                    @break
-                                @endswitch
+                                    @endswitch
+                                @endif
+
+                                @if(!$isSp2hpDocument && in_array($accidentDocument->document_category_id, ['0601', '0603', '0604', '0605', '0903']))
+                                    <a href="{{ route(($accidentDocument->documentCategory->base_route ?? 'doc.surat-perintah-penahanan-document') . '.show', ['id' => $accidentDocument->id, 'accident_id' => $id]) }}"
+                                        class="btn btn-info btn-sm m-1 text-white" target="_blank">
+                                        <i class="bi bi-eye"></i> Detail / JSON
+                                    </a>
+                                    <br>
                                 @endif
 
                                 @if (Auth::getUser()->role_id == 1)
@@ -417,11 +422,11 @@
                                             $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm = $countAccidentDocuments['suratPerintahPenyelidikanDocumentsRequiredUnlockForm']['count'] ?? 0;
                                         @endphp
                                         @foreach ($documentStages as $documentStage)
-                                            @if($documentStage->id == '01' || $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm > 0)
+                                            {{-- @if($documentStage->id == '01' || $suratPerintahPenyelidikanDocumentsCountRequiredUnlockForm > 0) --}}
                                                 <option value="{{ $documentStage->id }}">
                                                     {{ $documentStage->name }}
                                                 </option>
-                                            @endif
+                                            {{-- @endif --}}
                                         @endforeach
                                     </select>
                                 </div>

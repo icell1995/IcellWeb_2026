@@ -1,0 +1,842 @@
+[
+  {
+    "Butir": "kode_jenis_kelamin   -   Master Jenis Kelamin   (butir 7)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "7",
+    "Field JSON": "kode_jenis_kelamin",
+    "Master Data": "Jenis Kelamin",
+    "Kode": "1",
+    "Nama / Uraian": "Laki-laki/pria"
+  },
+  {
+    "Butir": "7",
+    "Field JSON": "kode_jenis_kelamin",
+    "Master Data": "Jenis Kelamin",
+    "Kode": "2",
+    "Nama / Uraian": "Perempuan/wanita"
+  },
+  {
+    "Butir": "kode_pendidikan   -   Master Pendidikan   (butir 9)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "9",
+    "Field JSON": "kode_pendidikan",
+    "Master Data": "Pendidikan",
+    "Kode": "1",
+    "Nama / Uraian": "Tidak Sekolah"
+  },
+  {
+    "Butir": "9",
+    "Field JSON": "kode_pendidikan",
+    "Master Data": "Pendidikan",
+    "Kode": "2",
+    "Nama / Uraian": "Sekolah Dasar / sederajat"
+  },
+  {
+    "Butir": "9",
+    "Field JSON": "kode_pendidikan",
+    "Master Data": "Pendidikan",
+    "Kode": "3",
+    "Nama / Uraian": "Sekolah Menengah Pertama / sederajat"
+  },
+  {
+    "Butir": "9",
+    "Field JSON": "kode_pendidikan",
+    "Master Data": "Pendidikan",
+    "Kode": "4",
+    "Nama / Uraian": "Sekolah Menengah Atas Atau Sekolah Menengah Kejuruan / Sederajat"
+  },
+  {
+    "Butir": "9",
+    "Field JSON": "kode_pendidikan",
+    "Master Data": "Pendidikan",
+    "Kode": "5",
+    "Nama / Uraian": "Akademi / Diploma"
+  },
+  {
+    "Butir": "9",
+    "Field JSON": "kode_pendidikan",
+    "Master Data": "Pendidikan",
+    "Kode": "6",
+    "Nama / Uraian": "Diploma IV / Strata 1"
+  },
+  {
+    "Butir": "9",
+    "Field JSON": "kode_pendidikan",
+    "Master Data": "Pendidikan",
+    "Kode": "7",
+    "Nama / Uraian": "Strata II"
+  },
+  {
+    "Butir": "9",
+    "Field JSON": "kode_pendidikan",
+    "Master Data": "Pendidikan",
+    "Kode": "8",
+    "Nama / Uraian": "Strata III"
+  },
+  {
+    "Butir": "kode_agama   -   Master Agama   (butir 11)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "11",
+    "Field JSON": "kode_agama",
+    "Master Data": "Agama",
+    "Kode": "1",
+    "Nama / Uraian": "Islam"
+  },
+  {
+    "Butir": "11",
+    "Field JSON": "kode_agama",
+    "Master Data": "Agama",
+    "Kode": "2",
+    "Nama / Uraian": "Kristen"
+  },
+  {
+    "Butir": "11",
+    "Field JSON": "kode_agama",
+    "Master Data": "Agama",
+    "Kode": "3",
+    "Nama / Uraian": "Katolik"
+  },
+  {
+    "Butir": "11",
+    "Field JSON": "kode_agama",
+    "Master Data": "Agama",
+    "Kode": "4",
+    "Nama / Uraian": "Hindu"
+  },
+  {
+    "Butir": "11",
+    "Field JSON": "kode_agama",
+    "Master Data": "Agama",
+    "Kode": "5",
+    "Nama / Uraian": "Budha"
+  },
+  {
+    "Butir": "11",
+    "Field JSON": "kode_agama",
+    "Master Data": "Agama",
+    "Kode": "6",
+    "Nama / Uraian": "Khonghucu"
+  },
+  {
+    "Butir": "11",
+    "Field JSON": "kode_agama",
+    "Master Data": "Agama",
+    "Kode": "7",
+    "Nama / Uraian": "Penghayat Kepercayaan"
+  },
+  {
+    "Butir": "11",
+    "Field JSON": "kode_agama",
+    "Master Data": "Agama",
+    "Kode": "8",
+    "Nama / Uraian": "Lainnya"
+  },
+  {
+    "Butir": "kode_status_perkawinan   -   Master Status Perkawinan   (butir 12)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "12",
+    "Field JSON": "kode_status_perkawinan",
+    "Master Data": "Status Perkawinan",
+    "Kode": "1",
+    "Nama / Uraian": "Belum kawin"
+  },
+  {
+    "Butir": "12",
+    "Field JSON": "kode_status_perkawinan",
+    "Master Data": "Status Perkawinan",
+    "Kode": "2",
+    "Nama / Uraian": "Kawin"
+  },
+  {
+    "Butir": "12",
+    "Field JSON": "kode_status_perkawinan",
+    "Master Data": "Status Perkawinan",
+    "Kode": "3",
+    "Nama / Uraian": "Cerai hidup"
+  },
+  {
+    "Butir": "12",
+    "Field JSON": "kode_status_perkawinan",
+    "Master Data": "Status Perkawinan",
+    "Kode": "4",
+    "Nama / Uraian": "Cerai mati"
+  },
+  {
+    "Butir": "kode_jenis_identitas   -   Master Jenis Identitas   (pelengkap - diperlukan untuk melengkapi identitas)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "-",
+    "Field JSON": "kode_jenis_identitas",
+    "Master Data": "Jenis Identitas",
+    "Kode": "1",
+    "Nama / Uraian": "Kartu Tanda Penduduk (KTP) / Nomor Induk Kependudukan (NIK)"
+  },
+  {
+    "Butir": "-",
+    "Field JSON": "kode_jenis_identitas",
+    "Master Data": "Jenis Identitas",
+    "Kode": "2",
+    "Nama / Uraian": "Surat Izin Mengemudi (SIM)"
+  },
+  {
+    "Butir": "-",
+    "Field JSON": "kode_jenis_identitas",
+    "Master Data": "Jenis Identitas",
+    "Kode": "3",
+    "Nama / Uraian": "Paspor"
+  },
+  {
+    "Butir": "-",
+    "Field JSON": "kode_jenis_identitas",
+    "Master Data": "Jenis Identitas",
+    "Kode": "4",
+    "Nama / Uraian": "Lainnya"
+  },
+  {
+    "Butir": "kode_pekerjaan   -   Master Pekerjaan   (butir 10)",
+    "Field JSON": "",
+    "Master Data": "",
+    "Kode": "",
+    "Nama / Uraian": ""
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "1",
+    "Nama / Uraian": "Belum/tidak bekerja"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "2",
+    "Nama / Uraian": "Mengurus rumah tangga"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "3",
+    "Nama / Uraian": "Pelajar/Mahasiswa"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "4",
+    "Nama / Uraian": "Pensiun"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "5",
+    "Nama / Uraian": "Pegawai Negeri Sipil"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "6",
+    "Nama / Uraian": "Tentara Nasional Indonesia"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "7",
+    "Nama / Uraian": "Kepolisian RI"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "8",
+    "Nama / Uraian": "Perdagangan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "9",
+    "Nama / Uraian": "Petani/pekebun"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "10",
+    "Nama / Uraian": "Peternak"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "11",
+    "Nama / Uraian": "Nelayan/perikanan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "12",
+    "Nama / Uraian": "Industri"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "13",
+    "Nama / Uraian": "Konstruksi"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "14",
+    "Nama / Uraian": "Transportasi"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "15",
+    "Nama / Uraian": "Karyawan swasta"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "16",
+    "Nama / Uraian": "Karyawan BUMN"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "17",
+    "Nama / Uraian": "Karyawan BUMD"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "18",
+    "Nama / Uraian": "Karyawan Honorer"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "19",
+    "Nama / Uraian": "Buruh harian lepas"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "20",
+    "Nama / Uraian": "Buruh tani / perkebunan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "21",
+    "Nama / Uraian": "Buruh nelayan / perikanan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "22",
+    "Nama / Uraian": "Buruh peternakan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "23",
+    "Nama / Uraian": "Pembantu rumah tangga"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "24",
+    "Nama / Uraian": "Tukang cukur"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "25",
+    "Nama / Uraian": "Tukang listrik"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "26",
+    "Nama / Uraian": "Tukang batu"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "27",
+    "Nama / Uraian": "Tukang kayu"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "28",
+    "Nama / Uraian": "Tukang sol sepatu"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "29",
+    "Nama / Uraian": "Tukang las/pandai besi"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "30",
+    "Nama / Uraian": "Tukang jahit"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "31",
+    "Nama / Uraian": "Penata rambut"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "32",
+    "Nama / Uraian": "Penata rias"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "33",
+    "Nama / Uraian": "Penata busana"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "34",
+    "Nama / Uraian": "Mekanik"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "35",
+    "Nama / Uraian": "Tukang gigi"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "36",
+    "Nama / Uraian": "Seniman"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "37",
+    "Nama / Uraian": "Tabib"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "38",
+    "Nama / Uraian": "Paraji"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "39",
+    "Nama / Uraian": "Perancang busana"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "40",
+    "Nama / Uraian": "Penerjemah"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "41",
+    "Nama / Uraian": "Imam masjid"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "42",
+    "Nama / Uraian": "Pendeta"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "43",
+    "Nama / Uraian": "Pastur"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "44",
+    "Nama / Uraian": "Wartawan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "45",
+    "Nama / Uraian": "Ustadz/mubaligh"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "46",
+    "Nama / Uraian": "Juru masak"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "47",
+    "Nama / Uraian": "Promotor acara"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "48",
+    "Nama / Uraian": "Anggota DPR RI"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "49",
+    "Nama / Uraian": "Anggota DPRD"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "50",
+    "Nama / Uraian": "Anggota BPK"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "51",
+    "Nama / Uraian": "Presiden"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "52",
+    "Nama / Uraian": "Wakil Presiden"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "53",
+    "Nama / Uraian": "Anggota Mahkamah Konstitusi"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "54",
+    "Nama / Uraian": "Anggota Kabinet/Kementerian"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "55",
+    "Nama / Uraian": "Duta Besar"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "56",
+    "Nama / Uraian": "Gubernur"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "57",
+    "Nama / Uraian": "Wakil Gubernur"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "58",
+    "Nama / Uraian": "Bupati"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "59",
+    "Nama / Uraian": "Wakil Bupati"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "60",
+    "Nama / Uraian": "Walikota"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "61",
+    "Nama / Uraian": "Wakil Walikota"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "62",
+    "Nama / Uraian": "Anggota DPRD Propinsi"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "63",
+    "Nama / Uraian": "Anggota DPRD Kab/Kota"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "64",
+    "Nama / Uraian": "Dosen"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "65",
+    "Nama / Uraian": "Guru"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "66",
+    "Nama / Uraian": "Pilot"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "67",
+    "Nama / Uraian": "Pengacara"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "68",
+    "Nama / Uraian": "Notaris"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "69",
+    "Nama / Uraian": "Arsitek"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "70",
+    "Nama / Uraian": "Akuntan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "71",
+    "Nama / Uraian": "Konsultan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "72",
+    "Nama / Uraian": "Dokter"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "73",
+    "Nama / Uraian": "Bidan"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "74",
+    "Nama / Uraian": "Perawat"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "75",
+    "Nama / Uraian": "Apoteker"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "76",
+    "Nama / Uraian": "Psikiater/psikolog"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "77",
+    "Nama / Uraian": "Penyiar televisi"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "78",
+    "Nama / Uraian": "Penyiar radio"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "79",
+    "Nama / Uraian": "Pelaut"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "80",
+    "Nama / Uraian": "Peneliti"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "81",
+    "Nama / Uraian": "Sopir"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "82",
+    "Nama / Uraian": "Palang"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "83",
+    "Nama / Uraian": "Paranormal"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "84",
+    "Nama / Uraian": "Pedagang"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "85",
+    "Nama / Uraian": "Perangkat Desa"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "86",
+    "Nama / Uraian": "Kepala Desa"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "87",
+    "Nama / Uraian": "Berawati"
+  },
+  {
+    "Butir": "10",
+    "Field JSON": "kode_pekerjaan",
+    "Master Data": "Pekerjaan",
+    "Kode": "88",
+    "Nama / Uraian": "Pekerjaan selain N"
+  }
+]

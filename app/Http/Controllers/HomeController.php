@@ -141,7 +141,7 @@ class HomeController extends Controller
         $dpo = $get_dpo[0]->total_dpo;
         $dpb = $get_dpb[0]->total_dpb;
 
-	// dd($dpo);
+        // dd($dpo);
 
         $totalService = new IrsmsServices();
 
@@ -522,7 +522,7 @@ class HomeController extends Controller
                 $polda_name = $match->polda_name;
                 $polres_name = $match->polres_name;
                 $crime_cleareance_tabraklari = $match->crime_clearance_tabraklari ?? 0;
-		$tabrak_lari = $match->tabrak_lari ?? 0;
+                $tabrak_lari = $match->tabrak_lari ?? 0;
                 $new_entry_crime_clearance = $match->new_entry_crime_clearance ?? 0;
                 $p21_except_entry = $match->p21_except_entry ?? 0;
                 $sp3_except_entry = $match->sp3_except_entry ?? 0;
@@ -532,7 +532,7 @@ class HomeController extends Controller
 
                 $jumlah_laka = $item['jumlah_laka'] - $pomtni;
                 //$hit_and_run = $item['tabrak_lari'] - $crime_cleareance_tabraklari;
-		$hit_and_run = $tabrak_lari - $crime_cleareance_tabraklari;
+                $hit_and_run = $tabrak_lari - $crime_cleareance_tabraklari;
                 $total = $p21 + $sp3 + $sp2lid + $diversi;
                 $in_the_process = $jumlah_laka - $total - $hit_and_run;
                 $on_progress = $in_the_process + $hit_and_run;
@@ -709,227 +709,232 @@ class HomeController extends Controller
                 ];
             });
 
-            // Rekap Selra 2026 ( Bukan Lomba )
-            $recap2026BeginDate = "2026-01-01";
-            $recap2026LimitDateToday = date('Y-m-d');
-            $recap2026LimitDate = ($recap2026LimitDateToday > "2026-12-31") ? "2026-12-31" : $recap2026LimitDateToday;
-            $recap2026NewCrimeClearanceStartTime = date('Y-m-d') . ' 00:00:00';
-            $recap2026NewCrimeClearanceEndTime = date('Y-m-d') . ' 23:59:59';
-            $recap2026ExceptCrimeClearanceStartTime = '2026-01-02 00:00:00';
-            $recap2026ExceptCrimeClearanceEndTime = date('Y-m-d') . ' 00:00:00';
+        // Rekap Selra 2026 ( Bukan Lomba )
+        $recap2026BeginDate = "2026-01-01";
+        $recap2026LimitDateToday = date('Y-m-d');
+        $recap2026LimitDate = ($recap2026LimitDateToday > "2026-12-31") ? "2026-12-31" : $recap2026LimitDateToday;
+        $recap2026NewCrimeClearanceStartTime = date('Y-m-d') . ' 00:00:00';
+        $recap2026NewCrimeClearanceEndTime = date('Y-m-d') . ' 23:59:59';
+        $recap2026ExceptCrimeClearanceStartTime = '2026-01-02 00:00:00';
+        $recap2026ExceptCrimeClearanceEndTime = date('Y-m-d') . ' 00:00:00';
 
-            $recap2026CaseResolutions = $this->recap2026CaseResolutions(
-                $recap2026BeginDate,
-                $recap2026LimitDate,
-                $recap2026NewCrimeClearanceStartTime,
-                $recap2026NewCrimeClearanceEndTime,
-                $recap2026ExceptCrimeClearanceStartTime,
-                $recap2026ExceptCrimeClearanceEndTime
-            )
-                ->where('xpolices.is_active', true)
-                ->where('xpolices.class', 'RESOR')
-                ->orderBy('xpolices.id')
-                ->get();
+        $recap2026CaseResolutions = $this->recap2026CaseResolutions(
+            $recap2026BeginDate,
+            $recap2026LimitDate,
+            $recap2026NewCrimeClearanceStartTime,
+            $recap2026NewCrimeClearanceEndTime,
+            $recap2026ExceptCrimeClearanceStartTime,
+            $recap2026ExceptCrimeClearanceEndTime
+        )
+            ->where('xpolices.is_active', true)
+            ->where('xpolices.class', 'RESOR')
+            ->orderBy('xpolices.id')
+            ->get();
 
-            $recap2026CaseCollections = $totalService->getDataWithDateRange($recap2026BeginDate, $recap2026LimitDate);
-            $recap2026CaseResolutionCollections = collect($recap2026CaseResolutions);
+        $recap2026CaseCollections = $totalService->getDataWithDateRange($recap2026BeginDate, $recap2026LimitDate);
+        $recap2026CaseResolutionCollections = collect($recap2026CaseResolutions);
 
-            $recap2026LeaderboardItems = $recap2026CaseCollections->map(function ($item) use ($recap2026CaseResolutionCollections) {
-                $match = $recap2026CaseResolutionCollections->firstWhere('polres_id', $item['polres']);
+        $recap2026LeaderboardItems = $recap2026CaseCollections->map(function ($item) use ($recap2026CaseResolutionCollections) {
+            $match = $recap2026CaseResolutionCollections->firstWhere('polres_id', $item['polres']);
 
-                if ($match) {
-                    $p21 = $match->p21 ?? 0;
-                    $sp3 = $match->sp3 ?? 0;
-                    $sp2lid = $match->sp2lid ?? 0;
-                    $diversi = $match->diversi ?? 0;
-                    $pomtni = $match->pomtni ?? 0;
-                    $polda_name = $match->polda_name;
-                    $polres_name = $match->polres_name;
-                    $crime_cleareance_tabraklari = $match->crime_clearance_tabraklari ?? 0;
-                    $new_entry_crime_clearance = $match->new_entry_crime_clearance ?? 0;
-                    $p21_except_entry = $match->p21_except_entry ?? 0;
-                    $sp3_except_entry = $match->sp3_except_entry ?? 0;
-                    $diversi_except_entry = $match->diversi_except_entry ?? 0;
-                    $sp2lid_except_entry = $match->sp2lid_except_entry ?? 0;
-                    $except_entry_crime_clearance = $match->except_entry_crime_clearance ?? 0;
+            if ($match) {
+                $p21 = $match->p21 ?? 0;
+                $sp3 = $match->sp3 ?? 0;
+                $sp2lid = $match->sp2lid ?? 0;
+                $diversi = $match->diversi ?? 0;
+                $pomtni = $match->pomtni ?? 0;
+                $polda_name = $match->polda_name;
+                $polres_name = $match->polres_name;
+                $crime_cleareance_tabraklari = $match->crime_clearance_tabraklari ?? 0;
+                $tabrak_lari = $match->tabrak_lari ?? 0;
+                $new_entry_crime_clearance = $match->new_entry_crime_clearance ?? 0;
+                $p21_except_entry = $match->p21_except_entry ?? 0;
+                $sp3_except_entry = $match->sp3_except_entry ?? 0;
+                $diversi_except_entry = $match->diversi_except_entry ?? 0;
+                $sp2lid_except_entry = $match->sp2lid_except_entry ?? 0;
+                $except_entry_crime_clearance = $match->except_entry_crime_clearance ?? 0;
 
-                    $jumlah_laka = $item['jumlah_laka'] - $pomtni;
-                    $hit_and_run = $item['tabrak_lari'] - $crime_cleareance_tabraklari;
-                    $total = $p21 + $sp3 + $sp2lid + $diversi;
-                    $in_the_process = $jumlah_laka - $total - $hit_and_run;
-                    $on_progress = $in_the_process + $hit_and_run;
+                $jumlah_laka = $item['jumlah_laka'] - $pomtni;
+                // $hit_and_run = $item['tabrak_lari'] - $crime_cleareance_tabraklari;
+                $hit_and_run = $tabrak_lari - $crime_cleareance_tabraklari;
+                $total = $p21 + $sp3 + $sp2lid + $diversi;
+                $in_the_process = $jumlah_laka - $total - $hit_and_run;
+                $on_progress = $in_the_process + $hit_and_run;
 
-                    $before_eval_crime_clearance = $total - $except_entry_crime_clearance;
+                $before_eval_crime_clearance = $total - $except_entry_crime_clearance;
 
-                    return array_merge($item, [
-                        'polda_name' => $polda_name,
-                        'polres_name' => $polres_name,
-                        'p21' => $p21 ?? 0,
-                        'sp3' => $sp3 ?? 0,
-                        'sp2lid' => $sp2lid ?? 0,
-                        'diversi' => $diversi ?? 0,
-                        'total' => $total,
+                return array_merge($item, [
+                    'polda_name' => $polda_name,
+                    'polres_name' => $polres_name,
+                    'p21' => $p21 ?? 0,
+                    'sp3' => $sp3 ?? 0,
+                    'sp2lid' => $sp2lid ?? 0,
+                    'diversi' => $diversi ?? 0,
+                    'total' => $total,
 
-                        'pom_tni' => $pomtni ?? 0,
-                        'in_the_process' => $in_the_process,
-                        'hit_and_run' => $hit_and_run,
-                        'on_progress' => $on_progress,
-                        'new_entry_crime_clearance' => $new_entry_crime_clearance,
+                    'pom_tni' => $pomtni ?? 0,
+                    'in_the_process' => $in_the_process,
+                    'hit_and_run' => $hit_and_run,
+                    'on_progress' => $on_progress,
+                    'new_entry_crime_clearance' => $new_entry_crime_clearance,
 
-                        'except_entry_crime_clearance' => $except_entry_crime_clearance,
-                        'except_entry_crime_clearance_percentage' => ($jumlah_laka != 0) ? (($except_entry_crime_clearance / $jumlah_laka) * 100) : 0,
-                        'p21_except_entry' => $p21_except_entry,
-                        'sp3_except_entry' => $sp3_except_entry,
-                        'diversi_except_entry' => $diversi_except_entry,
-                        'sp2lid_except_entry' => $sp2lid_except_entry,
+                    'except_entry_crime_clearance' => $except_entry_crime_clearance,
+                    'except_entry_crime_clearance_percentage' => ($jumlah_laka != 0) ? (($except_entry_crime_clearance / $jumlah_laka) * 100) : 0,
+                    'p21_except_entry' => $p21_except_entry,
+                    'sp3_except_entry' => $sp3_except_entry,
+                    'diversi_except_entry' => $diversi_except_entry,
+                    'sp2lid_except_entry' => $sp2lid_except_entry,
 
-                        'before_eval_crime_clearance' => $before_eval_crime_clearance,
-                        'before_eval_crime_clearance_percentage' => ($jumlah_laka != 0) ? (($before_eval_crime_clearance / $jumlah_laka) * 100) : 0,
-                        'before_eval_p21' => $p21 - $p21_except_entry,
-                        'before_eval_sp3' => $sp3 - $sp3_except_entry,
-                        'before_eval_diversi' => $diversi - $diversi_except_entry,
-                        'before_eval_sp2lid' => $sp2lid - $sp2lid_except_entry,
+                    'before_eval_crime_clearance' => $before_eval_crime_clearance,
+                    'before_eval_crime_clearance_percentage' => ($jumlah_laka != 0) ? (($before_eval_crime_clearance / $jumlah_laka) * 100) : 0,
+                    'before_eval_p21' => $p21 - $p21_except_entry,
+                    'before_eval_sp3' => $sp3 - $sp3_except_entry,
+                    'before_eval_diversi' => $diversi - $diversi_except_entry,
+                    'before_eval_sp2lid' => $sp2lid - $sp2lid_except_entry,
 
-                        'percentage_p21' => ($jumlah_laka != 0) ? (($p21 / $jumlah_laka) * 100) : 0,
-                        'percentage_sp3' => ($jumlah_laka != 0) ? (($sp3 / $jumlah_laka) * 100) : 0,
-                        'percentage_sp2lid' => ($jumlah_laka != 0) ? (($sp2lid / $jumlah_laka) * 100) : 0,
-                        'percentage_diversi' => ($jumlah_laka != 0) ? (($diversi / $jumlah_laka) * 100) : 0,
-                        'percentage_total' => ($jumlah_laka != 0) ? (($total / $jumlah_laka) * 100) : 0,
-                        'percentage_on_progress' => ($jumlah_laka != 0) ? (($on_progress / $jumlah_laka) * 100) : 0,
-                    ]);
-                }
+                    'percentage_p21' => ($jumlah_laka != 0) ? (($p21 / $jumlah_laka) * 100) : 0,
+                    'percentage_sp3' => ($jumlah_laka != 0) ? (($sp3 / $jumlah_laka) * 100) : 0,
+                    'percentage_sp2lid' => ($jumlah_laka != 0) ? (($sp2lid / $jumlah_laka) * 100) : 0,
+                    'percentage_diversi' => ($jumlah_laka != 0) ? (($diversi / $jumlah_laka) * 100) : 0,
+                    'percentage_total' => ($jumlah_laka != 0) ? (($total / $jumlah_laka) * 100) : 0,
+                    'percentage_on_progress' => ($jumlah_laka != 0) ? (($on_progress / $jumlah_laka) * 100) : 0,
+                ]);
+            }
 
-                return $item;
+            return $item;
+        });
+
+        // dd($recap2026LeaderboardItems);
+
+        $recap2026LeaderboardItems = collect($recap2026LeaderboardItems)
+            ->groupBy('polda')
+            ->map(function ($items, $polda) {
+
+                $accidentTotal = $items->sum('jumlah_laka');
+                $p21Total = $items->sum('p21');
+                $sp3Total = $items->sum('sp3');
+                $sp2lidTotal = $items->sum('sp2lid');
+                $diversiTotal = $items->sum('diversi');
+                $totalTotal = $items->sum('total');
+
+                $inTheProcessTotal = $items->sum('in_the_process');
+                $hitAndRunTotal = $items->sum('hit_and_run');
+                $onProgressTotal = $items->sum('on_progress');
+
+                $newEntryCrimeClearanceTotal = $items->sum('new_entry_crime_clearance');
+                $pomTniTotal = $items->sum('pom_tni');
+
+                $accidentTotalPercentage = 0;
+                $p21TotalPercentage = ($accidentTotal != 0) ? (($p21Total / $accidentTotal) * 100) : 0;
+                $sp3TotalPercentage = ($accidentTotal != 0) ? (($sp3Total / $accidentTotal) * 100) : 0;
+                $sp2lidTotalPercentage = ($accidentTotal != 0) ? (($sp2lidTotal / $accidentTotal) * 100) : 0;
+                $diversiTotalPercentage = ($accidentTotal != 0) ? (($diversiTotal / $accidentTotal) * 100) : 0;
+                $totalTotalPercentage = ($accidentTotal != 0) ? (($totalTotal / $accidentTotal) * 100) : 0;
+                $onProgressTotalPercentage = ($accidentTotal != 0) ? (($onProgressTotal / $accidentTotal) * 100) : 0;
+
+                $exceptEntryCrimeClearanceTotal = $items->sum('except_entry_crime_clearance');
+                $exceptEntryCrimeClearanceTotalPercentage = ($accidentTotal != 0) ? (($exceptEntryCrimeClearanceTotal / $accidentTotal) * 100) : 0;
+                $p21ExceptEntryTotal = $items->sum('p21_except_entry');
+                $sp3ExceptEntryTotal = $items->sum('sp3_except_entry');
+                $diversiExceptEntryTotal = $items->sum('diversi_except_entry');
+                $sp2lidExceptEntryTotal = $items->sum('sp2lid_except_entry');
+
+                $beforeEvalCrimeClearanceTotal = $items->sum('before_eval_crime_clearance');
+                $beforeEvalCrimeClearanceTotalPercentage = ($accidentTotal != 0) ? (($beforeEvalCrimeClearanceTotal / $accidentTotal) * 100) : 0;
+                $beforeEvalP21Total = $items->sum('before_eval_p21');
+                $beforeEvalSp3Total = $items->sum('before_eval_sp3');
+                $beforeEvalDiversiTotal = $items->sum('before_eval_diversi');
+                $beforeEvalSp2lidTotal = $items->sum('before_eval_sp2lid');
+
+                return [
+                    'polda' => $polda,
+                    'polda_name' => $items->first()['polda_name'],
+                    'accident_total' => $accidentTotal - $pomTniTotal,
+
+                    'p21_total' => $p21Total,
+                    'sp3_total' => $sp3Total,
+                    'sp2lid_total' => $sp2lidTotal,
+                    'diversi_total' => $diversiTotal,
+                    'total_total' => $totalTotal,
+
+                    'in_the_process_total' => $inTheProcessTotal,
+                    'hit_and_run_total' => $hitAndRunTotal,
+                    'on_progress_total' => $onProgressTotal,
+
+                    'accident_total_percentage' => $accidentTotalPercentage,
+                    'p21_total_percentage' => $p21TotalPercentage,
+                    'sp3_total_percentage' => $sp3TotalPercentage,
+                    'sp2lid_total_percentage' => $sp2lidTotalPercentage,
+                    'diversi_total_percentage' => $diversiTotalPercentage,
+                    'total_total_percentage' => $totalTotalPercentage,
+
+                    'on_progress_total_percentage' => $onProgressTotalPercentage,
+                    'new_entry_crime_clearance_total' => $newEntryCrimeClearanceTotal,
+                    'pom_tni_total' => $pomTniTotal,
+
+                    'except_entry_crime_clearance_total' => $exceptEntryCrimeClearanceTotal,
+                    'except_entry_crime_clearance_total_percentage' => $exceptEntryCrimeClearanceTotalPercentage,
+                    'p21_except_entry_total' => $p21ExceptEntryTotal,
+                    'sp3_except_entry_total' => $sp3ExceptEntryTotal,
+                    'diversi_except_entry_total' => $diversiExceptEntryTotal,
+                    'sp2lid_except_entry_total' => $sp2lidExceptEntryTotal,
+
+                    'before_eval_crime_clearance_total' => $beforeEvalCrimeClearanceTotal,
+                    'before_eval_crime_clearance_total_percentage' => $beforeEvalCrimeClearanceTotalPercentage,
+                    'before_eval_p21_total' => $beforeEvalP21Total,
+                    'before_eval_sp3_total' => $beforeEvalSp3Total,
+                    'before_eval_diversi_total' => $beforeEvalDiversiTotal,
+                    'before_eval_sp2lid_total' => $beforeEvalSp2lidTotal,
+
+                    'polres' => $items->map(function ($item) {
+                        if (isset($item['polda_name'])) {
+                            return [
+                                'polda' => $item['polda'],
+                                'polres' => $item['polres'],
+                                'name' => $item['name'],
+                                'jumlah_laka' => $item['jumlah_laka'] - $item['pom_tni'],
+                                'tabrak_lari' => $item['tabrak_lari'],
+                                'polda_name' => $item['polda_name'],
+                                'polres_name' => $item['polres_name'],
+
+                                'p21' => $item['p21'],
+                                'sp3' => $item['sp3'],
+                                'sp2lid' => $item['sp2lid'],
+                                'diversi' => $item['diversi'],
+                                'total' => $item['total'],
+
+                                'in_the_process' => $item['in_the_process'],
+                                'hit_and_run' => $item['hit_and_run'],
+                                'on_progress' => $item['on_progress'],
+
+                                'percentage_p21' => $item['percentage_p21'],
+                                'percentage_sp3' => $item['percentage_sp3'],
+                                'percentage_sp2lid' => $item['percentage_sp2lid'],
+                                'percentage_diversi' => $item['percentage_diversi'],
+                                'percentage_total' => $item['percentage_total'],
+                                'percentage_on_progress' => $item['percentage_on_progress'],
+
+                                'new_entry_crime_clearance' => $item['new_entry_crime_clearance'],
+                                'pom_tni' => $item['pom_tni'],
+
+                                'except_entry_crime_clearance' => $item['except_entry_crime_clearance'],
+                                'except_entry_crime_clearance_percentage' => $item["except_entry_crime_clearance_percentage"],
+                                'p21_except_entry' => $item['p21_except_entry'],
+                                'sp3_except_entry' => $item['sp3_except_entry'],
+                                'diversi_except_entry' => $item['diversi_except_entry'],
+                                'sp2lid_except_entry' => $item['sp2lid_except_entry'],
+
+                                'before_eval_crime_clearance' => $item['before_eval_crime_clearance'],
+                                'before_eval_crime_clearance_percentage' => $item['before_eval_crime_clearance_percentage'],
+                                'before_eval_p21' => $item['before_eval_p21'],
+                                'before_eval_sp3' => $item['before_eval_sp3'],
+                                'before_eval_diversi' => $item['before_eval_diversi'],
+                                'before_eval_sp2lid' => $item['before_eval_sp2lid'],
+                            ];
+                        }
+                    })
+                ];
             });
-            $recap2026LeaderboardItems = collect($recap2026LeaderboardItems)
-                ->groupBy('polda')
-                ->map(function ($items, $polda) {
-
-                    $accidentTotal = $items->sum('jumlah_laka');
-                    $p21Total = $items->sum('p21');
-                    $sp3Total = $items->sum('sp3');
-                    $sp2lidTotal = $items->sum('sp2lid');
-                    $diversiTotal = $items->sum('diversi');
-                    $totalTotal = $items->sum('total');
-
-                    $inTheProcessTotal = $items->sum('in_the_process');
-                    $hitAndRunTotal = $items->sum('hit_and_run');
-                    $onProgressTotal = $items->sum('on_progress');
-
-                    $newEntryCrimeClearanceTotal = $items->sum('new_entry_crime_clearance');
-                    $pomTniTotal = $items->sum('pom_tni');
-
-                    $accidentTotalPercentage = 0;
-                    $p21TotalPercentage = ($accidentTotal != 0) ? (($p21Total / $accidentTotal) * 100) : 0;
-                    $sp3TotalPercentage = ($accidentTotal != 0) ? (($sp3Total / $accidentTotal) * 100) : 0;
-                    $sp2lidTotalPercentage = ($accidentTotal != 0) ? (($sp2lidTotal / $accidentTotal) * 100) : 0;
-                    $diversiTotalPercentage = ($accidentTotal != 0) ? (($diversiTotal / $accidentTotal) * 100) : 0;
-                    $totalTotalPercentage = ($accidentTotal != 0) ? (($totalTotal / $accidentTotal) * 100) : 0;
-                    $onProgressTotalPercentage = ($accidentTotal != 0) ? (($onProgressTotal / $accidentTotal) * 100) : 0;
-
-                    $exceptEntryCrimeClearanceTotal = $items->sum('except_entry_crime_clearance');
-                    $exceptEntryCrimeClearanceTotalPercentage = ($accidentTotal != 0) ? (($exceptEntryCrimeClearanceTotal / $accidentTotal) * 100) : 0;
-                    $p21ExceptEntryTotal = $items->sum('p21_except_entry');
-                    $sp3ExceptEntryTotal = $items->sum('sp3_except_entry');
-                    $diversiExceptEntryTotal = $items->sum('diversi_except_entry');
-                    $sp2lidExceptEntryTotal = $items->sum('sp2lid_except_entry');
-
-                    $beforeEvalCrimeClearanceTotal = $items->sum('before_eval_crime_clearance');
-                    $beforeEvalCrimeClearanceTotalPercentage = ($accidentTotal != 0) ? (($beforeEvalCrimeClearanceTotal / $accidentTotal) * 100) : 0;
-                    $beforeEvalP21Total = $items->sum('before_eval_p21');
-                    $beforeEvalSp3Total = $items->sum('before_eval_sp3');
-                    $beforeEvalDiversiTotal = $items->sum('before_eval_diversi');
-                    $beforeEvalSp2lidTotal = $items->sum('before_eval_sp2lid');
-
-                    return [
-                        'polda' => $polda,
-                        'polda_name' => $items->first()['polda_name'],
-                        'accident_total' => $accidentTotal - $pomTniTotal,
-
-                        'p21_total' => $p21Total,
-                        'sp3_total' => $sp3Total,
-                        'sp2lid_total' => $sp2lidTotal,
-                        'diversi_total' => $diversiTotal,
-                        'total_total' => $totalTotal,
-
-                        'in_the_process_total' => $inTheProcessTotal,
-                        'hit_and_run_total' => $hitAndRunTotal,
-                        'on_progress_total' => $onProgressTotal,
-
-                        'accident_total_percentage' => $accidentTotalPercentage,
-                        'p21_total_percentage' => $p21TotalPercentage,
-                        'sp3_total_percentage' => $sp3TotalPercentage,
-                        'sp2lid_total_percentage' => $sp2lidTotalPercentage,
-                        'diversi_total_percentage' => $diversiTotalPercentage,
-                        'total_total_percentage' => $totalTotalPercentage,
-
-                        'on_progress_total_percentage' => $onProgressTotalPercentage,
-                        'new_entry_crime_clearance_total' => $newEntryCrimeClearanceTotal,
-                        'pom_tni_total' => $pomTniTotal,
-
-                        'except_entry_crime_clearance_total' => $exceptEntryCrimeClearanceTotal,
-                        'except_entry_crime_clearance_total_percentage' => $exceptEntryCrimeClearanceTotalPercentage,
-                        'p21_except_entry_total' => $p21ExceptEntryTotal,
-                        'sp3_except_entry_total' => $sp3ExceptEntryTotal,
-                        'diversi_except_entry_total' => $diversiExceptEntryTotal,
-                        'sp2lid_except_entry_total' => $sp2lidExceptEntryTotal,
-
-                        'before_eval_crime_clearance_total' => $beforeEvalCrimeClearanceTotal,
-                        'before_eval_crime_clearance_total_percentage' => $beforeEvalCrimeClearanceTotalPercentage,
-                        'before_eval_p21_total' => $beforeEvalP21Total,
-                        'before_eval_sp3_total' => $beforeEvalSp3Total,
-                        'before_eval_diversi_total' => $beforeEvalDiversiTotal,
-                        'before_eval_sp2lid_total' => $beforeEvalSp2lidTotal,
-
-                        'polres' => $items->map(function ($item) {
-                            if (isset($item['polda_name'])) {
-                                return [
-                                    'polda' => $item['polda'],
-                                    'polres' => $item['polres'],
-                                    'name' => $item['name'],
-                                    'jumlah_laka' => $item['jumlah_laka'] - $item['pom_tni'],
-                                    'tabrak_lari' => $item['tabrak_lari'],
-                                    'polda_name' => $item['polda_name'],
-                                    'polres_name' => $item['polres_name'],
-
-                                    'p21' => $item['p21'],
-                                    'sp3' => $item['sp3'],
-                                    'sp2lid' => $item['sp2lid'],
-                                    'diversi' => $item['diversi'],
-                                    'total' => $item['total'],
-
-                                    'in_the_process' => $item['in_the_process'],
-                                    'hit_and_run' => $item['hit_and_run'],
-                                    'on_progress' => $item['on_progress'],
-
-                                    'percentage_p21' => $item['percentage_p21'],
-                                    'percentage_sp3' => $item['percentage_sp3'],
-                                    'percentage_sp2lid' => $item['percentage_sp2lid'],
-                                    'percentage_diversi' => $item['percentage_diversi'],
-                                    'percentage_total' => $item['percentage_total'],
-                                    'percentage_on_progress' => $item['percentage_on_progress'],
-
-                                    'new_entry_crime_clearance' => $item['new_entry_crime_clearance'],
-                                    'pom_tni' => $item['pom_tni'],
-
-                                    'except_entry_crime_clearance' => $item['except_entry_crime_clearance'],
-                                    'except_entry_crime_clearance_percentage' => $item["except_entry_crime_clearance_percentage"],
-                                    'p21_except_entry' => $item['p21_except_entry'],
-                                    'sp3_except_entry' => $item['sp3_except_entry'],
-                                    'diversi_except_entry' => $item['diversi_except_entry'],
-                                    'sp2lid_except_entry' => $item['sp2lid_except_entry'],
-
-                                    'before_eval_crime_clearance' => $item['before_eval_crime_clearance'],
-                                    'before_eval_crime_clearance_percentage' => $item['before_eval_crime_clearance_percentage'],
-                                    'before_eval_p21' => $item['before_eval_p21'],
-                                    'before_eval_sp3' => $item['before_eval_sp3'],
-                                    'before_eval_diversi' => $item['before_eval_diversi'],
-                                    'before_eval_sp2lid' => $item['before_eval_sp2lid'],
-                                ];
-                            }
-                        })
-                    ];
-                });
 
         return view('home', compact(
             'user',
