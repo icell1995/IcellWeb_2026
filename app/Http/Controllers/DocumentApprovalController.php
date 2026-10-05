@@ -13,6 +13,8 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocument;
 use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
 use App\Models\Doc\Tahap1Document\Tahap1Document;
@@ -155,7 +157,7 @@ class DocumentApprovalController extends Controller
                 }
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
-                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706'])){
+                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706', '0601', '0603'])){
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
@@ -196,6 +198,8 @@ class DocumentApprovalController extends Controller
             LaporanHasilGelarPerkaraDocument::class,
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            SuratPerintahPenahananDocument::class,
+            SuratPerintahPenangguhanPenahananDocument::class,
             SuratPemberitahuanPenghentianPenyidikanDocument::class,
             SpdpPusiknasDocument::class,
             Tahap1Document::class,
@@ -233,6 +237,9 @@ class DocumentApprovalController extends Controller
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0601' => SuratPerintahPenahananDocument::class,
+            '0603' => SuratPerintahPenangguhanPenahananDocument::class,
+            // Add more document types here
             '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
             '0805' => Tahap1Document::class,
             '0806' => Tahap1Document::class,
