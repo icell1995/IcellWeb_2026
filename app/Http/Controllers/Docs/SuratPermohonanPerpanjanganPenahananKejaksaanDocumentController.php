@@ -995,6 +995,35 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
     }
 
     /**
+     * Validasi form dokumen melalui AJAX
+     */
+    public function validateRequestForm(Request $request)
+    {
+        try {
+            $validator = $this->validateForm($request);
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'code'    => 422,
+                    'errors'  => $validator->errors(),
+                ], 422);
+            }
+
+            return response()->json([
+                'success' => true,
+                'code'    => 200,
+                'message' => 'Silahkan menunggu proses simpan data',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'errors'  => 'Terjadi kesalahan pada sistem.',
+                'code'    => 500,
+            ], 500);
+        }
+    }
+
+    /**
      * Validasi form permohonan perpanjangan penahanan
      */
     private function validateForm(Request $request)

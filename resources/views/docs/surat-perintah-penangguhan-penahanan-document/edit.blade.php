@@ -923,6 +923,32 @@
                 $(this).closest('tr').remove();
             });
 
+            // Real-time pembersihan error saat user mengetik atau memilih opsi
+            $(document).on('input change', 'input, select, textarea', function() {
+                $(this).removeClass('is-invalid');
+                if ($(this).next('.select2-container').length) {
+                    $(this).next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                }
+                $(this).siblings('.frontend-error, .invalid-feedback').remove();
+                $(this).next('.frontend-error, .invalid-feedback').remove();
+                var $container = $(this).closest('.table-responsive, .input-group');
+                if ($container.length) {
+                    $container.siblings('.frontend-error, .invalid-feedback').remove();
+                    $container.next('.frontend-error, .invalid-feedback').remove();
+                }
+            });
+
+            // Pembersihan error checkbox tersangka saat dicentang
+            $(document).on('change', '.suspect-checkbox', function() {
+                if ($('.suspect-checkbox:checked').length > 0) {
+                    $('#suspectTable').removeClass('border border-danger is-invalid');
+                    var $wrapper = $('#suspectTable').closest('.table-responsive');
+                    var $container = $wrapper.length ? $wrapper : $('#suspectTable');
+                    $container.siblings('.frontend-error, .invalid-feedback').remove();
+                    $container.next('.frontend-error, .invalid-feedback').remove();
+                }
+            });
+
             // Handle Submit Form with Inline markError & AJAX Validation
             $('#btnSubmitForm').on('click', function(e) {
                 e.preventDefault();
@@ -935,11 +961,21 @@
                 var errors = [];
 
                 function scrollToFirstError() {
-                    var $firstError = $('.is-invalid, .frontend-error').first();
-                    if ($firstError.length) {
-                        $('html, body').animate({
-                            scrollTop: $firstError.offset().top - 120
-                        }, 500);
+                    var $firstError = $('.frontend-error, .invalid-feedback.d-block').first();
+                    if (!$firstError.length) {
+                        $firstError = $('.is-invalid, .border-danger').first();
+                    }
+                    if ($firstError && $firstError.length) {
+                        var el = $firstError[0];
+                        if (el && typeof el.scrollIntoView === 'function') {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        var topPos = $firstError.offset() ? $firstError.offset().top : 0;
+                        $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                            scrollTop: Math.max(0, topPos - 140)
+                        }, 400);
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 }
 
