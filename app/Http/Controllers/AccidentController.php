@@ -1416,6 +1416,7 @@ class AccidentController extends Controller
             'beritaAcaraPenahananDocuments',
             'suratPermintaanPenggeledahanDocuments',
             'suratGunaMemperolehPersetujuanPenggeledahanDocuments',
+            'suratKesepakatanDiversiDocuments',
             'suratPerintahPenahananDocuments',
             'suratPerintahPenangguhanPenahananDocuments',
             'suratPerintahPencabutanPenangguhanPenahananDocuments',

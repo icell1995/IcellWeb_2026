@@ -190,6 +190,7 @@ class Accident extends Model
     public function suratGunaMemperolehPersetujuanPenggeledahanDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument', 'accident_id', 'id')
+        return $this->hasMany('App\Models\Doc\SuratKesepakatanDiversiDocument\SuratKesepakatanDiversiDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
                 'attachment'
