@@ -167,7 +167,7 @@ class DocumentApprovalController extends Controller
                 }
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
-                    if(in_array($documentCategoryId, ['0101', '0201', '0211', '0212', '0215', '0601', '0603', '0604', '0605', '0606', '0607', '0609', '0702', '0706'])){
+                    if(in_array($documentCategoryId, ['0101', '0201', '0211', '0212', '0215', '0601', '0603', '0604', '0605', '0609', '0702', '0706'])){
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';

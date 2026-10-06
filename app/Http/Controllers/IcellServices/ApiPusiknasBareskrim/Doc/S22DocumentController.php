@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use App\Services\IcellServices\ApiPusiknasBareskrim\S22PusiknasService;
 use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument;
 use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument;
 use App\Models\History\DocumentApiSyncHistory;
+use App\Services\IcellServices\ApiPusiknasBareskrim\S22PusiknasService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class S22DocumentController extends Controller
 {
@@ -24,8 +24,7 @@ class S22DocumentController extends Controller
      * Endpoint API GET Dokumen S-22 (SPPT-TI / PUSIKNAS)
      * Kode Proses: HAN-10.30
      *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function index(Request $request)
     {
@@ -35,7 +34,6 @@ class S22DocumentController extends Controller
         $type = strtolower($request->query('type', 'all')); // 'all', 'pertama', 'kedua', '0606', '0607'
         $id = $request->query('id'); // Filter UUID spesifik jika ada
         $mode = $request->query('mode');
-        $statusId = $request->query('status_id');
         $startReleaseDate = $request->query('start_release_date');
         $endReleaseDate = $request->query('end_release_date');
         $startDocDate = $request->query('start_doc_date');
@@ -52,7 +50,7 @@ class S22DocumentController extends Controller
         ];
 
         foreach ($dateParams as $paramKey => $paramValue) {
-            if (!empty($paramValue) && !$service->isValidDate($paramValue)) {
+            if (! empty($paramValue) && ! $service->isValidDate($paramValue)) {
                 return response()->json([
                     'code' => '400',
                     'status' => 'BAD_REQUEST',
@@ -84,21 +82,11 @@ class S22DocumentController extends Controller
 
             // 3. Query S-22 Pertama (0606)
             if ($fetchPertama) {
-                $q1 = SuratPermintaanPerpanjanganPenahananLanjutanDocument::with($eagerRelations);
+                $q1 = SuratPermintaanPerpanjanganPenahananLanjutanDocument::with($eagerRelations)
+                    ->where('status_id', '11')
+                    ->whereNotNull('released_at');
 
-                if ($statusId === 'all') {
-                    // Jangan batasi status
-                } elseif (!empty($statusId)) {
-                    $q1->where('status_id', $statusId);
-                    if ($statusId === '11') {
-                        $q1->whereNotNull('released_at');
-                    }
-                } else {
-                    // Default: ambil dokumen yang sudah disetujui / valid (11 = FINAL, 86 = COMPLETE VALID)
-                    $q1->whereIn('status_id', ['11', '86']);
-                }
-
-                if (!empty($id)) {
+                if (! empty($id)) {
                     $q1->where('id', $id);
                 }
 
@@ -109,21 +97,11 @@ class S22DocumentController extends Controller
 
             // 4. Query S-22 Kedua (0607)
             if ($fetchKedua) {
-                $q2 = SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::with($eagerRelations);
+                $q2 = SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::with($eagerRelations)
+                    ->where('status_id', '11')
+                    ->whereNotNull('released_at');
 
-                if ($statusId === 'all') {
-                    // Jangan batasi status
-                } elseif (!empty($statusId)) {
-                    $q2->where('status_id', $statusId);
-                    if ($statusId === '11') {
-                        $q2->whereNotNull('released_at');
-                    }
-                } else {
-                    // Default: ambil dokumen yang sudah disetujui / valid (11 = FINAL, 86 = COMPLETE VALID)
-                    $q2->whereIn('status_id', ['11', '86']);
-                }
-
-                if (!empty($id)) {
+                if (! empty($id)) {
                     $q2->where('id', $id);
                 }
 
@@ -189,7 +167,7 @@ class S22DocumentController extends Controller
             return response()->json([
                 'code' => '500',
                 'status' => 'INTERNAL_SERVER_ERROR',
-                'message' => 'An error occurred while processing your request: ' . $e->getMessage(),
+                'message' => 'An error occurred while processing your request: '.$e->getMessage(),
                 'pagination' => [
                     'Page' => $page,
                     'TotalData' => 0,
@@ -206,25 +184,25 @@ class S22DocumentController extends Controller
      */
     protected function applyFilters($query, $startReleaseDate, $endReleaseDate, $startDocDate, $endDocDate)
     {
-        if (!empty($startReleaseDate) && !empty($endReleaseDate)) {
+        if (! empty($startReleaseDate) && ! empty($endReleaseDate)) {
             $query->whereBetween('released_at', [
                 date('Y-m-d 00:00:00', strtotime($startReleaseDate)),
                 date('Y-m-d 23:59:59', strtotime($endReleaseDate)),
             ]);
-        } elseif (!empty($startReleaseDate)) {
+        } elseif (! empty($startReleaseDate)) {
             $query->where('released_at', '>=', date('Y-m-d 00:00:00', strtotime($startReleaseDate)));
-        } elseif (!empty($endReleaseDate)) {
+        } elseif (! empty($endReleaseDate)) {
             $query->where('released_at', '<=', date('Y-m-d 23:59:59', strtotime($endReleaseDate)));
         }
 
-        if (!empty($startDocDate) && !empty($endDocDate)) {
+        if (! empty($startDocDate) && ! empty($endDocDate)) {
             $query->whereBetween('tanggal_surat', [
                 date('Y-m-d', strtotime($startDocDate)),
                 date('Y-m-d', strtotime($endDocDate)),
             ]);
-        } elseif (!empty($startDocDate)) {
+        } elseif (! empty($startDocDate)) {
             $query->where('tanggal_surat', '>=', date('Y-m-d', strtotime($startDocDate)));
-        } elseif (!empty($endDocDate)) {
+        } elseif (! empty($endDocDate)) {
             $query->where('tanggal_surat', '<=', date('Y-m-d', strtotime($endDocDate)));
         }
 
