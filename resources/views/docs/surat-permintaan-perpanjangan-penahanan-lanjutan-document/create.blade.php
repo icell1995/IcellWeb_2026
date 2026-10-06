@@ -524,7 +524,6 @@
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <textarea id="dugaan_tindak_pidana" class="form-control @error('dugaan_tindak_pidana') is-invalid @enderror" name="dugaan_tindak_pidana" rows="3"
                             placeholder="Uraian dugaan tindak pidana..." required>{{ old('dugaan_tindak_pidana', $defaultDugaanTindakPidana) }}</textarea>
-                        <small class="text-muted"><i class="bi bi-info-circle"></i> Diambil otomatis dari Laporan Polisi (damage_lose_desc) dan dapat disesuaikan jika diperlukan (Poin 2 Surat).</small>
                         @error('dugaan_tindak_pidana')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
