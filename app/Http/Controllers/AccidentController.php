@@ -142,16 +142,15 @@ class AccidentController extends Controller
                 $polress = Polres::all();
                 $polda = '-';
                 $polres = '-';
-		
-		$apiPolda = implode(',', $allPoldasIds);
-		$apiPolda = $apiPolda === '0' ? "-" : $apiPolda;
 
-		$apiPolres = implode(',', $allPolresIds);
-		$apiPolres = $apiPolres === '0' ? "-" : $apiPolres;
+                $apiPolda = implode(',', $allPoldasIds);
+                $apiPolda = $apiPolda === '0' ? "-" : $apiPolda;
 
+                $apiPolres = implode(',', $allPolresIds);
+                $apiPolres = $apiPolres === '0' ? "-" : $apiPolres;
         }
 
-//dd($apiPolres);
+        //dd($apiPolres);
 
         // $response = Http::get('https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_icell?polres_id='.$id);
         // $data = $response->json();
@@ -207,7 +206,7 @@ class AccidentController extends Controller
         $no_lp = $request->no_lp ?? '';
         $accident_date = $request->accident_date ?? '';
         $tipe_laka = $request->tipe_laka ?? 0;
-        
+
         switch ($user->role_id) {
             case 2:
                 $poldas = Polda::where('id', '=', $user->polda_id)->get();
@@ -918,8 +917,7 @@ class AccidentController extends Controller
 
             if (is_array($decoded)) {
                 $rejectReasons = is_array($decoded) ? $decoded : [];
-            }
-            else if(is_string($reasons) && trim($reasons) !== ''){
+            } else if (is_string($reasons) && trim($reasons) !== '') {
                 $rejectReasons = [trim($reasons)];
             }
         }
@@ -1426,8 +1424,8 @@ class AccidentController extends Controller
             'tahap1Documents',
             'tahap2Documents',
             'suratPermintaanIzinPenyitaanDocuments',
-            'suratLaporanPersetujuanPenyitaanDocuments'
-            'suratPemberitahuanUpayaDiversiDocuments',
+            'suratLaporanPersetujuanPenyitaanDocuments',
+            'suratPemberitahuanUpayaDiversiDocuments'
         ];
 
         $accidentDocument = Accident::with($documentTypes)
@@ -1763,7 +1761,7 @@ class AccidentController extends Controller
             }
 
             $accident->is_resolved_with_rj = $request->has('is_completed_with_rj')
-            || $request->boolean('is_completed_with_rj');
+                || $request->boolean('is_completed_with_rj');
 
             $accident->last_update = Carbon::now();
             $accident->category = 'D110115';
