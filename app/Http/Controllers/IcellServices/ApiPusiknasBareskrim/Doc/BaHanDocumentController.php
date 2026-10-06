@@ -193,9 +193,12 @@ class BaHanDocumentController extends Controller
 
                 // --- root document ---
                 $responseData[$arrayKey] = [
-                    'kode_jenis_dokumen' => 'ba-han',
-                    'identitas_dokumen'  => $identitasDokumen,
-                    'konten_dokumen'     => $kontenDokumen,
+                    'kode_jenis_dokumen'    => 'ba-han',
+                    'identitas_dokumen'     => $identitasDokumen,
+                    'konten_dokumen'        => $kontenDokumen,
+                    'terenkripsi'           => false,
+                    'daftar_kunci_enkripsi' => [],
+                    'tanda_tangan_digital'  => null,
                 ];
 
                 $docService->putApiSyncMoment(
