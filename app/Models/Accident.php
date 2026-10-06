@@ -154,6 +154,38 @@ class Accident extends Model
     public function suratPermohonanPenetapanDiversiDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument', 'accident_id', 'id')
+    public function suratPemberitahuanUpayaDiversiDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'suspect',
+                'attachment',
+                'createdByUser',
+            ]);
+    public function beritaAcaraPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\BeritaAcaraPenahanan', 'accident_id', 'id')
+            ->with(['documentCategory', 'attachment']);
+    }
+
+    public function beritaAcaraPenahanans()
+    {
+        return $this->beritaAcaraPenahananDocuments();
+    }
+
+    public function suratPermintaanPenggeledahanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
+    public function suratGunaMemperolehPersetujuanPenggeledahanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
                 'attachment'

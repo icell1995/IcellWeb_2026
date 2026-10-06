@@ -20,6 +20,7 @@ use App\Models\Doc\P21Document\P21Document;
 use App\Models\Doc\P19Document\P19Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument;
+use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
 
 class DocumentCategoriesTableSeeder extends Seeder
 {
@@ -405,10 +406,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '02',
                 'name' => 'SURAT PEMBERITAHUAN UPAYA DIVERSI',
                 'category' => $categoryType,
-                'route' => NULL,
-                'base_route' => NULL,
+                'route' => 'doc.surat-pemberitahuan-upaya-diversi-document.create',
+                'base_route' => 'doc.surat-pemberitahuan-upaya-diversi-document',
                 'is_digital_signature' => false,
-                'model_class' => NULL,
+                'model_class' => get_class(new SuratPemberitahuanUpayaDiversiDocument()) . '::class',
                 'alt_code' => 'surat-pemberitahuan-upaya-diversi-document',
                 'is_case_finish' => false,
             ],
@@ -580,8 +581,8 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '04',
                 'name' => 'SURAT PERMINTAAN IZIN PENGGELEDAHAN',
                 'category' => $categoryType,
-                'route' => NULL,
-                'base_route' => NULL,
+                'route' => 'doc.surat-permintaan-penggeledahan-document.create',
+                'base_route' => 'doc.surat-permintaan-penggeledahan-document',
                 'is_digital_signature' => false,
                 'model_class' => NULL,
                 'alt_code' => 'surat-permintaan-izin-penggeledahan-document',
@@ -593,8 +594,8 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '04',
                 'name' => 'SURAT LAPORAN GUNA MEMPEROLEH PERSETUJUAN PENGGELEDAHAN KEPADA KETUA PENGADILAN NEGERI',
                 'category' => $categoryType,
-                'route' => NULL,
-                'base_route' => NULL,
+                'route' => 'doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.create',
+                'base_route' => 'doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document',
                 'is_digital_signature' => false,
                 'model_class' => NULL,
                 'alt_code' => 'surat-laporan-guna-memperoleh-persetujuan-penggeledahan-kepada-ketua-pengadilan-negeri-document',
@@ -734,6 +735,19 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'is_digital_signature' => false,
                 'model_class' => 'App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument',
                 'alt_code' => 'surat-permohonan-perpanjangan-penahanan-kejaksaan-document',
+                'is_case_finish' => false,
+            ],
+            [
+                'id' => '0609',
+                'code' => 'DCT-0609',
+                'parent_id' => '06',
+                'name' => 'BERITA ACARA PENAHANAN',
+                'category' => $categoryType,
+                'route' => 'doc.berita-acara-penahanan-document.create',
+                'base_route' => 'doc.berita-acara-penahanan-document',
+                'is_digital_signature' => true,
+                'model_class' => 'App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument',
+                'alt_code' => 'berita-acara-penahanan-document',
                 'is_case_finish' => false,
             ],
             // =====( END PENAHANAN )=====

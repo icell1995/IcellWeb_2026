@@ -18,6 +18,8 @@ use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocu
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
 use App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument;
+use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
+use App\Models\BeritaAcaraPenahanan;
 use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
 use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
@@ -281,7 +283,12 @@ class DocumentActionController extends Controller
                 \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class
             ],
             '0212' => SuratPermohonanPenetapanDiversiDocument::class,
+            '0211' => SuratPemberitahuanUpayaDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
+            '0404' => \App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument::class,
+            '0405' => \App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
+            '0605' => \App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
+            '0609' => BeritaAcaraPenahanan::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,
