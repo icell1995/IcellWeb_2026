@@ -105,3 +105,17 @@ Route::prefix('surat-persetujuan-penggeledahan')->group(function () {
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPersetujuanPenggeledahan::class, 'index']
     )->name('api.pusiknasbareskrim.doc.surat-persetujuan-penggeledahan.index');
 });
+
+Route::prefix('ba-han')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\BaHanDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ba-han.index');
+});
+
+Route::prefix('bahan')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\BaHanDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.bahan.index');
+});
