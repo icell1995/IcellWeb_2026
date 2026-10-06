@@ -153,7 +153,9 @@ class Accident extends Model
 
     public function suratKesepakatanDiversiDocuments()
     {
-        return $this->hasMany('App\Models\Doc\SuratKesepakatanDiversiDocument\SuratKesepakatanDiversiDocument', 'accident_id', 'id')
+        return $this->hasMany('App\Models\Doc\SuratKesepakatanDiversiDocument\SuratKesepakatanDiversiDocument', 'accident_id', 'id');
+    }
+
     public function suratPemberitahuanUpayaDiversiDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument', 'accident_id', 'id')
@@ -163,6 +165,8 @@ class Accident extends Model
                 'attachment',
                 'createdByUser',
             ]);
+    }
+
     public function beritaAcaraPenahananDocuments()
     {
         return $this->hasMany('App\Models\BeritaAcaraPenahanan', 'accident_id', 'id')

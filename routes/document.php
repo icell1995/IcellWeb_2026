@@ -22,8 +22,6 @@ use App\Http\Controllers\Docs\P19DocumentController;
 use App\Http\Controllers\Docs\P21DocumentController;
 use App\Http\Controllers\Doc\Tahap2DocumentController;
 use App\Http\Controllers\Docs\Sp2hpDocumentController;
-use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
-use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
 use App\Http\Controllers\Docs\SuratKesepakatanDiversiDocumentController;
