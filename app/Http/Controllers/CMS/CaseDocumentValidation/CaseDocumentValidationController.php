@@ -44,9 +44,9 @@ class CaseDocumentValidationController extends Controller
             'suratPemberitahuanDimulainyaPenyidikanDocuments' => function($query) {
                 $query->orderBy('updated_at', 'asc');
             },
-            'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments' => function($query) {
-                $query->orderBy('updated_at', 'asc');
-            },
+            // 'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments' => function($query) {
+            //     $query->orderBy('updated_at', 'asc');
+            // },
             'suratKetetapanTentangPenetapanTersangkaDocuments',
             'laporanHasilGelarPerkaraDocuments',
             'suratPerintahTugasDocuments',
@@ -54,13 +54,16 @@ class CaseDocumentValidationController extends Controller
             'suratPerintahPenyidikanDocuments',
             'police'
             ])
-            ->where(function($q) {
-                $q->whereHas('suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
-                    $query->whereIn('status_id', ['12']);
-                })->orWhereHas('suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments', function($query){
-                    $query->whereIn('status_id', ['12']);
-                });
+            ->whereHas('suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
+                $query->whereIn('status_id', ['12']);
             })
+            // ->where(function($q) {
+            //     $q->whereHas('suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
+            //         $query->whereIn('status_id', ['12']);
+            //     })->orWhereHas('suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments', function($query){
+            //         $query->whereIn('status_id', ['12']);
+            //     });
+            // })
             ->get();
 
         return $accidents;
@@ -74,22 +77,25 @@ class CaseDocumentValidationController extends Controller
             "App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument",
             "App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument",
             "App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument",
-            "App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument",
+            // "App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument",
         ];
 
         $documentsCollection = Collection::make();
 
         foreach ($documentTypes as $documentType) {
             $documents = $documentType::with(['accident', 'documentCategory', 'status'])
-                ->whereHas('accident', function($q) {
-                    $q->where(function($q2) {
-                        $q2->whereHas('suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
-                            $query->whereIn('status_id', ['9', '12', '11', '10']);
-                        })->orWhereHas('suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments', function($query){
-                            $query->whereIn('status_id', ['9', '12', '11', '10']);
-                        });
-                    });
+                ->whereHas('accident.suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
+                    $query->whereIn('status_id', ['9', '12', '11', '10']);
                 })
+                // ->whereHas('accident', function($q) {
+                //     $q->where(function($q2) {
+                //         $q2->whereHas('suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
+                //             $query->whereIn('status_id', ['9', '12', '11', '10']);
+                //         })->orWhereHas('suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments', function($query){
+                //             $query->whereIn('status_id', ['9', '12', '11', '10']);
+                //         });
+                //     });
+                // })
                 ->whereIn('status_id', ['12'])
                 ->where('accident_id', $accidentId)
                 ->get();
@@ -110,22 +116,25 @@ class CaseDocumentValidationController extends Controller
             "App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument",
             "App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument",
             "App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument",
-            "App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument",
+            // "App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument",
         ];
 
         $documentsCollection = Collection::make();
 
         foreach ($documentTypes as $documentType) {
             $documents = $documentType::with(['accident', 'documentCategory', 'status'])
-                ->whereHas('accident', function($q) {
-                    $q->where(function($q2) {
-                        $q2->whereHas('suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
-                            $query->whereIn('status_id', ['9', '12', '11', '10']);
-                        })->orWhereHas('suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments', function($query){
-                            $query->whereIn('status_id', ['9', '12', '11', '10']);
-                        });
-                    });
+                ->whereHas('accident.suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
+                    $query->whereIn('status_id', ['9', '12', '11', '10']);
                 })
+                // ->whereHas('accident', function($q) {
+                //     $q->where(function($q2) {
+                //         $q2->whereHas('suratPemberitahuanDimulainyaPenyidikanDocuments', function($query){
+                //             $query->whereIn('status_id', ['9', '12', '11', '10']);
+                //         })->orWhereHas('suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments', function($query){
+                //             $query->whereIn('status_id', ['9', '12', '11', '10']);
+                //         });
+                //     });
+                // })
                 ->whereIn('status_id', $statusIds)
                 ->get();
 
