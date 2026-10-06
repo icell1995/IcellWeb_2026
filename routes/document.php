@@ -26,6 +26,7 @@ use App\Http\Controllers\Docs\SuratPermintaanIzinPenyitaanController;
 use App\Http\Controllers\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
 use App\Http\Controllers\Docs\BeritaAcaraPenahananDocumentController;
+use App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController;
 
 Route::post('/create',[DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');
 Route::get('/type-document/{id}',[DocumentController::class, 'getTypeDocument'])->name('doc.getTypeDocument');
@@ -397,11 +398,11 @@ Route::prefix('/surat-permintaan-izin-penyitaan-document')->group(function(){
 });
 
 Route::prefix('/surat-laporan-persetujuan-penyitaan-document')->group(function(){
-    Route::get('/{id}/show', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'show'])->name('doc.surat-laporan-persetujuan-penyitaan-document.show');
-    Route::get('/create', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'create'])->name('doc.surat-laporan-persetujuan-penyitaan-document.create');
-    Route::post('/create', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'store'])->name('doc.surat-laporan-persetujuan-penyitaan-document.store');
-    Route::get('/{id}/edit', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'edit'])->name('doc.surat-laporan-persetujuan-penyitaan-document.edit');
-    Route::post('/{id}/edit', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'update'])->name('doc.surat-laporan-persetujuan-penyitaan-document.update');
-    Route::delete('/{id}/delete', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'delete'])->name('doc.surat-laporan-persetujuan-penyitaan-document.delete');
-    Route::get('/{id}/download', [\App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController::class, 'download'])->name('doc.surat-laporan-persetujuan-penyitaan-document.download');
+    Route::get('/{id}/show', [SuratLaporanPersetujuanPenyitaanController::class, 'show'])->name('doc.surat-laporan-persetujuan-penyitaan-document.show');
+    Route::get('/create', [SuratLaporanPersetujuanPenyitaanController::class, 'create'])->name('doc.surat-laporan-persetujuan-penyitaan-document.create');
+    Route::post('/create', [SuratLaporanPersetujuanPenyitaanController::class, 'store'])->name('doc.surat-laporan-persetujuan-penyitaan-document.store');
+    Route::get('/{id}/edit', [SuratLaporanPersetujuanPenyitaanController::class, 'edit'])->name('doc.surat-laporan-persetujuan-penyitaan-document.edit');
+    Route::post('/{id}/edit', [SuratLaporanPersetujuanPenyitaanController::class, 'update'])->name('doc.surat-laporan-persetujuan-penyitaan-document.update');
+    Route::delete('/{id}/delete', [SuratLaporanPersetujuanPenyitaanController::class, 'delete'])->name('doc.surat-laporan-persetujuan-penyitaan-document.delete');
+    Route::get('/{id}/download', [SuratLaporanPersetujuanPenyitaanController::class, 'download'])->name('doc.surat-laporan-persetujuan-penyitaan-document.download');
 });
