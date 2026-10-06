@@ -228,6 +228,15 @@
                                     } elseif (!empty($suspect->country_short_name) && strtoupper($suspect->country_short_name) === 'IDN') {
                                         $suspectNatId = '1';
                                     }
+                                    $suspectIdentityTypeId = $suspect->identity_type_id ?? '';
+                                    $suspectIdentityNumber = $suspect->identity_number ?? '';
+                                    if (empty($suspectIdentityTypeId) && !empty($suspectIdentityNumber) && preg_match('/^[0-9]{16}$/', trim($suspectIdentityNumber))) {
+                                        $suspectIdentityTypeId = '10';
+                                    }
+                                @endphp
+                                <option value="{{ $suspect->id }}"
+                                    data-identity-type="{{ $suspectIdentityTypeId }}"
+                                    data-identity="{{ $suspectIdentityNumber }}"
                                 @endphp
                                 <option value="{{ $suspect->id }}"
                                     data-identity-type="{{ $suspect->identity_type_id }}"
@@ -594,6 +603,16 @@
                                         } else {
                                             $victimNatId = '1';
                                         }
+
+                                        $victimIdentityTypeId = $victim->identity_type_id ?? '';
+                                        $victimIdentityNumber = $victim->identity_number ?? '';
+                                        if (empty($victimIdentityTypeId) && !empty($victimIdentityNumber) && preg_match('/^[0-9]{16}$/', trim($victimIdentityNumber))) {
+                                            $victimIdentityTypeId = '10';
+                                        }
+                                    @endphp
+                                    <option value="{{ $victim->id }}"
+                                        data-identity-type="{{ $victimIdentityTypeId }}"
+                                        data-identity="{{ $victimIdentityNumber }}"
                                     @endphp
                                     <option value="{{ $victim->id }}"
                                         data-identity-type="{{ $victim->identity_type_id }}"
@@ -1115,10 +1134,15 @@
                 $field.attr('placeholder', 'Pilih Jenis Identitas terlebih dahulu');
                 $field.val('');
                 $field.removeAttr('maxlength');
+                $field.data('locked-by-db', false);
+                $field.prop('readonly', false).css('background-color', '');
                 return '';
             } else {
                 $field.prop('disabled', false);
                 $field.attr('placeholder', 'Nomor Identitas');
+                if (!$field.data('locked-by-db')) {
+                    $field.prop('readonly', false).css('background-color', '');
+                }
             }
 
             if (identityTypeId == 10 || identityTypeName.indexOf('KTP') !== -1 || identityTypeName.indexOf('KARTU TANDA PENDUDUK') !== -1) {
@@ -1548,6 +1572,9 @@
                     }
                 } else {
                     if (hasVal) {
+                        $el.data('locked-by-db', true);
+                        $el.val(val).trigger('input').trigger('change');
+                        $el.prop('readonly', true).prop('disabled', false).css('background-color', '#e9ecef');
                         $el.val(val).trigger('input').trigger('change');
                         $el.prop('readonly', true).css('background-color', '#e9ecef');
                         if ($el.attr('data-provide') === 'datepicker') {
@@ -1555,6 +1582,7 @@
                         }
                         clearFieldError(selector);
                     } else {
+                        $el.data('locked-by-db', false);
                         $el.val('').trigger('input').trigger('change');
                         $el.prop('readonly', false).css('background-color', '');
                         $el.css('pointer-events', '');
@@ -1565,6 +1593,8 @@
             function resetChildFields() {
                 var textFields = ['#childName', '#childIdentityNumber', '#childBirthPlace', '#childBirthDate', '#childAddress', '#childAgeYear', '#childAgeMonth', '#childAgeDay'];
                 textFields.forEach(function(sel) {
+                    $(sel).data('locked-by-db', false);
+                    $(sel).val('').prop('readonly', false).prop('disabled', false).css('background-color', '').css('pointer-events', '');
                     $(sel).val('').prop('readonly', false).css('background-color', '').css('pointer-events', '');
                 });
                 var selectFields = ['#childIdentityType', '#childNationality', '#childGender', '#childJob', '#childReligion'];
@@ -1579,6 +1609,8 @@
             function resetVictimFields() {
                 var textFields = ['#victimName', '#victimIdentityNumber', '#victimBirthPlace', '#victimBirthDate', '#victimAddress', '#victimAgeYear', '#victimAgeMonth', '#victimAgeDay'];
                 textFields.forEach(function(sel) {
+                    $(sel).data('locked-by-db', false);
+                    $(sel).val('').prop('readonly', false).prop('disabled', false).css('background-color', '').css('pointer-events', '');
                     $(sel).val('').prop('readonly', false).css('background-color', '').css('pointer-events', '');
                 });
                 var selectFields = ['#victimIdentityType', '#victimNationality', '#victimGender', '#victimJob', '#victimReligion'];
@@ -1595,6 +1627,13 @@
                 var $opt = $(this).find(':selected');
                 if ($opt.val()) {
                     clearFieldError('#suspectId');
+                    var sTypeId = $opt.data('identity-type');
+                    var sIdNum = $opt.data('identity');
+                    if ((!sTypeId || String(sTypeId).trim() === '' || String(sTypeId).trim() === 'null') && sIdNum && /^[0-9]{16}$/.test(String(sIdNum).trim())) {
+                        sTypeId = '10';
+                    }
+                    setFieldLock('#childIdentityType', sTypeId, true);
+                    setFieldLock('#childIdentityNumber', sIdNum, false);
                     setFieldLock('#childIdentityType', $opt.data('identity-type'), true);
                     setFieldLock('#childIdentityNumber', $opt.data('identity'), false);
                     setFieldLock('#childName', $opt.data('name'), false);
@@ -1633,6 +1672,13 @@
                 var val = $opt.val();
                 if (val && val !== 'manual') {
                     clearFieldError('#victimSelect');
+                    var vTypeId = $opt.data('identity-type');
+                    var vIdNum = $opt.data('identity');
+                    if ((!vTypeId || String(vTypeId).trim() === '' || String(vTypeId).trim() === 'null') && vIdNum && /^[0-9]{16}$/.test(String(vIdNum).trim())) {
+                        vTypeId = '10';
+                    }
+                    setFieldLock('#victimIdentityType', vTypeId, true);
+                    setFieldLock('#victimIdentityNumber', vIdNum, false);
                     setFieldLock('#victimIdentityType', $opt.data('identity-type'), true);
                     setFieldLock('#victimIdentityNumber', $opt.data('identity'), false);
                     setFieldLock('#victimName', $opt.data('name'), false);

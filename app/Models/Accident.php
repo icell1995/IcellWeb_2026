@@ -153,6 +153,43 @@ class Accident extends Model
 
     public function suratKesepakatanDiversiDocuments()
     {
+        return $this->hasMany('App\Models\Doc\SuratKesepakatanDiversiDocument\SuratKesepakatanDiversiDocument', 'accident_id', 'id');
+    }
+
+    public function suratPemberitahuanUpayaDiversiDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'suspect',
+                'attachment',
+                'createdByUser',
+            ]);
+    }
+
+    public function beritaAcaraPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\BeritaAcaraPenahanan', 'accident_id', 'id')
+            ->with(['documentCategory', 'attachment']);
+    }
+
+    public function beritaAcaraPenahanans()
+    {
+        return $this->beritaAcaraPenahananDocuments();
+    }
+
+    public function suratPermintaanPenggeledahanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
+    public function suratGunaMemperolehPersetujuanPenggeledahanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument', 'accident_id', 'id')
         return $this->hasMany('App\Models\Doc\SuratKesepakatanDiversiDocument\SuratKesepakatanDiversiDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
@@ -239,5 +276,10 @@ class Accident extends Model
     public function caseVehicle()
     {
         return $this->hasMany('App\Models\CaseVehicle', 'accident_id', 'id');
+    }
+
+    public function involvedPeoples()
+    {
+        return $this->hasMany(InvolvedPeople::class, 'accident_id', 'id');
     }
 }

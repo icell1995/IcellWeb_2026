@@ -23,7 +23,7 @@
                 </div>
 
                 <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-                    <span class="">KEPOLISIAN NEGARA REPUBLIK INDONESIA</span>
+                    <span class="">KEPOLISIAN NEGARA REPUBLIK INDONESIAI</span>
                 </div>
 
                 <div class="col-lg-12 col-md-12 col-sm-12 col-12">
