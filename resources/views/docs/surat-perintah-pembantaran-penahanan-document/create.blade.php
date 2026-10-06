@@ -494,10 +494,10 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="receiver_officer_id">Petugas Penerima Perintah</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="receiver_officer_id">Petugas Penerima Perintah<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <select class="form-control select2 @error('receiver_officer_id') is-invalid @enderror" name="receiver_officer_id" id="receiver_officer_id">
-                            <option value="">-- (Opsional) Pilih Petugas Penerima Perintah --</option>
+                        <select class="form-control select2 @error('receiver_officer_id') is-invalid @enderror" name="receiver_officer_id" id="receiver_officer_id" required>
+                            <option value="">-- Pilih Petugas Penerima Perintah --</option>
                             @foreach ($memberOfficers as $officer)
                                 <option value="{{ $officer->id }}" {{ old('receiver_officer_id') == $officer->id ? 'selected' : '' }}>
                                     {{ $officer->full_name }} ({{ $officer->register_number }})
@@ -514,10 +514,10 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="deliverer_officer_id">Petugas Penyerah Surat</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="deliverer_officer_id">Petugas Penyerah Surat<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <select class="form-control select2 @error('deliverer_officer_id') is-invalid @enderror" name="deliverer_officer_id" id="deliverer_officer_id">
-                            <option value="">-- (Opsional) Pilih Petugas Penyerah --</option>
+                        <select class="form-control select2 @error('deliverer_officer_id') is-invalid @enderror" name="deliverer_officer_id" id="deliverer_officer_id" required>
+                            <option value="">-- Pilih Petugas Penyerah Surat --</option>
                             @foreach ($memberOfficers as $officer)
                                 <option value="{{ $officer->id }}" {{ old('deliverer_officer_id') == $officer->id ? 'selected' : '' }}>
                                     {{ $officer->full_name }} ({{ $officer->register_number }})
@@ -1045,6 +1045,8 @@
                 checkInput('#tanggal_mulai_rawat_inap', 'Tgl. Mulai Rawat Inap', errors);
                 checkSelect('#suspects', 'Tersangka yang Dibantarkan', errors);
                 checkSelect('#signatory', 'Penyidik Penandatangan', errors);
+                checkSelect('#receiver_officer_id', 'Petugas Penerima Perintah', errors);
+                checkSelect('#deliverer_officer_id', 'Petugas Penyerah Surat', errors);
                 checkInput('#hari_penyerahan', 'Hari Penyerahan', errors);
                 checkInput('#tanggal_penyerahan', 'Tanggal Penyerahan', errors);
                 checkInput('#nama_penerima_keluarga', 'Nama Penerima', errors);
