@@ -80,7 +80,7 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat">Nomor Surat S-23<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat">Nomor Dokumen<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nomor_surat" type="text" class="form-control @error('nomor_surat') is-invalid @enderror" name="nomor_surat"
                             value="{{ old('nomor_surat', $document->nomor_surat) }}" placeholder="Contoh: SP.Bantar.Han/0001/I/RES.0.0./2026/Satker" required>
@@ -136,10 +136,12 @@
                 <h5 class="fw-bold text-blue-dark">Data SPDP & Satker (SPPT-TI)</h5>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_spdp">Nomor SPDP</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_spdp">Nomor SPDP
+                        <small class="text-muted d-block font-weight-normal">(Otomatis dari Sistem)</small>
+                    </label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nomor_spdp" type="text" class="form-control @error('nomor_spdp') is-invalid @enderror" name="nomor_spdp"
-                            value="{{ old('nomor_spdp', $document->nomor_spdp) }}" placeholder="Nomor SPDP">
+                            value="{{ old('nomor_spdp', $document->nomor_spdp) }}" placeholder="Nomor SPDP" readonly style="background-color: #e9ecef;">
                         @error('nomor_spdp')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -149,11 +151,13 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_spdp">Tanggal SPDP</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_spdp">Tanggal SPDP
+                        <small class="text-muted d-block font-weight-normal">(Otomatis dari Sistem)</small>
+                    </label>
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input id="tanggal_spdp" type="text" class="form-control @error('tanggal_spdp') is-invalid @enderror" name="tanggal_spdp"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_spdp', $document->tanggal_spdp ? Carbon\Carbon::parse($document->tanggal_spdp)->format('Y-m-d') : '') }}" data-provide="datepicker">
+                            value="{{ old('tanggal_spdp', $document->tanggal_spdp ? Carbon\Carbon::parse($document->tanggal_spdp)->format('Y-m-d') : '') }}" readonly style="background-color: #e9ecef; pointer-events: none;">
                         @error('tanggal_spdp')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -177,10 +181,12 @@
                 <h5 class="fw-bold text-blue-dark">Rujukan Dasar Perkara & Surat Perintah</h5>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat_perintah_penyidikan">No. Sprint Sidik</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat_perintah_penyidikan">No. Sprint Sidik
+                        <small class="text-muted d-block font-weight-normal">(Otomatis dari Sistem)</small>
+                    </label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nomor_surat_perintah_penyidikan" type="text" class="form-control @error('nomor_surat_perintah_penyidikan') is-invalid @enderror" name="nomor_surat_perintah_penyidikan"
-                            value="{{ old('nomor_surat_perintah_penyidikan', $document->nomor_surat_perintah_penyidikan) }}" placeholder="Contoh: Sp.Sidik/12/I/2026/Lantas">
+                            value="{{ old('nomor_surat_perintah_penyidikan', $document->nomor_surat_perintah_penyidikan) }}" placeholder="Contoh: Sp.Sidik/12/I/2026/Lantas" readonly style="background-color: #e9ecef;">
                         @error('nomor_surat_perintah_penyidikan')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -190,11 +196,13 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_surat_perintah_penyidikan">Tgl. Sprint Sidik</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_surat_perintah_penyidikan">Tgl. Sprint Sidik
+                        <small class="text-muted d-block font-weight-normal">(Otomatis dari Sistem)</small>
+                    </label>
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input id="tanggal_surat_perintah_penyidikan" type="text" class="form-control @error('tanggal_surat_perintah_penyidikan') is-invalid @enderror" name="tanggal_surat_perintah_penyidikan"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_surat_perintah_penyidikan', $document->tanggal_surat_perintah_penyidikan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_penyidikan)->format('Y-m-d') : '') }}" data-provide="datepicker">
+                            value="{{ old('tanggal_surat_perintah_penyidikan', $document->tanggal_surat_perintah_penyidikan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_penyidikan)->format('Y-m-d') : '') }}" readonly style="background-color: #e9ecef; pointer-events: none;">
                         @error('tanggal_surat_perintah_penyidikan')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -204,10 +212,12 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_sket_tersangka">No. S.Ket Tersangka</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_sket_tersangka">No. S.Ket Tersangka
+                        <small class="text-muted d-block font-weight-normal">(Otomatis dari Sistem)</small>
+                    </label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nomor_sket_tersangka" type="text" class="form-control @error('nomor_sket_tersangka') is-invalid @enderror" name="nomor_sket_tersangka"
-                            value="{{ old('nomor_sket_tersangka', $document->nomor_sket_tersangka) }}" placeholder="Nomor Surat Ketetapan Tersangka">
+                            value="{{ old('nomor_sket_tersangka', $document->nomor_sket_tersangka) }}" placeholder="Nomor Surat Ketetapan Tersangka" readonly style="background-color: #e9ecef;">
                         @error('nomor_sket_tersangka')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -217,11 +227,13 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_sket_tersangka">Tgl. S.Ket Tersangka</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_sket_tersangka">Tgl. S.Ket Tersangka
+                        <small class="text-muted d-block font-weight-normal">(Otomatis dari Sistem)</small>
+                    </label>
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input id="tanggal_sket_tersangka" type="text" class="form-control @error('tanggal_sket_tersangka') is-invalid @enderror" name="tanggal_sket_tersangka"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_sket_tersangka', $document->tanggal_sket_tersangka ? Carbon\Carbon::parse($document->tanggal_sket_tersangka)->format('Y-m-d') : '') }}" data-provide="datepicker">
+                            value="{{ old('tanggal_sket_tersangka', $document->tanggal_sket_tersangka ? Carbon\Carbon::parse($document->tanggal_sket_tersangka)->format('Y-m-d') : '') }}" readonly style="background-color: #e9ecef; pointer-events: none;">
                         @error('tanggal_sket_tersangka')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -255,10 +267,12 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat_perintah_penahanan">No. Sprint Penahanan (S-17)<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat_perintah_penahanan">No. Sprint Penahanan (S-17)<span class="text-danger fs-5">*</span>
+                        <small class="text-muted d-block font-weight-normal">(Otomatis dari S-17)</small>
+                    </label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nomor_surat_perintah_penahanan" type="text" class="form-control @error('nomor_surat_perintah_penahanan') is-invalid @enderror" name="nomor_surat_perintah_penahanan"
-                            value="{{ old('nomor_surat_perintah_penahanan', $document->nomor_surat_perintah_penahanan) }}" placeholder="Contoh: Sp.Han/01/I/2026/Lantas" required>
+                            value="{{ old('nomor_surat_perintah_penahanan', $document->nomor_surat_perintah_penahanan) }}" placeholder="Contoh: Sp.Han/01/I/2026/Lantas" required readonly style="background-color: #e9ecef;">
                         @error('nomor_surat_perintah_penahanan')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -268,11 +282,13 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_surat_perintah_penahanan">Tgl. Sprint Penahanan<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_surat_perintah_penahanan">Tgl. Sprint Penahanan<span class="text-danger fs-5">*</span>
+                        <small class="text-muted d-block font-weight-normal">(Otomatis dari S-17)</small>
+                    </label>
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input id="tanggal_surat_perintah_penahanan" type="text" class="form-control @error('tanggal_surat_perintah_penahanan') is-invalid @enderror" name="tanggal_surat_perintah_penahanan"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_surat_perintah_penahanan', $document->tanggal_surat_perintah_penahanan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_penahanan)->format('Y-m-d') : '') }}" data-provide="datepicker" required>
+                            value="{{ old('tanggal_surat_perintah_penahanan', $document->tanggal_surat_perintah_penahanan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_penahanan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
                         @error('tanggal_surat_perintah_penahanan')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>

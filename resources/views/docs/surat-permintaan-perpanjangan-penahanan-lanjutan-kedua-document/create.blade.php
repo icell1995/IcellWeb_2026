@@ -67,7 +67,7 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat">Nomor Surat S-22<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat">Nomor Dokumen<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nomor_surat" type="text" class="form-control @error('nomor_surat') is-invalid @enderror" name="nomor_surat"
                             value="{{ old('nomor_surat') }}" required placeholder="Contoh: B/124/V/2026/Lantas">
@@ -153,12 +153,12 @@
 
                 <!-- Poin 1.f - Sprint Sidik -->
                 <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Perintah Penyidikan</span>
+                    <span class="fw-bold text-dark mb-2">Surat Perintah Penyidikan <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_surat_perintah_penyidikan">Nomor Sprint Sidik<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_surat_perintah_penyidikan" type="text" class="form-control @error('nomor_surat_perintah_penyidikan') is-invalid @enderror" name="nomor_surat_perintah_penyidikan"
-                                value="{{ old('nomor_surat_perintah_penyidikan', $defaultNomorSprintSidik) }}" placeholder="Nomor Surat Perintah Penyidikan" required>
+                                value="{{ old('nomor_surat_perintah_penyidikan', $defaultNomorSprintSidik) }}" placeholder="Nomor Surat Perintah Penyidikan" required readonly style="background-color: #e9ecef;">
                             @error('nomor_surat_perintah_penyidikan')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -167,7 +167,7 @@
                             <label class="fw-bold" for="tanggal_surat_perintah_penyidikan">Tanggal Sprint Sidik<span class="text-danger fs-5">*</span></label>
                             <input id="tanggal_surat_perintah_penyidikan" type="text" class="form-control @error('tanggal_surat_perintah_penyidikan') is-invalid @enderror" name="tanggal_surat_perintah_penyidikan"
                                 placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perintah_penyidikan', $defaultTanggalSprintSidik) }}" data-provide="datepicker" required>
+                                value="{{ old('tanggal_surat_perintah_penyidikan', $defaultTanggalSprintSidik) }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
                             @error('tanggal_surat_perintah_penyidikan')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -177,12 +177,12 @@
 
                 <!-- Poin 1.g - SPDP -->
                 <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Pemberitahuan Dimulainya Penyidikan (SPDP)</span>
+                    <span class="fw-bold text-dark mb-2">Surat Pemberitahuan Dimulainya Penyidikan (SPDP) <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_spdp">Nomor SPDP<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_spdp" type="text" class="form-control @error('nomor_spdp') is-invalid @enderror" name="nomor_spdp"
-                                value="{{ old('nomor_spdp', $defaultNomorSpdp) }}" placeholder="Nomor SPDP" required>
+                                value="{{ old('nomor_spdp', $defaultNomorSpdp) }}" placeholder="Nomor SPDP" required readonly style="background-color: #e9ecef;">
                             @error('nomor_spdp')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -191,7 +191,7 @@
                             <label class="fw-bold" for="tanggal_spdp">Tanggal SPDP<span class="text-danger fs-5">*</span></label>
                             <input id="tanggal_spdp" type="text" class="form-control @error('tanggal_spdp') is-invalid @enderror" name="tanggal_spdp"
                                 placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_spdp', $defaultTanggalSpdp) }}" data-provide="datepicker" required>
+                                value="{{ old('tanggal_spdp', $defaultTanggalSpdp) }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
                             @error('tanggal_spdp')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -201,12 +201,12 @@
 
                 <!-- Poin 1.h - SKET Tersangka -->
                 <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Ketetapan tentang Penetapan Tersangka</span>
+                    <span class="fw-bold text-dark mb-2">Surat Ketetapan tentang Penetapan Tersangka <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_sket_tersangka">Nomor S.Ket Penetapan Tersangka<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_sket_tersangka" type="text" class="form-control @error('nomor_sket_tersangka') is-invalid @enderror" name="nomor_sket_tersangka"
-                                value="{{ old('nomor_sket_tersangka', $defaultNomorSketTersangka) }}" placeholder="Nomor S.Ket Penetapan Tersangka" required>
+                                value="{{ old('nomor_sket_tersangka', $defaultNomorSketTersangka) }}" placeholder="Nomor S.Ket Penetapan Tersangka" required readonly style="background-color: #e9ecef;">
                             @error('nomor_sket_tersangka')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -215,7 +215,7 @@
                             <label class="fw-bold" for="tanggal_sket_tersangka">Tanggal S.Ket Penetapan Tersangka<span class="text-danger fs-5">*</span></label>
                             <input id="tanggal_sket_tersangka" type="text" class="form-control @error('tanggal_sket_tersangka') is-invalid @enderror" name="tanggal_sket_tersangka"
                                 placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_sket_tersangka', $defaultTanggalSketTersangka) }}" data-provide="datepicker" required>
+                                value="{{ old('tanggal_sket_tersangka', $defaultTanggalSketTersangka) }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
                             @error('tanggal_sket_tersangka')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -244,7 +244,7 @@
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_surat_perintah_penahanan">Nomor Sprint Penahanan<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_surat_perintah_penahanan" type="text" class="form-control @error('nomor_surat_perintah_penahanan') is-invalid @enderror" name="nomor_surat_perintah_penahanan"
-                                value="{{ old('nomor_surat_perintah_penahanan', $defaultNomorSprintPenahanan) }}" placeholder="Contoh: Sp.Han/12/IV/2026/Lantas" required>
+                                value="{{ old('nomor_surat_perintah_penahanan', $defaultNomorSprintPenahanan) }}" placeholder="Contoh: Sp.Han/12/IV/2026/Lantas" required readonly style="background-color: #e9ecef;">
                             @error('nomor_surat_perintah_penahanan')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -253,7 +253,7 @@
                             <label class="fw-bold" for="tanggal_surat_perintah_penahanan">Tanggal Sprint Penahanan<span class="text-danger fs-5">*</span></label>
                             <input id="tanggal_surat_perintah_penahanan" type="text" class="form-control @error('tanggal_surat_perintah_penahanan') is-invalid @enderror" name="tanggal_surat_perintah_penahanan"
                                 placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perintah_penahanan', $defaultTanggalSprintPenahanan) }}" data-provide="datepicker" required>
+                                value="{{ old('tanggal_surat_perintah_penahanan', $defaultTanggalSprintPenahanan) }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
                             @error('tanggal_surat_perintah_penahanan')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -282,7 +282,7 @@
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_surat_perpanjangan_kejaksaan">Nomor Perpanjangan Kejaksaan<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_surat_perpanjangan_kejaksaan" type="text" class="form-control @error('nomor_surat_perpanjangan_kejaksaan') is-invalid @enderror" name="nomor_surat_perpanjangan_kejaksaan"
-                                value="{{ old('nomor_surat_perpanjangan_kejaksaan', $defaultNomorPerpanjanganKejaksaan) }}" placeholder="Nomor Surat Perpanjangan Kejaksaan" required>
+                                value="{{ old('nomor_surat_perpanjangan_kejaksaan', $defaultNomorPerpanjanganKejaksaan) }}" placeholder="Nomor Surat Perpanjangan Kejaksaan" required readonly style="background-color: #e9ecef;">
                             @error('nomor_surat_perpanjangan_kejaksaan')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -291,7 +291,7 @@
                             <label class="fw-bold" for="tanggal_surat_perpanjangan_kejaksaan">Tanggal Perpanjangan Kejaksaan<span class="text-danger fs-5">*</span></label>
                             <input id="tanggal_surat_perpanjangan_kejaksaan" type="text" class="form-control @error('tanggal_surat_perpanjangan_kejaksaan') is-invalid @enderror" name="tanggal_surat_perpanjangan_kejaksaan"
                                 placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perpanjangan_kejaksaan', $defaultTanggalPerpanjanganKejaksaan) }}" data-provide="datepicker" required>
+                                value="{{ old('tanggal_surat_perpanjangan_kejaksaan', $defaultTanggalPerpanjanganKejaksaan) }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
                             @error('tanggal_surat_perpanjangan_kejaksaan')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -344,7 +344,7 @@
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_sket_perpanjangan_kpn_pertama">Nomor S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('nomor_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="nomor_sket_perpanjangan_kpn_pertama"
-                                value="{{ old('nomor_sket_perpanjangan_kpn_pertama', $defaultNomorSketKpn1) }}" placeholder="Nomor Surat Penetapan / Izin KPN Pertama" required>
+                                value="{{ old('nomor_sket_perpanjangan_kpn_pertama', $defaultNomorSketKpn1) }}" placeholder="Nomor Surat Penetapan / Izin KPN Pertama" required readonly style="background-color: #e9ecef;">
                             @error('nomor_sket_perpanjangan_kpn_pertama')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -353,7 +353,7 @@
                             <label class="fw-bold" for="tanggal_sket_perpanjangan_kpn_pertama">Tanggal S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
                             <input id="tanggal_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('tanggal_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="tanggal_sket_perpanjangan_kpn_pertama"
                                 placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_sket_perpanjangan_kpn_pertama', $defaultTanggalSketKpn1) }}" data-provide="datepicker" required>
+                                value="{{ old('tanggal_sket_perpanjangan_kpn_pertama', $defaultTanggalSketKpn1) }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
                             @error('tanggal_sket_perpanjangan_kpn_pertama')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
