@@ -216,6 +216,11 @@ class Accident extends Model
             ]);
     }
 
+    public function laporanPolisi()
+    {
+        return $this->hasOne(\App\Models\LaporanPolisi::class, 'accident_id', 'id');
+    }
+
     public function suspect()
     {
         return $this->hasMany(Suspect::class, 'accident_id', 'id');

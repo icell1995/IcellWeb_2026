@@ -72,64 +72,6 @@
                     }
                 @endphp
 
-                {{-- Baris Dokumen Laporan Polisi (LP) - Muncul jika dokumen sudah diupload --}}
-                @if($lpItem)
-                <tr>
-                    <td class="text-center align-middle fw-semibold">
-                        Laporan Polisi (LP)
-                    </td>
-                    <td class="text-center align-middle">
-                        {{ $no_lp ?? '-' }}
-                    </td>
-                    <td class="text-center align-middle">
-                        {{ !empty($lpItem->created_at) ? Carbon\Carbon::parse($lpItem->created_at)->locale('id')->translatedFormat('d F Y') : '-' }}
-                    </td>
-                    <td class="text-center align-middle">
-                        {{ !empty($accident_report_date ?? ($accident->report_date ?? null)) ? Carbon\Carbon::parse($accident_report_date ?? $accident->report_date)->locale('id')->translatedFormat('d F Y') : '-' }}
-                    </td>
-                    <td class="text-center align-middle">-</td>
-                    <td class="text-center align-middle">-</td>
-                    <td class="text-center align-middle">
-                        @php
-                            $lpCreator = !empty($lpItem->created_by) ? \App\Models\User::where('username', $lpItem->created_by)->orWhere('register_number', $lpItem->created_by)->first() : null;
-                        @endphp
-                        <div class="d-flex flex-column">
-                            @if($lpCreator)
-                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
-                                    {{ App\Helpers\PeopleNameHelper::getFullName($lpCreator->first_title, $lpCreator->first_name, $lpCreator->last_name, $lpCreator->last_title) }}
-                                </button>
-                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
-                                    {{ $lpCreator->register_number ?? $lpCreator->username }}
-                                </button>
-                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
-                                    {{ $lpCreator->rank->name ?? ($lpCreator->pangkat ?? '') }}
-                                </button>
-                            @elseif(!empty($lpItem->created_by))
-                                <button type="button" class="btn btn-sm btn-secondary btn-block text-bold mb-2" disabled>
-                                    {{ $lpItem->created_by }}
-                                </button>
-                            @else
-                                -
-                            @endif
-                        </div>
-                    </td>
-                    <td class="text-center align-middle">
-                        <a target="_blank" href="{{ url('/laporan_polisi/' . $id) }}" class="btn btn-primary btn-lg">
-                            <i class="bi bi-eye"></i>
-                            <h6 class="" style="font-size: 14px!important;">
-                                View Dokumen
-                            </h6>
-                        </a>
-                    </td>
-                    <td class="text-center align-middle">
-                        @if (in_array(Auth::getUser()->role_id, [1, 3, 4, 5]) || $isCanEntryDocument == true)
-                            <button type="button" class="btn btn-warning btn-sm m-1" data-bs-toggle="modal" data-bs-target="#modalGantiLp">
-                                <i class="bi bi-pencil-square"></i> Ganti File
-                            </button>
-                        @endif
-                    </td>
-                </tr>
-                @endif
 
                 @if (!empty($accidentDocuments))
                     @foreach ($accidentDocuments as $accidentDocument)
@@ -461,6 +403,65 @@
                             </td>
                         </tr>
                     @endforeach
+                @endif
+
+                {{-- Baris Dokumen Laporan Polisi (LP) - Berada di posisi paling bawah karena merupakan dokumen awal/pertama --}}
+                @if($lpItem)
+                <tr>
+                    <td class="text-center align-middle fw-semibold">
+                        Laporan Polisi (LP)
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ $no_lp ?? '-' }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ !empty($lpItem->created_at) ? Carbon\Carbon::parse($lpItem->created_at)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ !empty($accident_report_date ?? ($accident->report_date ?? null)) ? Carbon\Carbon::parse($accident_report_date ?? $accident->report_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </td>
+                    <td class="text-center align-middle">-</td>
+                    <td class="text-center align-middle">-</td>
+                    <td class="text-center align-middle">
+                        @php
+                            $lpCreator = !empty($lpItem->created_by) ? \App\Models\User::where('username', $lpItem->created_by)->orWhere('register_number', $lpItem->created_by)->first() : null;
+                        @endphp
+                        <div class="d-flex flex-column">
+                            @if($lpCreator)
+                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
+                                    {{ App\Helpers\PeopleNameHelper::getFullName($lpCreator->first_title, $lpCreator->first_name, $lpCreator->last_name, $lpCreator->last_title) }}
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
+                                    {{ $lpCreator->register_number ?? $lpCreator->username }}
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
+                                    {{ $lpCreator->rank->name ?? ($lpCreator->pangkat ?? '') }}
+                                </button>
+                            @elseif(!empty($lpItem->created_by))
+                                <button type="button" class="btn btn-sm btn-secondary btn-block text-bold mb-2" disabled>
+                                    {{ $lpItem->created_by }}
+                                </button>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </td>
+                    <td class="text-center align-middle">
+                        <a target="_blank" href="{{ url('/laporan_polisi/' . $id) }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-eye"></i>
+                            <h6 class="" style="font-size: 14px!important;">
+                                View Dokumen
+                            </h6>
+                        </a>
+                    </td>
+                    <td class="text-center align-middle">
+                        @if (in_array(Auth::getUser()->role_id, [1, 3, 4, 5]) || $isCanEntryDocument == true)
+                            <button type="button" class="btn btn-warning btn-sm m-1" data-bs-toggle="modal" data-bs-target="#modalGantiLp">
+                                <i class="bi bi-pencil-square"></i> Ganti File
+                            </button>
+                        @endif
+                    </td>
+                </tr>
                 @endif
             </tbody>
         </table>
