@@ -14,8 +14,27 @@
             @endphp
 
 
-            <form method="POST" action="{{ route('case.save', ['id' => $case['id']]) }}">
+            <form method="POST" action="{{ route('case.save', ['id' => $case['id']]) }}" enctype="multipart/form-data">
                 @csrf
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-octagon-fill me-2"></i>Terdapat kesalahan input:</h6>
+                        <ul class="mb-0 ps-3">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-12 col-12">
                         <div class="col-12 mb-2">
@@ -208,23 +227,36 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label class="fw-semibold">Deskripsi</label>
-                        <div class="col-12">
-                            <textarea id="accident_description" name="accident_description" type="text" disabled="disabled" class="form-control" rows="3">{{ $case['accident_description'] }}</textarea>
-                        </div>
-                        <div class="col-12">
-                            <textarea id="damage_lose_desc" name="damage_lose_desc" type="text" disabled="disabled" class="form-control mt-2" rows="3">{{ $case['damage_lose_desc'] }}</textarea>
-                        </div>
-                        <div class="col-12">
-                            <textarea id="temporary_deductive" name="temporary_deductive" type="text" disabled="disabled" class="form-control mt-2" rows="3">{{ $case['temporary_deductive'] }}</textarea>
-                        </div>
+                <div class="form-group mt-3">
+                    <label class="fw-semibold">Deskripsi</label>
+                    <div class="col-12">
+                        <textarea id="accident_description" name="accident_description" type="text" disabled="disabled" class="form-control" rows="3">{{ $case['accident_description'] }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <textarea id="damage_lose_desc" name="damage_lose_desc" type="text" disabled="disabled" class="form-control mt-2" rows="3">{{ $case['damage_lose_desc'] }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <textarea id="temporary_deductive" name="temporary_deductive" type="text" disabled="disabled" class="form-control mt-2" rows="3">{{ $case['temporary_deductive'] }}</textarea>
                     </div>
                 </div>
 
-                @if(Auth::getUser()->role_id == 3 || Auth::getUser()->role_id == 1)
-                    <div class="d-flex justify-content-center mt-3">
+                <div class="form-group mt-3">
+                    <label class="fw-semibold" for="lp_file">
+                        Upload Dokumen Laporan Polisi (LP) <span class="text-danger">*</span>
+                    </label>
+                    <div class="text-muted small mb-2">
+                        Silakan upload dokumen Laporan Polisi (LP) yang di-download dari IRSMS dan sudah ditandatangani. (Format berkas <strong>.PDF</strong>, maks. 30 MB)
+                    </div>
+                    <input type="file" name="lp_file" id="lp_file" class="form-control @error('lp_file') is-invalid @enderror" accept="application/pdf" required>
+                    @error('lp_file')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                {{-- @if(Auth::getUser()->role_id == 3 || Auth::getUser()->role_id == 1) --}}
+                    <div class="d-flex justify-content-center mt-4">
                         <a class="btn btn-danger me-2" href="{{ route('case.index') }}">
                             Kembali
                         </a>
@@ -232,7 +264,7 @@
                             {{ __('Tindak Lanjut') }}
                         </button>
                     </div>
-                @endif
+                {{-- @endif --}}
             </form>
         </div>
     </div>

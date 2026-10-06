@@ -15,13 +15,15 @@ class DocService
     {
         // if mode is empty, then update last_synced_at
         if (empty($mode) || $mode != 'STAGING') {
-            // Update last_synced_at
+            // Update last_synced_at if column exists
             $documentId = $document->id;
-            DB::table($tableName)
-                ->where('id', $documentId)
-                ->update([
-                    'last_synced_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                ]);
+            if (\Illuminate\Support\Facades\Schema::hasColumn($tableName, 'last_synced_at')) {
+                DB::table($tableName)
+                    ->where('id', $documentId)
+                    ->update([
+                        'last_synced_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                    ]);
+            }
 
             // Insert to history
             DocumentApiSyncHistory::create([
