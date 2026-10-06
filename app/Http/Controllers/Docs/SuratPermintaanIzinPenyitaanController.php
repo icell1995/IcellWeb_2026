@@ -1159,12 +1159,8 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                     $constName = trim($l->constitution);
                 }
                 
-                if (empty($constName)) {
-                    $constName = 'Tanpa UU';
-                }
-
                 if ($l->flag === 'ADDITIONAL' || $l->flag === 'ADDT') {
-                    if (!empty($l->constitution)) {
+                    if (!empty($l->constitution) && empty($chapter)) {
                         $groupedLaws[$constName][] = '';
                     } elseif (!empty($chapter)) {
                         $groupedLaws[$constName][] = $chapter;
@@ -1194,11 +1190,11 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                     } else {
                         $text = $chapters[0];
                     }
-                    if ($uu !== 'Tanpa UU') {
+                    if (!empty($uu)) {
                         $text .= ' ' . $uu;
                     }
                 } else {
-                    if ($uu !== 'Tanpa UU') {
+                    if (!empty($uu)) {
                         $text = $uu;
                     }
                 }
@@ -1331,10 +1327,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                 if ($s) {
                     $sNames[] = $s->full_name ?? ($s->name ?? '-');
                     $sNiks[] = $s->id_card_number ?? ($s->identity_number ?? '-');
-                    $natVal = $s->country->name ?? ($s->citizenship ?? (!empty($s->country) && is_string($s->country) ? $s->country : 'Indonesia'));
-                    if (strtoupper($natVal) === 'WNI') {
-                        $natVal = 'Indonesia';
-                    }
+                    $natVal = $s->nationality ?? '-';
                     $sNats[] = $natVal;
                     $sGenders[] = $s->gender->name ?? ($s->gender_name ?? ($s->gender == 'M' || $s->gender == '1' ? 'Laki-laki' : ($s->gender == 'F' || $s->gender == '2' ? 'Perempuan' : '-')));
                     $sBirthPlaces[] = $s->birth_place ?? '-';
@@ -1383,11 +1376,8 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                     $rNames[] = !empty($reportedPerson->name) ? $reportedPerson->name : '-';
                     $rNiks[] = !empty($reportedPerson->identity_number) ? $reportedPerson->identity_number : (!empty($reportedPerson->id_card_number) ? $reportedPerson->id_card_number : '-');
 
-                    $nat = $reportedPerson->country->name ?? ($reportedPerson->citizenship ?? 'Indonesia');
-                    if (strtoupper($nat) === 'WNI') {
-                        $nat = 'Indonesia';
-                    }
-                    $rNats[] = !empty($nat) ? $nat : 'Indonesia';
+                    $nat = $reportedPerson->nationality->name ?? '-';
+                    $rNats[] = $nat;
 
                     if (!empty($reportedPerson->is_unknown_gender)) {
                         $rGenders[] = 'TIDAK DIKETAHUI';
@@ -1617,23 +1607,60 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             $crimeClass = $firstLaw->crimeClass->name ?? ($firstLaw->crimeType->name ?? 'Kejahatan Lalu Lintas');
         }
 
-        $lawStrings = [];
+        $groupedLaws = [];
         foreach ($laws as $l) {
+            $chapter = trim($l->constitution_chapter ?? '');
+            if (!empty($chapter) && stripos($chapter, 'pasal') !== 0) {
+                $chapter = 'Pasal ' . $chapter;
+            }
+
+            $constName = '';
+            if (!empty($l->crimeConstitution) && !empty($l->crimeConstitution->name)) {
+                $constName = trim($l->crimeConstitution->name);
+            } elseif (!empty($l->constitution)) {
+                $constName = trim($l->constitution);
+            }
+
             if ($l->flag === 'ADDITIONAL' || $l->flag === 'ADDT') {
-                if (!empty($l->constitution)) {
-                    $lawStrings[] = $l->constitution;
+                if (!empty($l->constitution) && empty($chapter)) {
+                    $groupedLaws[$constName][] = '';
+                } elseif (!empty($chapter)) {
+                    $groupedLaws[$constName][] = $chapter;
+                } else {
+                    $groupedLaws[$constName][] = '';
                 }
             } else {
-                $part = '';
-                if (!empty($l->constitution_chapter)) {
-                    $part .= 'Pasal ' . ltrim($l->constitution_chapter, 'Pasal ') . ' ';
+                if (!empty($chapter)) {
+                    $groupedLaws[$constName][] = $chapter;
+                } else {
+                    $groupedLaws[$constName][] = '';
                 }
-                if (!empty($l->crimeConstitution->name)) {
-                    $part .= $l->crimeConstitution->name;
+            }
+        }
+
+        $lawStrings = [];
+        foreach ($groupedLaws as $uu => $chapters) {
+            $chapters = array_values(array_unique(array_filter(array_map('trim', $chapters), function($c) { return !empty($c); })));
+            $text = '';
+            if (count($chapters) > 0) {
+                if (count($chapters) > 1) {
+                    $last = array_pop($chapters);
+                    $text = implode(', ', $chapters) . ' dan ' . $last;
+                } else {
+                    $text = $chapters[0];
                 }
-                if (!empty($part)) {
-                    $lawStrings[] = trim($part);
+                if (!empty($uu)) {
+                    $text .= ' ' . $uu;
                 }
+            } else {
+                if (!empty($uu)) {
+                    $text = $uu;
+                }
+            }
+            
+            $text = trim($text);
+            if (!empty($text)) {
+                $lawStrings[] = $text;
             }
         }
         $crimeConstitutionText = !empty($lawStrings) ? implode(', ', $lawStrings) : 'Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan';

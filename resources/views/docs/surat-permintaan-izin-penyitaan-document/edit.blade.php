@@ -345,7 +345,7 @@
                         </div>
 
                         <!-- Pengadilan Negeri Tujuan -->
-                        <div class="form-group row mb-3 align-items-center">
+                        <div class="form-group row mb-3">
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="court_id">
                                 Pengadilan Negeri Tujuan<span class="text-danger fs-5">*</span>
                             </label>
@@ -635,19 +635,19 @@
                                     @if(isset($mainLaws) && count($mainLaws) > 0)
                                         @foreach ($mainLaws as $law)
                                             <tr class="law-row text-center">
-                                                <td>
+                                                <td class="text-center align-middle">
                                                     {{ $law->crimeType->name ?? '-' }}
                                                     <input type="hidden" name="lawCrimeTypeIds[]" value="{{ $law->crime_type_id }}">
                                                 </td>
-                                                <td>
+                                                <td class="text-center align-middle">
                                                     {{ $law->crimeClass->name ?? '-' }}
                                                     <input type="hidden" name="lawCrimeClassIds[]" value="{{ $law->crime_class_id }}">
                                                 </td>
-                                                <td>
+                                                <td class="text-center align-middle">
                                                     {{ $law->crimeConstitution->name ?? '-' }}
                                                     <input type="hidden" name="lawCrimeConstitutionIds[]" value="{{ $law->crime_constitution_id }}">
                                                 </td>
-                                                <td>
+                                                <td class="text-center align-middle">
                                                     {{ $law->constitution_chapter ?? '-' }}
                                                     <input type="hidden" name="lawCrimeConstitutionChapters[]" value="{{ $law->constitution_chapter }}">
                                                 </td>
@@ -698,8 +698,8 @@
                                         @if(old('lawAdditionalNames'))
                                             @foreach(old('lawAdditionalNames') as $lawName)
                                                 <tr class="text-center">
-                                                    <td>{{ $lawName }}</td>
-                                                    <td>
+                                                    <td class="text-center align-middle">{{ $lawName }}</td>
+                                                    <td class="text-center align-middle">
                                                         <input type="hidden" name="lawAdditionalNames[]" value="{{ $lawName }}">
                                                         <button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>
                                                     </td>
@@ -711,8 +711,8 @@
                                                     $lawName = $addLaw->constitution ?? $addLaw->description ?? '';
                                                 @endphp
                                                 <tr class="text-center">
-                                                    <td>{{ $lawName }}</td>
-                                                    <td>
+                                                    <td class="text-center align-middle">{{ $lawName }}</td>
+                                                    <td class="text-center align-middle">
                                                         <input type="hidden" name="lawAdditionalNames[]" value="{{ $lawName }}">
                                                         <button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>
                                                     </td>
@@ -1212,19 +1212,19 @@
 
                 var rowHtml = `
                     <tr class="law-row text-center">
-                        <td>
+                        <td class="text-center align-middle">
                             ${crimeTypeName}
                             <input type="hidden" name="lawCrimeTypeIds[]" value="${crimeTypeId}">
                         </td>
-                        <td>
+                        <td class="text-center align-middle">
                             ${crimeClassName}
                             <input type="hidden" name="lawCrimeClassIds[]" value="${crimeClassId}">
                         </td>
-                        <td>
+                        <td class="text-center align-middle">
                             ${crimeConstitutionName}
                             <input type="hidden" name="lawCrimeConstitutionIds[]" value="${crimeConstitutionId}">
                         </td>
-                        <td>
+                        <td class="text-center align-middle">
                             ${chapter}
                             <input type="hidden" name="lawCrimeConstitutionChapters[]" value="${chapter}">
                         </td>
@@ -1260,8 +1260,8 @@
                     $('#additionalLaw').parent().find('small').remove();
                     $('#additionalLawTable tbody').append(
                         '<tr class="text-center">' +
-                        '<td>' + lawAdditionalName + '</td>' +
-                        '<td>' +
+                        '<td class="text-center align-middle">' + lawAdditionalName + '</td>' +
+                        '<td class="text-center align-middle">' +
                         '<input type="hidden" name="lawAdditionalNames[]" value="' + lawAdditionalName + '">' +
                         '<button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>' +
                         '</td>' +

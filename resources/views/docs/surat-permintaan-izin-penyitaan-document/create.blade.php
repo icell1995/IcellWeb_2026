@@ -341,7 +341,7 @@
                         </div>
 
                         <!-- Pengadilan Negeri Tujuan -->
-                        <div class="form-group row mb-3 align-items-center">
+                        <div class="form-group row mb-3">
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="court_id">
                                 Pengadilan Negeri Tujuan<span class="text-danger fs-5">*</span>
                             </label>
@@ -1129,19 +1129,19 @@
 
                 var rowHtml = `
                     <tr class="law-row text-center">
-                        <td>
+                        <td class="text-center align-middle">
                             ${crimeTypeName}
                             <input type="hidden" name="lawCrimeTypeIds[]" value="${crimeTypeId}">
                         </td>
-                        <td>
+                        <td class="text-center align-middle">
                             ${crimeClassName}
                             <input type="hidden" name="lawCrimeClassIds[]" value="${crimeClassId}">
                         </td>
-                        <td>
+                        <td class="text-center align-middle">
                                 ${crimeConstitutionName}
                             <input type="hidden" name="lawCrimeConstitutionIds[]" value="${crimeConstitutionId}">
                         </td>
-                        <td>
+                        <td class="text-center align-middle">
                             ${chapter}
                             <input type="hidden" name="lawCrimeConstitutionChapters[]" value="${chapter}">
                         </td>
@@ -1177,8 +1177,8 @@
                     $('#additionalLaw').parent().find('small').remove();
                     $('#additionalLawTable tbody').append(
                         '<tr class="text-center">' +
-                        '<td>' + lawAdditionalName + '</td>' +
-                        '<td>' +
+                        '<td class="text-center align-middle">' + lawAdditionalName + '</td>' +
+                        '<td class="text-center align-middle">' +
                         '<input type="hidden" name="lawAdditionalNames[]" value="' + lawAdditionalName + '">' +
                         '<button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>' +
                         '</td>' +

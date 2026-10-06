@@ -1175,10 +1175,6 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                 } elseif (!empty($l->constitution)) {
                     $constName = trim($l->constitution);
                 }
-                
-                if (empty($constName)) {
-                    $constName = 'Tanpa UU';
-                }
 
                 if ($l->flag === 'ADDITIONAL' || $l->flag === 'ADDT') {
                     if (!empty($l->constitution)) {
@@ -1207,11 +1203,11 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                     } else {
                         $text = $chapters[0];
                     }
-                    if ($uu !== 'Tanpa UU') {
+                    if (!empty($uu)) {
                         $text .= ' ' . $uu;
                     }
                 } else {
-                    if ($uu !== 'Tanpa UU') {
+                    if (!empty($uu)) {
                         $text = $uu;
                     }
                 }
@@ -1454,9 +1450,13 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                 if ($s) {
                     $sNames[] = $s->full_name ?? ($s->name ?? '-');
                     $sNiks[] = $s->id_card_number ?? ($s->identity_number ?? '-');
-                    $natVal = $s->country->name ?? ($s->citizenship ?? (!empty($s->country) && is_string($s->country) ? $s->country : 'Indonesia'));
-                    if (strtoupper($natVal) === 'WNI') {
-                        $natVal = 'Indonesia';
+                    $natVal = '-';
+                    if ($person->suspect_id) {
+                        $natVal = $s->nationality ?? '-';
+                    } elseif ($person->reported_person_id) {
+                        $natVal = $s->nationality->name ?? '-';
+                    } elseif ($person->witness_id) {
+                        $natVal = is_object($s->nationality) ? ($s->nationality->name ?? '-') : ($s->nationality ?? '-');
                     }
                     $sNats[] = $natVal;
                     $sGenders[] = $s->gender->name ?? ($s->gender_name ?? ($s->gender == 'M' || $s->gender == '1' ? 'Laki-laki' : ($s->gender == 'F' || $s->gender == '2' ? 'Perempuan' : '-')));
