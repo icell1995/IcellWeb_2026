@@ -153,6 +153,21 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
         $satkerName = $accident->police->full_name ?? $accident->polres->full_name ?? $accident->polres->name ?? 'Satker';
         $satkerCode = $accident->police->satker_code ?? $accident->polres->satker_code ?? $accident->polres->code ?? '';
 
+        // 4. Auto-resolusi Dokumen Surat Perintah Penahanan (S-17)
+        $s17Documents = \App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::with(['suspects'])
+            ->where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $defaultS17 = $s17Documents->first();
+        $defaultS17Id = $defaultS17->id ?? null;
+        $defaultNomorSuratPerintahPenahanan = $defaultS17 ? ($defaultS17->nomor ?? $defaultS17->document_number ?? null) : null;
+        $defaultTanggalSuratPerintahPenahanan = $defaultS17 ? ($defaultS17->tanggal ?? $defaultS17->document_date ?? null) : null;
+        $defaultSuspectId = null;
+        if ($defaultS17 && $defaultS17->suspects && $defaultS17->suspects->isNotEmpty()) {
+            $defaultSuspectId = $defaultS17->suspects->first()->id ?? $defaultS17->suspects->first()->suspect_id ?? null;
+        }
+
         $viewData = [
             'satkerName' => $satkerName,
             'satkerCode' => $satkerCode,
@@ -165,6 +180,11 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             'spdpDocument' => $spdpDocument,
             'sprinSidik' => $sprinSidik,
             'sketTersangkaDocument' => $sketTersangkaDocument,
+            's17Documents' => $s17Documents,
+            'defaultS17Id' => $defaultS17Id,
+            'defaultNomorSuratPerintahPenahanan' => $defaultNomorSuratPerintahPenahanan,
+            'defaultTanggalSuratPerintahPenahanan' => $defaultTanggalSuratPerintahPenahanan,
+            'defaultSuspectId' => $defaultSuspectId,
             'crimeTypes' => $crimeTypes,
             'crimeClasses' => $crimeClasses,
             'crimeConstitutions' => $crimeConstitutions,
@@ -220,6 +240,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             $document->tanggal_surat_perintah_penyidikan = $request->tanggal_surat_perintah_penyidikan ? Carbon::parse($request->tanggal_surat_perintah_penyidikan)->format('Y-m-d') : null;
             $document->nomor_sket_tersangka = $request->nomor_sket_tersangka ?: null;
             $document->tanggal_sket_tersangka = $request->tanggal_sket_tersangka ? Carbon::parse($request->tanggal_sket_tersangka)->format('Y-m-d') : null;
+            $document->surat_perintah_penahanan_document_id = $request->surat_perintah_penahanan_document_id ?: null;
             $document->nomor_surat_perintah_penahanan = $request->nomor_surat_perintah_penahanan ?: null;
             $document->tanggal_surat_perintah_penahanan = $request->tanggal_surat_perintah_penahanan ? Carbon::parse($request->tanggal_surat_perintah_penahanan)->format('Y-m-d') : null;
 
@@ -498,6 +519,12 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             $selectedSuspectIds = $document->suspects->pluck('suspect_id')->filter()->values()->toArray();
         }
 
+        $s17Documents = \App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::with(['suspects'])
+            ->where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $viewData = [
             'document' => $document,
             'satkerName' => $satkerName,
@@ -508,6 +535,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             'accident' => $accident,
             'resortPoliceId' => $accident->polres_id,
             'suspects' => $suspects,
+            's17Documents' => $s17Documents,
             'selectedSuspectId' => $selectedSuspectIds[0] ?? null,
             'selectedSuspectIds' => $selectedSuspectIds,
             'selectedSignatoryId' => $signatoryOfficer->officer_id ?? null,
@@ -559,6 +587,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             $document->tanggal_surat_perintah_penyidikan = $request->tanggal_surat_perintah_penyidikan ? Carbon::parse($request->tanggal_surat_perintah_penyidikan)->format('Y-m-d') : $document->tanggal_surat_perintah_penyidikan;
             $document->nomor_sket_tersangka = $request->nomor_sket_tersangka ?: $document->nomor_sket_tersangka;
             $document->tanggal_sket_tersangka = $request->tanggal_sket_tersangka ? Carbon::parse($request->tanggal_sket_tersangka)->format('Y-m-d') : $document->tanggal_sket_tersangka;
+            $document->surat_perintah_penahanan_document_id = $request->surat_perintah_penahanan_document_id ?: $document->surat_perintah_penahanan_document_id;
             $document->nomor_surat_perintah_penahanan = $request->nomor_surat_perintah_penahanan ?: $document->nomor_surat_perintah_penahanan;
             $document->tanggal_surat_perintah_penahanan = $request->tanggal_surat_perintah_penahanan ? Carbon::parse($request->tanggal_surat_perintah_penahanan)->format('Y-m-d') : $document->tanggal_surat_perintah_penahanan;
 
@@ -783,6 +812,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             $request->merge(['suspect_id' => $request->suspects]);
         }
         $rules = [
+            'surat_perintah_penahanan_document_id' => 'nullable',
             'nomor_surat' => 'required|string|max:255',
             'tanggal_surat' => 'required|date',
             'dikeluarkan_di' => 'required|max:255',

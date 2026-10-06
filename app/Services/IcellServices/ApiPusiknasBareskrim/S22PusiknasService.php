@@ -36,13 +36,18 @@ class S22PusiknasService
         }
 
         // 3. Susun Identitas Dokumen (WAJIB sesuai Swagger SPPT-TI)
+        $nomorSprintPenahanan = $document->nomor_surat_perintah_penahanan;
+        if (empty($nomorSprintPenahanan) && $document->suratPerintahPenahananDocument) {
+            $nomorSprintPenahanan = $document->suratPerintahPenahananDocument->nomor ?? $document->suratPerintahPenahananDocument->document_number ?? '';
+        }
+
         $identitasDokumen = [
             'nomor' => (string) ($document->nomor_surat ?? ''),
             'tanggal' => $document->tanggal_surat ? Carbon::parse($document->tanggal_surat)->format('Y-m-d') : null,
             'nomor_spdp' => (string) ($document->nomor_spdp ?? ''),
             'tanggal_spdp' => $document->tanggal_spdp ? Carbon::parse($document->tanggal_spdp)->format('Y-m-d') : null,
             'kode_satker_penerbit_spdp' => (string) ($satkerPenerbit ?? ''),
-            'nomor_surat_perintah_penahanan' => (string) ($document->nomor_surat_perintah_penahanan ?? ''),
+            'nomor_surat_perintah_penahanan' => (string) ($nomorSprintPenahanan ?? ''),
         ];
 
         // Satker tempat penahanan (prioritas: kode di dokumen -> spptti_id rutan -> satker penerbit)

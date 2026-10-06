@@ -113,6 +113,11 @@ class SuratPerintahPembantaranPenahananDocument extends Model
         return $this->belongsTo('App\Models\User', 'created_by_user_id', 'id');
     }
 
+    public function suratPerintahPenahananDocument()
+    {
+        return $this->belongsTo(\App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::class, 'surat_perintah_penahanan_document_id', 'id');
+    }
+
     public function getSignatoryAttribute()
     {
         return $this->officers->where('class', 'like', '%SIGNATORY%')->first()

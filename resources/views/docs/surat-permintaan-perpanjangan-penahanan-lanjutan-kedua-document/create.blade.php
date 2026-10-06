@@ -228,6 +228,20 @@
                     <span class="fw-bold text-dark mb-2">Surat Perintah Penahanan Penyidik (S-17)</span>
                     <div class="row">
                         <div class="col-12 mb-2">
+                            <label class="fw-bold" for="surat_perintah_penahanan_document_id">Pilih Dokumen S-17 Terkait (Opsional)</label>
+                            <select class="form-control select2" name="surat_perintah_penahanan_document_id" id="surat_perintah_penahanan_document_id">
+                                <option value="">-- Hubungkan Dokumen S-17 --</option>
+                                @if(isset($s17Documents))
+                                    @foreach($s17Documents as $s17)
+                                        <option value="{{ $s17->id }}" data-nomor="{{ $s17->nomor ?? $s17->document_number }}" data-tanggal="{{ $s17->tanggal ?? $s17->document_date }}" {{ (old('surat_perintah_penahanan_document_id', $defaultS17Id ?? null) == $s17->id) ? 'selected' : '' }}>
+                                            {{ ($s17->nomor ?? $s17->document_number ?? 'S-17') . ' (' . ($s17->tanggal ? Carbon\Carbon::parse($s17->tanggal)->format('d/m/Y') : ($s17->document_date ? Carbon\Carbon::parse($s17->document_date)->format('d/m/Y') : '-')) . ')' }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            <small class="text-muted">Pilih dokumen S-17 untuk menautkan relasi dan mengisi otomatis nomor & tanggal di bawah.</small>
+                        </div>
+                        <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_surat_perintah_penahanan">Nomor Sprint Penahanan<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_surat_perintah_penahanan" type="text" class="form-control @error('nomor_surat_perintah_penahanan') is-invalid @enderror" name="nomor_surat_perintah_penahanan"
                                 value="{{ old('nomor_surat_perintah_penahanan', $defaultNomorSprintPenahanan) }}" placeholder="Contoh: Sp.Han/12/IV/2026/Lantas" required>
@@ -251,6 +265,20 @@
                 <div class="card bg-light border-0 mb-3 p-3">
                     <span class="fw-bold text-dark mb-2">Surat Perpanjangan Penahanan dari Kejaksaan</span>
                     <div class="row">
+                        <div class="col-12 mb-2">
+                            <label class="fw-bold" for="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id">Pilih Dokumen S-21 Terkait (Opsional)</label>
+                            <select class="form-control select2" name="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id" id="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id">
+                                <option value="">-- Hubungkan Dokumen S-21 --</option>
+                                @if(isset($s21Documents))
+                                    @foreach($s21Documents as $s21)
+                                        <option value="{{ $s21->id }}" data-nomor="{{ $s21->nomor ?? $s21->document_number }}" data-tanggal="{{ $s21->tanggal ?? $s21->document_date }}" {{ (old('surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id', $defaultS21Id ?? null) == $s21->id) ? 'selected' : '' }}>
+                                            {{ ($s21->nomor ?? $s21->document_number ?? 'S-21') . ' (' . ($s21->tanggal ? Carbon\Carbon::parse($s21->tanggal)->format('d/m/Y') : ($s21->document_date ? Carbon\Carbon::parse($s21->document_date)->format('d/m/Y') : '-')) . ')' }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            <small class="text-muted">Pilih dokumen S-21 untuk menautkan relasi dan mengisi otomatis nomor & tanggal di bawah.</small>
+                        </div>
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_surat_perpanjangan_kejaksaan">Nomor Perpanjangan Kejaksaan<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_surat_perpanjangan_kejaksaan" type="text" class="form-control @error('nomor_surat_perpanjangan_kejaksaan') is-invalid @enderror" name="nomor_surat_perpanjangan_kejaksaan"
@@ -299,6 +327,20 @@
                 <div class="card bg-light border-0 mb-3 p-3">
                     <span class="fw-bold text-dark mb-2">Surat Ketetapan Perpanjangan Penahanan Ketua Pengadilan Negeri (KPN1)</span>
                     <div class="row">
+                        <div class="col-12 mb-2">
+                            <label class="fw-bold" for="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id">Pilih Dokumen S-22 Pertama Terkait (Opsional)</label>
+                            <select class="form-control select2" name="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id" id="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id">
+                                <option value="">-- Hubungkan Dokumen S-22 Pertama --</option>
+                                @if(isset($s22PertamaDocuments))
+                                    @foreach($s22PertamaDocuments as $s22p)
+                                        <option value="{{ $s22p->id }}" data-nomor="{{ $s22p->nomor_surat ?? $s22p->document_number }}" data-tanggal="{{ $s22p->tanggal_surat ?? $s22p->document_date }}" data-akhir="{{ $s22p->tanggal_akhir_perpanjangan_penahanan }}" {{ (old('surat_permintaan_perpanjangan_penahanan_lanjutan_document_id', $defaultS22PertamaId ?? null) == $s22p->id) ? 'selected' : '' }}>
+                                            {{ ($s22p->nomor_surat ?? $s22p->document_number ?? 'S-22 Pertama') . ' (' . ($s22p->tanggal_surat ? Carbon\Carbon::parse($s22p->tanggal_surat)->format('d/m/Y') : ($s22p->document_date ? Carbon\Carbon::parse($s22p->document_date)->format('d/m/Y') : '-')) . ')' }}
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            <small class="text-muted">Pilih permohonan S-22 pertama untuk menautkan relasi dan mengisi otomatis rujukan KPN1.</small>
+                        </div>
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_sket_perpanjangan_kpn_pertama">Nomor S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('nomor_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="nomor_sket_perpanjangan_kpn_pertama"
@@ -858,6 +900,47 @@
 
             $(document).on("click", ".removeCarbonCopiesButton", function() {
                 $(this).closest(".input-group").remove();
+            });
+
+            // Auto-fill saat memilih dokumen relasi S-17, S-21, S-22 Pertama
+            $('#surat_perintah_penahanan_document_id').on('change', function() {
+                var $opt = $(this).find('option:selected');
+                var nomor = $opt.data('nomor');
+                var tanggal = $opt.data('tanggal');
+                if (nomor) {
+                    $('#nomor_surat_perintah_penahanan').val(nomor);
+                }
+                if (tanggal) {
+                    $('#tanggal_surat_perintah_penahanan').val(tanggal.toString().substring(0, 10));
+                }
+            });
+
+            $('#surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id').on('change', function() {
+                var $opt = $(this).find('option:selected');
+                var nomor = $opt.data('nomor');
+                var tanggal = $opt.data('tanggal');
+                if (nomor) {
+                    $('#nomor_surat_perpanjangan_kejaksaan').val(nomor);
+                }
+                if (tanggal) {
+                    $('#tanggal_surat_perpanjangan_kejaksaan').val(tanggal.toString().substring(0, 10));
+                }
+            });
+
+            $('#surat_permintaan_perpanjangan_penahanan_lanjutan_document_id').on('change', function() {
+                var $opt = $(this).find('option:selected');
+                var nomor = $opt.data('nomor');
+                var tanggal = $opt.data('tanggal');
+                var akhir = $opt.data('akhir');
+                if (nomor) {
+                    $('#nomor_sket_perpanjangan_kpn_pertama').val(nomor);
+                }
+                if (tanggal) {
+                    $('#tanggal_sket_perpanjangan_kpn_pertama').val(tanggal.toString().substring(0, 10));
+                }
+                if (akhir) {
+                    $('#pengadilan_negeri_akhir_tanggal').val(akhir.toString().substring(0, 10));
+                }
             });
 
             // AJAX Validation handling on form submit with SweetAlert2

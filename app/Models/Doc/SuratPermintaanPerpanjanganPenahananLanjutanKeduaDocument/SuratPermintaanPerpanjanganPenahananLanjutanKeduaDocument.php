@@ -133,6 +133,27 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument extends Model
         return $this->belongsTo(\App\Models\Lib\Prison::class, 'prison_id', 'id');
     }
 
+    public function suratPerintahPenahananDocument()
+    {
+        return $this->belongsTo(\App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::class, 'surat_perintah_penahanan_document_id', 'id');
+    }
+
+    public function suratPermohonanPerpanjanganPenahananKejaksaanDocument()
+    {
+        return $this->belongsTo(\App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class, 'surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id', 'id');
+    }
+
+    public function suratPermintaanPerpanjanganPenahananLanjutanDocument()
+    {
+        return $this->belongsTo(\App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument::class, 'surat_permintaan_perpanjangan_penahanan_lanjutan_document_id', 'id');
+    }
+
+    public function getSignatoryAttribute()
+    {
+        return $this->officers->where('class', 'like', '%SIGNATORY%')->first()
+            ?: $this->officers->first();
+    }
+
     public function getDocumentNumberAttribute()
     {
         return $this->nomor_surat;

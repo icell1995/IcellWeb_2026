@@ -30,13 +30,18 @@ class S23PusiknasService
         }
 
         // 3. Susun Identitas Dokumen Sesuai SPPT-TI DAT-5
+        $nomorS17 = $document->nomor_surat_perintah_penahanan;
+        if (empty($nomorS17) && $document->suratPerintahPenahananDocument) {
+            $nomorS17 = $document->suratPerintahPenahananDocument->nomor ?? $document->suratPerintahPenahananDocument->document_number ?? '';
+        }
+
         $identitasDokumen = [
             'nomor' => (string) ($document->nomor_surat ?? ''),
             'tanggal' => $document->tanggal_surat ? Carbon::parse($document->tanggal_surat)->format('Y-m-d') : null,
             'nomor_spdp' => (string) ($document->nomor_spdp ?? ''),
             'tanggal_spdp' => $document->tanggal_spdp ? Carbon::parse($document->tanggal_spdp)->format('Y-m-d') : null,
             'kode_satker_penerbit_spdp' => (string) ($satkerPenerbit ?? ''),
-            'nomor_s17' => (string) ($document->nomor_surat_perintah_penahanan ?? ''),
+            'nomor_s17' => (string) ($nomorS17 ?? ''),
         ];
 
         // 4. Susun Konten Dokumen Sesuai SPPT-TI DAT-5

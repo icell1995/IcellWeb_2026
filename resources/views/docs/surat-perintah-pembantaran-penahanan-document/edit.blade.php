@@ -231,6 +231,30 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label" for="surat_perintah_penahanan_document_id">Dokumen S-17 Terkait</label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                        <select class="form-control select2 @error('surat_perintah_penahanan_document_id') is-invalid @enderror" name="surat_perintah_penahanan_document_id" id="surat_perintah_penahanan_document_id">
+                            <option value="">-- Hubungkan Dokumen S-17 (Otomatis Isi / Tertaut) --</option>
+                            @if(isset($s17Documents))
+                                @foreach($s17Documents as $s17)
+                                    @php
+                                        $s17SuspectId = ($s17->suspects && $s17->suspects->isNotEmpty()) ? ($s17->suspects->first()->id ?? $s17->suspects->first()->suspect_id) : '';
+                                    @endphp
+                                    <option value="{{ $s17->id }}" 
+                                        data-nomor="{{ $s17->nomor ?? $s17->document_number }}" 
+                                        data-tanggal="{{ $s17->tanggal ?? $s17->document_date }}"
+                                        data-suspect-id="{{ $s17SuspectId }}"
+                                        {{ (old('surat_perintah_penahanan_document_id', $document->surat_perintah_penahanan_document_id ?? null) == $s17->id) ? 'selected' : '' }}>
+                                        {{ ($s17->nomor ?? $s17->document_number ?? 'S-17') . ' (' . ($s17->tanggal ? Carbon\Carbon::parse($s17->tanggal)->format('d/m/Y') : ($s17->document_date ? Carbon\Carbon::parse($s17->document_date)->format('d/m/Y') : '-')) . ')' }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small class="text-muted">Pilih surat perintah penahanan (S-17) untuk menautkan relasi dan mengisi otomatis nomor, tanggal, serta tersangka yang dibantarkan.</small>
+                    </div>
+                </div>
+
+                <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat_perintah_penahanan">No. Sprint Penahanan (S-17)<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nomor_surat_perintah_penahanan" type="text" class="form-control @error('nomor_surat_perintah_penahanan') is-invalid @enderror" name="nomor_surat_perintah_penahanan"
@@ -857,6 +881,23 @@
 
             $(document).on('click', '.deleteAdditionalLaw', function() {
                 $(this).closest('tr').remove();
+            });
+
+            // Auto-fill saat memilih dokumen relasi S-17
+            $('#surat_perintah_penahanan_document_id').on('change', function() {
+                var $opt = $(this).find('option:selected');
+                var nomor = $opt.data('nomor');
+                var tanggal = $opt.data('tanggal');
+                var suspectId = $opt.data('suspect-id');
+                if (nomor) {
+                    $('#nomor_surat_perintah_penahanan').val(nomor);
+                }
+                if (tanggal) {
+                    $('#tanggal_surat_perintah_penahanan').val(tanggal.toString().substring(0, 10));
+                }
+                if (suspectId) {
+                    $('#suspects').val([suspectId]).trigger('change');
+                }
             });
 
 

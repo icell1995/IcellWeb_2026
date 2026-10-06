@@ -101,6 +101,40 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
         $defaultRutanName = 'Rutan '.($accident->polres->full_name ?? '');
         $selectedSuspectIds = $sketTersangkaDocument ? $sketTersangkaDocument->suspect->pluck('id')->toArray() : ($suspects->count() === 1 ? [$suspects->first()->id] : []);
 
+        // Dokumen Pendahulu Surat Perintah Penahanan (S-17)
+        $s17Documents = \App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $s17Document = $s17Documents->first();
+        $defaultS17Id = $s17Document->id ?? null;
+        $defaultNomorSprintPenahanan = $s17Document->nomor ?? $s17Document->document_number ?? null;
+        $defaultTanggalSprintPenahanan = $s17Document->tanggal ?? $s17Document->document_date ?? null;
+        if (!empty($s17Document->tempat_penahanan)) {
+            $defaultRutanName = $s17Document->tempat_penahanan;
+        }
+
+        // Dokumen Pendahulu Surat Permohonan Perpanjangan Penahanan Kejaksaan (S-21)
+        $s21Documents = \App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $s21Document = $s21Documents->first();
+        $defaultS21Id = $s21Document->id ?? null;
+        $defaultNomorPerpanjanganKejaksaan = $s21Document->nomor ?? $s21Document->document_number ?? null;
+        $defaultTanggalPerpanjanganKejaksaan = $s21Document->tanggal ?? $s21Document->document_date ?? null;
+        $defaultNamaKejaksaan = $s21Document->nama_kejaksaan ?? ($s21Document->prosecutor->name ?? null);
+        $defaultKejaksaanAkhirTanggal = $s21Document->tanggal_akhir_perpanjangan ?? null;
+        if ($s21Document && !empty($s21Document->prosecutor_id)) {
+            $defaultKejaksaanId = $s21Document->prosecutor_id;
+        }
+
+        // Kalkulasi Tanggal Mulai & Akhir S-22 Pertama (30 Hari)
+        $defaultTanggalMulai = $defaultKejaksaanAkhirTanggal
+            ? Carbon::parse($defaultKejaksaanAkhirTanggal)->addDay()->format('Y-m-d')
+            : date('Y-m-d');
+        $defaultTanggalAkhir = Carbon::parse($defaultTanggalMulai)->addDays(29)->format('Y-m-d');
+
         $defaultNamaPengadilanNegeri = null;
         if ($defaultKejaksaanId) {
             $selectedPros = $prosecutors->firstWhere('id', $defaultKejaksaanId);
@@ -201,6 +235,20 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
             'defaultDugaanTindakPidana' => $defaultDugaanTindakPidana,
             'selectedSuspectIds' => $selectedSuspectIds,
             'prisonsGrouped' => Prison::active()->orderBy('province')->orderBy('name')->get()->groupBy('province'),
+            's17Documents' => $s17Documents,
+            's21Documents' => $s21Documents,
+            's17Document' => $s17Document,
+            's21Document' => $s21Document,
+            'defaultS17Id' => $defaultS17Id,
+            'defaultS21Id' => $defaultS21Id,
+            'defaultNomorSprintPenahanan' => $defaultNomorSprintPenahanan,
+            'defaultTanggalSprintPenahanan' => $defaultTanggalSprintPenahanan,
+            'defaultNomorPerpanjanganKejaksaan' => $defaultNomorPerpanjanganKejaksaan,
+            'defaultTanggalPerpanjanganKejaksaan' => $defaultTanggalPerpanjanganKejaksaan,
+            'defaultNamaKejaksaan' => $defaultNamaKejaksaan,
+            'defaultKejaksaanAkhirTanggal' => $defaultKejaksaanAkhirTanggal,
+            'defaultTanggalMulai' => $defaultTanggalMulai,
+            'defaultTanggalAkhir' => $defaultTanggalAkhir,
         ];
 
         return view('docs.surat-permintaan-perpanjangan-penahanan-lanjutan-document.create', $viewData);
@@ -288,6 +336,8 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
 
             $document = SuratPermintaanPerpanjanganPenahananLanjutanDocument::create([
                 'accident_id' => $accidentId,
+                'surat_perintah_penahanan_document_id' => $request->surat_perintah_penahanan_document_id ?: null,
+                'surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id' => $request->surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id ?: null,
                 'document_category_id' => '0606',
                 'status_id' => '2', // Dokumen Dibuat
                 'nomor_surat' => $request->nomor_surat,
@@ -544,6 +594,16 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
             }
         }
 
+        // Dokumen Pendahulu S-17 & S-21 untuk Edit
+        $s17Documents = \App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $s21Documents = \App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $viewData = [
             'document' => $document,
             'authorizedSignatories' => $authorizedSignatories,
@@ -565,6 +625,8 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
             'defaultDugaanTindakPidana' => $defaultDugaanTindakPidana,
             'defaultRutanName' => 'Rutan '.($accident->polres->full_name ?? ''),
             'prisonsGrouped' => Prison::active()->orderBy('province')->orderBy('name')->get()->groupBy('province'),
+            's17Documents' => $s17Documents,
+            's21Documents' => $s21Documents,
         ];
 
         return view('docs.surat-permintaan-perpanjangan-penahanan-lanjutan-document.edit', $viewData);
@@ -639,6 +701,8 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
             }
 
             $document->update([
+                'surat_perintah_penahanan_document_id' => $request->surat_perintah_penahanan_document_id ?: $document->surat_perintah_penahanan_document_id,
+                'surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id' => $request->surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id ?: $document->surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id,
                 'nomor_surat' => $request->nomor_surat,
                 'tanggal_surat' => $request->tanggal_surat ? Carbon::parse($request->tanggal_surat)->format('Y-m-d') : null,
                 'klasifikasi_surat_id' => $request->klasifikasi_surat_id,
@@ -1109,6 +1173,8 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
             'nama_pengadilan_negeri' => 'required|max:255',
 
             // 3. Rujukan Dokumen Pendahulu
+            'surat_perintah_penahanan_document_id' => 'nullable',
+            'surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id' => 'nullable',
             'nomor_spdp' => 'required|max:255',
             'tanggal_spdp' => 'required|date',
             'nomor_sket_tersangka' => 'required|max:255',

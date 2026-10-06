@@ -17,6 +17,7 @@ return new class extends Migration
         Schema::create('doc.surat_perintah_pembantaran_penahanan_documents', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('accident_id')->index();
+            $table->uuid('surat_perintah_penahanan_document_id')->nullable()->index('s23_s17_doc_id_idx');
             $table->string('document_category_id')->nullable()->default('0608');
             $table->string('status_id')->nullable();
 
