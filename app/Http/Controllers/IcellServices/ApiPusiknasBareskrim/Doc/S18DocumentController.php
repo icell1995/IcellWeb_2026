@@ -75,6 +75,7 @@ class S18DocumentController extends Controller
             ->whereHas('accident', function ($q) {
                 $q->whereNotNull('id');
             })
+            ->whereIn('status_id', $docService->requiredDocumentStatusIds)
             ->orderBy('tanggal', 'ASC')
             ->orderBy('created_at', 'ASC');
 

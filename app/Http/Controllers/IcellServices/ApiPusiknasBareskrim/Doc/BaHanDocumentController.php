@@ -67,6 +67,7 @@ class BaHanDocumentController extends Controller
             ->whereHas('accident', function ($query) {
                 $query->whereNotNull('id');
             })
+            ->whereIn('status_id', $docService->requiredDocumentStatusIds)
             ->orderBy('document_date', 'ASC');
 
             // Filter: document_date date range

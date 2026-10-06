@@ -1054,10 +1054,20 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
             'pejabat_penandatangan' => $pejabatPenandatangan,
         ];
 
+        $terenkripsi = filter_var($document->terenkripsi ?? ($document->messages['terenkripsi'] ?? false), FILTER_VALIDATE_BOOLEAN);
+        $daftarKunciEnkripsi = $terenkripsi
+            ? (array) ($document->daftar_kunci_enkripsi ?? ($document->messages['daftar_kunci_enkripsi'] ?? []))
+            : [];
+        $tandaTanganDigital = $document->tanda_tangan_digital
+            ?? ($document->messages['tanda_tangan_digital'] ?? null);
+
         return [
-            'kode_jenis_dokumen' => 's19',
-            'identitas_dokumen'  => $identitasDokumen,
-            'konten_dokumen'     => $kontenDokumen,
+            'kode_jenis_dokumen'    => 's19',
+            'identitas_dokumen'     => $identitasDokumen,
+            'konten_dokumen'        => $kontenDokumen,
+            'terenkripsi'           => $terenkripsi,
+            'daftar_kunci_enkripsi' => $daftarKunciEnkripsi,
+            'tanda_tangan_digital'  => $tandaTanganDigital,
         ];
     }
 
