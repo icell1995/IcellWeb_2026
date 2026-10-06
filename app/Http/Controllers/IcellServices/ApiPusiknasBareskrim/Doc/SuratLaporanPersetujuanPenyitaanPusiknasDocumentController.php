@@ -160,19 +160,14 @@ class SuratLaporanPersetujuanPenyitaanPusiknasDocumentController extends Control
                     }
                 }
 
-                // 6. Helper Digital Document Base64 & URL
+                // 6. Helper Digital Document URL
                 $getDocDigital = function ($attachment) {
                     $result = [
-                        'file' => null,
                         'url'  => ''
                     ];
                     
                     if ($attachment && $attachment->name) {
-                        $path = public_path("documents/attachments/{$attachment->name}");
                         $result['url'] = asset("documents/attachments/{$attachment->name}");
-                        if (file_exists($path)) {
-                            $result['file'] = base64_encode(file_get_contents($path));
-                        }
                     }
                     
                     return $result;
@@ -185,31 +180,26 @@ class SuratLaporanPersetujuanPenyitaanPusiknasDocumentController extends Control
                     [
                         'kode_jenis_dokumen' => 's13',
                         'mime_type' => 'application/pdf',
-                        'file' => $s13Digital['file'],
                         'url' => $s13Digital['url']
                     ],
                     [
                         'kode_jenis_dokumen' => 'sprindik',
                         'mime_type' => 'application/pdf',
-                        'file' => $sprindikDigital['file'],
                         'url' => $sprindikDigital['url']
                     ],
                     [
                         'kode_jenis_dokumen' => 'sprin-sita',
                         'mime_type' => 'application/pdf',
-                        'file' => null,
                         'url' => ''
                     ],
                     [
                         'kode_jenis_dokumen' => 'ba-sita',
                         'mime_type' => 'application/pdf',
-                        'file' => null,
                         'url' => ''
                     ],
                     [
                         'kode_jenis_dokumen' => 'resume',
                         'mime_type' => 'application/pdf',
-                        'file' => null,
                         'url' => ''
                     ]
                 ];
