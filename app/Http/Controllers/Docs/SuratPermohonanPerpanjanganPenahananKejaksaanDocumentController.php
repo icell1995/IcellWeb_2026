@@ -940,18 +940,18 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
                 [
                     'kode_jenis_dokumen' => 's21',
                     'mime_type'          => 'application/pdf',
-                    'file'               => 'U3dhZ2dlciByb2Nrcw==',
+                //    'file'               => 'U3dhZ2dlciByb2Nrcw==',
                     'url'                => 'http://sign.kejaksaan.go.id/perkara/abc.pdf',
                 ],
                 [
                     'kode_jenis_dokumen' => 'sprindik',
                     'mime_type'          => 'application/pdf',
-                    'file'               => 'U3dhZ2dlciByb2Nrcw==',
+                 //   'file'               => 'U3dhZ2dlciByb2Nrcw==',
                 ],
                 [
                     'kode_jenis_dokumen' => 'lp',
                     'mime_type'          => 'application/pdf',
-                    'file'               => 'U3dhZ2dlciByb2Nrcw==',
+                  //  'file'               => 'U3dhZ2dlciByb2Nrcw==',
                 ],
             ];
         }
