@@ -123,11 +123,11 @@
                                     <td>{{ $datas->tgl_laka }}</td>
                                     <td>{{ $datas->tipe_laka }}</td>
                                     <td>
-                                        @if (in_array(Auth::user()->role_id, ['3', '1']))
+                                        {{-- @if (in_array(Auth::user()->role_id, ['3', '1'])) --}}
                                             <button type="button" class="btn btn-lihat btn-dark-blue"><a
                                                     class="text-decoration-none text-white"
                                                     href="/accident/view?accident_id={{ $datas->id }}">Lihat</a></button>
-                                        @endif
+                                        {{-- @endif --}}
                                     </td>
                                 </tr>
                             </tbody>
