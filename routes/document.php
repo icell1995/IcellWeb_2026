@@ -8,18 +8,41 @@ use App\Http\Controllers\Docs\SuratPerintahTugasDocumentController;
 use App\Http\Controllers\Docs\LaporanHasilGelarPerkaraDocumentController;
 use App\Http\Controllers\Docs\SuratKetetapanTentangPenetapanTersangkaDocumentController;
 use App\Http\Controllers\Docs\SuratPemberitahuanDimulainyaPenyidikanDocumentController;
+use App\Http\Controllers\Doc\SuratPermintaanPenggeledahanDocumentController;
+use App\Http\Controllers\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocumentController;
+use App\Http\Controllers\Docs\SuratPerintahPenahananDocumentController;
+use App\Http\Controllers\Docs\SuratPerintahPenangguhanPenahananDocumentController;
+use App\Http\Controllers\Docs\SuratPerintahPencabutanPenangguhanPenahananDocumentController;
+use App\Http\Controllers\Docs\SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController;
 use App\Http\Controllers\Docs\DaftarTersangkaDocumentController;
 use App\Http\Controllers\Doc\Tahap1DocumentController;
 use App\Http\Controllers\Docs\P19DocumentController;
 use App\Http\Controllers\Docs\P21DocumentController;
 use App\Http\Controllers\Doc\Tahap2DocumentController;
 use App\Http\Controllers\Docs\Sp2hpDocumentController;
+use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
+use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
 use App\Http\Controllers\Docs\SuratPermintaanIzinPenyitaanController;
 use App\Http\Controllers\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
+use App\Http\Controllers\Docs\BeritaAcaraPenahananDocumentController;
 
 Route::post('/create',[DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');
 Route::get('/type-document/{id}',[DocumentController::class, 'getTypeDocument'])->name('doc.getTypeDocument');
+
+Route::prefix('/berita-acara-penahanan-document')->middleware(['document-access'])->group(function(){
+    Route::get('/', [BeritaAcaraPenahananDocumentController::class, 'index'])->name('doc.berita-acara-penahanan-document.index');
+    Route::get('/{id}/show', [BeritaAcaraPenahananDocumentController::class, 'show'])->name('doc.berita-acara-penahanan-document.show');
+    Route::get('/create', [BeritaAcaraPenahananDocumentController::class, 'create'])->name('doc.berita-acara-penahanan-document.create');
+    Route::post('/create', [BeritaAcaraPenahananDocumentController::class, 'store'])->name('doc.berita-acara-penahanan-document.store');
+    Route::get('/{id}/edit', [BeritaAcaraPenahananDocumentController::class, 'edit'])->name('doc.berita-acara-penahanan-document.edit');
+    Route::post('/{id}/edit', [BeritaAcaraPenahananDocumentController::class, 'update'])->name('doc.berita-acara-penahanan-document.update');
+    Route::delete('/{id}/delete', [BeritaAcaraPenahananDocumentController::class, 'delete'])->name('doc.berita-acara-penahanan-document.delete');
+    Route::get('/{id}/download', [BeritaAcaraPenahananDocumentController::class, 'download'])->name('doc.berita-acara-penahanan-document.download');
+
+    Route::get('/api/internal-officers', [BeritaAcaraPenahananDocumentController::class, 'getInternalOfficers'])->name('doc.berita-acara-penahanan-document.api.internal-officers');
+    Route::post('/api/validate-request-form', [BeritaAcaraPenahananDocumentController::class, 'validateRequestForm'])->name('doc.berita-acara-penahanan-document.api.validate-request-form');
+});
 
 Route::prefix('/surat-perintah-penyelidikan-document')->group(function(){
     Route::get('/', [SuratPerintahPenyelidikanDocumentController::class, 'index'])->name('doc.surat-perintah-penyelidikan-document.index');
@@ -117,6 +140,7 @@ Route::prefix('/surat-pemberitahuan-dimulainya-penyidikan-document')->middleware
     Route::post('/api/validate-request-form', [SuratPemberitahuanDimulainyaPenyidikanDocumentController::class, 'validateRequestForm'])->name('doc.surat-pemberitahuan-dimulainya-penyidikan-document.api.validate-request-form');
 });
 
+/*
 Route::prefix('/daftar-tersangka-document')->middleware(['document-access'])->group(function(){
     Route::get('/', [DaftarTersangkaDocumentController::class, 'index'])->name('doc.daftar-tersangka-document.index');
     Route::get('/{id}/show', [DaftarTersangkaDocumentController::class, 'show'])->name('doc.daftar-tersangka-document.show');
@@ -126,8 +150,6 @@ Route::prefix('/daftar-tersangka-document')->middleware(['document-access'])->gr
     Route::post('/{id}/edit', [DaftarTersangkaDocumentController::class, 'update'])->name('doc.daftar-tersangka-document.update');
     Route::delete('/{id}/delete', [DaftarTersangkaDocumentController::class, 'delete'])->name('doc.daftar-tersangka-document.delete');
     Route::get('/{id}/download', [DaftarTersangkaDocumentController::class, 'download'])->name('doc.daftar-tersangka-document.download');
-
-    Route::post('/api/validate-request-form', [DaftarTersangkaDocumentController::class, 'validateRequestForm'])->name('doc.daftar-tersangka-document.api.validate-request-form');
 });
 
 Route::prefix('/tahap-1-document')->middleware(['document-access'])->group(function(){
@@ -192,6 +214,7 @@ Route::prefix('/tahap-2-document')->middleware(['document-access'])->group(funct
     Route::post('/api/ajax-kode-wilayah', [Tahap2DocumentController::class, 'getAJAXKodeWilayah'])->name('doc.tahap-2-document.api.ajax-kode-wilayah');
     Route::post('/api/validate-request-form', [Tahap2DocumentController::class, 'validateRequestForm'])->name('doc.tahap-2-document.api.validate-request-form');
 });
+*/
 
 // SP2HP Document Routes (SP2HP Regulation)
 Route::prefix('/sp2hp-document')->group(function(){
@@ -236,6 +259,118 @@ Route::prefix('/surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document')->m
 // ─────────────────────────────────────────────────────────────────────────────
 // SP3 Pusiknas — DIK-40 (SPPT-TI)
 // ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/sp3-pusiknas-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [Sp3PusiknasDocumentController::class, 'index'])->name('doc.sp3-pusiknas-document.index');
+    Route::get('/{id}/show', [Sp3PusiknasDocumentController::class, 'show'])->name('doc.sp3-pusiknas-document.show');
+    Route::get('/create', [Sp3PusiknasDocumentController::class, 'create'])->name('doc.sp3-pusiknas-document.create');
+    Route::post('/create', [Sp3PusiknasDocumentController::class, 'store'])->name('doc.sp3-pusiknas-document.store');
+    Route::get('/{id}/edit', [Sp3PusiknasDocumentController::class, 'edit'])->name('doc.sp3-pusiknas-document.edit');
+    Route::post('/{id}/edit', [Sp3PusiknasDocumentController::class, 'update'])->name('doc.sp3-pusiknas-document.update');
+    Route::delete('/{id}/delete', [Sp3PusiknasDocumentController::class, 'delete'])->name('doc.sp3-pusiknas-document.delete');
+    Route::get('/{id}/download', [Sp3PusiknasDocumentController::class, 'show'])->name('doc.sp3-pusiknas-document.download');
+
+    Route::post('/api/validate-request-form', [Sp3PusiknasDocumentController::class, 'validateRequestForm'])
+        ->name('doc.sp3-pusiknas-document.api.validate-request-form');
+});
+
+// surat perintah penggeledahan 
+Route::prefix('/surat-permintaan-penggeledahan-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPermintaanPenggeledahanDocumentController::class, 'index'])->name('doc.surat-permintaan-penggeledahan-document.index');
+    Route::get('/{id}/show', [SuratPermintaanPenggeledahanDocumentController::class, 'show'])->name('doc.surat-permintaan-penggeledahan-document.show');
+    Route::get('/create', [SuratPermintaanPenggeledahanDocumentController::class, 'create'])->name('doc.surat-permintaan-penggeledahan-document.create');
+    Route::post('/create', [SuratPermintaanPenggeledahanDocumentController::class, 'store'])->name('doc.surat-permintaan-penggeledahan-document.store');
+    Route::get('/{id}/edit', [SuratPermintaanPenggeledahanDocumentController::class, 'edit'])->name('doc.surat-permintaan-penggeledahan-document.edit');
+    Route::post('/{id}/edit', [SuratPermintaanPenggeledahanDocumentController::class, 'update'])->name('doc.surat-permintaan-penggeledahan-document.update');
+    Route::delete('/{id}/delete', [SuratPermintaanPenggeledahanDocumentController::class, 'delete'])->name('doc.surat-permintaan-penggeledahan-document.delete');
+    Route::get('/{id}/download', [SuratPermintaanPenggeledahanDocumentController::class, 'download'])->name('doc.surat-permintaan-penggeledahan-document.download');
+
+    Route::post('/api/validate-request-form', [SuratPermintaanPenggeledahanDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-permintaan-penggeledahan-document.api.validate-request-form');
+});
+
+// surat laporan guna memperoleh persetujuan penggeledahan
+Route::prefix('/surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'index'])->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.index');
+    Route::get('/{id}/show', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'show'])->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.show');
+    Route::get('/create', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'create'])->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.create');
+    Route::post('/create', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'store'])->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.store');
+    Route::get('/{id}/edit', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'edit'])->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.edit');
+    Route::post('/{id}/edit', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'update'])->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.update');
+    Route::delete('/{id}/delete', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'delete'])->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.delete');
+    Route::get('/{id}/download', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'download'])->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.download');
+
+    Route::post('/api/validate-request-form', [SuratGunaMemperolehPersetujuanPenggeledahanDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document.api.validate-request-form');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Penahanan — S-17
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-penahanan-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPerintahPenahananDocumentController::class, 'index'])->name('doc.surat-perintah-penahanan-document.index');
+    Route::get('/{id}/show', [SuratPerintahPenahananDocumentController::class, 'show'])->name('doc.surat-perintah-penahanan-document.show');
+    Route::get('/create', [SuratPerintahPenahananDocumentController::class, 'create'])->name('doc.surat-perintah-penahanan-document.create');
+    Route::post('/create', [SuratPerintahPenahananDocumentController::class, 'store'])->name('doc.surat-perintah-penahanan-document.store');
+    Route::get('/{id}/edit', [SuratPerintahPenahananDocumentController::class, 'edit'])->name('doc.surat-perintah-penahanan-document.edit');
+    Route::post('/{id}/edit', [SuratPerintahPenahananDocumentController::class, 'update'])->name('doc.surat-perintah-penahanan-document.update');
+    Route::delete('/{id}/delete', [SuratPerintahPenahananDocumentController::class, 'delete'])->name('doc.surat-perintah-penahanan-document.delete');
+    Route::get('/{id}/download', [SuratPerintahPenahananDocumentController::class, 'download'])->name('doc.surat-perintah-penahanan-document.download');
+    Route::get('/{id}/json', [SuratPerintahPenahananDocumentController::class, 'json'])->name('doc.surat-perintah-penahanan-document.json');
+
+    Route::post('/api/validate-request-form', [SuratPerintahPenahananDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-perintah-penahanan-document.api.validate-request-form');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Penangguhan Penahanan — S-18
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-penangguhan-penahanan-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPerintahPenangguhanPenahananDocumentController::class, 'index'])->name('doc.surat-perintah-penangguhan-penahanan-document.index');
+    Route::get('/{id}/show', [SuratPerintahPenangguhanPenahananDocumentController::class, 'show'])->name('doc.surat-perintah-penangguhan-penahanan-document.show');
+    Route::get('/create', [SuratPerintahPenangguhanPenahananDocumentController::class, 'create'])->name('doc.surat-perintah-penangguhan-penahanan-document.create');
+    Route::post('/create', [SuratPerintahPenangguhanPenahananDocumentController::class, 'store'])->name('doc.surat-perintah-penangguhan-penahanan-document.store');
+    Route::get('/{id}/edit', [SuratPerintahPenangguhanPenahananDocumentController::class, 'edit'])->name('doc.surat-perintah-penangguhan-penahanan-document.edit');
+    Route::post('/{id}/edit', [SuratPerintahPenangguhanPenahananDocumentController::class, 'update'])->name('doc.surat-perintah-penangguhan-penahanan-document.update');
+    Route::delete('/{id}/delete', [SuratPerintahPenangguhanPenahananDocumentController::class, 'delete'])->name('doc.surat-perintah-penangguhan-penahanan-document.delete');
+    Route::get('/{id}/download', [SuratPerintahPenangguhanPenahananDocumentController::class, 'download'])->name('doc.surat-perintah-penangguhan-penahanan-document.download');
+    Route::get('/{id}/json', [SuratPerintahPenangguhanPenahananDocumentController::class, 'json'])->name('doc.surat-perintah-penangguhan-penahanan-document.json');
+
+    Route::post('/api/validate-request-form', [SuratPerintahPenangguhanPenahananDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-perintah-penangguhan-penahanan-document.api.validate-request-form');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Pencabutan Penangguhan Penahanan — S-19
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-pencabutan-penangguhan-penahanan-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'index'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.index');
+    Route::get('/{id}/show', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'show'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.show');
+    Route::get('/create', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'create'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.create');
+    Route::post('/create', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'store'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.store');
+    Route::get('/{id}/edit', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'edit'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.edit');
+    Route::post('/{id}/edit', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'update'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.update');
+    Route::delete('/{id}/delete', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'delete'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.delete');
+    Route::get('/{id}/download', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'download'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.download');
+    Route::get('/{id}/json', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'json'])->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.json');
+
+    Route::post('/api/validate-request-form', [SuratPerintahPencabutanPenangguhanPenahananDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-perintah-pencabutan-penangguhan-penahanan-document.api.validate-request-form');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Permohonan Perpanjangan Penahanan Kejaksaan
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-permohonan-perpanjangan-penahanan-kejaksaan-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'index'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.index');
+    Route::get('/{id}/show', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'show'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.show');
+    Route::get('/create', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'create'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.create');
+    Route::post('/create', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'store'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.store');
+    Route::get('/{id}/edit', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'edit'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.edit');
+    Route::post('/{id}/edit', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'update'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.update');
+    Route::delete('/{id}/delete', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'delete'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.delete');
+    Route::get('/{id}/download', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'download'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.download');
+    Route::get('/{id}/json', [SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController::class, 'json'])->name('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.json');
+});
 Route::prefix('/surat-pemberitahuan-penghentian-penyidikan-document')->middleware(['document-access'])->group(function () {
     Route::get('/', [SuratPemberitahuanPenghentianPenyidikanDocumentController::class, 'index'])->name('doc.surat-pemberitahuan-penghentian-penyidikan-document.index');
     Route::get('/{id}/show', [SuratPemberitahuanPenghentianPenyidikanDocumentController::class, 'show'])->name('doc.surat-pemberitahuan-penghentian-penyidikan-document.show');
