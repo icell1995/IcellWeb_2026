@@ -893,14 +893,183 @@
 
 
 
+            // =========================================================================
+            // VALIDASI FORM & AUTO-FOCUS KE FIELD KOSONG DENGAN SWEETALERT2
+            // =========================================================================
+            function hasFieldValue($field) {
+                if (typeof $field === 'string') $field = $($field);
+                if (!$field.length) return false;
+                var raw = $field.val();
+                if (Array.isArray(raw)) return raw.length > 0;
+                return raw !== null && raw !== undefined && String(raw).trim() !== '';
+            }
+
+            function clearFieldError($field) {
+                if (typeof $field === 'string') $field = $($field);
+                if (!$field.length) return;
+                $field.removeClass('is-invalid');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                }
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                var $container = $field.closest('.table-responsive, .input-group');
+                if ($container.length) {
+                    $container.siblings('.frontend-error, .invalid-feedback').remove();
+                    $container.next('.frontend-error, .invalid-feedback').remove();
+                }
+            }
+
+            function markError(fieldSelector, message, errorList) {
+                var $field = $(fieldSelector);
+                if (!$field.length) return;
+
+                $field.addClass('is-invalid');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                }
+                var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                $target.siblings('.frontend-error, .invalid-feedback').remove();
+                $target.next('.frontend-error, .invalid-feedback').remove();
+                $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                if (Array.isArray(errorList)) {
+                    errorList.push(message);
+                }
+            }
+
+            function scrollToFirstError() {
+                var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+                if (!$firstError.length) {
+                    $firstError = $('.is-invalid, .border-danger').first();
+                }
+                if ($firstError && $firstError.length) {
+                    var $visibleTarget = $firstError;
+                    if (!$firstError.is(':visible')) {
+                        var $s2 = $firstError.next('.select2-container');
+                        if ($s2.length && $s2.is(':visible')) {
+                            $visibleTarget = $s2;
+                        } else {
+                            var $visParent = $firstError.closest('.input-group, .row, div:visible');
+                            if ($visParent.length) {
+                                $visibleTarget = $visParent;
+                            }
+                        }
+                    }
+
+                    var domEl = $visibleTarget[0];
+                    if (domEl && typeof domEl.scrollIntoView === 'function') {
+                        try {
+                            domEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } catch (e) {
+                            domEl.scrollIntoView(true);
+                        }
+                    }
+
+                    var topPos = $visibleTarget.offset() ? $visibleTarget.offset().top : 0;
+                    $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                        scrollTop: Math.max(0, topPos - 130)
+                    }, 350);
+
+                    setTimeout(function() {
+                        if ($firstError.is('input:not([type="hidden"]), textarea') && $firstError.is(':visible')) {
+                            $firstError.trigger('focus');
+                        } else if ($firstError.is('select') || $visibleTarget.hasClass('select2-container')) {
+                            try {
+                                $firstError.select2('open');
+                            } catch (e) {
+                                $visibleTarget.find('.select2-selection').trigger('focus');
+                            }
+                        }
+                    }, 350);
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            function checkInput(fieldSelector, label, errorList) {
+                var $field = $(fieldSelector);
+                if (!$field.length || $field.is(':disabled')) return;
+                if (!hasFieldValue($field)) {
+                    markError(fieldSelector, label + ' harus diisi', errorList);
+                }
+            }
+
+            function checkSelect(fieldSelector, label, errorList) {
+                var $field = $(fieldSelector);
+                if (!$field.length || $field.is(':disabled')) return;
+                if (!hasFieldValue($field)) {
+                    markError(fieldSelector, label + ' harus dipilih', errorList);
+                }
+            }
+
+            // Real-time pembersihan error saat user mengetik atau memilih opsi
+            $(document).on('input change changeDate dp.change select2:select select2:clear', 'input, textarea, select', function() {
+                var $el = $(this);
+                if (hasFieldValue($el)) {
+                    clearFieldError($el);
+                }
+            });
+
             // AJAX Validation handling on form submit with SweetAlert2
             $('#s23Form').on('submit', function(e) {
                 e.preventDefault();
                 
                 var $btn = $('#s23FormSubmit');
                 var originalHtml = $btn.html();
-                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
+                $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memvalidasi...');
 
+                // Bersihkan pesan error sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.border.border-danger').removeClass('border border-danger');
+                $('.select2-selection').removeClass('border border-danger is-invalid');
+                $('.frontend-error').remove();
+                $('.invalid-feedback').remove();
+
+                var errors = [];
+
+                // Validasi Frontend Field Wajib
+                checkInput('#nomor_surat', 'Nomor Dokumen', errors);
+                checkInput('#tanggal_surat', 'Tanggal Dokumen', errors);
+                checkInput('#dikeluarkan_di', 'Dikeluarkan Di', errors);
+                checkInput('#pertimbangan', 'Pertimbangan', errors);
+                checkInput('#nomor_surat_perintah_penyidikan', 'Nomor Sprint Sidik', errors);
+                checkInput('#tanggal_surat_perintah_penyidikan', 'Tanggal Sprint Sidik', errors);
+                checkInput('#nomor_surat_perintah_penahanan', 'Nomor Sprint Penahanan (S-17)', errors);
+                checkInput('#tanggal_surat_perintah_penahanan', 'Tanggal Sprint Penahanan (S-17)', errors);
+                checkInput('#nama_dokter', 'Nama Dokter Pemeriksa/Rawat', errors);
+                checkInput('#tempat_rawat_inap', 'Rumah Sakit Tempat Opname', errors);
+                checkInput('#kota_rumah_sakit', 'Kota Rumah Sakit', errors);
+                checkInput('#tanggal_mulai_rawat_inap', 'Tgl. Mulai Rawat Inap', errors);
+                checkSelect('#suspects', 'Tersangka yang Dibantarkan', errors);
+                checkSelect('#signatory', 'Penyidik Penandatangan', errors);
+                checkInput('#hari_penyerahan', 'Hari Penyerahan', errors);
+                checkInput('#tanggal_penyerahan', 'Tanggal Penyerahan', errors);
+
+                if ($('#lawTable tbody tr').length === 0) {
+                    markError('#lawTable', 'Minimal 1 Undang-Undang harus ditambahkan ke tabel', errors);
+                }
+
+                // Jika ada field kosong di frontend, tampilkan alert dan langsung fokus ke field pertama
+                if (errors.length > 0) {
+                    $btn.prop('disabled', false).html(originalHtml);
+                    var errorHtml = '<ul class="text-start ps-3 mb-0" style="max-height: 220px; overflow-y: auto;">';
+                    $.each(errors, function(idx, msg) {
+                        errorHtml += '<li>' + msg + '</li>';
+                    });
+                    errorHtml += '</ul>';
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Periksa Isian Form',
+                        html: 'Terdapat <b>' + errors.length + '</b> data yang masih kosong atau belum valid:<br><br>' + errorHtml,
+                        confirmButtonText: 'Perbaiki Isian'
+                    }).then(function() {
+                        scrollToFirstError();
+                    });
+                    return false;
+                }
+
+                $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
                 var formData = $(this).serialize();
                 var url = "{{ route('doc.surat-perintah-pembantaran-penahanan-document.api.validate-request-form', ['accident_id' => $accidentId]) }}";
                 
@@ -934,18 +1103,36 @@
                     error: function(xhr) {
                         $btn.prop('disabled', false).html(originalHtml);
                         try {
-                            var res = JSON.parse(xhr.responseText);
-                            if (xhr.status === 422 && res.errors) {
-                                var errorMessages = '';
-                                $.each(res.errors, function(key, value) {
-                                    var msg = Array.isArray(value) ? value[0] : value;
-                                    errorMessages += '- ' + msg + '<br>';
+                            var res = xhr.responseJSON || (xhr.responseText ? JSON.parse(xhr.responseText) : null);
+                            if (xhr.status === 422 && res && res.errors) {
+                                var serverErrors = [];
+                                $.each(res.errors, function(key, messages) {
+                                    var msg = Array.isArray(messages) ? messages[0] : messages;
+                                    var targetKey = key;
+                                    if (key === 'suspect_id') targetKey = 'suspects';
+                                    if (key === 'signatory_officer_id') targetKey = 'signatory';
+
+                                    var $target = $('#' + targetKey + ', [name="' + targetKey + '"], [name="' + targetKey + '[]"], #' + key + ', [name="' + key + '"]');
+                                    if ($target.length) {
+                                        markError($target, msg, serverErrors);
+                                    } else {
+                                        serverErrors.push(msg);
+                                    }
                                 });
+
+                                var errorHtml = '<ul class="text-start ps-3 mb-0" style="max-height: 220px; overflow-y: auto;">';
+                                $.each(serverErrors, function(idx, msg) {
+                                    errorHtml += '<li>' + msg + '</li>';
+                                });
+                                errorHtml += '</ul>';
 
                                 return Swal.fire({
                                     icon: 'error',
                                     title: 'Mohon Periksa Kembali Isian Anda',
-                                    html: errorMessages,
+                                    html: errorHtml,
+                                    confirmButtonText: 'Perbaiki Isian'
+                                }).then(function() {
+                                    scrollToFirstError();
                                 });
                             }
                         } catch (err) {}
