@@ -319,10 +319,10 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat_dokter">No. Surat Keterangan Dokter</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="nomor_surat_dokter">No. Surat Keterangan Dokter<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nomor_surat_dokter" type="text" class="form-control @error('nomor_surat_dokter') is-invalid @enderror" name="nomor_surat_dokter"
-                            value="{{ old('nomor_surat_dokter') }}" placeholder="Contoh: SK/012/RSUD/I/2026">
+                            value="{{ old('nomor_surat_dokter') }}" placeholder="Contoh: SK/012/RSUD/I/2026" required>
                         @error('nomor_surat_dokter')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -332,11 +332,11 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_surat_dokter">Tgl. Surat Keterangan Dokter</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="tanggal_surat_dokter">Tgl. Surat Keterangan Dokter<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input id="tanggal_surat_dokter" type="text" class="form-control @error('tanggal_surat_dokter') is-invalid @enderror" name="tanggal_surat_dokter"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_surat_dokter') }}" data-provide="datepicker">
+                            value="{{ old('tanggal_surat_dokter') }}" data-provide="datepicker" required>
                         @error('tanggal_surat_dokter')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -564,10 +564,10 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="nama_penerima_keluarga">Nama Penerima</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="nama_penerima_keluarga">Nama Penerima<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input id="nama_penerima_keluarga" type="text" class="form-control @error('nama_penerima_keluarga') is-invalid @enderror" name="nama_penerima_keluarga"
-                            value="{{ old('nama_penerima_keluarga') }}" placeholder="Contoh: Budi (Keluarga) / Tersangka Sendiri">
+                            value="{{ old('nama_penerima_keluarga') }}" placeholder="Contoh: Budi (Keluarga) / Tersangka Sendiri" required>
                         <small class="text-muted">Nama keluarga atau tersangka yang menerima tembusan/lembar surat.</small>
                         @error('nama_penerima_keluarga')
                             <span class="invalid-feedback" role="alert">
@@ -578,10 +578,11 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="hubungan_penerima">Hubungan Penerima</label>
+                    <label class="fw-bold col-sm-2 col-form-label" for="hubungan_penerima">Hubungan Penerima<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
-                        <select class="form-control select2 @error('hubungan_penerima') is-invalid @enderror" name="hubungan_penerima" id="hubungan_penerima">
-                            <option value="Tersangka" {{ old('hubungan_penerima', 'Tersangka') == 'Tersangka' ? 'selected' : '' }}>Tersangka Sendiri</option>
+                        <select class="form-control select2 @error('hubungan_penerima') is-invalid @enderror" name="hubungan_penerima" id="hubungan_penerima" required>
+                            <option value="" {{ old('hubungan_penerima') ? '' : 'selected' }}>-- Pilih Hubungan Penerima --</option>
+                            <option value="Tersangka" {{ old('hubungan_penerima') == 'Tersangka' ? 'selected' : '' }}>Tersangka Sendiri</option>
                             <option value="Istri" {{ old('hubungan_penerima') == 'Istri' ? 'selected' : '' }}>Istri</option>
                             <option value="Suami" {{ old('hubungan_penerima') == 'Suami' ? 'selected' : '' }}>Suami</option>
                             <option value="Orang Tua" {{ old('hubungan_penerima') == 'Orang Tua' ? 'selected' : '' }}>Orang Tua (Ayah/Ibu)</option>
@@ -1037,6 +1038,8 @@
                 checkInput('#nomor_surat_perintah_penahanan', 'Nomor Sprint Penahanan (S-17)', errors);
                 checkInput('#tanggal_surat_perintah_penahanan', 'Tanggal Sprint Penahanan (S-17)', errors);
                 checkInput('#nama_dokter', 'Nama Dokter Pemeriksa/Rawat', errors);
+                checkInput('#nomor_surat_dokter', 'No. Surat Keterangan Dokter', errors);
+                checkInput('#tanggal_surat_dokter', 'Tgl. Surat Keterangan Dokter', errors);
                 checkInput('#tempat_rawat_inap', 'Rumah Sakit Tempat Opname', errors);
                 checkInput('#kota_rumah_sakit', 'Kota Rumah Sakit', errors);
                 checkInput('#tanggal_mulai_rawat_inap', 'Tgl. Mulai Rawat Inap', errors);
@@ -1044,6 +1047,8 @@
                 checkSelect('#signatory', 'Penyidik Penandatangan', errors);
                 checkInput('#hari_penyerahan', 'Hari Penyerahan', errors);
                 checkInput('#tanggal_penyerahan', 'Tanggal Penyerahan', errors);
+                checkInput('#nama_penerima_keluarga', 'Nama Penerima', errors);
+                checkSelect('#hubungan_penerima', 'Hubungan Penerima', errors);
 
                 if ($('#lawTable tbody tr').length === 0) {
                     markError('#lawTable', 'Minimal 1 Undang-Undang harus ditambahkan ke tabel', errors);
