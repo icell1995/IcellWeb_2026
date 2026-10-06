@@ -917,6 +917,11 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             $poldaFullName = $accident->polres->polda->name ?? ($accident->polres->polda->full_name ?? '');
             $resorPoliceAddress = ucwords(strtolower(($accident->polres->address ?? '').', '.($accident->polres->polres_district ?? '').', '.($accident->polres->polres_zipcode ?? '')));
             $documentLocation = 'S-22';
+            $documentCity = ucwords(strtolower($accident->polres->name ?? $accident->polres->polres_district ?? ''));
+            if (empty($documentCity) && !empty($accident->polres->polres_regency)) {
+                $cleanReg = preg_replace('/^(KABUPATEN|KOTA)\s+/i', '', trim($accident->polres->polres_regency));
+                $documentCity = ucwords(strtolower($cleanReg));
+            }
             $docDateFormatted = $document->tanggal_surat ? Carbon::parse($document->tanggal_surat)->locale('id')->translatedFormat('d F Y') : '-';
             $lpDateFormatted = $accident->report_date ? Carbon::parse($accident->report_date)->locale('id')->translatedFormat('d F Y') : ($accident->date ? Carbon::parse($accident->date)->locale('id')->translatedFormat('d F Y') : '-');
 
@@ -953,6 +958,9 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             $templateProcessor->setValue('resorPoliceFullName', $resorPoliceFullName);
             $templateProcessor->setValue('resorPoliceAddress', $resorPoliceAddress);
             $templateProcessor->setValue('documentLocation', $documentLocation);
+            $templateProcessor->setValue('documentCity', $documentCity);
+            $templateProcessor->setValue('dikeluarkanDi', $documentCity);
+            $templateProcessor->setValue('kota', $documentCity);
             $templateProcessor->setValue('documentDate', $docDateFormatted);
             $templateProcessor->setValue('documentNumber', $document->nomor_surat ?? '-');
             $templateProcessor->setValue('documentClassificationName', $document->klasifikasi_surat_id ?? 'Biasa');
