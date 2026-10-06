@@ -14,6 +14,8 @@ use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocu
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
 use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
+use App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument;
+use App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument;
 use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
 use App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocument;
 use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
@@ -200,6 +202,8 @@ class DocumentApprovalController extends Controller
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
             SuratPemberitahuanUpayaDiversiDocument::class,
+            SuratPermintaanPenggeledahanDocument::class,
+            SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
             SuratPerintahPenahananDocument::class,
             SuratPerintahPenangguhanPenahananDocument::class,
             SuratPemberitahuanPenghentianPenyidikanDocument::class,
@@ -238,6 +242,8 @@ class DocumentApprovalController extends Controller
             ],
             '0211' => SuratPemberitahuanUpayaDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
+            '0404' => SuratPermintaanPenggeledahanDocument::class,
+            '0405' => SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,

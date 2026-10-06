@@ -102,3 +102,17 @@ Route::prefix('s21')->group(function () {
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S21DocumentController::class, 'show']
     )->name('api.pusiknasbareskrim.doc.s21.show');
 });
+
+Route::prefix('surat-permintaan-penggeledahan')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPermintaanPenggeledahan::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.surat-permintaan-penggeledahan.index');
+});
+
+Route::prefix('surat-persetujuan-penggeledahan')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPersetujuanPenggeledahan::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.surat-persetujuan-penggeledahan.index');
+});
