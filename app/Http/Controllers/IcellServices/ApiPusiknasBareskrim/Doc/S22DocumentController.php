@@ -35,6 +35,7 @@ class S22DocumentController extends Controller
         $type = strtolower($request->query('type', 'all')); // 'all', 'pertama', 'kedua', '0606', '0607'
         $id = $request->query('id'); // Filter UUID spesifik jika ada
         $mode = $request->query('mode');
+        $statusId = $request->query('status_id');
         $startReleaseDate = $request->query('start_release_date');
         $endReleaseDate = $request->query('end_release_date');
         $startDocDate = $request->query('start_doc_date');
@@ -83,9 +84,19 @@ class S22DocumentController extends Controller
 
             // 3. Query S-22 Pertama (0606)
             if ($fetchPertama) {
-                $q1 = SuratPermintaanPerpanjanganPenahananLanjutanDocument::with($eagerRelations)
-                    ->where('status_id', '11')
-                    ->whereNotNull('released_at');
+                $q1 = SuratPermintaanPerpanjanganPenahananLanjutanDocument::with($eagerRelations);
+
+                if ($statusId === 'all') {
+                    // Jangan batasi status
+                } elseif (!empty($statusId)) {
+                    $q1->where('status_id', $statusId);
+                    if ($statusId === '11') {
+                        $q1->whereNotNull('released_at');
+                    }
+                } else {
+                    // Default: ambil dokumen yang sudah disetujui / valid (11 = FINAL, 86 = COMPLETE VALID)
+                    $q1->whereIn('status_id', ['11', '86']);
+                }
 
                 if (!empty($id)) {
                     $q1->where('id', $id);
@@ -98,9 +109,19 @@ class S22DocumentController extends Controller
 
             // 4. Query S-22 Kedua (0607)
             if ($fetchKedua) {
-                $q2 = SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::with($eagerRelations)
-                    ->where('status_id', '11')
-                    ->whereNotNull('released_at');
+                $q2 = SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::with($eagerRelations);
+
+                if ($statusId === 'all') {
+                    // Jangan batasi status
+                } elseif (!empty($statusId)) {
+                    $q2->where('status_id', $statusId);
+                    if ($statusId === '11') {
+                        $q2->whereNotNull('released_at');
+                    }
+                } else {
+                    // Default: ambil dokumen yang sudah disetujui / valid (11 = FINAL, 86 = COMPLETE VALID)
+                    $q2->whereIn('status_id', ['11', '86']);
+                }
 
                 if (!empty($id)) {
                     $q2->where('id', $id);
@@ -113,7 +134,7 @@ class S22DocumentController extends Controller
 
             // 5. Urutkan berdasarkan released_at terbaru
             $sortedResults = $results->sortByDesc(function ($doc) {
-                return $doc->released_at ?? $doc->tanggal_surat;
+                return $doc->released_at ?? $doc->tanggal_surat ?? $doc->created_at;
             })->values();
 
             $totalData = $sortedResults->count();

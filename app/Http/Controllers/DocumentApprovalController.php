@@ -171,8 +171,8 @@ class DocumentApprovalController extends Controller
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
-                        $document->released_at = now();
                     }
+                    $document->released_at = now();
 
                     $document->timestamps = [
                         'uploaded_at' => now()
