@@ -18,6 +18,8 @@ use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocume
 use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocumentOfficer;
+use App\Models\Doc\Tahap1Document\Tahap1Document;
+use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Accident;
 use App\Models\Officer;
 
@@ -475,11 +477,27 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $suratPemberitahuanDimulainyaPenyidikanDocumentId = $id;
 
+        // Validasi relasi dokumen turunan aktif
+        $childDocs = [];
+        if (Tahap1Document::where('surat_pemberitahuan_dimulainya_penyidikan_id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'Tahap 1';
+        }
+        if (Tahap2Document::where('surat_pemberitahuan_dimulainya_penyidikan_id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'Tahap 2';
+        }
+        if (!empty($childDocs)) {
+            $listDocs = implode(', ', $childDocs);
+            $message = "Surat Pemberitahuan Dimulainya Penyidikan (SPDP) tidak dapat dihapus karena masih terhubung dengan dokumen: {$listDocs}. Silakan hapus dokumen tersebut terlebih dahulu sebelum menghapus SPDP ini.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+
         DB::beginTransaction();
         try {
             // Delete from database
             $suratPemberitahuanDimulainyaPenyidikanDocument = SuratPemberitahuanDimulainyaPenyidikanDocument::where('id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)->first();
-            $suratPemberitahuanDimulainyaPenyidikanDocument->delete();
+            if ($suratPemberitahuanDimulainyaPenyidikanDocument) {
+                $suratPemberitahuanDimulainyaPenyidikanDocument->delete();
+            }
 
             DB::commit();
         } catch (\Exception $e) {
@@ -512,7 +530,7 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
             $suspectExistText = 'dengan identitas TERLAPOR sebagai berikut:';
         }
 
-        $accident = Accident::with(['polres', 'police'])->where('id', $accidentId)->first();
+        $accident = Accident::with(['polres', 'polres.polda', 'police'])->where('id', $accidentId)->first();
 
         $tempQrCodePath = storage_path('images/qrcode-signature-' . $suratPemberitahuanDimulainyaPenyidikanDocument->id . '.png');
         QrCode::format('png')
@@ -522,15 +540,15 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
             ->generate('https://dokumen-tte.bareskrim.polri.go.id/DocumentInfo/Icell?id=' . $suratPemberitahuanDimulainyaPenyidikanDocument->id, $tempQrCodePath);
 
         $signatureTitleText = [
-            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . $accident->polres->polda->full_name,
+            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? ''),
+            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? ''),
+            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . ($accident->polres->polda->full_name ?? ''),
         ];
 
         $signaturePositionName = [
             'KAPOLRES' => '',
-            'NO_KAPOLRES' => $signatory->position->positionCluster->alias_name ?? '',
-            'NO_DIRLANTAS' => $signatory->position->positionCluster->alias_name ?? '',
+            'NO_KAPOLRES' => $signatory?->position?->positionCluster?->alias_name ?? '',
+            'NO_DIRLANTAS' => $signatory?->position?->positionCluster?->alias_name ?? '',
         ];
 
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/surat_pemberitahuan_dimulainya_penyidikan.docx');
@@ -631,24 +649,29 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
             ];
         }
 
+        // Validasi ketersediaan dokumen induk SP.Sidik
         $suratPerintahPenyidikanDocument = $suratPemberitahuanDimulainyaPenyidikanDocument->suratPerintahPenyidikanDocument;
-        $suratPerintahPenyidikanDocumentNumber = $suratPerintahPenyidikanDocument->document_number;
-        $suratPerintahPenyidikanDocumentDocumentDay = Carbon::parse($suratPerintahPenyidikanDocument->document_date)->locale('id')->translatedFormat('l');
-        $suratPerintahPenyidikanDocumentDocumentDate = Carbon::parse($suratPerintahPenyidikanDocument->document_date)->locale('id')->translatedFormat('d F Y');
+        if (!$suratPerintahPenyidikanDocument) {
+            $message = "Surat Perintah Penyidikan (Sp.Sidik) yang menjadi dasar dokumen SPDP ini tidak ditemukan atau telah dihapus. Silakan klik menu 'Edit' pada dokumen ini untuk memilih Sp.Sidik yang aktif terlebih dahulu sebelum mengunduh.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+        $suratPerintahPenyidikanDocumentNumber = $suratPerintahPenyidikanDocument->document_number ?? '-';
+        $suratPerintahPenyidikanDocumentDocumentDay = $suratPerintahPenyidikanDocument->document_date ? Carbon::parse($suratPerintahPenyidikanDocument->document_date)->locale('id')->translatedFormat('l') : '-';
+        $suratPerintahPenyidikanDocumentDocumentDate = $suratPerintahPenyidikanDocument->document_date ? Carbon::parse($suratPerintahPenyidikanDocument->document_date)->locale('id')->translatedFormat('d F Y') : '-';
 
         $daerahPolice = $accident->polres->polda;
-        $daerahPoliceFullName = strtoupper($daerahPolice->full_name);
+        $daerahPoliceFullName = strtoupper($daerahPolice->full_name ?? '');
 
         $resorPolice = $accident->polres;
-        $resorPoliceAddress = $resorPolice->address . ', ' . $resorPolice->polres_zipcode;
-        $resorPoliceFullName = (in_array($resorPolice->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice->full_name);
-        $resorPoliceProvinceName = $resorPolice->polres_province;
+        $resorPoliceAddress = ($resorPolice?->address ?? '') . ', ' . ($resorPolice?->polres_zipcode ?? '');
+        $resorPoliceFullName = (in_array($resorPolice?->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice?->full_name ?? '');
+        $resorPoliceProvinceName = $resorPolice?->polres_province ?? '';
 
         $documentLocation = ucwords(strtolower($resorPoliceProvinceName));
 
-        $signatoryName = PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title);
-        $signatoryRankName = $signatory->rank->full_name ?? '';
-        $signatoryRegisterNumber = $signatory->register_number;
+        $signatoryName = $signatory ? PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title) : '';
+        $signatoryRankName = $signatory?->rank?->full_name ?? '';
+        $signatoryRegisterNumber = $signatory?->register_number ?? '';
 
         $carbonCopies = $suratPemberitahuanDimulainyaPenyidikanDocument->carbon_copies ?? [];
         $no = 1;
@@ -684,7 +707,7 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
         $crimeClassText = 'Kejahatan Lalu Lintas';
         $crimeConstitutionText = '';
         
-        $suratPerintahPenyidikanDocumentLaws = $suratPerintahPenyidikanDocument->suratPerintahPenyidikanDocumentLaws;
+        $suratPerintahPenyidikanDocumentLaws = $suratPerintahPenyidikanDocument?->suratPerintahPenyidikanDocumentLaws ?? collect();
         $countSuratPerintahPenyidikanDocumentLaw = $suratPerintahPenyidikanDocumentLaws->count();
         $suratPerintahPenyidikanDocumentLawIteration = 1;
         foreach($suratPerintahPenyidikanDocumentLaws as $suratPerintahPenyidikanDocumentLaw){
