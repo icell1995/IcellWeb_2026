@@ -20,6 +20,7 @@ use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocume
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocumentFile;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocumentOfficer;
+use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 
 use App\Models\Officer;
 use App\Models\Accident;
@@ -1430,11 +1431,20 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $laporanHasilGelarPerkaraDocumentId = $id;
 
+        // Validasi relasi dokumen turunan aktif
+        $hasTapTsk = SuratKetetapanTentangPenetapanTersangkaDocument::where('laporan_hasil_gelar_perkara_document_id', $laporanHasilGelarPerkaraDocumentId)->exists();
+        if ($hasTapTsk) {
+            $message = "Laporan Hasil Gelar Perkara (LHGP) tidak dapat dihapus karena masih menjadi dasar pada dokumen: Surat Ketetapan Penetapan Tersangka (S.Tap.Tsk). Silakan hapus dokumen S.Tap.Tsk terlebih dahulu sebelum menghapus LHGP ini.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+
         DB::beginTransaction();
         try{
             // Delete from database
             $laporanHasilGelarPerkaraDocument = LaporanHasilGelarPerkaraDocument::where('id', $laporanHasilGelarPerkaraDocumentId)->first();
-            $laporanHasilGelarPerkaraDocument->delete();
+            if ($laporanHasilGelarPerkaraDocument) {
+                $laporanHasilGelarPerkaraDocument->delete();
+            }
 
             DB::Commit();
         } catch (\Exception $e) {
@@ -1458,9 +1468,9 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $accident = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         $signatoryHeadText = [
-            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name . '</w:t><w:p/><w:t>' . $signatory->position->name ?? '',
-            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . $accident->polres->polda->full_name . '</w:t><w:p/><w:t>' . $signatory->position->name ?? '',
+            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? ''),
+            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? '') . '</w:t><w:p/><w:t>' . ($signatory?->position?->name ?? ''),
+            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . ($accident->polres->polda->full_name ?? '') . '</w:t><w:p/><w:t>' . ($signatory?->position?->name ?? ''),
         ];
 
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/laporan_hasil_gelar_perkara.docx');
@@ -1473,14 +1483,26 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             }else{
                 $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['NO_KAPOLRES']);
             }
+        } else {
+            $templateProcessor->setValue('signatoryHeadText', '');
         }
 
         $documentDate = Carbon::parse($laporanHasilGelarPerkaraDocument->document_date)->locale('id')->translatedFormat('d F Y');
-        $accidentNumber = $accident->no_lp;
-        $suratPerintahPenyidikanDocumentNumber = $laporanHasilGelarPerkaraDocument->suratPerintahPenyidikanDocument->document_number;
+        $accidentNumber = $accident->no_lp ?? '-';
+
+        // Validasi ketersediaan dokumen induk SP.Sidik
+        $spSidik = $laporanHasilGelarPerkaraDocument->suratPerintahPenyidikanDocument;
+        if (!$spSidik) {
+            $message = "Surat Perintah Penyidikan (Sp.Sidik) yang menjadi dasar dokumen LHGP ini tidak ditemukan atau telah dihapus. Silakan klik menu 'Edit' pada dokumen ini untuk memilih Sp.Sidik yang aktif terlebih dahulu sebelum mengunduh.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+        $suratPerintahPenyidikanDocumentNumber = $spSidik->document_number ?? '-';
+
         $caseDegreeInviteReference = $laporanHasilGelarPerkaraDocument->case_degree_invite_reference;
-        $dayDate = Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('l') . ', ' . Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('d F Y');
-        $time = $laporanHasilGelarPerkaraDocument->time . ' ' . $laporanHasilGelarPerkaraDocument->timezone->name;
+        $dayDate = $laporanHasilGelarPerkaraDocument->date 
+            ? Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('l') . ', ' . Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('d F Y')
+            : '-';
+        $time = $laporanHasilGelarPerkaraDocument->time . ' ' . ($laporanHasilGelarPerkaraDocument->timezone?->name ?? '');
         $place = $laporanHasilGelarPerkaraDocument->place;
         $caseDegreeLeader = $laporanHasilGelarPerkaraDocument->case_degree_leader;
         $attendees = $laporanHasilGelarPerkaraDocument->attendees;
@@ -1489,13 +1511,13 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $closing = $laporanHasilGelarPerkaraDocument->closing;
 
         $police = $accident->polres;
-        $policeAddress = $police->address . ', ' . $police->polres_zipcode;
-        $policeFullName = (in_array($police->id, ['1114'])) ? $police->full_name : 'SAT LANTAS ' . $police->full_name;
-        $policeProvinceName = $police->polres_province;
+        $policeAddress = ($police?->address ?? '') . ', ' . ($police?->polres_zipcode ?? '');
+        $policeFullName = (in_array($police?->id, ['1114'])) ? ($police->full_name ?? '') : 'SAT LANTAS ' . ($police->full_name ?? '');
+        $policeProvinceName = $police?->polres_province ?? '';
 
-        $signatoryName = PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title);
-        $signatoryRankName = $signatory->rank->name ?? '';
-        $signatoryRegisterNumber = $signatory->register_number;
+        $signatoryName = $signatory ? PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title) : '';
+        $signatoryRankName = $signatory?->rank?->name ?? '';
+        $signatoryRegisterNumber = $signatory?->register_number ?? '';
 
         $templateProcessor->setValue('documentLocation', $policeProvinceName);
         $templateProcessor->setValue('documentDate', $documentDate);
@@ -1516,7 +1538,7 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $templateProcessor->setValue('signatoryRankName', strtoupper($signatoryRankName));
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);
 
-        $filename = 'generate/' . Str::uuid() . ' - Laporan Hasil Gelar Perkara - Resor ' . $accident->polres->full_name;
+        $filename = 'generate/' . Str::uuid() . ' - Laporan Hasil Gelar Perkara - Resor ' . ($accident->polres->full_name ?? '');
         $templateProcessor->saveAs($filename.'.docx');
         return response()->download($filename.'.docx')->deleteFileAfterSend(true);
     }
