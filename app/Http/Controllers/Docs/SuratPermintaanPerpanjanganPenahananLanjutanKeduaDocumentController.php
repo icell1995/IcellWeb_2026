@@ -199,7 +199,11 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             $defaultPasalDiduga = 'Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan';
         }
 
-        $defaultDugaanTindakPidana = $firstExtensionDoc->dugaan_tindak_pidana ?? 'kecelakaan lalu lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka berat dan/atau kerusakan kendaraan';
+        $defaultDugaanTindakPidana = !empty($firstExtensionDoc->dugaan_tindak_pidana)
+            ? $firstExtensionDoc->dugaan_tindak_pidana
+            : (!empty($accident->damage_lose_desc)
+                ? $accident->damage_lose_desc
+                : 'kecelakaan lalu lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka berat dan/atau kerusakan kendaraan');
         $defaultAlasan = $firstExtensionDoc->alasan_perpanjangan ?? 'Pemeriksaan terhadap tersangka dan saksi-saksi tambahan belum selesai serta masih memerlukan kelengkapan berkas perkara.';
 
         // Master Data untuk Undang-Undang yang Dikenakan
@@ -409,7 +413,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
                 'alasan_perpanjangan' => $request->alasan_perpanjangan,
                 'pasal_diduga' => $request->pasal_diduga,
                 'dugaan_tindak_pidana' => $request->dugaan_tindak_pidana,
-                'waktu_penahanan_hari' => $request->waktu_penahanan_hari ?: 30,
+                'waktu_penahanan_hari' => 30,
                 'prison_id' => $prisonId,
                 'rutan_name' => $rutanName,
                 'kode_satker_tempat_penahanan' => $kodeSatkerTempatPenahanan,
@@ -480,6 +484,26 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
                         $document->laws()->create([
                             'constitution' => trim($addLaw),
                             'flag' => 'ADDITIONAL',
+                        ]);
+                    }
+                }
+            }
+
+            // Fallback: Jika form kosong, ambil dari Sprin Sidik atau Dokumen Perpanjangan Pertama
+            if (empty($lawCrimeTypeIds) && empty($lawAdditionalNames)) {
+                $sprindikDoc = \App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws')
+                    ->where('accident_id', $accidentId)
+                    ->latest()
+                    ->first();
+                if ($sprindikDoc && $sprindikDoc->suratPerintahPenyidikanDocumentLaws) {
+                    foreach ($sprindikDoc->suratPerintahPenyidikanDocumentLaws as $law) {
+                        $document->laws()->create([
+                            'crime_type_id' => $law->crime_type_id,
+                            'crime_class_id' => $law->crime_class_id,
+                            'crime_constitution_id' => $law->crime_constitution_id,
+                            'constitution_chapter' => $law->constitution_chapter,
+                            'constitution' => $law->constitution,
+                            'flag' => $law->flag ?? 'MAIN',
                         ]);
                     }
                 }
@@ -565,7 +589,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
 
         $defaultNamaPengadilanNegeri = $document->nama_pengadilan_negeri;
         $defaultPasalDiduga = $document->pasal_diduga ?: 'Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan';
-        $defaultDugaanTindakPidana = $document->dugaan_tindak_pidana ?: 'kecelakaan lalu lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka berat dan/atau kerusakan kendaraan';
+        $defaultDugaanTindakPidana = $document->dugaan_tindak_pidana ?: (!empty($accident->damage_lose_desc) ? $accident->damage_lose_desc : 'kecelakaan lalu lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka berat dan/atau kerusakan kendaraan');
 
         // Master Data untuk Undang-Undang yang Dikenakan
         $crimeTypes = CrimeType::active()->orderBy('sort')->get();
@@ -735,7 +759,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
                 'alasan_perpanjangan' => $request->alasan_perpanjangan,
                 'pasal_diduga' => $request->pasal_diduga,
                 'dugaan_tindak_pidana' => $request->dugaan_tindak_pidana,
-                'waktu_penahanan_hari' => $request->waktu_penahanan_hari,
+                'waktu_penahanan_hari' => 30,
                 'prison_id' => $prisonId,
                 'rutan_name' => $rutanName,
                 'kode_satker_tempat_penahanan' => $kodeSatkerTempatPenahanan,
@@ -1253,7 +1277,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             'alasan_perpanjangan' => 'required',
 
             // 5. Perkara & Dasar Hukum
-            'lawCrimeTypeIds' => 'required|array|min:1',
+            'lawCrimeTypeIds' => 'nullable|array',
             'pasal_diduga' => 'required',
             'dugaan_tindak_pidana' => 'required',
 

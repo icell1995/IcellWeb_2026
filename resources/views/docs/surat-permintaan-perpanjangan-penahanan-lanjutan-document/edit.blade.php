@@ -376,8 +376,8 @@
                     <label class="fw-bold col-sm-2 col-form-label" for="waktu_penahanan_hari">Lama Penahanan (Hari)<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input id="waktu_penahanan_hari" type="number" class="form-control @error('waktu_penahanan_hari') is-invalid @enderror" name="waktu_penahanan_hari"
-                            value="{{ old('waktu_penahanan_hari', $document->waktu_penahanan_hari ?? 30) }}" required min="1" max="60">
-                        <small class="text-muted">Perpanjangan penahanan lanjutan ke Pengadilan Negeri umumnya berlaku maksimal 30 hari.</small>
+                            value="30" readonly style="background-color: #e9ecef;" required>
+                        <small class="text-muted"><i class="bi bi-info-circle"></i> Lama perpanjangan penahanan lanjutan ke Pengadilan Negeri telah ditetapkan 30 hari.</small>
                         @error('waktu_penahanan_hari')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -456,76 +456,61 @@
                 <hr>
                 <h5 class="fw-bold text-blue-dark">Undang-Undang yang Dikenakan<span class="text-danger fs-5">*</span></h5>
 
-                <div class="row col-12 my-2 ms-0">
-                    <div id="law">
-                        <div class="row mb-2">
-                            <div class="col">
-                                <button class="btn btn-primary float-right" id="addLawButton" type="button"
-                                    data-bs-toggle="modal" data-bs-target="#addLawModal"><i class="bi bi-plus-circle"></i>
-                                    Tambah</button>
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="lawTable">
-                                <thead class="table-danger">
-                                    <tr class="text-center">
-                                        <th scope="col">Jenis Kejahatan</th>
-                                        <th scope="col">Golongan Kejahatan</th>
-                                        <th scope="col">Undang-Undang</th>
-                                        <th scope="col">Pasal</th>
-                                        <th scope="col">Opsi</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="alert alert-info py-2 my-2" role="alert">
+                    <i class="bi bi-info-circle-fill"></i> Data Undang-Undang dan Pasal diambil otomatis dari Surat Perintah Penyidikan terkait.
                 </div>
 
                 <div class="row col-12 my-2 ms-0">
-                    <div class="input-group row mb-3 ms-0">
-                        <label class="fw-bold col-sm-3 col-form-label" for="additionalLaw">Undang-Undang Khusus Tambahan</label>
-                        <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                            <input id="additionalLaw" type="text"
-                                class="form-control font-weight-bold"
-                                name="additionalLaw" value=""
-                                placeholder="(Jika Ada) Contoh: Undang-Undang nomor 22 tahun 2009 LLAJ tentang Pengemudi mabuk">
-                            <div class="row mt-2">
-                                <div class="col">
-                                    <button class="btn btn-primary" id="saveAdditionalLawButton" type="button"><i
-                                            class="bi bi-plus-circle"></i> Tambah</button>
-                                    <button class="btn btn-secondary" id="clearAdditionalLawButton" type="button"><i
-                                            class="bi bi-trash"></i> Bersihkan</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-primary my-3" role="alert">
-                        *Jika ada yang berkaitan dengan tindak pidana yang dipersangkakan <br />
-                        Contoh: Undang-Undang nomor 22 tahun 2009 LLAJ tentang Pengemudi mabuk
-                    </div>
-
-                    <div class="input-group mt-3">
-                        <table class="table table-bordered table-responsive-md" id="additionalLawTable">
-                            <thead class="table-danger">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-3" id="lawTable">
+                            <thead class="table-light">
                                 <tr class="text-center">
-                                    <th scope="col">Nama</th>
-                                    <th scope="col">Opsi</th>
+                                    <th scope="col">Jenis Kejahatan</th>
+                                    <th scope="col">Golongan Kejahatan</th>
+                                    <th scope="col">Undang-Undang</th>
+                                    <th scope="col">Pasal</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody>
+                                @forelse($existingMainLaws as $law)
+                                    <tr class="text-center">
+                                        <td>{{ $law['crime_type_name'] ?? '-' }}</td>
+                                        <td>{{ $law['crime_class_name'] ?? '-' }}</td>
+                                        <td>{{ $law['crime_constitution_name'] ?? '-' }}</td>
+                                        <td><span class="badge bg-primary fs-6">{{ $law['constitution_chapter'] ?? '-' }}</span></td>
+                                    </tr>
+                                    <input type="hidden" name="lawCrimeTypeIds[]" value="{{ $law['crime_type_id'] }}">
+                                    <input type="hidden" name="lawCrimeClassIds[]" value="{{ $law['crime_class_id'] }}">
+                                    <input type="hidden" name="lawCrimeConstitutionIds[]" value="{{ $law['crime_constitution_id'] }}">
+                                    <input type="hidden" name="lawCrimeConstitutionChapters[]" value="{{ $law['constitution_chapter'] }}">
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted fst-italic">Tidak ada data undang-undang dari Surat Perintah Penyidikan.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
                         </table>
                     </div>
+
+                    @if(!empty($existingAdditionalLaws))
+                        <div class="mb-3">
+                            <label class="fw-bold">Undang-Undang Khusus Tambahan:</label>
+                            <ul class="list-group">
+                                @foreach($existingAdditionalLaws as $addLaw)
+                                    <li class="list-group-item">{{ $addLaw['constitution'] ?? '-' }}</li>
+                                    <input type="hidden" name="lawAdditionalNames[]" value="{{ $addLaw['constitution'] }}">
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-2 col-form-label" for="pasal_diduga">Pasal yang Dipersangkakan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <textarea id="pasal_diduga" class="form-control @error('pasal_diduga') is-invalid @enderror" name="pasal_diduga" rows="2"
-                            placeholder="Contoh: Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan" required>{{ old('pasal_diduga', $document->pasal_diduga ?: $defaultPasalDiduga) }}</textarea>
-                        <small class="text-muted">Diambil otomatis dari Surat Perintah Penyidikan dan dapat disesuaikan jika diperlukan</small>
+                            placeholder="Contoh: Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan" readonly style="background-color: #e9ecef;" required>{{ old('pasal_diduga', $document->pasal_diduga ?: $defaultPasalDiduga) }}</textarea>
+                        <small class="text-muted"><i class="bi bi-info-circle"></i> Diambil otomatis dari Surat Perintah Penyidikan.</small>
                         @error('pasal_diduga')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -539,7 +524,7 @@
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <textarea id="dugaan_tindak_pidana" class="form-control @error('dugaan_tindak_pidana') is-invalid @enderror" name="dugaan_tindak_pidana" rows="3"
                             placeholder="Uraian dugaan tindak pidana..." required>{{ old('dugaan_tindak_pidana', $document->dugaan_tindak_pidana ?: $defaultDugaanTindakPidana) }}</textarea>
-                        <small class="text-muted">Uraian ringkas peristiwa dugaan tindak pidana kecelakaan lalu lintas</small>
+                        <small class="text-muted"><i class="bi bi-info-circle"></i> Diambil otomatis dari Laporan Polisi (damage_lose_desc) dan dapat disesuaikan jika diperlukan.</small>
                         @error('dugaan_tindak_pidana')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -663,65 +648,6 @@
         </div>
     </div>
 
-    <!-- Modal Add Law -->
-    <div class="modal fade" id="addLawModal" tabindex="-1" aria-labelledby="addLawModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold" id="addLawModalLabel">Tambah Data Undang-Undang</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addLawForm">
-                        <div class="mb-3 form-validate">
-                            <label class="fw-bold" for="crimeTypeLawForm">Jenis Kejahatan</label>
-                            <select class="form-control" id="crimeTypeLawForm">
-                                <option value="">--Pilih Jenis Kejahatan--</option>
-                                @foreach ($crimeTypes as $crimeType)
-                                    <option value="{{ $crimeType->id }}"
-                                        data-crime-type-name="{{ $crimeType->name }}"
-                                        data-crime-class-id="{{ $crimeType->crime_class_id }}"
-                                        data-crime-constitution-id="{{ $crimeType->crime_constitution_id }}">{{ $crimeType->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3 form-validate">
-                            <label class="fw-bold" for="crimeClassLawForm">Golongan Kejahatan</label>
-                            <select class="form-control" id="crimeClassLawForm" disabled>
-                                <option value="">--Pilih Golongan Kejahatan--</option>
-                                @foreach ($crimeClasses as $crimeClass)
-                                    <option value="{{ $crimeClass->id }}"
-                                        data-crime-class-name="{{ $crimeClass->name }}">{{ $crimeClass->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3 form-validate">
-                            <label class="fw-bold" for="crimeConstitutionLawForm">Undang-Undang</label>
-                            <select class="form-control" id="crimeConstitutionLawForm" disabled>
-                                <option value="">--Pilih Undang-Undang--</option>
-                                @foreach ($crimeConstitutions as $crimeConstitution)
-                                    <option value="{{ $crimeConstitution->id }}"
-                                        data-crime-constitution-name="{{ $crimeConstitution->name }}"
-                                        data-chapter="{{ $crimeConstitution->chapter }}">{{ $crimeConstitution->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="fw-bold" for="constitutionChapterLawForm">Pasal</label>
-                            <select class="form-control" id="constitutionChapterLawForm" name="constitutionChapterLawForm" disabled>
-                                <option value="">--Pilih Pasal-Ayat--</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle"></i> Batal</button>
-                    <button type="button" class="btn btn-primary" id="saveAddLawFormButton"><i class="bi bi-save"></i> Simpan</button>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('script')
@@ -757,8 +683,8 @@
 
             function calculateEndDate() {
                 var startDateStr = $('#tanggal_mulai_perpanjangan_penahanan').val();
-                var days = parseInt($('#waktu_penahanan_hari').val(), 10);
-                if (startDateStr && !isNaN(days) && days > 0) {
+                var days = 30; // Lama penahanan ke PN paten 30 hari
+                if (startDateStr) {
                     var parts = startDateStr.split('-');
                     if (parts.length === 3) {
                         var year = parseInt(parts[0], 10);
@@ -774,7 +700,6 @@
                 }
             }
             $('#tanggal_mulai_perpanjangan_penahanan').on('change changeDate input', calculateEndDate);
-            $('#waktu_penahanan_hari').on('input change', calculateEndDate);
             if ($('#tanggal_mulai_perpanjangan_penahanan').val() && !$('#tanggal_akhir_perpanjangan_penahanan').val()) {
                 calculateEndDate();
             }
@@ -798,188 +723,6 @@
                 var selectedOption = $(this).find('option:selected');
                 var selectedName = selectedOption.data('name') || selectedOption.text().trim();
                 $('#rutan_name').val(selectedName);
-            });
-
-            // Mapping pasal options per Jenis Kejahatan (crime_type_id)
-            const pasalOptions = {
-                "1": [
-                    { id: "Pasal 273 Ayat (1)", text: "Pasal 273 Ayat (1) [Kecelakaan Karena Jalan Rusak]" },
-                    { id: "Pasal 273 Ayat (2)", text: "Pasal 273 Ayat (2) [Kecelakaan Karena Jalan Rusak]" },
-                    { id: "Pasal 273 Ayat (3)", text: "Pasal 273 Ayat (3) [Kecelakaan Karena Jalan Rusak]" }
-                ],
-                "2": [
-                    { id: "Pasal 275 Ayat (2)", text: "Pasal 275 Ayat (2) [Merusak Rambu-Rambu Dan Fasilitas Jalan]" }
-                ],
-                "3": [
-                    { id: "Pasal 277", text: "Pasal 277 [Kecelakaan Karena Overdimensi Dan Overload]" }
-                ],
-                "4": [
-                    { id: "Pasal 310 Ayat (1)", text: "Pasal 310 Ayat (1) [Kecelakaan Karena Lalai]" },
-                    { id: "Pasal 310 Ayat (2)", text: "Pasal 310 Ayat (2) [Kecelakaan Karena Lalai]" },
-                    { id: "Pasal 310 Ayat (3)", text: "Pasal 310 Ayat (3) [Kecelakaan Karena Lalai]" },
-                    { id: "Pasal 310 Ayat (4)", text: "Pasal 310 Ayat (4) [Kecelakaan Karena Lalai]" }
-                ],
-                "5": [
-                    { id: "Pasal 311 Ayat (1)", text: "Pasal 311 Ayat (1) [Kesengajaan Yang Mengakibatkan Kecelakaan]" },
-                    { id: "Pasal 311 Ayat (2)", text: "Pasal 311 Ayat (2) [Kesengajaan Yang Mengakibatkan Kecelakaan]" },
-                    { id: "Pasal 311 Ayat (3)", text: "Pasal 311 Ayat (3) [Kesengajaan Yang Mengakibatkan Kecelakaan]" },
-                    { id: "Pasal 311 Ayat (4)", text: "Pasal 311 Ayat (4) [Kesengajaan Yang Mengakibatkan Kecelakaan]" },
-                    { id: "Pasal 311 Ayat (5)", text: "Pasal 311 Ayat (5) [Kesengajaan Yang Mengakibatkan Kecelakaan]" }
-                ],
-                "6": [
-                    { id: "Pasal 312", text: "Pasal 312 [Tabrak Lari / Kecelakaan Karena Tidak Melakukan Pertolongan]" }
-                ]
-            };
-
-            function syncPasalDiduga() {
-                var chapters = [];
-                $('input[name="lawCrimeConstitutionChapters[]"]').each(function() {
-                    var val = $(this).val();
-                    if (val && !chapters.includes(val)) {
-                        chapters.push(val);
-                    }
-                });
-                if (chapters.length > 0) {
-                    $('#pasal_diduga').val(chapters.join(', '));
-                }
-            }
-
-            // Inisialisasi baris tabel dari existingMainLaws
-            var existingMainLaws = @json($existingMainLaws ?? []);
-            if (existingMainLaws && existingMainLaws.length > 0) {
-                existingMainLaws.forEach(function(law) {
-                    $('#lawTable tbody').append(
-                        '<tr class="text-center">' +
-                        '<td>' + (law.crime_type_name || '') + '</td>' +
-                        '<td>' + (law.crime_class_name || '') + '</td>' +
-                        '<td>' + (law.crime_constitution_name || '') + '</td>' +
-                        '<td>' + (law.constitution_chapter || '') + '</td>' +
-                        '<td>' +
-                        '<input type="hidden" name="lawCrimeTypeIds[]" value="' + (law.crime_type_id || '') + '">' +
-                        '<input type="hidden" name="lawCrimeClassIds[]" value="' + (law.crime_class_id || '') + '">' +
-                        '<input type="hidden" name="lawCrimeConstitutionIds[]" value="' + (law.crime_constitution_id || '') + '">' +
-                        '<input type="hidden" name="lawCrimeConstitutionChapters[]" value="' + (law.constitution_chapter || '') + '">' +
-                        '<button type="button" class="btn btn-danger btn-sm deleteLaw"><i class="bi bi-trash"></i></button>' +
-                        '</td>' +
-                        '</tr>'
-                    );
-                });
-            }
-
-            // Inisialisasi baris tabel dari existingAdditionalLaws
-            var existingAdditionalLaws = @json($existingAdditionalLaws ?? []);
-            if (existingAdditionalLaws && existingAdditionalLaws.length > 0) {
-                existingAdditionalLaws.forEach(function(law) {
-                    $('#additionalLawTable tbody').append(
-                        '<tr class="text-center">' +
-                        '<td>' + (law.constitution || '') + '</td>' +
-                        '<td>' +
-                        '<input type="hidden" name="lawAdditionalNames[]" value="' + (law.constitution || '') + '">' +
-                        '<button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>' +
-                        '</td>' +
-                        '</tr>'
-                    );
-                });
-            }
-
-            // Change event jenis kejahatan di modal
-            $('#crimeTypeLawForm').on('change', function() {
-                var lawCrimeTypeId = $(this).find(':selected').val();
-                var lawCrimeClassId = $(this).find(':selected').data('crime-class-id');
-                var lawCrimeConstitutionId = $(this).find(':selected').data('crime-constitution-id');
-
-                $('#crimeClassLawForm').val(lawCrimeClassId).trigger('change');
-                $('#crimeConstitutionLawForm').val(lawCrimeConstitutionId).trigger('change');
-
-                $("#constitutionChapterLawForm").empty().append('<option value="">--Pilih Pasal-Ayat--</option>');
-                if (lawCrimeTypeId && pasalOptions[lawCrimeTypeId]) {
-                    $.each(pasalOptions[lawCrimeTypeId], function (index, pasal) {
-                        $("#constitutionChapterLawForm").append(`<option value="${pasal.id}">${pasal.text}</option>`);
-                    });
-                    $("#constitutionChapterLawForm").prop("disabled", false);
-                } else {
-                    $("#constitutionChapterLawForm").prop("disabled", true);
-                }
-            });
-
-            // Simpan dari modal ke tabel
-            $('#saveAddLawFormButton').on('click', function(e) {
-                e.preventDefault();
-                var lawCrimeTypeId = $('#crimeTypeLawForm').find(':selected').val();
-                var lawCrimeTypeName = $('#crimeTypeLawForm').find(':selected').data('crime-type-name');
-                var lawCrimeClassId = $('#crimeClassLawForm').find(':selected').val();
-                var lawCrimeClassName = $('#crimeClassLawForm').find(':selected').data('crime-class-name');
-                var lawCrimeConstitutionId = $('#crimeConstitutionLawForm').find(':selected').val();
-                var lawCrimeConstitutionName = $('#crimeConstitutionLawForm').find(':selected').data('crime-constitution-name');
-                var lawCrimeConstitutionChapter = $('#constitutionChapterLawForm').find(':selected').val();
-
-                $('#addLawForm small.text-danger').remove();
-                if (!lawCrimeTypeId || !lawCrimeClassId || !lawCrimeConstitutionId || !lawCrimeConstitutionChapter) {
-                    if (!lawCrimeTypeId) $('#crimeTypeLawForm').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
-                    if (!lawCrimeClassId) $('#crimeClassLawForm').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
-                    if (!lawCrimeConstitutionId) $('#crimeConstitutionLawForm').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
-                    if (!lawCrimeConstitutionChapter) $('#constitutionChapterLawForm').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
-                    return false;
-                }
-
-                $('#lawTable tbody').append(
-                    '<tr class="text-center">' +
-                    '<td>' + lawCrimeTypeName + '</td>' +
-                    '<td>' + lawCrimeClassName + '</td>' +
-                    '<td>' + lawCrimeConstitutionName + '</td>' +
-                    '<td>' + lawCrimeConstitutionChapter + '</td>' +
-                    '<td>' +
-                    '<input type="hidden" name="lawCrimeTypeIds[]" value="' + lawCrimeTypeId + '">' +
-                    '<input type="hidden" name="lawCrimeClassIds[]" value="' + lawCrimeClassId + '">' +
-                    '<input type="hidden" name="lawCrimeConstitutionIds[]" value="' + lawCrimeConstitutionId + '">' +
-                    '<input type="hidden" name="lawCrimeConstitutionChapters[]" value="' + lawCrimeConstitutionChapter + '">' +
-                    '<button type="button" class="btn btn-danger btn-sm deleteLaw"><i class="bi bi-trash"></i></button>' +
-                    '</td>' +
-                    '</tr>'
-                );
-
-                $('#addLawModal').modal('hide');
-                $('#crimeTypeLawForm').val('').trigger('change');
-                syncPasalDiduga();
-            });
-
-            // Delete row law
-            $(document).on('click', '.deleteLaw', function() {
-                $(this).closest('tr').remove();
-                syncPasalDiduga();
-            });
-
-            // Additional Law
-            $('#saveAdditionalLawButton').on('click', function(e) {
-                e.preventDefault();
-                var lawAdditionalName = $('#additionalLaw').val().trim();
-                $('#additionalLaw').parent().find('small.text-danger').remove();
-
-                if (!lawAdditionalName) {
-                    $('#additionalLaw').parent().append('<small class="text-danger">Inputan ini wajib diisi</small>');
-                    return false;
-                }
-
-                $('#additionalLawTable tbody').append(
-                    '<tr class="text-center">' +
-                    '<td>' + lawAdditionalName + '</td>' +
-                    '<td>' +
-                    '<input type="hidden" name="lawAdditionalNames[]" value="' + lawAdditionalName + '">' +
-                    '<button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>' +
-                    '</td>' +
-                    '</tr>'
-                );
-                $('#additionalLaw').val('');
-            });
-
-            $('#clearAdditionalLawButton').on('click', function(e) {
-                e.preventDefault();
-                $('#additionalLaw').val('');
-                $('#additionalLaw').parent().find('small.text-danger').remove();
-            });
-
-            $(document).on('click', '.deleteAdditionalLaw', function() {
-                $(this).closest('tr').remove();
             });
 
             // Tembusan dinamis
