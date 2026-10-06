@@ -737,8 +737,8 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'is_case_finish' => false,
             ],
             [
-                'id' => '0606',
-                'code' => 'DCT-0606',
+                'id' => '0609',
+                'code' => 'DCT-0609',
                 'parent_id' => '06',
                 'name' => 'BERITA ACARA PENAHANAN',
                 'category' => $categoryType,

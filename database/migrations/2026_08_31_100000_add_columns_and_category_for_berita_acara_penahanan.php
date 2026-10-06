@@ -40,12 +40,12 @@ return new class extends Migration
             });
         }
 
-        // Ensure category 0605 exists and is properly configured
+        // Ensure category 0609 exists and is properly configured
         DB::table('lib.document_categories')->updateOrInsert(
-            ['id' => '0605'],
+            ['id' => '0609'],
             [
                 'parent_id' => '06',
-                'code' => 'DCT-0605',
+                'code' => 'DCT-0609',
                 'name' => 'BERITA ACARA PENAHANAN',
                 'category' => 'TYPE',
                 'sort' => 0,
@@ -54,7 +54,7 @@ return new class extends Migration
                 'model_class' => 'App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument',
                 'alt_code' => 'berita-acara-penahanan-document',
                 'is_active' => true,
-                'is_digital_signature' => false,
+                'is_digital_signature' => true,
                 'updated_at' => now(),
             ]
         );

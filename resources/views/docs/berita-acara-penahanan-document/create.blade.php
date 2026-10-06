@@ -228,7 +228,7 @@
                 </div>
 
                 <div class="row col-12 my-3 ms-0">
-                    <label class="fw-bold">Penyidik<small class="fw-normal text-muted"> (*Pilihan Penyidik akan tampil setelah
+                    <label class="fw-bold">Penyidik Pendamping / Anggota Tim<span class="text-danger fs-5">*</span> <small class="fw-normal text-muted"> (*Pilihan Penyidik akan tampil setelah
                             Penyidik Pembuat Berita Acara dipilih)</small></label>
 
                     <div id="internalOfficer">
@@ -265,8 +265,13 @@
                                 <tbody></tbody>
                             </table>
 
+                            @error('internalOfficers')
+                                <span class="invalid-feedback d-block" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
                             @error('personnel')
-                                <span class="invalid-feedback" role="alert">
+                                <span class="invalid-feedback d-block" role="alert">
                                     <strong>{{ $message }}</strong>
                                 </span>
                             @enderror
@@ -655,10 +660,16 @@
                     newRow.append('<td><input type="hidden" name="internalOfficers[]" value="' + registerNumber + '"><button class="btn btn-danger btn-sm deleteInternalOfficer" type="button"><i class="bi bi-trash"></i></button></td>');
 
                     $('#internalOfficerMemberTable tbody').append(newRow);
+                    $('#internalOfficerMemberTable').removeClass('border border-danger is-invalid');
+                    $('#internalOfficerMemberTable').closest('.input-group').find('.frontend-error, .invalid-feedback').remove();
+                    $('#internalOfficerMemberTable').next('.frontend-error, .invalid-feedback').remove();
 
                     $(document).off('click', '.deleteInternalOfficer');
                     $(document).on('click', '.deleteInternalOfficer', function() {
                         $(this).closest('tr').remove();
+                        if ($('#internalOfficerMemberTable tbody tr').length === 0) {
+                            markError('#internalOfficerMemberTable', 'Penyidik pendamping / anggota tim harus ditambahkan minimal 1 personel');
+                        }
                     });
                 }
             });
@@ -694,6 +705,12 @@
                     $('#investigatorRoleWrapper').removeClass('border border-danger is-invalid');
                     $('#investigatorRoleWrapper').next('.frontend-error, .invalid-feedback').remove();
                 }
+
+                if ($('#internalOfficerMemberTable tbody tr').length > 0) {
+                    $('#internalOfficerMemberTable').removeClass('border border-danger is-invalid');
+                    $('#internalOfficerMemberTable').closest('.input-group').find('.frontend-error, .invalid-feedback').remove();
+                    $('#internalOfficerMemberTable').next('.frontend-error, .invalid-feedback').remove();
+                }
             });
 
             // Continuous watcher untuk input yang diupdate oleh plugin popover
@@ -715,6 +732,12 @@
                     $('#investigatorRoleWrapper').removeClass('border border-danger is-invalid');
                     $('#investigatorRoleWrapper').next('.frontend-error, .invalid-feedback').remove();
                 }
+
+                if ($('#internalOfficerMemberTable tbody tr').length > 0) {
+                    $('#internalOfficerMemberTable').removeClass('border border-danger is-invalid');
+                    $('#internalOfficerMemberTable').closest('.input-group').find('.frontend-error, .invalid-feedback').remove();
+                    $('#internalOfficerMemberTable').next('.frontend-error, .invalid-feedback').remove();
+                }
             }, 200);
 
             // Validasi Submit Form (Konsisten dengan Sprinlidik)
@@ -731,6 +754,16 @@
 
                 function markError(fieldId, message) {
                     var $field = $(fieldId);
+                    if ($field.is('table')) {
+                        $field.addClass('border border-danger is-invalid');
+                        var $wrapper = $field.closest('.table-responsive, .input-group');
+                        var $container = $wrapper.length ? $wrapper : $field;
+                        $container.siblings('.frontend-error, .invalid-feedback').remove();
+                        $container.next('.frontend-error, .invalid-feedback').remove();
+                        $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                        errors.push(message);
+                        return;
+                    }
                     $field.addClass('is-invalid');
                     if ($field.next('.select2-container').length) {
                         $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
@@ -771,6 +804,11 @@
                         $('#investigatorRoleWrapper').after('<div class="invalid-feedback d-block frontend-error">Jabatan Selaku harus dipilih</div>');
                     }
                     errors.push('Jabatan Selaku harus dipilih');
+                }
+
+                // Validasi Penyidik Pendamping / Anggota Tim minimal 1 personel
+                if ($('#internalOfficerMemberTable tbody tr').length === 0) {
+                    markError('#internalOfficerMemberTable', 'Penyidik pendamping / anggota tim harus ditambahkan minimal 1 personel');
                 }
 
                 checkSelect('#suspect', 'Tersangka yang Ditahan');

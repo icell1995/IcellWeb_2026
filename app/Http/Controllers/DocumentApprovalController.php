@@ -160,7 +160,7 @@ class DocumentApprovalController extends Controller
                 }
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
-                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706', '0601', '0603', '0605', '0606'])){
+                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706', '0601', '0603', '0604', '0605', '0609'])){
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
@@ -243,8 +243,8 @@ class DocumentApprovalController extends Controller
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0404' => SuratPermintaanPenggeledahanDocument::class,
             '0405' => SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
-            '0605' => BeritaAcaraPenahanan::class,
-            '0606' => BeritaAcaraPenahanan::class,
+            '0605' => \App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
+            '0609' => BeritaAcaraPenahanan::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,
