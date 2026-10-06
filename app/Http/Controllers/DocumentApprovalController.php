@@ -13,6 +13,8 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument;
+use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
 use App\Models\BeritaAcaraPenahanan;
 use App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument;
 use App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument;
@@ -165,7 +167,7 @@ class DocumentApprovalController extends Controller
                 }
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
-                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706', '0601', '0603', '0604', '0605', '0609'])){
+                    if(in_array($documentCategoryId, ['0101', '0201', '0211', '0212', '0215', '0601', '0603', '0604', '0605', '0606', '0607', '0609', '0702', '0706'])){
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
@@ -213,6 +215,8 @@ class DocumentApprovalController extends Controller
             LaporanHasilGelarPerkaraDocument::class,
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            SuratPermohonanPenetapanDiversiDocument::class,
+            SuratPemberitahuanUpayaDiversiDocument::class,
             BeritaAcaraPenahanan::class,
             SuratPermintaanPenggeledahanDocument::class,
             SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
@@ -257,6 +261,8 @@ class DocumentApprovalController extends Controller
                 SuratPemberitahuanDimulainyaPenyidikanDocument::class,
                 \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class
             ],
+            '0212' => SuratPermohonanPenetapanDiversiDocument::class,
+            '0211' => SuratPemberitahuanUpayaDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0404' => SuratPermintaanPenggeledahanDocument::class,
             '0405' => SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,

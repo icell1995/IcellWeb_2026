@@ -9,6 +9,7 @@ use App\Http\Controllers\Docs\LaporanHasilGelarPerkaraDocumentController;
 use App\Http\Controllers\Docs\SuratKetetapanTentangPenetapanTersangkaDocumentController;
 use App\Http\Controllers\Docs\SuratPemberitahuanDimulainyaPenyidikanDocumentController;
 use App\Http\Controllers\Docs\Sp2hpDocumentController;
+use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController as Sp3PusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPermintaanPenggeledahanDocumentController;
 use App\Http\Controllers\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocumentController;
 use App\Http\Controllers\Docs\SuratPerintahPenahananDocumentController;
@@ -21,11 +22,26 @@ use App\Http\Controllers\Docs\P21DocumentController;
 use App\Http\Controllers\Doc\Tahap2DocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
-use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController as Sp3PusiknasDocumentController;
 use App\Http\Controllers\Docs\SuratPermintaanPerpanjanganPenahananLanjutanDocumentController;
 use App\Http\Controllers\Docs\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController;
 use App\Http\Controllers\Docs\SuratPerintahPembantaranPenahananDocumentController;
+use App\Http\Controllers\Docs\SuratPermohonanPenetapanDiversiDocumentController;
+use App\Http\Controllers\Docs\SuratPemberitahuanUpayaDiversiDocumentController;
 use App\Http\Controllers\Docs\BeritaAcaraPenahananDocumentController;
+
+// Surat Pemberitahuan Upaya Diversi (SPUD) Routes
+Route::prefix('/surat-pemberitahuan-upaya-diversi-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'index'])->name('doc.surat-pemberitahuan-upaya-diversi-document.index');
+    Route::get('/create', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'create'])->name('doc.surat-pemberitahuan-upaya-diversi-document.create');
+    Route::post('/create', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'store'])->name('doc.surat-pemberitahuan-upaya-diversi-document.store');
+    Route::get('/{id}/show', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'show'])->name('doc.surat-pemberitahuan-upaya-diversi-document.show');
+    Route::get('/{id}/edit', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'edit'])->name('doc.surat-pemberitahuan-upaya-diversi-document.edit');
+    Route::post('/{id}/edit', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'update'])->name('doc.surat-pemberitahuan-upaya-diversi-document.update');
+    Route::delete('/{id}/delete', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'delete'])->name('doc.surat-pemberitahuan-upaya-diversi-document.delete');
+    Route::get('/{id}/download', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'download'])->name('doc.surat-pemberitahuan-upaya-diversi-document.download');
+    Route::post('/generate-word', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'generateWord'])->name('doc.surat-pemberitahuan-upaya-diversi-document.generate-word');
+    Route::post('/api/validate-request-form', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'apiValidateRequestForm'])->name('doc.surat-pemberitahuan-upaya-diversi-document.api.validate-request-form');
+});
 
 Route::post('/create',[DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');
 Route::get('/type-document/{id}',[DocumentController::class, 'getTypeDocument'])->name('doc.getTypeDocument');
@@ -304,6 +320,19 @@ Route::prefix('/surat-laporan-guna-memperoleh-persetujuan-penggeledahan-document
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Permohonan Penetapan Diversi Document
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPermohonanPenetapanDiversiDocumentController::class, 'index'])->name('doc.surat-permohonan-penetapan-diversi-document.index');
+    Route::get('/create', [SuratPermohonanPenetapanDiversiDocumentController::class, 'create'])->name('doc.surat-permohonan-penetapan-diversi-document.create');
+    Route::post('/create', [SuratPermohonanPenetapanDiversiDocumentController::class, 'store'])->name('doc.surat-permohonan-penetapan-diversi-document.store');
+    Route::get('/{id}/show', [SuratPermohonanPenetapanDiversiDocumentController::class, 'show'])->name('doc.surat-permohonan-penetapan-diversi-document.show');
+    Route::get('/{id}/edit', [SuratPermohonanPenetapanDiversiDocumentController::class, 'edit'])->name('doc.surat-permohonan-penetapan-diversi-document.edit');
+    Route::post('/{id}/edit', [SuratPermohonanPenetapanDiversiDocumentController::class, 'update'])->name('doc.surat-permohonan-penetapan-diversi-document.update');
+    Route::delete('/{id}/delete', [SuratPermohonanPenetapanDiversiDocumentController::class, 'delete'])->name('doc.surat-permohonan-penetapan-diversi-document.delete');
+    Route::get('/{id}/download', [SuratPermohonanPenetapanDiversiDocumentController::class, 'download'])->name('doc.surat-permohonan-penetapan-diversi-document.download');
+});
 // Surat Perintah Penahanan — S-17
 // ─────────────────────────────────────────────────────────────────────────────
 Route::prefix('/surat-perintah-penahanan-document')->middleware(['document-access'])->group(function () {
@@ -423,3 +452,18 @@ Route::prefix('/surat-perintah-pembantaran-penahanan-document')->middleware(['do
     
     Route::post('/api/validate-request-form', [SuratPerintahPembantaranPenahananDocumentController::class, 'validateRequestForm'])->name('doc.surat-perintah-pembantaran-penahanan-document.api.validate-request-form');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Permohonan Penetapan Diversi Document
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPermohonanPenetapanDiversiDocumentController::class, 'index'])->name('doc.surat-permohonan-penetapan-diversi-document.index');
+    Route::get('/create', [SuratPermohonanPenetapanDiversiDocumentController::class, 'create'])->name('doc.surat-permohonan-penetapan-diversi-document.create');
+    Route::post('/create', [SuratPermohonanPenetapanDiversiDocumentController::class, 'store'])->name('doc.surat-permohonan-penetapan-diversi-document.store');
+    Route::get('/{id}/show', [SuratPermohonanPenetapanDiversiDocumentController::class, 'show'])->name('doc.surat-permohonan-penetapan-diversi-document.show');
+    Route::get('/{id}/edit', [SuratPermohonanPenetapanDiversiDocumentController::class, 'edit'])->name('doc.surat-permohonan-penetapan-diversi-document.edit');
+    Route::post('/{id}/edit', [SuratPermohonanPenetapanDiversiDocumentController::class, 'update'])->name('doc.surat-permohonan-penetapan-diversi-document.update');
+    Route::delete('/{id}/delete', [SuratPermohonanPenetapanDiversiDocumentController::class, 'delete'])->name('doc.surat-permohonan-penetapan-diversi-document.delete');
+    Route::get('/{id}/download', [SuratPermohonanPenetapanDiversiDocumentController::class, 'download'])->name('doc.surat-permohonan-penetapan-diversi-document.download');
+});
+

@@ -695,5 +695,19 @@
                 }
             });
         });
+
+        @if (session()->has('error'))
+            @php
+                $isDeleteRestriction = str_contains(session('error'), 'tidak dapat dihapus');
+                $isParentMissing = str_contains(session('error'), 'tidak ditemukan atau telah dihapus');
+            @endphp
+            Swal.fire({
+                icon: 'warning',
+                title: '{{ $isDeleteRestriction ? "Dokumen Tidak Dapat Dihapus" : ($isParentMissing ? "Perlu Pembaruan Dokumen Induk" : "Perhatian") }}',
+                text: {!! json_encode(session('error')) !!},
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Saya Mengerti'
+            });
+        @endif
     </script>
 @endpush

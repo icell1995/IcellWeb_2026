@@ -12,6 +12,7 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument;
 use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument;
 use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument;
+use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
 use App\Models\Lib\DocumentCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -401,10 +402,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '02',
                 'name' => 'SURAT PEMBERITAHUAN UPAYA DIVERSI',
                 'category' => $categoryType,
-                'route' => null,
-                'base_route' => null,
+                'route' => 'doc.surat-pemberitahuan-upaya-diversi-document.create',
+                'base_route' => 'doc.surat-pemberitahuan-upaya-diversi-document',
                 'is_digital_signature' => false,
-                'model_class' => null,
+                'model_class' => get_class(new SuratPemberitahuanUpayaDiversiDocument()) . '::class',
                 'alt_code' => 'surat-pemberitahuan-upaya-diversi-document',
                 'is_case_finish' => false,
             ],
@@ -414,11 +415,11 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '02',
                 'name' => 'SURAT PERMOHONAN PENETAPAN KESEPAKATAN DIVERSI',
                 'category' => $categoryType,
-                'route' => null,
-                'base_route' => null,
+                'route' => 'doc.surat-permohonan-penetapan-diversi-document.create',
+                'base_route' => 'doc.surat-permohonan-penetapan-diversi-document',
                 'is_digital_signature' => false,
-                'model_class' => null,
-                'alt_code' => 'surat-permohonan-penetapan-kesepakatan-diversi-document',
+                'model_class' => 'App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument',
+                'alt_code' => 'surat-permohonan-penetapan-diversi-document',
                 'is_case_finish' => false,
             ],
             [
