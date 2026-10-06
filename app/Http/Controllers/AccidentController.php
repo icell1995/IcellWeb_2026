@@ -1388,11 +1388,13 @@ class AccidentController extends Controller
             'suratKetetapanTentangPenetapanTersangkaDocuments',
             'suratPemberitahuanDimulainyaPenyidikanDocuments',
             'suratPemberitahuanPerkembanganHasilPenyidikanDocuments',
+            'beritaAcaraPenahananDocuments',
+            'suratPermintaanPenggeledahanDocuments',
+            'suratGunaMemperolehPersetujuanPenggeledahanDocuments',
             'suratPerintahPenahananDocuments',
             'suratPerintahPenangguhanPenahananDocuments',
             'suratPerintahPencabutanPenangguhanPenahananDocuments',
             'suratPermohonanPerpanjanganPenahananKejaksaanDocuments',
-            'beritaAcaraPenahananDocuments',
             'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments',
             'suratPemberitahuanPenghentianPenyidikanDocuments',
             'tahap1Documents',
@@ -1425,6 +1427,14 @@ class AccidentController extends Controller
                 } elseif ($documentType == 'suratKetetapanTentangPenetapanTersangkaDocuments') {
                     $countAccidentDocumentCollection = $countAccidentDocumentCollection->put($documentType, [
                         "count" => $documents->whereIn('status_id', ['85', '86'])->count()
+                    ]);
+                } elseif ($documentType == 'suratPermintaanPenggeledahanDocuments') {
+                    $countAccidentDocumentCollection = $countAccidentDocumentCollection->put($documentType, [
+                        "count" => $documents->count()
+                    ]);
+                } elseif ($documentType == 'suratGunaMemperolehPersetujuanPenggeledahanDocuments') {
+                    $countAccidentDocumentCollection = $countAccidentDocumentCollection->put($documentType, [
+                        "count" => $documents->count()
                     ]);
                 }
             }
