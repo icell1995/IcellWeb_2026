@@ -86,7 +86,7 @@ class BeritaAcaraPenahanan extends Model
     public function documentCategory()
     {
         return $this->belongsTo(DocumentCategory::class, 'document_category_id', 'id')->withDefault(function() {
-            return DocumentCategory::where('id', '0605')->first();
+            return DocumentCategory::where('id', '0609')->first();
         });
     }
 
@@ -102,7 +102,7 @@ class BeritaAcaraPenahanan extends Model
 
     public function getDocumentCategoryIdAttribute()
     {
-        return '0605';
+        return '0609';
     }
 
     public function getDocumentNumberAttribute()
