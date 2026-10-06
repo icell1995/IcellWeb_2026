@@ -64,6 +64,8 @@ Route::prefix('ppd')->group(function () {
         '/',
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\PpdPolDocumentController::class, 'index']
     )->name('api.pusiknasbareskrim.doc.ppd.index');
+});
+
 Route::prefix('spud')->group(function () {
     Route::get(
         '/',
