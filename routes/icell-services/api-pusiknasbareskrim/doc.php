@@ -52,6 +52,18 @@ Route::prefix('tahap-2-pusiknas')->group(function () {
     )->name('api.pusiknasbareskrim.doc.tahap-2-pusiknas.index');
 });
 
+Route::prefix('ppd-pol')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\PpdPolDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ppd-pol.index');
+});
+
+Route::prefix('ppd')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\PpdPolDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ppd.index');
 Route::prefix('spud')->group(function () {
     Route::get(
         '/',
