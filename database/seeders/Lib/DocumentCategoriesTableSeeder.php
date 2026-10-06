@@ -737,6 +737,19 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'alt_code' => 'surat-permohonan-perpanjangan-penahanan-kejaksaan-document',
                 'is_case_finish' => false,
             ],
+            [
+                'id' => '0609',
+                'code' => 'DCT-0609',
+                'parent_id' => '06',
+                'name' => 'BERITA ACARA PENAHANAN',
+                'category' => $categoryType,
+                'route' => 'doc.berita-acara-penahanan-document.create',
+                'base_route' => 'doc.berita-acara-penahanan-document',
+                'is_digital_signature' => true,
+                'model_class' => 'App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument',
+                'alt_code' => 'berita-acara-penahanan-document',
+                'is_case_finish' => false,
+            ],
             // =====( END PENAHANAN )=====
 
             // =====( GENERAL )=====

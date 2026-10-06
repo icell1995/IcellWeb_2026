@@ -160,6 +160,15 @@ class Accident extends Model
                 'attachment',
                 'createdByUser',
             ]);
+    public function beritaAcaraPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\BeritaAcaraPenahanan', 'accident_id', 'id')
+            ->with(['documentCategory', 'attachment']);
+    }
+
+    public function beritaAcaraPenahanans()
+    {
+        return $this->beritaAcaraPenahananDocuments();
     }
 
     public function suratPermintaanPenggeledahanDocuments()
