@@ -187,7 +187,7 @@ class S22PusiknasService
         $digitalDocs[] = [
             'kode_jenis_dokumen' => 's22',
             'mime_type' => 'application/pdf',
-            'file' => (string) ($s22AttachmentName ?? ''),
+            // 'file' => (string) ($s22AttachmentName ?? ''),
             'url' => $s22Url,
         ];
 
@@ -197,11 +197,13 @@ class S22PusiknasService
             $sprindikDoc = SuratPerintahPenyidikanDocument::where('accident_id', $accident->id)->first();
             $sprindikAttachmentName = $sprindikDoc->attachment->name ?? null;
         }
+        $sprindikUrl = $sprindikAttachmentName ? asset('documents/attachments/' . $sprindikAttachmentName) : null;
 
         $digitalDocs[] = [
             'kode_jenis_dokumen' => 'sprindik',
             'mime_type' => 'application/pdf',
-            'file' => (string) ($sprindikAttachmentName ?? ''),
+            // 'file' => (string) ($sprindikAttachmentName ?? ''),
+            'url' => $sprindikUrl,
         ];
 
         // --- Berkas 3: Dokumen Laporan Polisi (LP) ---
@@ -210,11 +212,13 @@ class S22PusiknasService
             $lp = LaporanPolisi::where('accident_id', $accident->id)->latest()->first();
             $lpAttachmentName = $lp->name ?? null;
         }
+        $lpUrl = $lpAttachmentName ? asset('file/tugas/laporan_polisi/' . $lpAttachmentName) : null;
 
         $digitalDocs[] = [
             'kode_jenis_dokumen' => 'lp',
             'mime_type' => 'application/pdf',
-            'file' => (string) ($lpAttachmentName ?? ''),
+            // 'file' => (string) ($lpAttachmentName ?? ''),
+            'url' => $lpUrl,
         ];
 
         return $digitalDocs;
