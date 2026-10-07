@@ -164,240 +164,225 @@
                 <hr>
                 <h5 class="fw-bold text-blue-dark">Rujukan Dokumen Pendahulu</h5>
 
-                <!-- Poin 1.f - Sprint Sidik -->
-                <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Perintah Penyidikan <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="nomor_surat_perintah_penyidikan">Nomor Sprint Sidik<span class="text-danger fs-5">*</span></label>
-                            <input id="nomor_surat_perintah_penyidikan" type="text" class="form-control @error('nomor_surat_perintah_penyidikan') is-invalid @enderror" name="nomor_surat_perintah_penyidikan"
-                                value="{{ old('nomor_surat_perintah_penyidikan', $document->nomor_surat_perintah_penyidikan) }}" placeholder="Nomor Surat Perintah Penyidikan" required readonly style="background-color: #e9ecef;">
-                            @error('nomor_surat_perintah_penyidikan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                <div class="row">
+                    <!-- Poin 1.f - Sprint Sidik -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <span class="fw-bold text-dark mb-2">Surat Perintah Penyidikan <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
+                            <div class="row">
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="nomor_surat_perintah_penyidikan">Nomor Sprint Sidik<span class="text-danger fs-5">*</span></label>
+                                    <input id="nomor_surat_perintah_penyidikan" type="text" class="form-control @error('nomor_surat_perintah_penyidikan') is-invalid @enderror" name="nomor_surat_perintah_penyidikan"
+                                        value="{{ old('nomor_surat_perintah_penyidikan', $document->nomor_surat_perintah_penyidikan) }}" placeholder="Nomor Surat Perintah Penyidikan" required readonly style="background-color: #e9ecef;">
+                                    @error('nomor_surat_perintah_penyidikan')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="tanggal_surat_perintah_penyidikan">Tanggal Sprint Sidik<span class="text-danger fs-5">*</span></label>
+                                    <input id="tanggal_surat_perintah_penyidikan" type="text" class="form-control @error('tanggal_surat_perintah_penyidikan') is-invalid @enderror" name="tanggal_surat_perintah_penyidikan"
+                                        placeholder="YYYY-MM-DD" autocomplete="off"
+                                        value="{{ old('tanggal_surat_perintah_penyidikan', $document->tanggal_surat_perintah_penyidikan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_penyidikan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                                    @error('tanggal_surat_perintah_penyidikan')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="tanggal_surat_perintah_penyidikan">Tanggal Sprint Sidik<span class="text-danger fs-5">*</span></label>
-                            <input id="tanggal_surat_perintah_penyidikan" type="text" class="form-control @error('tanggal_surat_perintah_penyidikan') is-invalid @enderror" name="tanggal_surat_perintah_penyidikan"
-                                placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perintah_penyidikan', $document->tanggal_surat_perintah_penyidikan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_penyidikan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
-                            @error('tanggal_surat_perintah_penyidikan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                    </div>
+
+                    <!-- Poin 1.g - SPDP -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <span class="fw-bold text-dark mb-2">Surat Pemberitahuan Dimulainya Penyidikan (SPDP) <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
+                            <div class="row">
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="nomor_spdp">Nomor SPDP<span class="text-danger fs-5">*</span></label>
+                                    <input id="nomor_spdp" type="text" class="form-control @error('nomor_spdp') is-invalid @enderror" name="nomor_spdp"
+                                        value="{{ old('nomor_spdp', $document->nomor_spdp) }}" placeholder="Nomor SPDP" required readonly style="background-color: #e9ecef;">
+                                    @error('nomor_spdp')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="tanggal_spdp">Tanggal SPDP<span class="text-danger fs-5">*</span></label>
+                                    <input id="tanggal_spdp" type="text" class="form-control @error('tanggal_spdp') is-invalid @enderror" name="tanggal_spdp"
+                                        placeholder="YYYY-MM-DD" autocomplete="off"
+                                        value="{{ old('tanggal_spdp', $document->tanggal_spdp ? Carbon\Carbon::parse($document->tanggal_spdp)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                                    @error('tanggal_spdp')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Poin 1.g - SPDP -->
-                <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Pemberitahuan Dimulainya Penyidikan (SPDP) <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="nomor_spdp">Nomor SPDP<span class="text-danger fs-5">*</span></label>
-                            <input id="nomor_spdp" type="text" class="form-control @error('nomor_spdp') is-invalid @enderror" name="nomor_spdp"
-                                value="{{ old('nomor_spdp', $document->nomor_spdp) }}" placeholder="Nomor SPDP" required readonly style="background-color: #e9ecef;">
-                            @error('nomor_spdp')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                <div class="row">
+                    <!-- Poin 1.h - SKET Tersangka -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <span class="fw-bold text-dark mb-2">Surat Ketetapan tentang Penetapan Tersangka <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
+                            <div class="row">
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="nomor_sket_tersangka">Nomor S.Ket Penetapan Tersangka<span class="text-danger fs-5">*</span></label>
+                                    <input id="nomor_sket_tersangka" type="text" class="form-control @error('nomor_sket_tersangka') is-invalid @enderror" name="nomor_sket_tersangka"
+                                        value="{{ old('nomor_sket_tersangka', $document->nomor_sket_tersangka) }}" placeholder="Nomor S.Ket Penetapan Tersangka" required readonly style="background-color: #e9ecef;">
+                                    @error('nomor_sket_tersangka')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="tanggal_sket_tersangka">Tanggal S.Ket Penetapan Tersangka<span class="text-danger fs-5">*</span></label>
+                                    <input id="tanggal_sket_tersangka" type="text" class="form-control @error('tanggal_sket_tersangka') is-invalid @enderror" name="tanggal_sket_tersangka"
+                                        placeholder="YYYY-MM-DD" autocomplete="off"
+                                        value="{{ old('tanggal_sket_tersangka', $document->tanggal_sket_tersangka ? Carbon\Carbon::parse($document->tanggal_sket_tersangka)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                                    @error('tanggal_sket_tersangka')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="tanggal_spdp">Tanggal SPDP<span class="text-danger fs-5">*</span></label>
-                            <input id="tanggal_spdp" type="text" class="form-control @error('tanggal_spdp') is-invalid @enderror" name="tanggal_spdp"
-                                placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_spdp', $document->tanggal_spdp ? Carbon\Carbon::parse($document->tanggal_spdp)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
-                            @error('tanggal_spdp')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                    </div>
+
+                    <!-- Poin 1.i - Sprint Penahanan Penyidik S-17 -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <span class="fw-bold text-dark mb-2">Surat Perintah Penahanan Penyidik (S-17)</span>
+                            <div class="row">
+                                <input type="hidden" name="surat_perintah_penahanan_document_id" id="surat_perintah_penahanan_document_id" value="{{ old('surat_perintah_penahanan_document_id', $document->surat_perintah_penahanan_document_id ?? '') }}">
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="nomor_surat_perintah_penahanan">Nomor Sprint Penahanan<span class="text-danger fs-5">*</span></label>
+                                    <input id="nomor_surat_perintah_penahanan" type="text" class="form-control @error('nomor_surat_perintah_penahanan') is-invalid @enderror" name="nomor_surat_perintah_penahanan"
+                                        value="{{ old('nomor_surat_perintah_penahanan', $document->nomor_surat_perintah_penahanan) }}" placeholder="Contoh: Sp.Han/12/IV/2026/Lantas" required readonly style="background-color: #e9ecef;">
+                                    @error('nomor_surat_perintah_penahanan')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="tanggal_surat_perintah_penahanan">Tanggal Sprint Penahanan<span class="text-danger fs-5">*</span></label>
+                                    <input id="tanggal_surat_perintah_penahanan" type="text" class="form-control @error('tanggal_surat_perintah_penahanan') is-invalid @enderror" name="tanggal_surat_perintah_penahanan"
+                                        placeholder="YYYY-MM-DD" autocomplete="off"
+                                        value="{{ old('tanggal_surat_perintah_penahanan', $document->tanggal_surat_perintah_penahanan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_penahanan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                                    @error('tanggal_surat_perintah_penahanan')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Poin 1.h - SKET Tersangka -->
-                <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Ketetapan tentang Penetapan Tersangka <small class="text-muted font-weight-normal">(Otomatis dari Sistem)</small></span>
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="nomor_sket_tersangka">Nomor S.Ket Penetapan Tersangka<span class="text-danger fs-5">*</span></label>
-                            <input id="nomor_sket_tersangka" type="text" class="form-control @error('nomor_sket_tersangka') is-invalid @enderror" name="nomor_sket_tersangka"
-                                value="{{ old('nomor_sket_tersangka', $document->nomor_sket_tersangka) }}" placeholder="Nomor S.Ket Penetapan Tersangka" required readonly style="background-color: #e9ecef;">
-                            @error('nomor_sket_tersangka')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                <div class="row">
+                    <!-- Poin 1.j - Surat Perpanjangan Kejaksaan -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <span class="fw-bold text-dark mb-2">Surat Perpanjangan Penahanan dari Kejaksaan</span>
+                            <div class="row">
+                                <input type="hidden" name="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id" id="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id" value="{{ old('surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id', $document->surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id ?? '') }}">
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="nomor_surat_perpanjangan_kejaksaan">Nomor Perpanjangan Kejaksaan<span class="text-danger fs-5">*</span></label>
+                                    <input id="nomor_surat_perpanjangan_kejaksaan" type="text" class="form-control @error('nomor_surat_perpanjangan_kejaksaan') is-invalid @enderror" name="nomor_surat_perpanjangan_kejaksaan"
+                                        value="{{ old('nomor_surat_perpanjangan_kejaksaan', $document->nomor_surat_perpanjangan_kejaksaan) }}" placeholder="Nomor Surat Perpanjangan Kejaksaan" required readonly style="background-color: #e9ecef;">
+                                    @error('nomor_surat_perpanjangan_kejaksaan')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="tanggal_surat_perpanjangan_kejaksaan">Tanggal Perpanjangan Kejaksaan<span class="text-danger fs-5">*</span></label>
+                                    <input id="tanggal_surat_perpanjangan_kejaksaan" type="text" class="form-control @error('tanggal_surat_perpanjangan_kejaksaan') is-invalid @enderror" name="tanggal_surat_perpanjangan_kejaksaan"
+                                        placeholder="YYYY-MM-DD" autocomplete="off"
+                                        value="{{ old('tanggal_surat_perpanjangan_kejaksaan', $document->tanggal_surat_perpanjangan_kejaksaan ? Carbon\Carbon::parse($document->tanggal_surat_perpanjangan_kejaksaan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                                    @error('tanggal_surat_perpanjangan_kejaksaan')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="tanggal_sket_tersangka">Tanggal S.Ket Penetapan Tersangka<span class="text-danger fs-5">*</span></label>
-                            <input id="tanggal_sket_tersangka" type="text" class="form-control @error('tanggal_sket_tersangka') is-invalid @enderror" name="tanggal_sket_tersangka"
-                                placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_sket_tersangka', $document->tanggal_sket_tersangka ? Carbon\Carbon::parse($document->tanggal_sket_tersangka)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
-                            @error('tanggal_sket_tersangka')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                    </div>
+
+                    <!-- Poin 1.k - Sprint Perpanjangan Penahanan (JPU) -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <span class="fw-bold text-dark mb-2">Surat Perintah Perpanjangan Penahanan (JPU)</span>
+                            <div class="row">
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="nomor_surat_perintah_perpanjangan_penahanan">Nomor Sprint Perpanjangan Penahanan (JPU)<span class="text-danger fs-5">*</span></label>
+                                    <input id="nomor_surat_perintah_perpanjangan_penahanan" type="text" class="form-control @error('nomor_surat_perintah_perpanjangan_penahanan') is-invalid @enderror" name="nomor_surat_perintah_perpanjangan_penahanan"
+                                        value="{{ old('nomor_surat_perintah_perpanjangan_penahanan', $document->nomor_surat_perintah_perpanjangan_penahanan) }}" placeholder="Contoh: Sp.Jang.Han/05/V/2026/Lantas" required readonly style="background-color: #e9ecef;">
+                                    <small class="text-muted"><i class="bi bi-info-circle"></i> Nomor Sprint Perpanjangan Penahanan dari JPU diambil otomatis dari dokumen relasi sebelumnya.</small>
+                                    @error('nomor_surat_perintah_perpanjangan_penahanan')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="tanggal_surat_perintah_perpanjangan_penahanan">Tanggal Sprint Perpanjangan Penahanan (JPU)<span class="text-danger fs-5">*</span></label>
+                                    <input id="tanggal_surat_perintah_perpanjangan_penahanan" type="text" class="form-control @error('tanggal_surat_perintah_perpanjangan_penahanan') is-invalid @enderror" name="tanggal_surat_perintah_perpanjangan_penahanan"
+                                        placeholder="YYYY-MM-DD" autocomplete="off"
+                                        value="{{ old('tanggal_surat_perintah_perpanjangan_penahanan', $document->tanggal_surat_perintah_perpanjangan_penahanan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_perpanjangan_penahanan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                                    <small class="text-muted"><i class="bi bi-info-circle"></i> Tanggal Sprint Perpanjangan Penahanan dari JPU diambil otomatis dari dokumen relasi sebelumnya.</small>
+                                    @error('tanggal_surat_perintah_perpanjangan_penahanan')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Poin 1.i - Sprint Penahanan Penyidik S-17 -->
-                <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Perintah Penahanan Penyidik (S-17)</span>
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="surat_perintah_penahanan_document_id">Pilih Dokumen S-17 Terkait (Opsional)</label>
-                            <select class="form-control select2 select-readonly" name="surat_perintah_penahanan_document_id" id="surat_perintah_penahanan_document_id" tabindex="-1" style="pointer-events: none; background-color: #e9ecef;">
-                                <option value="">-- Hubungkan Dokumen S-17 --</option>
-                                @if(isset($s17Documents))
-                                    @foreach($s17Documents as $s17)
-                                        <option value="{{ $s17->id }}" data-nomor="{{ $s17->nomor ?? $s17->document_number }}" data-tanggal="{{ $s17->tanggal ?? $s17->document_date }}" {{ (old('surat_perintah_penahanan_document_id', $document->surat_perintah_penahanan_document_id ?? null) == $s17->id) ? 'selected' : '' }}>
-                                            {{ ($s17->nomor ?? $s17->document_number ?? 'S-17') . ' (' . ($s17->tanggal ? Carbon\Carbon::parse($s17->tanggal)->format('d/m/Y') : ($s17->document_date ? Carbon\Carbon::parse($s17->document_date)->format('d/m/Y') : '-')) . ')' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Terhubung otomatis dari relasi berkas penahanan S-17 dan tidak dapat diubah.</small>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="nomor_surat_perintah_penahanan">Nomor Sprint Penahanan<span class="text-danger fs-5">*</span></label>
-                            <input id="nomor_surat_perintah_penahanan" type="text" class="form-control @error('nomor_surat_perintah_penahanan') is-invalid @enderror" name="nomor_surat_perintah_penahanan"
-                                value="{{ old('nomor_surat_perintah_penahanan', $document->nomor_surat_perintah_penahanan) }}" placeholder="Contoh: Sp.Han/12/IV/2026/Lantas" required readonly style="background-color: #e9ecef;">
-                            @error('nomor_surat_perintah_penahanan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="tanggal_surat_perintah_penahanan">Tanggal Sprint Penahanan<span class="text-danger fs-5">*</span></label>
-                            <input id="tanggal_surat_perintah_penahanan" type="text" class="form-control @error('tanggal_surat_perintah_penahanan') is-invalid @enderror" name="tanggal_surat_perintah_penahanan"
-                                placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perintah_penahanan', $document->tanggal_surat_perintah_penahanan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_penahanan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
-                            @error('tanggal_surat_perintah_penahanan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                <div class="row">
+                    <!-- Poin 1.l - S.Ket Perpanjangan KPN Pertama (KPN1) -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <span class="fw-bold text-dark mb-2">Surat Ketetapan Perpanjangan Penahanan Ketua Pengadilan Negeri (KPN1)</span>
+                            <div class="row">
+                                <input type="hidden" name="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id" id="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id" value="{{ old('surat_permintaan_perpanjangan_penahanan_lanjutan_document_id', $document->surat_permintaan_perpanjangan_penahanan_lanjutan_document_id ?? '') }}">
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="nomor_sket_perpanjangan_kpn_pertama">Nomor S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
+                                    <input id="nomor_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('nomor_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="nomor_sket_perpanjangan_kpn_pertama"
+                                        value="{{ old('nomor_sket_perpanjangan_kpn_pertama', $document->nomor_sket_perpanjangan_kpn_pertama) }}" placeholder="Nomor Surat Penetapan / Izin KPN Pertama" required readonly style="background-color: #e9ecef;">
+                                    <small class="text-muted"><i class="bi bi-info-circle"></i> Nomor Surat Ketetapan KPN1 diambil otomatis dari penetapan S-22 Pertama.</small>
+                                    @error('nomor_sket_perpanjangan_kpn_pertama')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="tanggal_sket_perpanjangan_kpn_pertama">Tanggal S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
+                                    <input id="tanggal_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('tanggal_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="tanggal_sket_perpanjangan_kpn_pertama"
+                                        placeholder="YYYY-MM-DD" autocomplete="off"
+                                        value="{{ old('tanggal_sket_perpanjangan_kpn_pertama', $document->tanggal_sket_perpanjangan_kpn_pertama ? Carbon\Carbon::parse($document->tanggal_sket_perpanjangan_kpn_pertama)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                                    <small class="text-muted"><i class="bi bi-info-circle"></i> Tanggal Surat Ketetapan KPN1 diambil otomatis dari penetapan S-22 Pertama.</small>
+                                    @error('tanggal_sket_perpanjangan_kpn_pertama')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Poin 1.j - Surat Perpanjangan Kejaksaan -->
-                <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Perpanjangan Penahanan dari Kejaksaan</span>
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id">Pilih Dokumen S-21 Terkait (Opsional)</label>
-                            <select class="form-control select2 select-readonly" name="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id" id="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id" tabindex="-1" style="pointer-events: none; background-color: #e9ecef;">
-                                <option value="">-- Hubungkan Dokumen S-21 --</option>
-                                @if(isset($s21Documents))
-                                    @foreach($s21Documents as $s21)
-                                        <option value="{{ $s21->id }}" data-nomor="{{ $s21->nomor ?? $s21->document_number }}" data-tanggal="{{ $s21->tanggal ?? $s21->document_date }}" {{ (old('surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id', $document->surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id ?? null) == $s21->id) ? 'selected' : '' }}>
-                                            {{ ($s21->nomor ?? $s21->document_number ?? 'S-21') . ' (' . ($s21->tanggal ? Carbon\Carbon::parse($s21->tanggal)->format('d/m/Y') : ($s21->document_date ? Carbon\Carbon::parse($s21->document_date)->format('d/m/Y') : '-')) . ')' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Terhubung otomatis dari relasi perpanjangan Kejaksaan S-21 dan tidak dapat diubah.</small>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="nomor_surat_perpanjangan_kejaksaan">Nomor Perpanjangan Kejaksaan<span class="text-danger fs-5">*</span></label>
-                            <input id="nomor_surat_perpanjangan_kejaksaan" type="text" class="form-control @error('nomor_surat_perpanjangan_kejaksaan') is-invalid @enderror" name="nomor_surat_perpanjangan_kejaksaan"
-                                value="{{ old('nomor_surat_perpanjangan_kejaksaan', $document->nomor_surat_perpanjangan_kejaksaan) }}" placeholder="Nomor Surat Perpanjangan Kejaksaan" required readonly style="background-color: #e9ecef;">
-                            @error('nomor_surat_perpanjangan_kejaksaan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="tanggal_surat_perpanjangan_kejaksaan">Tanggal Perpanjangan Kejaksaan<span class="text-danger fs-5">*</span></label>
-                            <input id="tanggal_surat_perpanjangan_kejaksaan" type="text" class="form-control @error('tanggal_surat_perpanjangan_kejaksaan') is-invalid @enderror" name="tanggal_surat_perpanjangan_kejaksaan"
-                                placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perpanjangan_kejaksaan', $document->tanggal_surat_perpanjangan_kejaksaan ? Carbon\Carbon::parse($document->tanggal_surat_perpanjangan_kejaksaan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
-                            @error('tanggal_surat_perpanjangan_kejaksaan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Poin 1.k - Sprint Perpanjangan Penahanan (JPU) -->
-                <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Perintah Perpanjangan Penahanan (JPU)</span>
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="nomor_surat_perintah_perpanjangan_penahanan">Nomor Sprint Perpanjangan Penahanan (JPU)<span class="text-danger fs-5">*</span></label>
-                            <input id="nomor_surat_perintah_perpanjangan_penahanan" type="text" class="form-control @error('nomor_surat_perintah_perpanjangan_penahanan') is-invalid @enderror" name="nomor_surat_perintah_perpanjangan_penahanan"
-                                value="{{ old('nomor_surat_perintah_perpanjangan_penahanan', $document->nomor_surat_perintah_perpanjangan_penahanan) }}" placeholder="Contoh: Sp.Jang.Han/05/V/2026/Lantas" required readonly style="background-color: #e9ecef;">
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Nomor Sprint Perpanjangan Penahanan dari JPU diambil otomatis dari dokumen relasi sebelumnya.</small>
-                            @error('nomor_surat_perintah_perpanjangan_penahanan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="tanggal_surat_perintah_perpanjangan_penahanan">Tanggal Sprint Perpanjangan Penahanan (JPU)<span class="text-danger fs-5">*</span></label>
-                            <input id="tanggal_surat_perintah_perpanjangan_penahanan" type="text" class="form-control @error('tanggal_surat_perintah_perpanjangan_penahanan') is-invalid @enderror" name="tanggal_surat_perintah_perpanjangan_penahanan"
-                                placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perintah_perpanjangan_penahanan', $document->tanggal_surat_perintah_perpanjangan_penahanan ? Carbon\Carbon::parse($document->tanggal_surat_perintah_perpanjangan_penahanan)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Tanggal Sprint Perpanjangan Penahanan dari JPU diambil otomatis dari dokumen relasi sebelumnya.</small>
-                            @error('tanggal_surat_perintah_perpanjangan_penahanan')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Poin 1.l - S.Ket Perpanjangan KPN Pertama (KPN1) -->
-                <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Ketetapan Perpanjangan Penahanan Ketua Pengadilan Negeri (KPN1)</span>
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id">Pilih Dokumen S-22 Pertama Terkait (Opsional)</label>
-                            <select class="form-control select2 select-readonly" name="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id" id="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id" tabindex="-1" style="pointer-events: none; background-color: #e9ecef;">
-                                <option value="">-- Hubungkan Dokumen S-22 Pertama --</option>
-                                @if(isset($s22PertamaDocuments))
-                                    @foreach($s22PertamaDocuments as $s22p)
-                                        <option value="{{ $s22p->id }}" data-nomor="{{ $s22p->nomor_surat ?? $s22p->document_number }}" data-tanggal="{{ $s22p->tanggal_surat ?? $s22p->document_date }}" data-akhir="{{ $s22p->tanggal_akhir_perpanjangan_penahanan }}" data-sprint-jpu-nomor="{{ $s22p->nomor_surat_perintah_perpanjangan_penahanan }}" data-sprint-jpu-tanggal="{{ $s22p->tanggal_surat_perintah_perpanjangan_penahanan ? Carbon\Carbon::parse($s22p->tanggal_surat_perintah_perpanjangan_penahanan)->format('Y-m-d') : '' }}" {{ (old('surat_permintaan_perpanjangan_penahanan_lanjutan_document_id', $document->surat_permintaan_perpanjangan_penahanan_lanjutan_document_id ?? null) == $s22p->id) ? 'selected' : '' }}>
-                                            {{ ($s22p->nomor_surat ?? $s22p->document_number ?? 'S-22 Pertama') . ' (' . ($s22p->tanggal_surat ? Carbon\Carbon::parse($s22p->tanggal_surat)->format('d/m/Y') : ($s22p->document_date ? Carbon\Carbon::parse($s22p->document_date)->format('d/m/Y') : '-')) . ')' }}
-                                        </option>
-                                    @endforeach
-                                @endif
-                            </select>
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Terhubung otomatis dari permohonan S-22 Pertama dan tidak dapat diubah.</small>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="nomor_sket_perpanjangan_kpn_pertama">Nomor S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
-                            <input id="nomor_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('nomor_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="nomor_sket_perpanjangan_kpn_pertama"
-                                value="{{ old('nomor_sket_perpanjangan_kpn_pertama', $document->nomor_sket_perpanjangan_kpn_pertama) }}" placeholder="Nomor Surat Penetapan / Izin KPN Pertama" required readonly style="background-color: #e9ecef;">
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Nomor Surat Ketetapan KPN1 diambil otomatis dari penetapan S-22 Pertama.</small>
-                            @error('nomor_sket_perpanjangan_kpn_pertama')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="tanggal_sket_perpanjangan_kpn_pertama">Tanggal S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
-                            <input id="tanggal_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('tanggal_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="tanggal_sket_perpanjangan_kpn_pertama"
-                                placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_sket_perpanjangan_kpn_pertama', $document->tanggal_sket_perpanjangan_kpn_pertama ? Carbon\Carbon::parse($document->tanggal_sket_perpanjangan_kpn_pertama)->format('Y-m-d') : '') }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
-                            <small class="text-muted"><i class="bi bi-info-circle"></i> Tanggal Surat Ketetapan KPN1 diambil otomatis dari penetapan S-22 Pertama.</small>
-                            @error('tanggal_sket_perpanjangan_kpn_pertama')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Poin 1.m - Sprint Perpanjangan Penahanan Penyidik (KPN1) -->
-                <div class="card bg-light border-0 mb-3 p-3">
-                    <span class="fw-bold text-dark mb-2">Surat Perintah Perpanjangan Penahanan Penyidik (KPN1)</span>
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama">Nomor Sprint Perpanjangan Penahanan (KPN1)<span class="text-danger fs-5">*</span></label>
-                            <input id="nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama" type="text" class="form-control @error('nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama') is-invalid @enderror" name="nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama"
-                                value="{{ old('nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama', $document->nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama) }}" placeholder="Nomor Sprint Perpanjangan Penahanan (KPN1)" required>
-                            @error('nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label class="fw-bold" for="tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama">Tanggal Sprint Perpanjangan Penahanan (KPN1)<span class="text-danger fs-5">*</span></label>
-                            <input id="tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama" type="text" class="form-control @error('tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama') is-invalid @enderror" name="tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama"
-                                placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama', $document->tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama ? Carbon\Carbon::parse($document->tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama)->format('Y-m-d') : '') }}" data-provide="datepicker" required>
-                            @error('tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                    <!-- Poin 1.m - Sprint Perpanjangan Penahanan Penyidik (KPN1) -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-light border-0 p-3 h-100">
+                            <span class="fw-bold text-dark mb-2">Surat Perintah Perpanjangan Penahanan Penyidik (KPN1)</span>
+                            <div class="row">
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama">Nomor Sprint Perpanjangan Penahanan (KPN1)<span class="text-danger fs-5">*</span></label>
+                                    <input id="nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama" type="text" class="form-control @error('nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama') is-invalid @enderror" name="nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama"
+                                        value="{{ old('nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama', $document->nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama) }}" placeholder="Nomor Sprint Perpanjangan Penahanan (KPN1)" required>
+                                    @error('nomor_surat_perintah_perpanjangan_penahanan_kpn_pertama')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <label class="fw-bold" for="tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama">Tanggal Sprint Perpanjangan Penahanan (KPN1)<span class="text-danger fs-5">*</span></label>
+                                    <input id="tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama" type="text" class="form-control @error('tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama') is-invalid @enderror" name="tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama"
+                                        placeholder="YYYY-MM-DD" autocomplete="off"
+                                        value="{{ old('tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama', $document->tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama ? Carbon\Carbon::parse($document->tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama)->format('Y-m-d') : '') }}" data-provide="datepicker" required>
+                                    @error('tanggal_surat_perintah_perpanjangan_penahanan_kpn_pertama')
+                                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
