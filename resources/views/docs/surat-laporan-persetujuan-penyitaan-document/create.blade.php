@@ -102,7 +102,7 @@
 
     <div class="box">
         <div class="box-header">
-            <h5 class="fw-bold text-blue-dark">Tambah Surat Laporan Persetujuan Penyitaan</h5>
+            <h5 class="fw-bold text-blue-dark">Tambah Surat Laporan Persetujuan Penyitaan (S-13)</h5>
             <div class="alert alert-danger" id="attentionBox">
                 <div class="text-center">
                     <b>
@@ -135,18 +135,18 @@
             @endif
         </div>
 
-        <div class="box-body">
+        <div class="box-body mx-2">
             <form action="{{ route('doc.surat-laporan-persetujuan-penyitaan-document.store', ['accident_id' => $accidentId]) }}"
                 method="POST" enctype="multipart/form-data" id="suratPermintaanIzinPenyitaanForm" novalidate>
                 @csrf
                 <input type="hidden" name="accident_id" id="accident_id" value="{{ $accidentId }}">
 
                 <!-- 1. DATA DOKUMEN UTAMA -->
-                <div class="card mb-4 informasi-dokumen-card">
+                <!-- <div class="card mb-4 informasi-dokumen-card">
                     <div class="card-header bg-light">
                         <h6 class="fw-bold mb-0 text-blue-dark">Informasi Dokumen</h6>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body"> -->
                         <!-- Nomor LP -->
                         <div class="form-group row mb-3 align-items-center">
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="accidentNumber">Nomor LP</label>
@@ -256,9 +256,10 @@
                                 Tgl SP Penyidikan<span class="text-danger fs-5">*</span>
                             </label>
                             <div class="col-lg-2 col-md-2 col-sm-12">
-                                <input class="form-control datepicker @error('sprindik_date') is-invalid @enderror"
+                                <input class="form-control @error('sprindik_date') is-invalid @enderror"
                                     id="sprindik_date" name="sprindik_date" placeholder="YYYY-MM-DD"
-                                    autocomplete="off" value="{{ old('sprindik_date') }}" required>
+                                    autocomplete="off" value="{{ old('sprindik_date') }}" required
+                                    readonly style="background-color: #e9ecef; cursor: not-allowed; pointer-events: none;">
                                 @error('sprindik_date')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -267,36 +268,67 @@
                             </div>
                         </div>
 
-                        <!-- Nomor & Tanggal Surat Perintah Penyitaan (Optional) -->
-                        <div class="form-group row mb-3 align-items-center">
-                            <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="surat_perintah_penyitaan_number">
-                                Nomor SP Penyitaan
+                        <!-- Surat Perintah Penyitaan -->
+                        <div class="form-group row mb-3 align-items-start">
+                            <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label">
+                                Ada Surat Perintah Penyitaan?<span class="text-danger">*</span>
                             </label>
-                            <div class="col-lg-5 col-md-5 col-sm-12 mb-2 mb-md-0">
-                                <input id="surat_perintah_penyitaan_number" type="text"
-                                    class="form-control @error('surat_perintah_penyitaan_number') is-invalid @enderror"
-                                    name="surat_perintah_penyitaan_number"
-                                    value="{{ old('surat_perintah_penyitaan_number') }}"
-                                    placeholder="Nomor Surat Perintah Penyitaan (Jika Ada)">
-                                @error('surat_perintah_penyitaan_number')
-                                    <span class="invalid-feedback" role="alert">
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <div class="form-check form-check-inline mt-2">
+                                    <input class="form-check-input @error('has_surat_perintah_penyitaan') is-invalid @enderror" type="radio" name="has_surat_perintah_penyitaan" id="has_sp_ada" value="1" {{ old('has_surat_perintah_penyitaan') == '1' ? 'checked' : '' }} required>
+                                    <label class="form-check-label" for="has_sp_ada">Ada SPRINSITA</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input @error('has_surat_perintah_penyitaan') is-invalid @enderror" type="radio" name="has_surat_perintah_penyitaan" id="has_sp_tidak" value="0" {{ old('has_surat_perintah_penyitaan') == '0' ? 'checked' : '' }} required>
+                                    <label class="form-check-label" for="has_sp_tidak">Tidak ada SPRINSITA</label>
+                                </div>
+                                @error('has_surat_perintah_penyitaan')
+                                    <div class="invalid-feedback d-block">
                                         <strong>{{ $message }}</strong>
-                                    </span>
+                                    </div>
                                 @enderror
-                            </div>
-                            <label class="fw-bold col-lg-2 col-md-2 col-sm-12 col-form-label text-md-end" for="surat_perintah_penyitaan_date">
-                                Tgl SP Sita
-                            </label>
-                            <div class="col-lg-2 col-md-2 col-sm-12">
-                                <input class="form-control datepicker @error('surat_perintah_penyitaan_date') is-invalid @enderror"
-                                    id="surat_perintah_penyitaan_date" name="surat_perintah_penyitaan_date"
-                                    placeholder="YYYY-MM-DD" autocomplete="off"
-                                    value="{{ old('surat_perintah_penyitaan_date') }}">
-                                @error('surat_perintah_penyitaan_date')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+
+                                <div id="sp_penyitaan_container" class="mt-3 p-3 border rounded" style="display: none;">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="fw-bold d-block mb-2" for="surat_perintah_penyitaan_number">Nomor SPRINSITA<span class="text-danger">*</span></label>
+                                            <input id="surat_perintah_penyitaan_number" type="text"
+                                                class="form-control @error('surat_perintah_penyitaan_number') is-invalid @enderror"
+                                                name="surat_perintah_penyitaan_number"
+                                                value="{{ old('surat_perintah_penyitaan_number') }}"
+                                                placeholder="Contoh: SP.Sita/01/I/2026/Reskrim">
+                                            @error('surat_perintah_penyitaan_number')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="fw-bold d-block mb-2" for="surat_perintah_penyitaan_date">Tanggal SPRINSITA<span class="text-danger">*</span></label>
+                                            <input class="form-control datepicker @error('surat_perintah_penyitaan_date') is-invalid @enderror"
+                                                id="surat_perintah_penyitaan_date" name="surat_perintah_penyitaan_date"
+                                                placeholder="YYYY-MM-DD" autocomplete="off"
+                                                value="{{ old('surat_perintah_penyitaan_date') }}">
+                                            @error('surat_perintah_penyitaan_date')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <label class="fw-bold d-block mb-2" for="surat_perintah_penyitaan_file">Upload SPRINSITA<span class="text-danger">*</span></label>
+                                            <input class="form-control @error('surat_perintah_penyitaan_file') is-invalid @enderror" type="file" name="surat_perintah_penyitaan_file" id="surat_perintah_penyitaan_file" accept="application/pdf">
+                                            <small class="text-muted">Format PDF, Maksimal 10 MB</small>
+                                            @error('surat_perintah_penyitaan_file')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -340,9 +372,10 @@
                                 Tgl SPDP
                             </label>
                             <div class="col-lg-2 col-md-2 col-sm-12">
-                                <input class="form-control datepicker @error('spdp_date') is-invalid @enderror"
+                                <input class="form-control @error('spdp_date') is-invalid @enderror"
                                     id="spdp_date" name="spdp_date" placeholder="YYYY-MM-DD"
-                                    autocomplete="off" value="{{ old('spdp_date') }}">
+                                    readonly style="background-color: #e9ecef; cursor: not-allowed; pointer-events: none;"
+                                    autocomplete="off" value="{{ old('spdp_date', $spdpDocuments->first()->document_date ? \Carbon\Carbon::parse($spdpDocuments->first()->document_date)->format('Y-m-d') : '') }}">
                                 @error('spdp_date')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -375,7 +408,141 @@
                             </div>
                         </div>
 
-
+                        <!-- 4. DAFTAR ORANG & BARANG SITAAN -->
+                        <div class="form-group row mt-4 mb-3 align-items-center">
+                            <div class="col-lg-3 col-md-3 col-sm-12">
+                                <h6 class="fw-bold mb-0 text-dark">Daftar Orang dan Barang Sitaan<span class="text-danger fs-5">*</span></h6>
+                            </div>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <button class="btn btn-md btn-primary" id="addPersonBtn" type="button">
+                                    <i class="bi bi-person-plus-fill me-1"></i> Tambah Orang
+                                </button>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <strong>Pastikan data tersangka/terlapor sudah tersedia sebelum menambahkan orang dan barang sitaan:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Jika ada tersangka, pastikan <a href="{{ route('doc.laporan-hasil-gelar-perkara-document.create', ['accident_id' => $accidentId]) }}" class="fw-bold text-primary text-decoration-underline">LHGP (Penetapan Tersangka)</a> dan <a href="{{ route('doc.surat-ketetapan-tentang-penetapan-tersangka-document.create', ['accident_id' => $accidentId]) }}" class="fw-bold text-primary text-decoration-underline">Surat Ketetapan tentang Penetapan Tersangka</a> sudah dibuat.</li>
+                                <li>Jika tidak ada tersangka, pastikan <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page' => 'participants']) }}" class="fw-bold text-primary text-decoration-underline">Data Terlapor</a> sudah dimasukkan.</li>
+                            </ul>
+                        </div>
+                        <div id="persons-container">
+                            <!-- Container for persons added via JS -->
+                            @if(old('persons'))
+                                @foreach(old('persons') as $pIdx => $oldPerson)
+                                    <div class="card mb-3 border-primary person-card" data-index="{{ $pIdx }}">
+                                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
+                                            <h6 class="mb-0">Data Pihak #{{ $pIdx + 1 }} dan Barang Sitaannya</h6>
+                                            <button type="button" class="btn btn-sm btn-light text-danger remove-person-btn"><i class="bi bi-trash"></i> Hapus</button>
+                                        </div>
+                                        <div class="card-body bg-white">
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="fw-bold">Identitas Orang <span class="text-danger">*</span></label>
+                                                    <select class="form-select person-select" name="persons[{{ $pIdx }}][person_id]" required>
+                                                        <option value="">-- Pilih Identitas --</option>
+                                                        <optgroup label="Tersangka">
+                                                            @foreach($suspects as $s)
+                                                                <option value="{{ $s->id }}" data-type="suspect" {{ (isset($oldPerson['person_id']) && $oldPerson['person_id'] == $s->id) ? 'selected' : '' }}>{{ $s->name }}</option>
+                                                            @endforeach
+                                                        </optgroup>
+                                                        <optgroup label="Terlapor">
+                                                            @foreach($reportedPersons as $s)
+                                                                <option value="{{ $s->id }}" data-type="reported_person" {{ (isset($oldPerson['person_id']) && $oldPerson['person_id'] == $s->id) ? 'selected' : '' }}>{{ $s->name }}</option>
+                                                            @endforeach
+                                                        </optgroup>
+                                                    </select>
+                                                    <input type="hidden" class="person-type-input" name="persons[{{ $pIdx }}][person_type]" value="{{ $oldPerson['person_type'] ?? '' }}">
+                                                </div>
+                                            </div>
+                                            <div class="row align-items-start">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label fw-bold mb-2 d-block" style="min-height: 24px;">Tgl Berita Acara Penyitaan <span class="text-danger">*</span></label>
+                                                    <input class="form-control datepicker" name="persons[{{ $pIdx }}][bap_date]" placeholder="YYYY-MM-DD" autocomplete="off" value="{{ $oldPerson['bap_date'] ?? '' }}" required>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label fw-bold mb-2 d-block" style="min-height: 24px;">Upload Berita Acara Penyitaan <span class="text-danger">*</span></label>
+                                                    <div class="bap-file-box">
+                                                        <input type="file" class="form-control bap-file-input" name="persons[{{ $pIdx }}][bap_file]" accept=".pdf,application/pdf" required>
+                                                        <div class="bap-preview-wrapper d-none align-items-center justify-content-between p-2 border rounded bg-light" style="min-height: 38px;">
+                                                            <div class="d-flex align-items-center text-truncate me-2">
+                                                                <i class="bi bi-paperclip text-secondary me-1 fs-6"></i>
+                                                                <span class="bap-file-status text-truncate small fw-semibold text-dark"></span>
+                                                            </div>
+                                                            <div class="d-flex align-items-center gap-1 flex-shrink-0 small">
+                                                                <a href="#" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2 btn-view-bap" style="font-size: 0.8rem; line-height: 1.8;">
+                                                                    Lihat BAP
+                                                                </a>
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 btn-change-bap" style="font-size: 0.8rem; line-height: 1.8;">
+                                                                    Ganti BAP
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="fw-bold">Lokasi Penyitaan <span class="text-danger">*</span></label>
+                                                    @php $isWorkUnit = !isset($oldPerson['is_seized_at_work_unit']) || $oldPerson['is_seized_at_work_unit'] === '1' || $oldPerson['is_seized_at_work_unit'] === 'true' || $oldPerson['is_seized_at_work_unit'] === true; @endphp
+                                                    <div class="d-flex align-items-center mt-1 gap-3">
+                                                        <div class="form-check form-check-inline mb-0">
+                                                            <input class="form-check-input location-radio" type="radio" name="persons[{{ $pIdx }}][is_seized_at_work_unit]" value="1" {{ $isWorkUnit ? 'checked' : '' }} data-target="location-input-{{ $pIdx }}">
+                                                            <label class="form-check-label">Di Satker</label>
+                                                        </div>
+                                                        <div class="form-check form-check-inline mb-0">
+                                                            <input class="form-check-input location-radio" type="radio" name="persons[{{ $pIdx }}][is_seized_at_work_unit]" value="0" {{ !$isWorkUnit ? 'checked' : '' }} data-target="location-input-{{ $pIdx }}">
+                                                            <label class="form-check-label">Di luar Satker</label>
+                                                        </div>
+                                                        <div id="location-input-{{ $pIdx }}" style="display: {{ $isWorkUnit ? 'none' : 'block' }}; flex: 1;">
+                                                            <input type="text" class="form-control @error("persons.{$pIdx}.seized_location") is-invalid @enderror" name="persons[{{ $pIdx }}][seized_location]" placeholder="Contoh: Jl. Ahmad Yani No. 10 / Desa Bontoa" value="{{ $oldPerson['seized_location'] ?? '' }}" {{ !$isWorkUnit ? 'required' : 'disabled' }}>
+                                                            @error("persons.{$pIdx}.seized_location")
+                                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr class="mt-0">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="fw-bold">Daftar Barang Sitaan</h6>
+                                                <button type="button" class="btn btn-sm btn-primary add-item-btn" data-person-index="{{ $pIdx }}"><i class="bi bi-plus"></i> Tambah Barang</button>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm items-table" id="items-table-{{ $pIdx }}">
+                                                    <thead class="table-secondary text-center">
+                                                        <tr>
+                                                            <th>Nama Barang <span class="text-danger">*</span></th>
+                                                            <th style="width: 15%">Jumlah <span class="text-danger">*</span></th>
+                                                            <th style="width: 15%">Satuan <span class="text-danger">*</span></th>
+                                                            <th style="width: 25%">Keterangan</th>
+                                                            <th style="width: 5%">Opsi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @if(isset($oldPerson['seized_items']))
+                                                            @foreach($oldPerson['seized_items'] as $itemIdx => $oldItem)
+                                                                <tr>
+                                                                    <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][name]" value="{{ $oldItem['name'] ?? '' }}" placeholder="Contoh: Sepeda Motor Honda Vario No Pol AB 123 CD" required></td>
+                                                                    <td><input type="number" step="any" min="0.01" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][quantity]" value="{{ $oldItem['quantity'] ?? '1' }}" required></td>
+                                                                    <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][unit]" value="{{ $oldItem['unit'] ?? '' }}" placeholder="Contoh: Unit / Buah / Lembar" required></td>
+                                                                    <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][description]" value="{{ $oldItem['description'] ?? '' }}" placeholder="Contoh: Kondisi rusak ringan / surat lengkap"></td>
+                                                                    <td class="text-center align-middle">
+                                                                        <button type="button" class="btn btn-sm btn-danger remove-item-btn"><i class="bi bi-trash"></i></button>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        @endif
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @endif
+                        </div>
+                        
+                        <hr class="mt-4 mb-4">
 
                         <!-- Ketua Tim Penyidik -->
                         <div class="input-group row mb-3 ms-0">
@@ -462,204 +629,9 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                <!-- </div> -->
 
 
-
-                <!-- 3. UNDANG-UNDANG / PASAL YANG DIPERSANGKAKAN & UNDANG-UNDANG KHUSUS TAMBAHAN -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0 text-blue-dark">Undang-Undang / Pasal yang Dipersangkakan<span class="text-danger fs-5">*</span></h6>
-                        <button class="btn btn-md btn-primary" id="addLawButton" type="button" data-bs-toggle="modal" data-bs-target="#addLawModal">
-                            <i class="bi bi-plus-circle me-1"></i> Tambah Pasal
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="lawTable">
-                                <thead class="table-danger text-center">
-                                    <tr>
-                                        <th>Jenis Kejahatan</th>
-                                        <th>Golongan Kejahatan</th>
-                                        <th>Undang-Undang</th>
-                                        <th>Pasal</th>
-                                        <th>Opsi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- <small class="text-muted d-block mb-4">*Wajib memilih minimal 1 UU/Pasal yang dipersangkakan.</small> -->
-
-                        <hr class="my-4">
-
-                        <div class="row col-12 my-2 ms-0">
-                            <div class="input-group row mb-3 ms-0">
-                                <label class="fw-bold col-sm-3 col-form-label" for="additionalLaw">Undang-Undang Khusus Tambahan</label>
-                                <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                    <input id="additionalLaw" type="text"
-                                        class="form-control @error('additionalLaw') is-invalid @enderror font-weight-bold"
-                                        name="additionalLaw" value="{{ old('additionalLaw') }}"
-                                        placeholder="(Jika Ada) Contoh: Undang-Undang nomor 22 tahun 2009 LLAJ tentang Pengemudi mabuk">
-                                    <div class="row mt-2">
-                                        <div class="col">
-                                            <button class="btn btn-primary" id="saveAdditionalLawButton" type="button"><i class="bi bi-plus-circle"></i> Tambah</button>
-                                            <button class="btn btn-secondary" id="clearAdditionalLawButton" type="button"><i class="bi bi-trash"></i> Bersihkan</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="alert alert-primary my-3" role="alert">
-                                *Jika ada yang berkaitan dengan tindak pidana yang dipersangkakan <br />
-                                Contoh: Undang-Undang nomor 22 tahun 2009 LLAJ tentang Pengemudi mabuk
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="additionalLawTable">
-                                <thead class="table-danger text-center">
-                                    <tr>
-                                        <th>Nama</th>
-                                        <th style="width: 10%">Opsi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if(old('lawAdditionalNames'))
-                                        @foreach(old('lawAdditionalNames') as $lawName)
-                                            <tr class="text-center">
-                                                <td>{{ $lawName }}</td>
-                                                <td>
-                                                    <input type="hidden" name="lawAdditionalNames[]" value="{{ $lawName }}">
-                                                    <button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. DAFTAR ORANG & BARANG SITAAN -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0 text-blue-dark">Daftar Orang dan Barang Sitaan<span class="text-danger fs-5">*</span></h6>
-                        <button class="btn btn-md btn-primary" id="addPersonBtn" type="button">
-                            <i class="bi bi-person-plus-fill me-1"></i> Tambah Orang
-                        </button>
-                    </div>
-                    <div class="card-body bg-light">
-                        <div class="alert alert-info">
-                            <strong>Pastikan data tersangka/terlapor sudah tersedia sebelum menambahkan orang dan barang sitaan:</strong>
-                            <ul class="mb-0 mt-2">
-                                <li>Jika ada tersangka, pastikan <a href="{{ route('doc.laporan-hasil-gelar-perkara-document.create', ['accident_id' => $accidentId]) }}" class="fw-bold text-primary text-decoration-underline">LHGP (Penetapan Tersangka)</a> dan <a href="{{ route('doc.surat-ketetapan-tentang-penetapan-tersangka-document.create', ['accident_id' => $accidentId]) }}" class="fw-bold text-primary text-decoration-underline">Surat Ketetapan tentang Penetapan Tersangka</a> sudah dibuat.</li>
-                                <li>Jika tidak ada tersangka, pastikan <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page' => 'participants']) }}" class="fw-bold text-primary text-decoration-underline">Data Terlapor</a> sudah dimasukkan.</li>
-                            </ul>
-                        </div>
-                        <div id="persons-container">
-                            <!-- Container for persons added via JS -->
-                            @if(old('persons'))
-                                @foreach(old('persons') as $pIdx => $oldPerson)
-                                    <div class="card mb-3 border-primary person-card" data-index="{{ $pIdx }}">
-                                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
-                                            <h6 class="mb-0">Data Orang #{{ $pIdx + 1 }}</h6>
-                                            <button type="button" class="btn btn-sm btn-light text-danger remove-person-btn"><i class="bi bi-trash"></i> Hapus</button>
-                                        </div>
-                                        <div class="card-body bg-white">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3 d-flex flex-column">
-                                                    <label class="fw-bold">Identitas Orang <span class="text-danger">*</span></label>
-                                                    <select class="form-select person-select mt-auto" name="persons[{{ $pIdx }}][person_id]" required>
-                                                        <option value="">-- Pilih Identitas --</option>
-                                                        <optgroup label="Tersangka">
-                                                            @foreach($suspects as $s)
-                                                                <option value="{{ $s->id }}" data-type="suspect" {{ (isset($oldPerson['person_id']) && $oldPerson['person_id'] == $s->id) ? 'selected' : '' }}>{{ $s->name }}</option>
-                                                            @endforeach
-                                                        </optgroup>
-                                                        <optgroup label="Saksi">
-                                                            @foreach(isset($witnesses) ? $witnesses : [] as $s)
-                                                                <option value="{{ $s->id }}" data-type="witness" {{ (isset($oldPerson['person_id']) && $oldPerson['person_id'] == $s->id) ? 'selected' : '' }}>{{ $s->name }}</option>
-                                                            @endforeach
-                                                        </optgroup>
-                                                        <optgroup label="Terlapor">
-                                                            @foreach($reportedPersons as $s)
-                                                                <option value="{{ $s->id }}" data-type="reported_person" {{ (isset($oldPerson['person_id']) && $oldPerson['person_id'] == $s->id) ? 'selected' : '' }}>{{ $s->name }}</option>
-                                                            @endforeach
-                                                        </optgroup>
-                                                    </select>
-                                                    <input type="hidden" class="person-type-input" name="persons[{{ $pIdx }}][person_type]" value="{{ $oldPerson['person_type'] ?? '' }}">
-                                                </div>
-                                                <div class="col-md-4 mb-3 d-flex flex-column">
-                                                    <label class="fw-bold">No. Berita Acara Penyitaan <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control mt-auto" name="persons[{{ $pIdx }}][bap_number]" placeholder="No. Berita Acara Penyitaan" value="{{ $oldPerson['bap_number'] ?? '' }}" required>
-                                                </div>
-                                                <div class="col-md-2 mb-3 d-flex flex-column">
-                                                    <label class="fw-bold">Tgl Berita Acara Penyitaan <span class="text-danger">*</span></label>
-                                                    <input class="form-control datepicker mt-auto" name="persons[{{ $pIdx }}][bap_date]" placeholder="YYYY-MM-DD" autocomplete="off" value="{{ $oldPerson['bap_date'] ?? '' }}" required>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-12 mb-3">
-                                                    <label class="fw-bold">Lokasi Penyitaan <span class="text-danger">*</span></label>
-                                                    @php $isWorkUnit = !isset($oldPerson['is_seized_at_work_unit']) || $oldPerson['is_seized_at_work_unit'] === '1' || $oldPerson['is_seized_at_work_unit'] === 'true' || $oldPerson['is_seized_at_work_unit'] === true; @endphp
-                                                    <div class="d-flex align-items-center mt-1 gap-3">
-                                                        <div class="form-check form-check-inline mb-0">
-                                                            <input class="form-check-input location-radio" type="radio" name="persons[{{ $pIdx }}][is_seized_at_work_unit]" value="1" {{ $isWorkUnit ? 'checked' : '' }} data-target="location-input-{{ $pIdx }}">
-                                                            <label class="form-check-label">Di Satker</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline mb-0">
-                                                            <input class="form-check-input location-radio" type="radio" name="persons[{{ $pIdx }}][is_seized_at_work_unit]" value="0" {{ !$isWorkUnit ? 'checked' : '' }} data-target="location-input-{{ $pIdx }}">
-                                                            <label class="form-check-label">Di luar Satker</label>
-                                                        </div>
-                                                        <div id="location-input-{{ $pIdx }}" style="display: {{ $isWorkUnit ? 'none' : 'block' }}; flex: 1;">
-                                                            <input type="text" class="form-control" name="persons[{{ $pIdx }}][seized_location]" placeholder="Contoh: Jl. Ahmad Yani No. 10 / Desa Bontoa" value="{{ $oldPerson['seized_location'] ?? '' }}" {{ !$isWorkUnit ? 'required' : 'disabled' }}>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <hr class="mt-0">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <h6 class="fw-bold">Daftar Barang Sitaan</h6>
-                                                <button type="button" class="btn btn-sm btn-primary add-item-btn" data-person-index="{{ $pIdx }}"><i class="bi bi-plus"></i> Tambah Barang</button>
-                                            </div>
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered table-sm items-table" id="items-table-{{ $pIdx }}">
-                                                    <thead class="table-secondary text-center">
-                                                        <tr>
-                                                            <th>Nama Barang <span class="text-danger">*</span></th>
-                                                            <th style="width: 15%">Jumlah <span class="text-danger">*</span></th>
-                                                            <th style="width: 15%">Satuan <span class="text-danger">*</span></th>
-                                                            <th style="width: 25%">Keterangan</th>
-                                                            <th style="width: 5%">Opsi</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @if(isset($oldPerson['seized_items']))
-                                                            @foreach($oldPerson['seized_items'] as $itemIdx => $oldItem)
-                                                                <tr>
-                                                                    <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][name]" value="{{ $oldItem['name'] ?? '' }}" placeholder="Contoh: Sepeda Motor Honda Vario No Pol AB 123 CD" required></td>
-                                                                    <td><input type="number" step="any" min="0.01" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][quantity]" value="{{ $oldItem['quantity'] ?? '1' }}" required></td>
-                                                                    <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][unit]" value="{{ $oldItem['unit'] ?? '' }}" placeholder="Contoh: Unit / Buah / Lembar" required></td>
-                                                                    <td><input type="text" class="form-control form-control-sm" name="persons[{{ $pIdx }}][seized_items][{{ $itemIdx }}][description]" value="{{ $oldItem['description'] ?? '' }}" placeholder="Contoh: Kondisi rusak ringan / surat lengkap"></td>
-                                                                    <td class="text-center align-middle">
-                                                                        <button type="button" class="btn btn-sm btn-danger remove-item-btn"><i class="bi bi-trash"></i></button>
-                                                                    </td>
-                                                                </tr>
-                                                            @endforeach
-                                                        @endif
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            @endif
-                        </div>
-                    </div>
-                </div>
 
                 <!-- BUTTON SUBMIT & BATAL -->
                 <div class="text-center my-4">
@@ -674,71 +646,6 @@
             </form>
         </div>
     </div>
-
-<!-- Modal Add Law -->
-<div class="modal fade" id="addLawModal" tabindex="-1" role="dialog" aria-labelledby="addLawModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" id="modalContent">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold text-blue-dark" id="addLawModalLabel">Tambah Kejahatan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-primary my-3" role="alert">
-                    Jika tidak terdapat opsi yang sesuai, silahkan menghubungi Helpdesk ICELL untuk koordinasi.
-                </div>
-                <form id="addLawForm">
-                    <div class="mb-3 form-validate">
-                        <label class="fw-bold" for="crimeTypeLawForm">Jenis Kejahatan</label>
-                        <select class="form-control select2-modal" id="crimeTypeLawForm" name="crimeTypeLawForm" style="width:100%">
-                            <option value="">--Pilih Jenis Kejahatan--</option>
-                            @foreach ($crimeTypes as $crimeType)
-                                <option value="{{ $crimeType->id }}" data-crime-type-name="{{ $crimeType->name }}"
-                                    data-crime-class-id="{{ $crimeType->crimeClass->id ?? '' }}"
-                                    data-crime-constitution-id="{{ $crimeType->crimeConstitution->id ?? '' }}">
-                                    {{ $crimeType->name }}</option>
-                            @endforeach
-                        </select>
-                        <div class="error text-danger" id="crimeTypeLawForm-error"></div>
-                    </div>
-
-                    <div class="mb-3 form-validate">
-                        <label class="fw-bold" for="crimeClassLawForm">Golongan Kejahatan</label>
-                        <select class="form-control" id="crimeClassLawForm" disabled>
-                            <option value="">--Pilih Golongan Kejahatan--</option>
-                            @foreach ($crimeClasses as $crimeClass)
-                                <option value="{{ $crimeClass->id }}"
-                                    data-crime-class-name="{{ $crimeClass->name }}">{{ $crimeClass->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3 form-validate">
-                        <label class="fw-bold" for="crimeConstitutionLawForm">Undang-Undang</label>
-                        <select class="form-control" id="crimeConstitutionLawForm" disabled>
-                            <option value="">--Pilih Undang-Undang--</option>
-                            @foreach ($crimeConstitutions as $crimeConstitution)
-                                <option value="{{ $crimeConstitution->id }}"
-                                    data-crime-constitution-name="{{ $crimeConstitution->name }}"
-                                    data-chapter="{{ $crimeConstitution->chapter }}">{{ $crimeConstitution->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label class="fw-bold" for="constitutionChapterLawForm">Pasal</label>
-                        <select class="form-control" id="constitutionChapterLawForm" name="constitutionChapterLawForm">
-                            <option value="">--Pilih Pasal-Ayat--</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i> Batal</button>
-                <button type="button" class="btn btn-dark-blue" id="saveAddLawFormButton"><i class="bi bi-save me-1"></i> Simpan</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal Tambah Barang Sitaan -->
 <div class="modal fade" id="addSeizedItemModal" tabindex="-1" role="dialog" aria-labelledby="addSeizedItemModalLabel">
@@ -805,12 +712,16 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
+            // Scroll to first error on page load (backend validation)
+            var $backendError = $('.is-invalid:visible, .frontend-error:visible').first();
+            if ($backendError.length) {
+                $backendError[0].scrollIntoView({behavior: 'smooth', block: 'center'});
+            }
+
             // Attention Box Pulsing
             setInterval(function() {
                 $('#attentionBox').toggleClass('alert-danger alert-warning');
             }, 1000);
-
-
 
             $('.select2').select2({
                 theme: 'bootstrap4',
@@ -827,14 +738,9 @@
             $('.select2-sprindik-tags').select2({
                 theme: 'bootstrap4',
                 width: '100%',
-                tags: true,
+                tags: false,
                 placeholder: '-- Pilih atau Ketik No SP Penyidikan --',
-                allowClear: true,
-                createTag: function (params) {
-                    var term = $.trim(params.term);
-                    if (term === '') return null;
-                    return { id: term, text: term, newTag: true };
-                }
+                allowClear: true
             });
 
             $('#sprindik_number').on('change', function() {
@@ -851,6 +757,8 @@
                 
                 if (date) {
                     $('#sprindik_date').val(date).removeClass('is-invalid');
+                } else {
+                    $('#sprindik_date').val('');
                 }
                 if (leaderNrp && !$('#officerLeader').val()) {
                     var leaderOpt = $('#officerLeader option[data-register-number="' + leaderNrp + '"]');
@@ -864,20 +772,9 @@
             $('.select2-spdp-tags').select2({
                 theme: 'bootstrap4',
                 width: '100%',
-                tags: true,
+                tags: false,
                 placeholder: '-- Pilih atau Ketik Nomor SPDP --',
                 allowClear: true,
-                createTag: function (params) {
-                    var term = $.trim(params.term);
-                    if (term === '') {
-                        return null;
-                    }
-                    return {
-                        id: term,
-                        text: term,
-                        newTag: true
-                    };
-                },
                 templateResult: function (data) {
                     if (!data.id) {
                         return data.text;
@@ -894,33 +791,7 @@
                 }
             });
 
-            var spdpJustSelected = false;
-            $('.select2-spdp-tags').on('select2:select', function() {
-                spdpJustSelected = true;
-            });
 
-            $('.select2-spdp-tags').on('select2:closing', function(e) {
-                if (spdpJustSelected) {
-                    spdpJustSelected = false;
-                    return;
-                }
-                var $select = $(this);
-                var searchInput = $('.select2-container--open .select2-search__field');
-                if (searchInput.length) {
-                    var term = $.trim(searchInput.val());
-                    if (term && term !== '') {
-                        if (!$select.find('option[value="' + term + '"]').length) {
-                            var newOption = new Option(term, term, true, true);
-                            $select.append(newOption);
-                        }
-                        $select.val(term).trigger('change');
-                    }
-                }
-            });
-
-            $('.select2-spdp-tags').on('select2:close', function() {
-                spdpJustSelected = false;
-            });
 
             // Auto-fill Tgl SPDP when selecting existing SPDP with data-date
             $('#spdp_number').on('change', function() {
@@ -928,6 +799,8 @@
                 var date = selected.data('date');
                 if (date) {
                     $('#spdp_date').val(date).removeClass('is-invalid');
+                } else {
+                    $('#spdp_date').val('');
                 }
             });
 
@@ -990,132 +863,7 @@
             });
 
             // ─── DYNAMIC LAW MODAL & ROWS (SPRINDIK STYLE) ─────────────────
-            $('#addLawModal').on('shown.bs.modal', function () {
-                $('#crimeTypeLawForm').select2({
-                    dropdownParent: $('#addLawModal'),
-                    theme: 'bootstrap4',
-                    width: '100%'
-                });
-            });
-
-            $('#crimeTypeLawForm').on('change', function() {
-                var selected = $(this).find(':selected');
-                var crimeClassId = selected.data('crime-class-id');
-                var crimeConstitutionId = selected.data('crime-constitution-id');
-
-                if (crimeClassId) {
-                    $('#crimeClassLawForm').val(crimeClassId).trigger('change');
-                } else {
-                    $('#crimeClassLawForm').val('');
-                }
-
-                if (crimeConstitutionId) {
-                    $('#crimeConstitutionLawForm').val(crimeConstitutionId).trigger('change');
-                    var chapterStr = $('#crimeConstitutionLawForm option:selected').data('chapter');
-                    var optionsHtml = '<option value="">--Pilih Pasal-Ayat--</option>';
-                    if (chapterStr) {
-                        var chapters = chapterStr.toString().split(';');
-                        chapters.forEach(function(chap) {
-                            if (chap.trim()) {
-                                optionsHtml += '<option value="' + chap.trim() + '">' + chap.trim() + '</option>';
-                            }
-                        });
-                    }
-                    $('#constitutionChapterLawForm').html(optionsHtml);
-                } else {
-                    $('#crimeConstitutionLawForm').val('');
-                    $('#constitutionChapterLawForm').html('<option value="">--Pilih Pasal-Ayat--</option>');
-                }
-            });
-
-            $('#saveAddLawFormButton').on('click', function() {
-                var crimeTypeId = $('#crimeTypeLawForm').val();
-                var crimeTypeName = $('#crimeTypeLawForm option:selected').data('crime-type-name') || '';
-                var crimeClassId = $('#crimeClassLawForm').val();
-                var crimeClassName = $('#crimeClassLawForm option:selected').data('crime-class-name') || '';
-                var crimeConstitutionId = $('#crimeConstitutionLawForm').val();
-                var crimeConstitutionName = $('#crimeConstitutionLawForm option:selected').data('crime-constitution-name') || '';
-                var chapter = $('#constitutionChapterLawForm').val() || '';
-
-                if (!crimeTypeId) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Perhatian',
-                        text: 'Silahkan pilih Jenis Kejahatan terlebih dahulu.'
-                    });
-                    return;
-                }
-
-                var rowHtml = `
-                    <tr class="law-row text-center">
-                        <td>
-                            ${crimeTypeName}
-                            <input type="hidden" name="lawCrimeTypeIds[]" value="${crimeTypeId}">
-                        </td>
-                        <td>
-                            ${crimeClassName}
-                            <input type="hidden" name="lawCrimeClassIds[]" value="${crimeClassId}">
-                        </td>
-                        <td>
-                                ${crimeConstitutionName}
-                            <input type="hidden" name="lawCrimeConstitutionIds[]" value="${crimeConstitutionId}">
-                        </td>
-                        <td>
-                            ${chapter}
-                            <input type="hidden" name="lawCrimeConstitutionChapters[]" value="${chapter}">
-                        </td>
-                        <td class="text-center align-middle">
-                            <button type="button" class="btn btn-sm btn-danger remove-law-row"><i class="bi bi-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-
-                $('#lawTable tbody').append(rowHtml);
-                $('#addLawModal').modal('hide');
-
-                $('#crimeTypeLawForm').val('').trigger('change');
-                $('#crimeClassLawForm').val('');
-                $('#crimeConstitutionLawForm').val('');
-                $('#constitutionChapterLawForm').html('<option value="">--Pilih Pasal-Ayat--</option>');
-            });
-
-            $(document).on('click', '.remove-law-row', function() {
-                $(this).closest('tr').remove();
-            });
-
-            // Additional Law
-            $('#saveAdditionalLawButton').on('click', function() {
-                var lawAdditionalName = $('#additionalLaw').val();
-
-                if (lawAdditionalName == '') {
-                    $('#additionalLaw').parent().find('small').remove();
-                    $('#additionalLaw').parent().append(
-                        '<small class="text-danger">Inputan ini wajib diisi</small>');
-                    return false;
-                } else {
-                    $('#additionalLaw').parent().find('small').remove();
-                    $('#additionalLawTable tbody').append(
-                        '<tr class="text-center">' +
-                        '<td>' + lawAdditionalName + '</td>' +
-                        '<td>' +
-                        '<input type="hidden" name="lawAdditionalNames[]" value="' + lawAdditionalName + '">' +
-                        '<button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>' +
-                        '</td>' +
-                        '</tr>'
-                    );
-
-                    $('#additionalLaw').val('');
-                }
-            });
-
-            $('#clearAdditionalLawButton').on('click', function() {
-                $('#additionalLaw').val('');
-                $('#additionalLaw').parent().find('small').remove();
-            });
-
-            $(document).on('click', '.deleteAdditionalLaw, .remove-additional-law-row', function() {
-                $(this).closest('tr').remove();
-            });
+            
 
             // ─── MODAL TAMBAH BARANG SITAAN ────────────────────────────────
             var seizedItemIndex = {{ count($oldItems ?? []) }};
@@ -1221,19 +969,14 @@
 
 
     var suspectsList = @json($suspects);
-    var witnessesList = @json(isset($witnesses) ? $witnesses : []);
     var reportedPersonsList = @json($reportedPersons);
-    var personIndex = 0;
+    var personIndex = {{ old('persons') ? count(old('persons')) : 0 }};
 
     function renderPersonSelect(index) {
         var options = '<option value="">-- Pilih Identitas --</option>';
         options += '<optgroup label="Tersangka">';
         suspectsList.forEach(function(s) {
             options += `<option value="${s.id}" data-type="suspect">${s.name}</option>`;
-        });
-        options += '</optgroup><optgroup label="Saksi">';
-        witnessesList.forEach(function(s) {
-            options += `<option value="${s.id}" data-type="witness">${s.name}</option>`;
         });
         options += '</optgroup><optgroup label="Terlapor">';
         reportedPersonsList.forEach(function(s) {
@@ -1247,25 +990,43 @@
         var html = `
             <div class="card mb-3 border-primary person-card" data-index="${personIndex}">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-2">
-                    <h6 class="mb-0">Data Orang #${personIndex + 1}</h6>
+                    <h6 class="mb-0">Data Pihak #${personIndex + 1} dan Barang Sitaannya</h6>
                     <button type="button" class="btn btn-sm btn-light text-danger remove-person-btn"><i class="bi bi-trash"></i> Hapus</button>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3 d-flex flex-column">
+                        <div class="col-md-12 mb-3">
                             <label class="fw-bold">Identitas Orang <span class="text-danger">*</span></label>
-                            <select class="form-select person-select mt-auto" name="persons[${personIndex}][person_id]" required>
+                            <select class="form-select person-select" name="persons[${personIndex}][person_id]" required>
                                 ${renderPersonSelect(personIndex)}
                             </select>
                             <input type="hidden" class="person-type-input" name="persons[${personIndex}][person_type]">
                         </div>
-                        <div class="col-md-4 mb-3 d-flex flex-column">
-                            <label class="fw-bold">No. Berita Acara Penyitaan <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control mt-auto" name="persons[${personIndex}][bap_number]" placeholder="No. Berita Acara Penyitaan" required>
+                    </div>
+                    <div class="row align-items-start">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold mb-2 d-block" style="min-height: 24px;">Tgl Berita Acara Penyitaan <span class="text-danger">*</span></label>
+                            <input class="form-control datepicker" name="persons[${personIndex}][bap_date]" placeholder="YYYY-MM-DD" autocomplete="off" required>
                         </div>
-                        <div class="col-md-2 mb-3 d-flex flex-column">
-                            <label class="fw-bold">Tgl Berita Acara Penyitaan <span class="text-danger">*</span></label>
-                            <input class="form-control datepicker mt-auto" name="persons[${personIndex}][bap_date]" placeholder="YYYY-MM-DD" autocomplete="off" required>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold mb-2 d-block" style="min-height: 24px;">Upload Berita Acara Penyitaan <span class="text-danger">*</span></label>
+                            <div class="bap-file-box">
+                                <input type="file" class="form-control bap-file-input" name="persons[${personIndex}][bap_file]" accept=".pdf,application/pdf" required>
+                                <div class="bap-preview-wrapper d-none align-items-center justify-content-between p-2 border rounded bg-light" style="min-height: 38px;">
+                                    <div class="d-flex align-items-center text-truncate me-2">
+                                        <i class="bi bi-paperclip text-secondary me-1 fs-6"></i>
+                                        <span class="bap-file-status text-truncate small fw-semibold text-dark"></span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1 flex-shrink-0 small">
+                                        <a href="#" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2 btn-view-bap" style="font-size: 0.8rem; line-height: 1.8;">
+                                            Lihat BAP
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 btn-change-bap" style="font-size: 0.8rem; line-height: 1.8;">
+                                            Ganti BAP
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
@@ -1334,6 +1095,8 @@
             $inputContainer.hide();
             $input.prop('disabled', true);
             $input.prop('required', false);
+            $input.removeClass('is-invalid');
+            $inputContainer.find('.frontend-error, .invalid-feedback').remove();
         } else {
             $inputContainer.show();
             $input.prop('disabled', false);
@@ -1341,8 +1104,20 @@
         }
     });
 
+    $(document).on('input', 'input[name^="persons"][name$="[seized_location]"]', function() {
+        if ($(this).val().trim()) {
+            $(this).removeClass('is-invalid');
+            $(this).closest('div').find('.frontend-error, .invalid-feedback').remove();
+        }
+    });
+
     $(document).on('click', '.remove-person-btn', function() {
-        $(this).closest('.person-card').remove();
+        var $card = $(this).closest('.person-card');
+        var prevUrl = $card.find('.bap-file-box').data('object-url');
+        if (prevUrl) {
+            URL.revokeObjectURL(prevUrl);
+        }
+        $card.remove();
     });
 
     $(document).on('click', '.add-item-btn', function() {
@@ -1370,6 +1145,84 @@
     // Remove old addSeizedItemModal if exists
     $('#addSeizedItemModal').remove();
 
+    // BAP File Preview & Change Handler
+    $(document).on('change', '.bap-file-input', function() {
+        var input = this;
+        var $box = $(this).closest('.bap-file-box');
+        var $wrapper = $box.find('.bap-preview-wrapper');
+        var $status = $box.find('.bap-file-status');
+        var $viewBtn = $box.find('.btn-view-bap');
+
+        var prevUrl = $box.data('object-url');
+        if (prevUrl) {
+            URL.revokeObjectURL(prevUrl);
+            $box.removeData('object-url');
+        }
+
+        if (input.files && input.files.length > 0) {
+            var file = input.files[0];
+            var objectUrl = URL.createObjectURL(file);
+            $box.data('object-url', objectUrl);
+
+            $status.text('BAP sudah dipilih: ' + file.name).attr('title', file.name);
+            $viewBtn.attr('href', objectUrl);
+
+            $(input).addClass('d-none');
+            $wrapper.removeClass('d-none').addClass('d-flex');
+
+            $(input).removeClass('is-invalid');
+            $wrapper.removeClass('border border-danger');
+            $box.parent().find('.frontend-error').remove();
+        } else {
+            var serverUrl = $box.data('server-url');
+            var serverName = $box.data('server-name');
+            if (serverUrl) {
+                $status.text('BAP sudah diunggah: ' + serverName).attr('title', serverName);
+                $viewBtn.attr('href', serverUrl);
+                $(input).addClass('d-none');
+                $wrapper.removeClass('d-none').addClass('d-flex');
+            } else {
+                $(input).removeClass('d-none');
+                $wrapper.addClass('d-none').removeClass('d-flex');
+            }
+        }
+    });
+
+    $(document).on('click', '.btn-change-bap', function(e) {
+        e.preventDefault();
+        var $box = $(this).closest('.bap-file-box');
+        var $fileInput = $box.find('.bap-file-input');
+        $fileInput.trigger('click');
+    });
+
+    $(window).on('beforeunload', function() {
+        $('.bap-file-box').each(function() {
+            var url = $(this).data('object-url');
+            if (url) {
+                URL.revokeObjectURL(url);
+            }
+        });
+    });
+
+    // ─── TOGGLE SURAT PERINTAH PENYITAAN ───────────────────────────────────
+    $('input[name="has_surat_perintah_penyitaan"]').on('change', function() {
+        if ($(this).val() == '1') {
+            $('#sp_penyitaan_container').slideDown();
+        } else {
+            $('#sp_penyitaan_container').slideUp();
+            // Reset fields
+            $('#surat_perintah_penyitaan_number').val('').removeClass('is-invalid');
+            $('#surat_perintah_penyitaan_date').val('').removeClass('is-invalid');
+            $('#surat_perintah_penyitaan_file').val('').removeClass('is-invalid');
+            $('#sp_penyitaan_container .frontend-error').remove();
+            $('#sp_penyitaan_container .invalid-feedback').remove();
+        }
+    });
+
+    if ($('input[name="has_surat_perintah_penyitaan"]:checked').val() == '1') {
+        $('#sp_penyitaan_container').show();
+    }
+
             // ─── CLIENT VALIDATION & SUBMIT ────────────────────────────────
             $('#suratPermintaanIzinPenyitaanFormSubmit').on('click', function(e) {
                 e.preventDefault();
@@ -1386,9 +1239,39 @@
                     if ($el.next('.select2-container').length) {
                         $el.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
                     }
-                    var $target = $el.next('.select2-container').length ? $el.next('.select2-container') : $el;
+                    var $target = $el.next('.select2-container').length ? $el.next('.select2-container') : ($el.closest('.bap-file-box').length ? $el.closest('.bap-file-box') : $el);
+                    if ($el.closest('.bap-file-box').length) {
+                        $el.closest('.bap-file-box').find('.bap-preview-wrapper').addClass('border border-danger');
+                    }
+                    $target.next('.invalid-feedback').remove();
                     $target.after('<div class="invalid-feedback d-block frontend-error">' + msg + '</div>');
                     errors.push(msg);
+                }
+
+                var hasSp = $('input[name="has_surat_perintah_penyitaan"]:checked').val();
+                if (!hasSp) {
+                    markError($('input[name="has_surat_perintah_penyitaan"]').closest('.col-lg-9'), 'Pilihan Ada/Tidak Ada SPRINSITA wajib dipilih.');
+                } else if (hasSp == '1') {
+                    var $spNumber = $('#surat_perintah_penyitaan_number');
+                    if (!$spNumber.val() || !$spNumber.val().trim()) {
+                        markError($spNumber, 'Nomor SPRINSITA wajib diisi jika Ada SPRINSITA.');
+                    }
+                    var $spDate = $('#surat_perintah_penyitaan_date');
+                    if (!$spDate.val() || !$spDate.val().trim()) {
+                        markError($spDate, 'Tanggal SPRINSITA wajib diisi jika Ada SPRINSITA.');
+                    }
+                    var $spFile = $('#surat_perintah_penyitaan_file');
+                    if (!$spFile.val()) {
+                        markError($spFile, 'File SPRINSITA wajib diupload jika Ada SPRINSITA.');
+                    } else if ($spFile[0].files && $spFile[0].files.length > 0) {
+                        var spFileObj = $spFile[0].files[0];
+                        var spIsPdf = spFileObj.type === 'application/pdf' || spFileObj.name.toLowerCase().endsWith('.pdf');
+                        if (!spIsPdf) {
+                            markError($spFile, 'Format file SPRINSITA harus berupa PDF.');
+                        } else if (spFileObj.size > 10 * 1024 * 1024) {
+                            markError($spFile, 'Ukuran file SPRINSITA maksimal 10 MB.');
+                        }
+                    }
                 }
 
                 // Check required fields
@@ -1424,17 +1307,7 @@
                     markError($('#officers'), 'Pejabat Penandatangan wajib dipilih minimal 1 orang.');
                 }
 
-                // Check Laws
-                var mainLawCount = $('#lawTable tbody tr.law-row').length;
-                var additionalLawCount = 0;
-                $('#additionalLawTable tbody tr input[type="hidden"]').each(function() {
-                    if ($(this).val().trim() !== '') {
-                        additionalLawCount++;
-                    }
-                });
-                if (mainLawCount === 0 && additionalLawCount === 0) {
-                    markError($('#lawTable'), 'Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1 pasal.');
-                }
+                
 
                 // Check Carbon Copies
                 var ccCount = $('#carbonCopiesContainer input[name="carbonCopies[]"]').length;
@@ -1458,13 +1331,30 @@
                         if (!$personSelect.val()) {
                             markError($personSelect, 'Identitas orang wajib dipilih.');
                         }
-                        var $bapNumber = $(this).find('input[name^="persons"][name$="[bap_number]"]');
-                        if (!$bapNumber.val() || !$bapNumber.val().trim()) {
-                            markError($bapNumber, 'No. Berita Acara Penyitaan wajib diisi.');
-                        }
+
                         var $bapDate = $(this).find('input[name^="persons"][name$="[bap_date]"]');
                         if (!$bapDate.val() || !$bapDate.val().trim()) {
                             markError($bapDate, 'Tgl Berita Acara Penyitaan wajib diisi.');
+                        }
+
+                        var $bapFile = $(this).find('input[type="file"][name^="persons"][name$="[bap_file]"]');
+                        if ($bapFile.length && (!$bapFile[0].files || !$bapFile[0].files.length)) {
+                            markError($bapFile, 'BAP wajib diupload.');
+                        } else if ($bapFile.length && $bapFile[0].files && $bapFile[0].files.length > 0) {
+                            var file = $bapFile[0].files[0];
+                            var isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+                            if (!isPdf) {
+                                markError($bapFile, 'Format file BAP harus berupa PDF.');
+                            } else if (file.size > 10 * 1024 * 1024) {
+                                markError($bapFile, 'Ukuran file BAP maksimal 10 MB.');
+                            }
+                        }
+
+                        // Validate Lokasi Penyitaan
+                        var isWorkUnit = $(this).find('input[name^="persons"][name$="[is_seized_at_work_unit]"]:checked').val() === '1';
+                        var $seizedLocation = $(this).find('input[name^="persons"][name$="[seized_location]"]');
+                        if (!isWorkUnit && (!$seizedLocation.val() || !$seizedLocation.val().trim())) {
+                            markError($seizedLocation, 'Lokasi penyitaan wajib diisi jika penyitaan dilakukan di luar Satker.');
                         }
 
                         // Validate seized items
@@ -1494,9 +1384,7 @@
                 if (errors.length > 0) {
                     var $firstError = $('.is-invalid:visible, .frontend-error:visible').first();
                     if ($firstError.length) {
-                        $('html, body').animate({
-                            scrollTop: Math.max(0, $firstError.offset().top - 120)
-                        }, 400);
+                        $firstError[0].scrollIntoView({behavior: 'smooth', block: 'center'});
                     }
                     return false;
                 }

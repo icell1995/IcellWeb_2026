@@ -9,25 +9,25 @@
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
     <style>
-        .informasi-dokumen-card .form-group.row {
+        #suratPermintaanIzinPenyitaanForm .form-group.row {
             margin-bottom: 1rem;
             margin-left: 0;
             margin-right: 0;
         }
-        .informasi-dokumen-card .col-form-label {
+        #suratPermintaanIzinPenyitaanForm .col-form-label {
             padding-top: calc(0.375rem + 1px);
             padding-bottom: calc(0.375rem + 1px);
             margin-bottom: 0;
             line-height: 1.5;
             font-size: 0.95rem;
         }
-        .informasi-dokumen-card .form-control {
+        #suratPermintaanIzinPenyitaanForm .form-control {
             height: 38px;
             font-size: 0.95rem;
             padding: 0.375rem 0.75rem;
             line-height: 1.5;
         }
-        .informasi-dokumen-card .select2-container--bootstrap4 .select2-selection--single {
+        #suratPermintaanIzinPenyitaanForm .select2-container--bootstrap4 .select2-selection--single {
             height: 38px !important;
             line-height: 1.5;
             padding: 0.375rem 0.75rem;
@@ -37,7 +37,7 @@
             border-radius: 0.25rem;
             position: relative;
         }
-        .informasi-dokumen-card .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        #suratPermintaanIzinPenyitaanForm .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
             line-height: 1.5;
             padding-left: 0;
             padding-right: 36px;
@@ -47,14 +47,14 @@
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .informasi-dokumen-card .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+        #suratPermintaanIzinPenyitaanForm .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
             height: 36px;
             position: absolute;
             top: 1px;
             right: 3px;
             width: 20px;
         }
-        .informasi-dokumen-card .select2-container--bootstrap4 .select2-selection--single .select2-selection__clear {
+        #suratPermintaanIzinPenyitaanForm .select2-container--bootstrap4 .select2-selection--single .select2-selection__clear {
             position: absolute;
             top: 50%;
             transform: translateY(calc(-50% - 2px));
@@ -77,7 +77,7 @@
             align-items: center;
             justify-content: center;
         }
-        .informasi-dokumen-card .select2-container--bootstrap4 .select2-selection--single .select2-selection__clear:hover {
+        #suratPermintaanIzinPenyitaanForm .select2-container--bootstrap4 .select2-selection--single .select2-selection__clear:hover {
             color: #dc3545;
             background: rgba(220, 53, 69, 0.1);
         }
@@ -91,7 +91,7 @@
 
     <div class="box">
         <div class="box-header">
-            <h5 class="fw-bold text-blue-dark">Tambah Surat Permintaan Izin Penyitaan</h5>
+            <h5 class="fw-bold text-blue-dark">Tambah Surat Permintaan Izin Penyitaan (S-12)</h5>
             <div class="alert alert-danger" id="attentionBox">
                 <div class="text-center">
                     <b>
@@ -131,11 +131,6 @@
                 <input type="hidden" name="accident_id" id="accident_id" value="{{ $accidentId }}">
 
                 <!-- 1. DATA DOKUMEN UTAMA -->
-                <div class="card mb-4 informasi-dokumen-card">
-                    <div class="card-header bg-light">
-                        <h6 class="fw-bold mb-0 text-blue-dark">Informasi Dokumen</h6>
-                    </div>
-                    <div class="card-body">
                         <!-- Nomor LP -->
                         <div class="form-group row mb-3 align-items-center">
                             <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="accidentNumber">Nomor LP</label>
@@ -245,9 +240,9 @@
                                 Tgl SP Penyidikan<span class="text-danger fs-5">*</span>
                             </label>
                             <div class="col-lg-2 col-md-2 col-sm-12">
-                                <input class="form-control datepicker @error('sprindik_date') is-invalid @enderror"
+                                <input class="form-control @error('sprindik_date') is-invalid @enderror"
                                     id="sprindik_date" name="sprindik_date" placeholder="YYYY-MM-DD"
-                                    autocomplete="off" value="{{ old('sprindik_date') }}" required>
+                                    autocomplete="off" value="{{ old('sprindik_date') }}" required readonly>
                                 @error('sprindik_date')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -256,36 +251,77 @@
                             </div>
                         </div>
 
-                        <!-- Nomor & Tanggal Surat Perintah Penyitaan (Optional) -->
-                        <div class="form-group row mb-3 align-items-center">
-                            <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label" for="surat_perintah_penyitaan_number">
-                                Nomor SP Penyitaan
+                        <!-- Surat Perintah Penyitaan -->
+                        <div class="form-group row mb-3 align-items-start">
+                            <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label">
+                                Ada Surat Perintah Penyitaan?<span class="text-danger">*</span>
                             </label>
-                            <div class="col-lg-5 col-md-5 col-sm-12 mb-2 mb-md-0">
-                                <input id="surat_perintah_penyitaan_number" type="text"
-                                    class="form-control @error('surat_perintah_penyitaan_number') is-invalid @enderror"
-                                    name="surat_perintah_penyitaan_number"
-                                    value="{{ old('surat_perintah_penyitaan_number') }}"
-                                    placeholder="Nomor Surat Perintah Penyitaan (Jika Ada)">
-                                @error('surat_perintah_penyitaan_number')
-                                    <span class="invalid-feedback" role="alert">
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <div class="form-check form-check-inline mt-2">
+                                    <input class="form-check-input @error('has_surat_perintah_penyitaan') is-invalid @enderror" type="radio" name="has_surat_perintah_penyitaan" id="has_sp_ada" value="1" {{ old('has_surat_perintah_penyitaan') == '1' ? 'checked' : '' }} required>
+                                    <label class="form-check-label" for="has_sp_ada">Ada SPRINSITA</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input @error('has_surat_perintah_penyitaan') is-invalid @enderror" type="radio" name="has_surat_perintah_penyitaan" id="has_sp_tidak" value="0" {{ old('has_surat_perintah_penyitaan') == '0' ? 'checked' : '' }} required>
+                                    <label class="form-check-label" for="has_sp_tidak">Tidak ada SPRINSITA</label>
+                                </div>
+                                @error('has_surat_perintah_penyitaan')
+                                    <div class="invalid-feedback d-block">
                                         <strong>{{ $message }}</strong>
-                                    </span>
+                                    </div>
                                 @enderror
-                            </div>
-                            <label class="fw-bold col-lg-2 col-md-2 col-sm-12 col-form-label text-md-end" for="surat_perintah_penyitaan_date">
-                                Tgl SP Sita
-                            </label>
-                            <div class="col-lg-2 col-md-2 col-sm-12">
-                                <input class="form-control datepicker @error('surat_perintah_penyitaan_date') is-invalid @enderror"
-                                    id="surat_perintah_penyitaan_date" name="surat_perintah_penyitaan_date"
-                                    placeholder="YYYY-MM-DD" autocomplete="off"
-                                    value="{{ old('surat_perintah_penyitaan_date') }}">
-                                @error('surat_perintah_penyitaan_date')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+
+                                <div id="sp_penyitaan_container" class="mt-3 p-3 border rounded" style="display: none;">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="fw-bold d-block mb-2" for="surat_perintah_penyitaan_number">Nomor SPRINSITA<span class="text-danger">*</span></label>
+                                            <input id="surat_perintah_penyitaan_number" type="text"
+                                                class="form-control @error('surat_perintah_penyitaan_number') is-invalid @enderror"
+                                                name="surat_perintah_penyitaan_number"
+                                                value="{{ old('surat_perintah_penyitaan_number') }}"
+                                                placeholder="Contoh: SP.Sita/01/I/2026/Reskrim">
+                                            @error('surat_perintah_penyitaan_number')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="fw-bold d-block mb-2" for="surat_perintah_penyitaan_date">Tanggal SPRINSITA<span class="text-danger">*</span></label>
+                                            <input class="form-control datepicker @error('surat_perintah_penyitaan_date') is-invalid @enderror"
+                                                id="surat_perintah_penyitaan_date" name="surat_perintah_penyitaan_date"
+                                                placeholder="YYYY-MM-DD" autocomplete="off"
+                                                value="{{ old('surat_perintah_penyitaan_date') }}">
+                                            @error('surat_perintah_penyitaan_date')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 sp-file-box" data-has-existing="false">
+                                            <label class="fw-bold d-block mb-2" for="surat_perintah_penyitaan_file">Upload SPRINSITA<span class="text-danger">*</span></label>
+                                            <input class="form-control @error('surat_perintah_penyitaan_file') is-invalid @enderror" type="file" name="surat_perintah_penyitaan_file" id="surat_perintah_penyitaan_file" accept="application/pdf">
+                                            <small class="text-muted d-block mt-1">Format PDF, Maksimal 10 MB</small>
+                                            @error('surat_perintah_penyitaan_file')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            
+                                            <div class="sp-preview-wrapper p-2 border rounded bg-white align-items-center d-none">
+                                                <div class="me-auto">
+                                                    <span class="sp-status fw-bold text-dark" title="">SPRINSITA siap diunggah: <span class="sp-filename"></span></span>
+                                                </div>
+                                                <div class="ms-2">
+                                                    <a href="#" target="_blank" class="btn btn-sm btn-outline-primary me-2 sp-view-btn">Lihat SPRINSITA</a>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-change-sp">Ganti SPRINSITA</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -329,9 +365,9 @@
                                 Tgl SPDP
                             </label>
                             <div class="col-lg-2 col-md-2 col-sm-12">
-                                <input class="form-control datepicker @error('spdp_date') is-invalid @enderror"
+                                <input class="form-control @error('spdp_date') is-invalid @enderror"
                                     id="spdp_date" name="spdp_date" placeholder="YYYY-MM-DD"
-                                    autocomplete="off" value="{{ old('spdp_date') }}">
+                                    autocomplete="off" value="{{ old('spdp_date') }}" readonly>
                                 @error('spdp_date')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -364,29 +400,29 @@
                             </div>
                         </div>
 
-                        <!-- Opsi Ada Tersangka / Tidak Ada Tersangka -->
+                        <!-- Opsi Status Pihak -->
                         <div class="form-group row mb-3 align-items-center">
-                            <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label">Ada Tersangka?<span class="text-danger fs-5">*</span></label>
+                            <label class="fw-bold col-lg-3 col-md-3 col-sm-12 col-form-label">Status Pihak Terkait Barang Sitaan<span class="text-danger fs-5">*</span></label>
                             <div class="col-lg-9 col-md-9 col-sm-12">
                                 <div class="d-flex align-items-center h-100">
                                     <div class="form-check me-4">
-                                        <input class="form-check-input isSuspectExists" type="radio" id="suspectExists" name="isSuspectExists" value="true" {{ old('isSuspectExists', 'true') == 'true' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold" for="suspectExists">
-                                            Ada Tersangka
+                                        <input class="form-check-input statusPihak" type="radio" id="statusTersangka" name="statusPihak" value="Tersangka" {{ old('statusPihak', 'Tersangka') == 'Tersangka' ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-bold" for="statusTersangka">
+                                            Tersangka
                                         </label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input isSuspectExists" type="radio" id="suspectNotExists" name="isSuspectExists" value="false" {{ old('isSuspectExists') == 'false' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold" for="suspectNotExists">
-                                            Tidak Ada Tersangka
+                                        <input class="form-check-input statusPihak" type="radio" id="statusSaksi" name="statusPihak" value="Saksi" {{ old('statusPihak') == 'Saksi' ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-bold" for="statusSaksi">
+                                            Saksi
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Form Tersangka (Jika Ada Tersangka) -->
-                        <div id="suspectExistsSection" {{ old('isSuspectExists', 'true') == 'false' ? 'style=display:none;' : '' }}>
+                        <!-- Form Tersangka (Jika Tersangka) -->
+                        <div id="suspectExistsSection" {{ old('statusPihak', 'Tersangka') == 'Saksi' ? 'style=display:none;' : '' }}>
                             <div class="alert alert-success">
                                 <div class="text-center">
                                     <b>
@@ -428,36 +464,30 @@
                             </div>
                         </div>
 
-                        <!-- Form Terlapor & Pelapor (Jika Tidak Ada Tersangka) -->
-                        <div id="suspectNotExistsSection" {{ old('isSuspectExists', 'true') == 'true' ? 'style=display:none;' : '' }}>
+                        <!-- Form Saksi (Jika Saksi) -->
+                        <div id="suspectNotExistsSection" {{ old('statusPihak', 'Tersangka') == 'Tersangka' ? 'style=display:none;' : '' }}>
                             <div class="alert alert-success">
                                 <div class="text-center">
-                                    <b>
-                                        PASTIKAN 
-                                        <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId, 'page' => 'participants']) }}">
-                                            DATA TERLAPOR
-                                        </a> 
-                                        SUDAH DIMASUKKAN SEBELUM MEMBUAT DOKUMEN INI
-                                    </b>
+                                    <b>PASTIKAN DATA SAKSI SUDAH TERSEDIA PADA DATA LP SEBELUM MEMBUAT DOKUMEN INI.</b>
                                 </div>
                             </div>
 
                             <div class="input-group row mb-3 ms-0">
-                                <label class="fw-bold col-sm-3 col-form-label" for="reportedPerson">
-                                    Pilih Terlapor<span class="text-danger fs-5">*</span>
+                                <label class="fw-bold col-sm-3 col-form-label" for="witnesses">
+                                    Pilih Saksi<span class="text-danger fs-5">*</span>
                                 </label>
                                 <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                    <select class="form-control select2 @error('reportedPerson') is-invalid @enderror"
-                                        name="reportedPerson" id="reportedPerson" data-placeholder="Pilih Terlapor">
-                                        <option value="" disabled {{ old('reportedPerson') ? '' : 'selected' }}>Pilih Terlapor</option>
-                                        @foreach ($reportedPersons as $reportedPerson)
-                                            <option value="{{ $reportedPerson->id }}"
-                                                {{ old('reportedPerson') == $reportedPerson->id ? 'selected' : '' }}>
-                                                {{ $reportedPerson->name ?? '-' }} (NIK: {{ $reportedPerson->identity_number ?? '-' }})
+                                    <select class="form-control select2-multiple @error('witnesses') is-invalid @enderror"
+                                        name="witnesses[]" id="witnesses" multiple="multiple"
+                                        data-placeholder="Pilih Saksi Terkait (Bisa Lebih Dari Satu)">
+                                        @foreach ($witnesses as $witness)
+                                            <option value="{{ $witness->id }}"
+                                                {{ (is_array(old('witnesses')) && in_array($witness->id, old('witnesses'))) ? 'selected' : '' }}>
+                                                {{ $witness->name }} @if(!empty($witness->id_card_number)) (NIK: {{ $witness->id_card_number }}) @elseif(!empty($witness->identity_number)) (NIK: {{ $witness->identity_number }}) @endif
                                             </option>
                                         @endforeach
                                     </select>
-                                    @error('reportedPerson')
+                                    @error('witnesses')
                                         <span class="invalid-feedback d-block" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
@@ -465,30 +495,69 @@
                                 </div>
                             </div>
 
-                            <div class="input-group row mb-3 ms-0">
-                                <label class="fw-bold col-sm-3 col-form-label" for="informant">
-                                    Pilih Pelapor
-                                </label>
-                                <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                    <select class="form-control select2 @error('informant') is-invalid @enderror"
-                                        name="informant" id="informant" data-placeholder="Pilih Pelapor">
-                                        <option value="" disabled {{ old('informant') ? '' : 'selected' }}>Pilih Pelapor</option>
-                                        @foreach ($informants as $informant)
-                                            <option value="{{ $informant->id }}"
-                                                {{ old('informant') == $informant->id ? 'selected' : '' }}>
-                                                {{ $informant->name ?? '-' }} (NIK: {{ $informant->identity_number ?? '-' }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('informant')
-                                        <span class="invalid-feedback d-block" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
+
 
                         </div>
+
+                        <!-- DAFTAR BARANG YANG DIMINTAKAN IZIN PENYITAAN -->
+                        <div class="mb-4 mt-4 border-top pt-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3" style="padding-left: 15px; padding-right: 15px;">
+                                <h6 class="fw-bold mb-0 text-dark">Daftar Barang yang Dimintakan Izin Penyitaan</h6>
+                                <button class="btn btn-md btn-primary" id="addSeizedItemRowButton" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#addSeizedItemModal">
+                                    <i class="bi bi-plus-circle me-1"></i> Tambah Barang Sitaan
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="seizedItemTable">
+                                    <thead class="table-danger text-center">
+                                        <tr>
+                                            <th style="width: 30%">Nama Barang<span class="text-danger">*</span></th>
+                                            <th style="width: 20%">Jenis / Kategori</th>
+                                            <th style="width: 15%">Jumlah</th>
+                                            <th style="width: 15%">Satuan</th>
+                                            <th style="width: 15%">Keterangan</th>
+                                            <th style="width: 5%">Opsi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="seizedItemTableBody">
+                                        @php
+                                            $oldItems = old('seized_items', []);
+                                        @endphp
+                                        @foreach ($oldItems as $idx => $item)
+                                            <tr class="seized-item-row text-center" data-index="{{ $idx }}">
+                                                <td>
+                                                    {{ $item['nama'] ?? '' }}
+                                                    <input type="hidden" name="seized_items[{{ $idx }}][nama]" value="{{ $item['nama'] ?? '' }}">
+                                                </td>
+                                                <td>
+                                                    {{ $item['jenis'] ?? '' }}
+                                                    <input type="hidden" name="seized_items[{{ $idx }}][jenis]" value="{{ $item['jenis'] ?? '' }}">
+                                                </td>
+                                                <td class="text-center">
+                                                    {{ $item['jumlah'] ?? 1 }}
+                                                    <input type="hidden" name="seized_items[{{ $idx }}][jumlah]" value="{{ $item['jumlah'] ?? 1 }}">
+                                                </td>
+                                                <td>
+                                                    {{ $item['satuan'] ?? 'Unit' }}
+                                                    <input type="hidden" name="seized_items[{{ $idx }}][satuan]" value="{{ $item['satuan'] ?? 'Unit' }}">
+                                                </td>
+                                                <td>
+                                                    {{ $item['keterangan'] ?? '' }}
+                                                    <input type="hidden" name="seized_items[{{ $idx }}][keterangan]" value="{{ $item['keterangan'] ?? '' }}">
+                                                </td>
+                                                <td class="text-center align-middle">
+                                                    <button type="button" class="btn btn-sm btn-danger remove-seized-item-row">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="border-top mt-4 mb-4"></div>
 
                         <!-- Ketua Tim Penyidik -->
                         <div class="input-group row mb-3 ms-0">
@@ -574,148 +643,8 @@
                                 @enderror
                             </div>
                         </div>
-                    </div>
-                </div>
 
 
-
-                <!-- 3. UNDANG-UNDANG / PASAL YANG DIPERSANGKAKAN & UNDANG-UNDANG KHUSUS TAMBAHAN -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0 text-blue-dark">Undang-Undang / Pasal yang Dipersangkakan<span class="text-danger fs-5">*</span></h6>
-                        <button class="btn btn-md btn-primary" id="addLawButton" type="button" data-bs-toggle="modal" data-bs-target="#addLawModal">
-                            <i class="bi bi-plus-circle me-1"></i> Tambah Pasal
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="lawTable">
-                                <thead class="table-danger text-center">
-                                    <tr>
-                                        <th>Jenis Kejahatan</th>
-                                        <th>Golongan Kejahatan</th>
-                                        <th>Undang-Undang</th>
-                                        <th>Pasal</th>
-                                        <th>Opsi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- <small class="text-muted d-block mb-4">*Wajib memilih minimal 1 UU/Pasal yang dipersangkakan.</small> -->
-
-                        <hr class="my-4">
-
-                        <div class="row col-12 my-2 ms-0">
-                            <div class="input-group row mb-3 ms-0">
-                                <label class="fw-bold col-sm-3 col-form-label" for="additionalLaw">Undang-Undang Khusus Tambahan</label>
-                                <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                    <input id="additionalLaw" type="text"
-                                        class="form-control @error('additionalLaw') is-invalid @enderror font-weight-bold"
-                                        name="additionalLaw" value="{{ old('additionalLaw') }}"
-                                        placeholder="(Jika Ada) Contoh: Undang-Undang nomor 22 tahun 2009 LLAJ tentang Pengemudi mabuk">
-                                    <div class="row mt-2">
-                                        <div class="col">
-                                            <button class="btn btn-primary" id="saveAdditionalLawButton" type="button"><i class="bi bi-plus-circle"></i> Tambah</button>
-                                            <button class="btn btn-secondary" id="clearAdditionalLawButton" type="button"><i class="bi bi-trash"></i> Bersihkan</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="alert alert-primary my-3" role="alert">
-                                *Jika ada yang berkaitan dengan tindak pidana yang dipersangkakan <br />
-                                Contoh: Undang-Undang nomor 22 tahun 2009 LLAJ tentang Pengemudi mabuk
-                            </div>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="additionalLawTable">
-                                <thead class="table-danger text-center">
-                                    <tr>
-                                        <th>Nama</th>
-                                        <th style="width: 10%">Opsi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if(old('lawAdditionalNames'))
-                                        @foreach(old('lawAdditionalNames') as $lawName)
-                                            <tr class="text-center">
-                                                <td>{{ $lawName }}</td>
-                                                <td>
-                                                    <input type="hidden" name="lawAdditionalNames[]" value="{{ $lawName }}">
-                                                    <button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 4. DAFTAR BARANG YANG DIMINTAKAN IZIN PENYITAAN -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0 text-blue-dark">Daftar Barang yang Dimintakan Izin Penyitaan</h6>
-                        <button class="btn btn-md btn-primary" id="addSeizedItemRowButton" type="button"
-                            data-bs-toggle="modal" data-bs-target="#addSeizedItemModal">
-                            <i class="bi bi-plus-circle me-1"></i> Tambah Barang Sitaan
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="seizedItemTable">
-                                <thead class="table-danger text-center">
-                                    <tr>
-                                        <th style="width: 30%">Nama Barang<span class="text-danger">*</span></th>
-                                        <th style="width: 20%">Jenis / Kategori</th>
-                                        <th style="width: 15%">Jumlah</th>
-                                        <th style="width: 15%">Satuan</th>
-                                        <th style="width: 15%">Keterangan</th>
-                                        <th style="width: 5%">Opsi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="seizedItemTableBody">
-                                    @php
-                                        $oldItems = old('seized_items', []);
-                                    @endphp
-                                    @foreach ($oldItems as $idx => $item)
-                                        <tr class="seized-item-row text-center" data-index="{{ $idx }}">
-                                            <td>
-                                                {{ $item['nama'] ?? '' }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][nama]" value="{{ $item['nama'] ?? '' }}">
-                                            </td>
-                                            <td>
-                                                {{ $item['jenis'] ?? '' }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][jenis]" value="{{ $item['jenis'] ?? '' }}">
-                                            </td>
-                                            <td class="text-center">
-                                                {{ $item['jumlah'] ?? 1 }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][jumlah]" value="{{ $item['jumlah'] ?? 1 }}">
-                                            </td>
-                                            <td>
-                                                {{ $item['satuan'] ?? 'Unit' }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][satuan]" value="{{ $item['satuan'] ?? 'Unit' }}">
-                                            </td>
-                                            <td>
-                                                {{ $item['keterangan'] ?? '' }}
-                                                <input type="hidden" name="seized_items[{{ $idx }}][keterangan]" value="{{ $item['keterangan'] ?? '' }}">
-                                            </td>
-                                            <td class="text-center align-middle">
-                                                <button type="button" class="btn btn-sm btn-danger remove-seized-item-row">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
 
 
                 <!-- BUTTON SUBMIT & BATAL -->
@@ -731,71 +660,6 @@
             </form>
         </div>
     </div>
-
-<!-- Modal Add Law -->
-<div class="modal fade" id="addLawModal" tabindex="-1" role="dialog" aria-labelledby="addLawModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" id="modalContent">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold text-blue-dark" id="addLawModalLabel">Tambah Kejahatan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-primary my-3" role="alert">
-                    Jika tidak terdapat opsi yang sesuai, silahkan menghubungi Helpdesk ICELL untuk koordinasi.
-                </div>
-                <form id="addLawForm">
-                    <div class="mb-3 form-validate">
-                        <label class="fw-bold" for="crimeTypeLawForm">Jenis Kejahatan</label>
-                        <select class="form-control select2-modal" id="crimeTypeLawForm" name="crimeTypeLawForm" style="width:100%">
-                            <option value="">--Pilih Jenis Kejahatan--</option>
-                            @foreach ($crimeTypes as $crimeType)
-                                <option value="{{ $crimeType->id }}" data-crime-type-name="{{ $crimeType->name }}"
-                                    data-crime-class-id="{{ $crimeType->crimeClass->id ?? '' }}"
-                                    data-crime-constitution-id="{{ $crimeType->crimeConstitution->id ?? '' }}">
-                                    {{ $crimeType->name }}</option>
-                            @endforeach
-                        </select>
-                        <div class="error text-danger" id="crimeTypeLawForm-error"></div>
-                    </div>
-
-                    <div class="mb-3 form-validate">
-                        <label class="fw-bold" for="crimeClassLawForm">Golongan Kejahatan</label>
-                        <select class="form-control" id="crimeClassLawForm" disabled>
-                            <option value="">--Pilih Golongan Kejahatan--</option>
-                            @foreach ($crimeClasses as $crimeClass)
-                                <option value="{{ $crimeClass->id }}"
-                                    data-crime-class-name="{{ $crimeClass->name }}">{{ $crimeClass->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3 form-validate">
-                        <label class="fw-bold" for="crimeConstitutionLawForm">Undang-Undang</label>
-                        <select class="form-control" id="crimeConstitutionLawForm" disabled>
-                            <option value="">--Pilih Undang-Undang--</option>
-                            @foreach ($crimeConstitutions as $crimeConstitution)
-                                <option value="{{ $crimeConstitution->id }}"
-                                    data-crime-constitution-name="{{ $crimeConstitution->name }}"
-                                    data-chapter="{{ $crimeConstitution->chapter }}">{{ $crimeConstitution->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group mb-3">
-                        <label class="fw-bold" for="constitutionChapterLawForm">Pasal</label>
-                        <select class="form-control" id="constitutionChapterLawForm" name="constitutionChapterLawForm">
-                            <option value="">--Pilih Pasal-Ayat--</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i> Batal</button>
-                <button type="button" class="btn btn-dark-blue" id="saveAddLawFormButton"><i class="bi bi-save me-1"></i> Simpan</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal Tambah Barang Sitaan -->
 <div class="modal fade" id="addSeizedItemModal" tabindex="-1" role="dialog" aria-labelledby="addSeizedItemModalLabel">
@@ -862,25 +726,105 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
+            // SP Penyitaan Toggle Logic
+            function toggleSpPenyitaan() {
+                var isAda = $('input[name="has_surat_perintah_penyitaan"]:checked').val() === '1';
+                var $container = $('#sp_penyitaan_container');
+                var $numberInput = $('#surat_perintah_penyitaan_number');
+                var $dateInput = $('#surat_perintah_penyitaan_date');
+                var $fileInput = $('#surat_perintah_penyitaan_file');
+
+                if (isAda) {
+                    $container.show();
+                    $numberInput.prop('required', true);
+                    $dateInput.prop('required', true);
+                    $fileInput.prop('required', true);
+                } else {
+                    $container.hide();
+                    $numberInput.prop('required', false).val('');
+                    $dateInput.prop('required', false).val('');
+                    $fileInput.prop('required', false).val('');
+                    $numberInput.removeClass('is-invalid');
+                    $dateInput.removeClass('is-invalid');
+                    $fileInput.removeClass('is-invalid');
+                    $numberInput.next('.frontend-error').remove();
+                    $dateInput.next('.frontend-error').remove();
+                    $fileInput.closest('.sp-file-box').removeClass('is-invalid').next('.frontend-error').remove();
+                    $('input[name="has_surat_perintah_penyitaan"]').closest('.col-lg-9').removeClass('is-invalid').next('.frontend-error').remove();
+                }
+            }
+
+            $('input[name="has_surat_perintah_penyitaan"]').on('change', function() {
+                $('input[name="has_surat_perintah_penyitaan"]').closest('.col-lg-9').removeClass('is-invalid').next('.frontend-error').remove();
+                toggleSpPenyitaan();
+            });
+            toggleSpPenyitaan(); // Run on init
+
+            // Auto remove error on input
+            $('#surat_perintah_penyitaan_number').on('input', function() {
+                if ($(this).val().trim()) {
+                    $(this).removeClass('is-invalid').next('.frontend-error').remove();
+                }
+            });
+            $('#surat_perintah_penyitaan_date').on('change', function() {
+                if ($(this).val().trim()) {
+                    $(this).removeClass('is-invalid').next('.frontend-error').remove();
+                }
+            });
+
+            // SP Penyitaan File Input Handler
+            $('#surat_perintah_penyitaan_file').on('change', function() {
+                var file = this.files[0];
+                var $box = $(this).closest('.sp-file-box');
+                var $preview = $box.find('.sp-preview-wrapper');
+                var $filename = $box.find('.sp-filename');
+                var $status = $box.find('.sp-status');
+                var $viewBtn = $box.find('.sp-view-btn');
+                
+                if (file) {
+                    $box.removeClass('is-invalid');
+                    $box.next('.frontend-error').remove();
+
+                    $filename.text(file.name);
+                    $status.html('📎 SPRINSITA siap diunggah: <span class="sp-filename text-primary">' + file.name + '</span>');
+                    $status.removeClass('text-success').addClass('text-dark');
+                    
+                    var objectUrl = URL.createObjectURL(file);
+                    $viewBtn.attr('href', objectUrl);
+                    
+                    $(this).addClass('visually-hidden');
+                    $preview.removeClass('d-none').addClass('d-flex');
+                } else {
+                    $(this).removeClass('visually-hidden');
+                    $preview.addClass('d-none').removeClass('d-flex');
+                    $viewBtn.attr('href', '#');
+                }
+            });
+
+            $('.btn-change-sp').on('click', function(e) {
+                e.preventDefault();
+                $(this).closest('.sp-file-box').find('input[type="file"]').click();
+            });
+
             // Attention Box Pulsing
             setInterval(function() {
                 $('#attentionBox').toggleClass('alert-danger alert-warning');
             }, 1000);
 
-            // Toggle Ada Tersangka / Tidak Ada Tersangka
-            $(document).on('change', '.isSuspectExists', function() {
-                var isSuspectExists = $(this).val();
+            // Toggle Tersangka / Saksi
+            $(document).on('change', '.statusPihak', function() {
+                var statusPihak = $(this).val();
 
-                if (isSuspectExists == 'true') {
+                if (statusPihak === 'Tersangka') {
                     $('#suspectExistsSection').show();
                     $('#suspectNotExistsSection').hide();
-                } else if (isSuspectExists == 'false') {
+                } else if (statusPihak === 'Saksi') {
                     $('#suspectExistsSection').hide();
                     $('#suspectNotExistsSection').show();
                 }
 
-                $('#suspects, #reportedPerson, #informant').removeClass('is-invalid');
-                $('#suspects, #reportedPerson, #informant').next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                $('#suspects, #witnesses').removeClass('is-invalid');
+                $('#suspects, #reportedPerson, #witnesses').next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
                 $('#suspectExistsSection, #suspectNotExistsSection').find('.frontend-error, .invalid-feedback').remove();
             });
 
@@ -899,7 +843,7 @@
             $('.select2-sprindik-tags').select2({
                 theme: 'bootstrap4',
                 width: '100%',
-                tags: true,
+                tags: false,
                 placeholder: '-- Pilih atau Ketik No SP Penyidikan --',
                 allowClear: true,
                 createTag: function (params) {
@@ -923,6 +867,8 @@
                 
                 if (date) {
                     $('#sprindik_date').val(date).removeClass('is-invalid');
+                } else if (!$(this).val()) {
+                    $('#sprindik_date').val('');
                 }
                 if (leaderNrp && !$('#officerLeader').val()) {
                     var leaderOpt = $('#officerLeader option[data-register-number="' + leaderNrp + '"]');
@@ -936,7 +882,7 @@
             $('.select2-spdp-tags').select2({
                 theme: 'bootstrap4',
                 width: '100%',
-                tags: true,
+                tags: false,
                 placeholder: '-- Pilih atau Ketik Nomor SPDP --',
                 allowClear: true,
                 createTag: function (params) {
@@ -1000,6 +946,8 @@
                 var date = selected.data('date');
                 if (date) {
                     $('#spdp_date').val(date).removeClass('is-invalid');
+                } else if (!$(this).val()) {
+                    $('#spdp_date').val('');
                 }
             });
 
@@ -1025,6 +973,8 @@
                 }
                 if (date) {
                     $('#sprindik_date').val(date).removeClass('is-invalid');
+                } else if (!$(this).val()) {
+                    $('#sprindik_date').val('');
                 }
                 if (leaderNrp && !$('#officerLeader').val()) {
                     var leaderOpt = $('#officerLeader option[data-register-number="' + leaderNrp + '"]');
@@ -1059,143 +1009,6 @@
 
             $(document).on("click", ".removeCarbonCopiesButton", function() {
                 $(this).closest(".input-group").remove();
-            });
-
-            // ─── DYNAMIC LAW MODAL & ROWS (SPRINDIK STYLE) ─────────────────
-            $('#addLawModal').on('shown.bs.modal', function () {
-                $('#crimeTypeLawForm').select2({
-                    dropdownParent: $('#addLawModal'),
-                    theme: 'bootstrap4',
-                    width: '100%'
-                });
-            });
-
-            $('#crimeTypeLawForm').on('change', function() {
-                var selected = $(this).find(':selected');
-                var crimeClassId = selected.data('crime-class-id');
-                var crimeConstitutionId = selected.data('crime-constitution-id');
-
-                if (crimeClassId) {
-                    $('#crimeClassLawForm').val(crimeClassId).trigger('change');
-                } else {
-                    $('#crimeClassLawForm').val('');
-                }
-
-                if (crimeConstitutionId) {
-                    $('#crimeConstitutionLawForm').val(crimeConstitutionId).trigger('change');
-                    var chapterStr = $('#crimeConstitutionLawForm option:selected').data('chapter');
-                    var optionsHtml = '<option value="">--Pilih Pasal-Ayat--</option>';
-                    if (chapterStr) {
-                        var chapters = chapterStr.toString().split(';');
-                        chapters.forEach(function(chap) {
-                            if (chap.trim()) {
-                                optionsHtml += '<option value="' + chap.trim() + '">' + chap.trim() + '</option>';
-                            }
-                        });
-                    }
-                    $('#constitutionChapterLawForm').html(optionsHtml);
-                } else {
-                    $('#crimeConstitutionLawForm').val('');
-                    $('#constitutionChapterLawForm').html('<option value="">--Pilih Pasal-Ayat--</option>');
-                }
-            });
-
-            $('#saveAddLawFormButton').on('click', function() {
-                var crimeTypeId = $('#crimeTypeLawForm').val();
-                var crimeTypeName = $('#crimeTypeLawForm option:selected').data('crime-type-name') || '';
-                var crimeClassId = $('#crimeClassLawForm').val();
-                var crimeClassName = $('#crimeClassLawForm option:selected').data('crime-class-name') || '';
-                var crimeConstitutionId = $('#crimeConstitutionLawForm').val();
-                var crimeConstitutionName = $('#crimeConstitutionLawForm option:selected').data('crime-constitution-name') || '';
-                var chapter = $('#constitutionChapterLawForm').val() || '';
-
-                if (!crimeTypeId) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Perhatian',
-                        text: 'Silahkan pilih Jenis Kejahatan terlebih dahulu.'
-                    });
-                    return;
-                }
-
-                if (crimeConstitutionId && !chapter) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Perhatian',
-                        text: 'Pasal UU Khusus harus diisi.'
-                    });
-                    return;
-                }
-
-                var rowHtml = `
-                    <tr class="law-row text-center">
-                        <td class="text-center align-middle">
-                            ${crimeTypeName}
-                            <input type="hidden" name="lawCrimeTypeIds[]" value="${crimeTypeId}">
-                        </td>
-                        <td class="text-center align-middle">
-                            ${crimeClassName}
-                            <input type="hidden" name="lawCrimeClassIds[]" value="${crimeClassId}">
-                        </td>
-                        <td class="text-center align-middle">
-                                ${crimeConstitutionName}
-                            <input type="hidden" name="lawCrimeConstitutionIds[]" value="${crimeConstitutionId}">
-                        </td>
-                        <td class="text-center align-middle">
-                            ${chapter}
-                            <input type="hidden" name="lawCrimeConstitutionChapters[]" value="${chapter}">
-                        </td>
-                        <td class="text-center align-middle">
-                            <button type="button" class="btn btn-sm btn-danger remove-law-row"><i class="bi bi-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-
-                $('#lawTable tbody').append(rowHtml);
-                $('#addLawModal').modal('hide');
-
-                $('#crimeTypeLawForm').val('').trigger('change');
-                $('#crimeClassLawForm').val('');
-                $('#crimeConstitutionLawForm').val('');
-                $('#constitutionChapterLawForm').html('<option value="">--Pilih Pasal-Ayat--</option>');
-            });
-
-            $(document).on('click', '.remove-law-row', function() {
-                $(this).closest('tr').remove();
-            });
-
-            // Additional Law
-            $('#saveAdditionalLawButton').on('click', function() {
-                var lawAdditionalName = $('#additionalLaw').val();
-
-                if (lawAdditionalName == '') {
-                    $('#additionalLaw').parent().find('small').remove();
-                    $('#additionalLaw').parent().append(
-                        '<small class="text-danger">Inputan ini wajib diisi</small>');
-                    return false;
-                } else {
-                    $('#additionalLaw').parent().find('small').remove();
-                    $('#additionalLawTable tbody').append(
-                        '<tr class="text-center">' +
-                        '<td class="text-center align-middle">' + lawAdditionalName + '</td>' +
-                        '<td class="text-center align-middle">' +
-                        '<input type="hidden" name="lawAdditionalNames[]" value="' + lawAdditionalName + '">' +
-                        '<button type="button" class="btn btn-danger btn-sm deleteAdditionalLaw"><i class="bi bi-trash"></i></button>' +
-                        '</td>' +
-                        '</tr>'
-                    );
-
-                    $('#additionalLaw').val('');
-                }
-            });
-
-            $('#clearAdditionalLawButton').on('click', function() {
-                $('#additionalLaw').val('');
-                $('#additionalLaw').parent().find('small').remove();
-            });
-
-            $(document).on('click', '.deleteAdditionalLaw, .remove-additional-law-row', function() {
-                $(this).closest('tr').remove();
             });
 
             // ─── MODAL TAMBAH BARANG SITAAN ────────────────────────────────
@@ -1341,13 +1154,37 @@
                 if (!$('#court_id').val()) {
                     markError($('#court_id'), 'Pengadilan Negeri Tujuan wajib dipilih.');
                 }
-                if ($('.isSuspectExists:checked').val() === 'true') {
+
+                // Check SPRINSITA
+                var hasSp = $('input[name="has_surat_perintah_penyitaan"]:checked').val();
+                if (hasSp === '1') {
+                    if (!$('#surat_perintah_penyitaan_number').val().trim()) {
+                        markError($('#surat_perintah_penyitaan_number'), 'Nomor SPRINSITA wajib diisi.');
+                    }
+                    if (!$('#surat_perintah_penyitaan_date').val().trim()) {
+                        markError($('#surat_perintah_penyitaan_date'), 'Tanggal SPRINSITA wajib diisi.');
+                    }
+                    var spFile = $('#surat_perintah_penyitaan_file')[0].files[0];
+                    if (!spFile) {
+                        markError($('#surat_perintah_penyitaan_file').closest('.sp-file-box'), 'File SPRINSITA wajib diunggah.');
+                    } else {
+                        if (spFile.type !== 'application/pdf') {
+                            markError($('#surat_perintah_penyitaan_file').closest('.sp-file-box'), 'Format file SPRINSITA harus PDF.');
+                        }
+                        if (spFile.size > 10 * 1024 * 1024) {
+                            markError($('#surat_perintah_penyitaan_file').closest('.sp-file-box'), 'Ukuran file SPRINSITA maksimal 10 MB.');
+                        }
+                    }
+                } else if (!hasSp) {
+                    markError($('input[name="has_surat_perintah_penyitaan"]').closest('.col-lg-9'), 'Pilihan Ada/Tidak Ada SPRINSITA wajib dipilih.');
+                }
+                if ($('.statusPihak:checked').val() === 'Tersangka') {
                     if (!$('#suspects').val() || $('#suspects').val().length === 0) {
                         markError($('#suspects'), 'Tersangka yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan harus diisi.');
                     }
                 } else {
-                    if (!$('#reportedPerson').val()) {
-                        markError($('#reportedPerson'), 'Terlapor yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan harus diisi.');
+                    if (!$('#witnesses').val() || $('#witnesses').val().length === 0) {
+                        markError($('#witnesses'), 'Saksi tidak boleh kosong.');
                     }
                 }
 
@@ -1362,20 +1199,9 @@
 
                 var selectedOfficers = $('#officers').val();
                 if (!selectedOfficers || selectedOfficers.length === 0) {
-                    markError($('#officers'), 'Pejabat Penandatangan wajib dipilih minimal 1 orang.');
+                    markError($('#officers'), 'Pejabat Penandatangan wajib dipilih.');
                 }
 
-                // Check Laws
-                var mainLawCount = $('#lawTable tbody tr.law-row').length;
-                var additionalLawCount = 0;
-                $('#additionalLawTable tbody tr input[type="hidden"]').each(function() {
-                    if ($(this).val().trim() !== '') {
-                        additionalLawCount++;
-                    }
-                });
-                if (mainLawCount === 0 && additionalLawCount === 0) {
-                    markError($('#lawTable'), 'Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1 pasal.');
-                }
 
                 // Check Tembusan
                 var carbonCopiesCount = 0;
@@ -1396,9 +1222,10 @@
                 if (errors.length > 0) {
                     var $firstError = $('.is-invalid:visible, .frontend-error:visible').first();
                     if ($firstError.length) {
-                        $('html, body').animate({
-                            scrollTop: Math.max(0, $firstError.offset().top - 120)
-                        }, 400);
+                        $firstError[0].scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
                     }
                     return false;
                 }

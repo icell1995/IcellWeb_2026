@@ -109,7 +109,12 @@
                                 <li>Laporan Polisi Nomor: <b>{{ $document->laporan_pengaduan_number ?? $accident->no_lp }}</b>, tanggal {{ $document->laporan_pengaduan_date ? \Carbon\Carbon::parse($document->laporan_pengaduan_date)->locale('id')->translatedFormat('d F Y') : '-' }};</li>
                                 <li>Surat Perintah Penyidikan Nomor: <b>{{ $document->sprindik_number }}</b>, tanggal {{ $document->sprindik_date ? \Carbon\Carbon::parse($document->sprindik_date)->locale('id')->translatedFormat('d F Y') : '-' }};</li>
                                 @if(!empty($document->surat_perintah_penyitaan_number))
-                                    <li>Surat Perintah Penyitaan Nomor: <b>{{ $document->surat_perintah_penyitaan_number }}</b>, tanggal {{ $document->surat_perintah_penyitaan_date ? \Carbon\Carbon::parse($document->surat_perintah_penyitaan_date)->locale('id')->translatedFormat('d F Y') : '-' }};</li>
+                                    <li>
+                                        Surat Perintah Penyitaan Nomor: <b>{{ $document->surat_perintah_penyitaan_number }}</b>, tanggal {{ $document->surat_perintah_penyitaan_date ? \Carbon\Carbon::parse($document->surat_perintah_penyitaan_date)->locale('id')->translatedFormat('d F Y') : '-' }};
+                                        @if(!empty($document->surat_perintah_penyitaan_file))
+                                            <a href="{{ asset('file/penyitaan/surat-perintah-penyitaan/' . $document->surat_perintah_penyitaan_file) }}" target="_blank" class="ms-2 badge bg-primary text-white text-decoration-none"><i class="bi bi-file-earmark-pdf"></i> Lihat File SPRINSITA</a>
+                                        @endif
+                                    </li>
                                 @endif
                                 @if(!empty($document->spdp_number))
                                     <li>Surat Pemberitahuan Dimulainya Penyidikan (SPDP) Nomor: <b>{{ $document->spdp_number }}</b>, tanggal {{ $document->spdp_date ? \Carbon\Carbon::parse($document->spdp_date)->locale('id')->translatedFormat('d F Y') : '-' }};</li>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Docs;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -55,6 +56,102 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
     public function __construct(DocService $docService)
     {
         $this->docService = $docService;
+    }
+
+    /**
+     * Relative storage directory for BAP files in public folder.
+     */
+    private const BAP_STORAGE_PATH = 'public/file/penyitaan/berita-acara-penyitaan';
+
+    /**
+     * Get absolute storage directory for BAP files.
+     *
+     * @return string
+     */
+    private function getBapStoragePath(): string
+    {
+        return base_path(self::BAP_STORAGE_PATH);
+    }
+
+    /**
+     * Generate unique filename for BAP file.
+     * Format: BAP_S13_{YYYYMMDD}_{random}.pdf
+     *
+     * @param  \Illuminate\Http\UploadedFile  $file
+     * @return string
+     */
+    private function generateBapFileName(UploadedFile $file): string
+    {
+        $extension = strtolower($file->getClientOriginalExtension()) ?: 'pdf';
+        return 'BAP_S13_' . date('Ymd') . '_' . Str::random(10) . '.' . $extension;
+    }
+
+    /**
+     * Get absolute file path for a BAP file.
+     *
+     * @param  string  $fileNameOrPath
+     * @return string
+     */
+    private function getBapFilePath(string $fileNameOrPath): string
+    {
+        $fileName = basename($fileNameOrPath);
+        return $this->getBapStoragePath() . '/' . $fileName;
+    }
+
+    /**
+     * Delete BAP file from storage if it exists (including legacy path).
+     *
+     * @param  string|null  $fileNameOrPath
+     * @return void
+     */
+    private function deleteBapFileIfExists(?string $fileNameOrPath): void
+    {
+        if (empty($fileNameOrPath)) {
+            return;
+        }
+
+        $fileName = basename($fileNameOrPath);
+        $primaryPath = $this->getBapFilePath($fileName);
+        if (file_exists($primaryPath)) {
+            @unlink($primaryPath);
+        }
+
+        $legacyPath = storage_path('app/public/documents/file/penyitaan/berita-acara-penyitaan/' . $fileName);
+        if (file_exists($legacyPath)) {
+            @unlink($legacyPath);
+        }
+    }
+
+    private const SP_PENYITAAN_STORAGE_PATH = 'public/file/penyitaan/surat-perintah-penyitaan';
+
+    private function getSpPenyitaanStoragePath(): string
+    {
+        return base_path(self::SP_PENYITAAN_STORAGE_PATH);
+    }
+
+    private function generateSpPenyitaanFileName(\Illuminate\Http\UploadedFile $file): string
+    {
+        $extension = strtolower($file->getClientOriginalExtension()) ?: 'pdf';
+        return 'SP_PENYITAAN_S13_' . date('Ymd') . '_' . \Illuminate\Support\Str::random(10) . '.' . $extension;
+    }
+
+    private function getSpPenyitaanFilePath(string $fileNameOrPath): string
+    {
+        $fileName = basename($fileNameOrPath);
+        return $this->getSpPenyitaanStoragePath() . '/' . $fileName;
+    }
+
+    private function deleteSpPenyitaanFileIfExists(?string $fileNameOrPath): void
+    {
+        if (empty($fileNameOrPath)) {
+            return;
+        }
+
+        $fileName = basename($fileNameOrPath);
+        $primaryPath = $this->getSpPenyitaanFilePath($fileName);
+        if (file_exists($primaryPath)) {
+            @unlink($primaryPath);
+        }
     }
 
     /**
@@ -180,12 +277,23 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         if ($request->filled('surat_perintah_penyidikan_document_id')) {
             $sprindikDoc = SuratPerintahPenyidikanDocument::find($request->input('surat_perintah_penyidikan_document_id'));
             if ($sprindikDoc) {
-                if (!$request->filled('sprindik_number')) {
-                    $request->merge(['sprindik_number' => $sprindikDoc->document_number]);
-                }
-                if (!$request->filled('sprindik_date') && $sprindikDoc->document_date) {
-                    $request->merge(['sprindik_date' => Carbon::parse($sprindikDoc->document_date)->format('Y-m-d')]);
-                }
+                $request->merge([
+                    'sprindik_number' => $sprindikDoc->document_number,
+                    'sprindik_date' => $sprindikDoc->document_date ? Carbon::parse($sprindikDoc->document_date)->format('Y-m-d') : null
+                ]);
+            }
+        }
+
+        if ($request->filled('spdp_number')) {
+            $spdpDoc = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $request->input('accident_id'))
+                ->where('document_number', $request->input('spdp_number'))
+                ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+                ->first();
+
+            if ($spdpDoc) {
+                $request->merge(['spdp_date' => $spdpDoc->document_date ? Carbon::parse($spdpDoc->document_date)->format('Y-m-d') : null]);
+            } else {
+                $request->merge(['spdp_date' => null]);
             }
         }
 
@@ -210,10 +318,17 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         $sprindikDate = Carbon::parse($request->input('sprindik_date'))->format('Y-m-d');
 
         $suratPerintahPenyidikanDocumentId = $request->input('surat_perintah_penyidikan_document_id') ?: null;
-        $suratPerintahPenyitaanNumber = $request->input('surat_perintah_penyitaan_number') ?: null;
-        $suratPerintahPenyitaanDate = $request->input('surat_perintah_penyitaan_date')
-            ? Carbon::parse($request->input('surat_perintah_penyitaan_date'))->format('Y-m-d')
-            : null;
+        $hasSuratPerintahPenyitaan = $request->input('has_surat_perintah_penyitaan') === '1' || $request->input('has_surat_perintah_penyitaan') === 'true' || $request->input('has_surat_perintah_penyitaan') === true;
+
+        if ($hasSuratPerintahPenyitaan) {
+            $suratPerintahPenyitaanNumber = $request->input('surat_perintah_penyitaan_number') ?: null;
+            $suratPerintahPenyitaanDate = $request->input('surat_perintah_penyitaan_date')
+                ? Carbon::parse($request->input('surat_perintah_penyitaan_date'))->format('Y-m-d')
+                : null;
+        } else {
+            $suratPerintahPenyitaanNumber = null;
+            $suratPerintahPenyitaanDate = null;
+        }
         $spdpNumber = $request->input('spdp_number') ?: null;
         $spdpDate = $request->input('spdp_date')
             ? Carbon::parse($request->input('spdp_date'))->format('Y-m-d')
@@ -254,6 +369,20 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             $document->sprindik_date = $sprindikDate;
             $document->surat_perintah_penyitaan_number = $suratPerintahPenyitaanNumber;
             $document->surat_perintah_penyitaan_date = $suratPerintahPenyitaanDate;
+
+            if ($hasSuratPerintahPenyitaan && $request->hasFile('surat_perintah_penyitaan_file')) {
+                $spFile = $request->file('surat_perintah_penyitaan_file');
+                $spFileName = $this->generateSpPenyitaanFileName($spFile);
+                $spTargetDir = $this->getSpPenyitaanStoragePath();
+                if (!file_exists($spTargetDir)) {
+                    mkdir($spTargetDir, 0755, true);
+                }
+                $spFile->move($spTargetDir, $spFileName);
+                $newlyStoredFiles[] = $this->getSpPenyitaanFilePath($spFileName);
+                $document->surat_perintah_penyitaan_file = $spFileName;
+            } else {
+                $document->surat_perintah_penyitaan_file = null;
+            }
             $document->spdp_number = $spdpNumber;
             $document->spdp_date = $spdpDate;
             $document->court_id = $courtId;
@@ -327,66 +456,11 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                 }
             }
 
-            // 3. Simpan daftar UU / Pasal (laws)
-            if ($request->has('lawCrimeTypeIds')) {
-                $lawCrimeTypeIds = $request->lawCrimeTypeIds ?? [];
-                $lawCrimeClassIds = $request->lawCrimeClassIds ?? [];
-                $lawCrimeConstitutionIds = $request->lawCrimeConstitutionIds ?? [];
-                $lawCrimeConstitutionChapters = $request->lawCrimeConstitutionChapters ?? [];
-
-                foreach ($lawCrimeTypeIds as $key => $crimeTypeId) {
-                    if (!empty($crimeTypeId)) {
-                        $docLaw = new SuratLaporanPersetujuanPenyitaanDocumentLaw();
-                        $docLaw->surat_laporan_persetujuan_penyitaan_document_id = $documentId;
-                        $docLaw->crime_type_id = $crimeTypeId;
-                        $docLaw->crime_class_id = $lawCrimeClassIds[$key] ?? null;
-                        $docLaw->crime_constitution_id = $lawCrimeConstitutionIds[$key] ?? null;
-                        $docLaw->constitution_chapter = $lawCrimeConstitutionChapters[$key] ?? null;
-                        $docLaw->flag = 'MAIN';
-                        $docLaw->save();
-                    }
-                }
-
-            } else {
-                $laws = (array) $request->input('laws', []);
-                foreach ($laws as $lawItem) {
-                    if (!empty($lawItem['crime_constitution_id']) || !empty($lawItem['constitution']) || !empty($lawItem['constitution_chapter']) || !empty($lawItem['pasal'])) {
-                        $docLaw = new SuratLaporanPersetujuanPenyitaanDocumentLaw();
-                        $docLaw->surat_laporan_persetujuan_penyitaan_document_id = $documentId;
-                        $docLaw->crime_type_id = $lawItem['crime_type_id'] ?? null;
-                        $docLaw->crime_class_id = $lawItem['crime_class_id'] ?? null;
-                        $docLaw->crime_constitution_id = !empty($lawItem['crime_constitution_id']) ? $lawItem['crime_constitution_id'] : null;
-                        $docLaw->constitution = $lawItem['constitution'] ?? null;
-                        $docLaw->constitution_chapter = $lawItem['constitution_chapter'] ?? ($lawItem['pasal'] ?? null);
-                        $docLaw->description = $lawItem['description'] ?? null;
-                        
-                        $flag = $lawItem['flag'] ?? '';
-                        if ($flag === 'ADDT') $flag = 'ADDITIONAL';
-                        $docLaw->flag = in_array($flag, ['MAIN', 'ADDITIONAL']) ? $flag : 'MAIN';
-                        
-                        $docLaw->save();
-                    }
-                }
-            }
-
-            // Additional Laws
-            $lawAdditionalNames = $request->lawAdditionalNames ?? [];
-            foreach ($lawAdditionalNames as $additionalName) {
-                if (!empty(trim($additionalName))) {
-                    $docLaw = new SuratLaporanPersetujuanPenyitaanDocumentLaw();
-                    $docLaw->surat_laporan_persetujuan_penyitaan_document_id = $documentId;
-                    $docLaw->crime_type_id = null;
-                    $docLaw->crime_class_id = null;
-                    $docLaw->crime_constitution_id = null;
-                    $docLaw->constitution = trim($additionalName);
-                    $docLaw->flag = 'ADDITIONAL';
-                    $docLaw->save();
-                }
-            }
+            // 3. (Dihapus: Laws dikelola dari Sprindik)
 
             // 4. Simpan daftar orang (persons) dan barang sitaannya (seized_items)
             $persons = (array) $request->input('persons', []);
-            foreach ($persons as $personData) {
+            foreach ($persons as $personIndex => $personData) {
                 if (!empty($personData['person_id']) && !empty($personData['person_type'])) {
                     $person = new SuratLaporanPersetujuanPenyitaanDocumentPerson();
                     $person->surat_laporan_persetujuan_penyitaan_document_id = $documentId;
@@ -399,9 +473,21 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                         $person->reported_person_id = $personData['person_id'];
                     }
 
-                    $person->bap_number = $personData['bap_number'] ?? '-';
                     $person->bap_date = !empty($personData['bap_date']) ? Carbon::parse($personData['bap_date'])->format('Y-m-d') : date('Y-m-d');
                     
+                    // Upload Berita Acara Penyitaan (BAP)
+                    if ($request->hasFile("persons.{$personIndex}.bap_file")) {
+                        $bapFile = $request->file("persons.{$personIndex}.bap_file");
+                        $fileName = $this->generateBapFileName($bapFile);
+                        $targetDir = $this->getBapStoragePath();
+                        if (!file_exists($targetDir)) {
+                            mkdir($targetDir, 0755, true);
+                        }
+                        $bapFile->move($targetDir, $fileName);
+                        $newlyStoredFiles[] = $this->getBapFilePath($fileName);
+                        $person->bap_file = $fileName;
+                    }
+
                     // Lokasi Penyitaan
                     $isSeizedAtWorkUnit = !isset($personData['is_seized_at_work_unit']) || $personData['is_seized_at_work_unit'] === '1' || $personData['is_seized_at_work_unit'] === 'true' || $personData['is_seized_at_work_unit'] === true;
                     $person->is_seized_at_work_unit = $isSeizedAtWorkUnit;
@@ -442,9 +528,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
 
             // Clean up newly uploaded files on failure
             foreach ($newlyStoredFiles as $storedFile) {
-                if (Storage::disk('public')->exists($storedFile)) {
-                    Storage::disk('public')->delete($storedFile);
-                }
+                $this->deleteBapFileIfExists($storedFile);
             }
 
             Log::error('Error storing Surat Laporan Persetujuan Penyitaan S-13: ' . $e->getMessage(), [
@@ -496,7 +580,8 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             'accident.polres.polda',
             'officers.rank',
             'officers.position',
-            'laws.crimeConstitution',
+            'suratPerintahPenyidikanDocument.suratPerintahPenyidikanDocumentLaws.crimeConstitution',
+            'suratPerintahPenyidikanDocument.suratPerintahPenyidikanDocumentLaws.crimeType',
             'persons.seizedItems',
             'persons.suspect',
             'persons.witness',
@@ -515,7 +600,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         $officers = $document->officers;
         $leaderOfficer = $officers->where('class', 'LEADER')->first();
         $signatories = $officers->where('class', 'SIGNATORY')->values();
-        $laws = $document->laws;
+        $laws = $document->suratPerintahPenyidikanDocument?->suratPerintahPenyidikanDocumentLaws ?? collect();
         $seizedItems = $document->persons->flatMap->seizedItems;
         $attachments = $document->attachments;
         $documentSuspects = $document->persons;
@@ -564,7 +649,8 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         $document = SuratLaporanPersetujuanPenyitaanDocument::with([
             'officers.rank',
             'officers.position',
-            'laws.crimeConstitution',
+            'suratPerintahPenyidikanDocument.suratPerintahPenyidikanDocumentLaws.crimeConstitution',
+            'suratPerintahPenyidikanDocument.suratPerintahPenyidikanDocumentLaws.crimeType',
             'persons.seizedItems',
             'persons.suspect',
             'persons.witness',
@@ -577,7 +663,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         $accident = $document->accident ?? Accident::where('id', $accidentId)->firstOrFail();
 
         $officers = $document->officers;
-        $laws = $document->laws;
+        $laws = $document->suratPerintahPenyidikanDocument?->suratPerintahPenyidikanDocumentLaws ?? collect();
         $seizedItems = $document->persons->flatMap->seizedItems;
         $attachments = $document->attachments;
         $documentSuspects = $document->persons;
@@ -719,12 +805,23 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         if ($request->filled('surat_perintah_penyidikan_document_id')) {
             $sprindikDoc = SuratPerintahPenyidikanDocument::find($request->input('surat_perintah_penyidikan_document_id'));
             if ($sprindikDoc) {
-                if (!$request->filled('sprindik_number')) {
-                    $request->merge(['sprindik_number' => $sprindikDoc->document_number]);
-                }
-                if (!$request->filled('sprindik_date') && $sprindikDoc->document_date) {
-                    $request->merge(['sprindik_date' => Carbon::parse($sprindikDoc->document_date)->format('Y-m-d')]);
-                }
+                $request->merge([
+                    'sprindik_number' => $sprindikDoc->document_number,
+                    'sprindik_date' => $sprindikDoc->document_date ? Carbon::parse($sprindikDoc->document_date)->format('Y-m-d') : null
+                ]);
+            }
+        }
+
+        if ($request->filled('spdp_number')) {
+            $spdpDoc = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $document->accident_id)
+                ->where('document_number', $request->input('spdp_number'))
+                ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+                ->first();
+
+            if ($spdpDoc) {
+                $request->merge(['spdp_date' => $spdpDoc->document_date ? Carbon::parse($spdpDoc->document_date)->format('Y-m-d') : null]);
+            } else {
+                $request->merge(['spdp_date' => null]);
             }
         }
 
@@ -750,10 +847,17 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         $sprindikDate = Carbon::parse($request->input('sprindik_date'))->format('Y-m-d');
 
         $suratPerintahPenyidikanDocumentId = $request->input('surat_perintah_penyidikan_document_id') ?: null;
-        $suratPerintahPenyitaanNumber = $request->input('surat_perintah_penyitaan_number') ?: null;
-        $suratPerintahPenyitaanDate = $request->input('surat_perintah_penyitaan_date')
-            ? Carbon::parse($request->input('surat_perintah_penyitaan_date'))->format('Y-m-d')
-            : null;
+        $hasSuratPerintahPenyitaan = $request->input('has_surat_perintah_penyitaan') === '1' || $request->input('has_surat_perintah_penyitaan') === 'true' || $request->input('has_surat_perintah_penyitaan') === true;
+
+        if ($hasSuratPerintahPenyitaan) {
+            $suratPerintahPenyitaanNumber = $request->input('surat_perintah_penyitaan_number') ?: null;
+            $suratPerintahPenyitaanDate = $request->input('surat_perintah_penyitaan_date')
+                ? Carbon::parse($request->input('surat_perintah_penyitaan_date'))->format('Y-m-d')
+                : null;
+        } else {
+            $suratPerintahPenyitaanNumber = null;
+            $suratPerintahPenyitaanDate = null;
+        }
         $spdpNumber = $request->input('spdp_number') ?: null;
         $spdpDate = $request->input('spdp_date')
             ? Carbon::parse($request->input('spdp_date'))->format('Y-m-d')
@@ -795,6 +899,30 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             $document->sprindik_date = $sprindikDate;
             $document->surat_perintah_penyitaan_number = $suratPerintahPenyitaanNumber;
             $document->surat_perintah_penyitaan_date = $suratPerintahPenyitaanDate;
+
+            if ($hasSuratPerintahPenyitaan) {
+                if ($request->hasFile('surat_perintah_penyitaan_file')) {
+                    $spFile = $request->file('surat_perintah_penyitaan_file');
+                    $spFileName = $this->generateSpPenyitaanFileName($spFile);
+                    $spTargetDir = $this->getSpPenyitaanStoragePath();
+                    if (!file_exists($spTargetDir)) {
+                        mkdir($spTargetDir, 0755, true);
+                    }
+                    $spFile->move($spTargetDir, $spFileName);
+                    $newlyStoredFiles[] = $this->getSpPenyitaanFilePath($spFileName);
+
+                    if (!empty($document->surat_perintah_penyitaan_file) && $document->surat_perintah_penyitaan_file !== $spFileName) {
+                        $filesToDeleteAfterCommit[] = $this->getSpPenyitaanFilePath($document->surat_perintah_penyitaan_file);
+                    }
+                    $document->surat_perintah_penyitaan_file = $spFileName;
+                }
+                // Jika tidak ada file baru diunggah, file SP Penyitaan lama tetap dipertahankan
+            } else {
+                if (!empty($document->surat_perintah_penyitaan_file)) {
+                    $filesToDeleteAfterCommit[] = $this->getSpPenyitaanFilePath($document->surat_perintah_penyitaan_file);
+                }
+                $document->surat_perintah_penyitaan_file = null;
+            }
             $document->spdp_number = $spdpNumber;
             $document->spdp_date = $spdpDate;
             $document->court_id = $courtId;
@@ -868,88 +996,75 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             }
 
 
-            // 3. Sync / update daftar UU / Pasal (laws)
-            SuratLaporanPersetujuanPenyitaanDocumentLaw::where('surat_laporan_persetujuan_penyitaan_document_id', $id)->delete();
-
-            if ($request->has('lawCrimeTypeIds')) {
-                $lawCrimeTypeIds = $request->lawCrimeTypeIds ?? [];
-                $lawCrimeClassIds = $request->lawCrimeClassIds ?? [];
-                $lawCrimeConstitutionIds = $request->lawCrimeConstitutionIds ?? [];
-                $lawCrimeConstitutionChapters = $request->lawCrimeConstitutionChapters ?? [];
-
-                foreach ($lawCrimeTypeIds as $key => $crimeTypeId) {
-                    if (!empty($crimeTypeId)) {
-                        $docLaw = new SuratLaporanPersetujuanPenyitaanDocumentLaw();
-                        $docLaw->surat_laporan_persetujuan_penyitaan_document_id = $id;
-                        $docLaw->crime_type_id = $crimeTypeId;
-                        $docLaw->crime_class_id = $lawCrimeClassIds[$key] ?? null;
-                        $docLaw->crime_constitution_id = $lawCrimeConstitutionIds[$key] ?? null;
-                        $docLaw->constitution_chapter = $lawCrimeConstitutionChapters[$key] ?? null;
-                        $docLaw->flag = 'MAIN';
-                        $docLaw->save();
-                    }
-                }
-
-            } else {
-                $laws = (array) $request->input('laws', []);
-                foreach ($laws as $lawItem) {
-                    if (!empty($lawItem['crime_constitution_id']) || !empty($lawItem['constitution']) || !empty($lawItem['constitution_chapter']) || !empty($lawItem['pasal'])) {
-                        $docLaw = new SuratLaporanPersetujuanPenyitaanDocumentLaw();
-                        $docLaw->surat_laporan_persetujuan_penyitaan_document_id = $id;
-                        $docLaw->crime_type_id = $lawItem['crime_type_id'] ?? null;
-                        $docLaw->crime_class_id = $lawItem['crime_class_id'] ?? null;
-                        $docLaw->crime_constitution_id = !empty($lawItem['crime_constitution_id']) ? $lawItem['crime_constitution_id'] : null;
-                        $docLaw->constitution = $lawItem['constitution'] ?? null;
-                        $docLaw->constitution_chapter = $lawItem['constitution_chapter'] ?? ($lawItem['pasal'] ?? null);
-                        $docLaw->description = $lawItem['description'] ?? null;
-                        
-                        $flag = $lawItem['flag'] ?? '';
-                        if ($flag === 'ADDT') $flag = 'ADDITIONAL';
-                        $docLaw->flag = in_array($flag, ['MAIN', 'ADDITIONAL']) ? $flag : 'MAIN';
-                        
-                        $docLaw->save();
-                    }
-                }
-            }
-
-            // Additional Laws
-            $lawAdditionalNames = $request->lawAdditionalNames ?? [];
-            foreach ($lawAdditionalNames as $additionalName) {
-                if (!empty(trim($additionalName))) {
-                    $docLaw = new SuratLaporanPersetujuanPenyitaanDocumentLaw();
-                    $docLaw->surat_laporan_persetujuan_penyitaan_document_id = $id;
-                    $docLaw->crime_type_id = null;
-                    $docLaw->crime_class_id = null;
-                    $docLaw->crime_constitution_id = null;
-                    $docLaw->constitution = trim($additionalName);
-                    $docLaw->flag = 'ADDITIONAL';
-                    $docLaw->save();
-                }
-            }
+            // 3. (Dihapus: Laws dikelola dari Sprindik)
 
             // 4. Sync / update daftar orang (persons) dan barang sitaannya
             $existingPersons = SuratLaporanPersetujuanPenyitaanDocumentPerson::where('surat_laporan_persetujuan_penyitaan_document_id', $id)->get();
-            foreach ($existingPersons as $extPerson) {
-                SuratLaporanPersetujuanPenyitaanDocumentSeizedItem::where('surat_laporan_persetujuan_penyitaan_document_person_id', $extPerson->id)->delete();
-                $extPerson->delete();
-            }
+            $personsInput = (array) $request->input('persons', []);
+            $processedPersonIds = [];
 
-            $persons = (array) $request->input('persons', []);
-            foreach ($persons as $personData) {
+            foreach ($personsInput as $personIndex => $personData) {
                 if (!empty($personData['person_id']) && !empty($personData['person_type'])) {
-                    $person = new SuratLaporanPersetujuanPenyitaanDocumentPerson();
-                    $person->surat_laporan_persetujuan_penyitaan_document_id = $id;
-                    
-                    if ($personData['person_type'] === 'suspect') {
-                        $person->suspect_id = $personData['person_id'];
-                    } elseif ($personData['person_type'] === 'witness') {
-                        $person->witness_id = $personData['person_id'];
-                    } elseif ($personData['person_type'] === 'reported_person') {
-                        $person->reported_person_id = $personData['person_id'];
+                    $existingPerson = null;
+                    if (!empty($personData['id'])) {
+                        $existingPerson = $existingPersons->firstWhere('id', $personData['id']);
+                    }
+                    if (!$existingPerson) {
+                        $existingPerson = $existingPersons->first(function ($p) use ($personData) {
+                            if ($personData['person_type'] === 'suspect') {
+                                return $p->suspect_id === $personData['person_id'];
+                            }
+                            if ($personData['person_type'] === 'witness') {
+                                return $p->witness_id === $personData['person_id'];
+                            }
+                            if ($personData['person_type'] === 'reported_person') {
+                                return $p->reported_person_id === $personData['person_id'];
+                            }
+                            return false;
+                        });
                     }
 
-                    $person->bap_number = $personData['bap_number'] ?? '-';
+                    if ($existingPerson) {
+                        $person = $existingPerson;
+                    } else {
+                        $person = new SuratLaporanPersetujuanPenyitaanDocumentPerson();
+                        $person->surat_laporan_persetujuan_penyitaan_document_id = $id;
+                    }
+
+                    if ($personData['person_type'] === 'suspect') {
+                        $person->suspect_id = $personData['person_id'];
+                        $person->witness_id = null;
+                        $person->reported_person_id = null;
+                    } elseif ($personData['person_type'] === 'witness') {
+                        $person->witness_id = $personData['person_id'];
+                        $person->suspect_id = null;
+                        $person->reported_person_id = null;
+                    } elseif ($personData['person_type'] === 'reported_person') {
+                        $person->reported_person_id = $personData['person_id'];
+                        $person->suspect_id = null;
+                        $person->witness_id = null;
+                    }
+
                     $person->bap_date = !empty($personData['bap_date']) ? Carbon::parse($personData['bap_date'])->format('Y-m-d') : date('Y-m-d');
+
+                    // Upload Berita Acara Penyitaan (BAP) baru jika ada file baru diunggah
+                    if ($request->hasFile("persons.{$personIndex}.bap_file")) {
+                        $bapFile = $request->file("persons.{$personIndex}.bap_file");
+                        $fileName = $this->generateBapFileName($bapFile);
+                        $targetDir = $this->getBapStoragePath();
+                        if (!file_exists($targetDir)) {
+                            mkdir($targetDir, 0755, true);
+                        }
+                        $bapFile->move($targetDir, $fileName);
+                        $newlyStoredFiles[] = $this->getBapFilePath($fileName);
+
+                        // Tandai file lama untuk dihapus setelah commit jika ada file lama yang berbeda
+                        if (!empty($person->bap_file) && $person->bap_file !== $fileName) {
+                            $filesToDeleteAfterCommit[] = $this->getBapFilePath($person->bap_file);
+                        }
+                        $person->bap_file = $fileName;
+                    }
+                    // Jika tidak ada file baru diunggah, file BAP lama pada $person->bap_file tetap dipertahankan
 
                     // Lokasi Penyitaan
                     $isSeizedAtWorkUnit = !isset($personData['is_seized_at_work_unit']) || $personData['is_seized_at_work_unit'] === '1' || $personData['is_seized_at_work_unit'] === 'true' || $personData['is_seized_at_work_unit'] === true;
@@ -957,7 +1072,10 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                     $person->seized_location = !$isSeizedAtWorkUnit ? ($personData['seized_location'] ?? null) : null;
 
                     $person->save();
+                    $processedPersonIds[] = $person->id;
 
+                    // Sync barang sitaan untuk orang ini
+                    SuratLaporanPersetujuanPenyitaanDocumentSeizedItem::where('surat_laporan_persetujuan_penyitaan_document_person_id', $person->id)->delete();
                     if (isset($personData['seized_items']) && is_array($personData['seized_items'])) {
                         foreach ($personData['seized_items'] as $item) {
                             if (!empty($item['name'])) {
@@ -974,6 +1092,17 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                 }
             }
 
+            // Hapus pihak yang memang sengaja dihapus oleh user dari form edit
+            foreach ($existingPersons as $extPerson) {
+                if (!in_array($extPerson->id, $processedPersonIds)) {
+                    if (!empty($extPerson->bap_file)) {
+                        $filesToDeleteAfterCommit[] = $this->getBapFilePath($extPerson->bap_file);
+                    }
+                    SuratLaporanPersetujuanPenyitaanDocumentSeizedItem::where('surat_laporan_persetujuan_penyitaan_document_person_id', $extPerson->id)->delete();
+                    $extPerson->delete();
+                }
+            }
+
             // 6. Simpan dokumen digital baru (attachments)
             // (Attachment upload moved to Document Action)
 
@@ -984,9 +1113,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
 
             // Hapus file fisik hanya setelah transaksi database berhasil di-commit
             foreach ($filesToDeleteAfterCommit as $filePath) {
-                if (Storage::disk('public')->exists($filePath)) {
-                    Storage::disk('public')->delete($filePath);
-                }
+                $this->deleteBapFileIfExists($filePath);
             }
 
             Log::info('Surat Laporan Persetujuan Penyitaan (S-13) updated successfully', [
@@ -1000,9 +1127,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
 
             // Clean up newly uploaded files on failure
             foreach ($newlyStoredFiles as $storedFile) {
-                if (Storage::disk('public')->exists($storedFile)) {
-                    Storage::disk('public')->delete($storedFile);
-                }
+                $this->deleteBapFileIfExists($storedFile);
             }
 
             Log::error('Error updating Surat Laporan Persetujuan Penyitaan S-13: ' . $e->getMessage(), [
@@ -1055,6 +1180,15 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             // Delete from database
             $suratLaporanPersetujuanPenyitaanDocument = SuratLaporanPersetujuanPenyitaanDocument::where('id', $suratLaporanPersetujuanPenyitaanDocumentId)->first();
             if ($suratLaporanPersetujuanPenyitaanDocument) {
+                $persons = SuratLaporanPersetujuanPenyitaanDocumentPerson::where('surat_laporan_persetujuan_penyitaan_document_id', $suratLaporanPersetujuanPenyitaanDocumentId)->get();
+                foreach ($persons as $person) {
+                    if (!empty($person->bap_file)) {
+                        $this->deleteBapFileIfExists($person->bap_file);
+                    }
+                }
+                if (!empty($suratLaporanPersetujuanPenyitaanDocument->surat_perintah_penyitaan_file)) {
+                    $this->deleteSpPenyitaanFileIfExists($suratLaporanPersetujuanPenyitaanDocument->surat_perintah_penyitaan_file);
+                }
                 $suratLaporanPersetujuanPenyitaanDocument->delete();
             }
 
@@ -1084,9 +1218,9 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             'officers.rank',
             'officers.position',
             'officers.position.positionCluster',
-            'laws.crimeConstitution',
-            'laws.crimeClass',
-            'laws.crimeType',
+            'suratPerintahPenyidikanDocument.suratPerintahPenyidikanDocumentLaws.crimeConstitution',
+            'suratPerintahPenyidikanDocument.suratPerintahPenyidikanDocumentLaws.crimeType',
+
             'persons.suspect.country',
             'persons.suspect.gender',
             'persons.suspect.job',
@@ -1111,7 +1245,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         $accident = Accident::with(['polres', 'polres.polda', 'police'])->where('id', $accidentId)->firstOrFail();
 
         $officers = $document->officers;
-        $laws = $document->laws;
+        $laws = $document->suratPerintahPenyidikanDocument?->suratPerintahPenyidikanDocumentLaws ?? collect();
         $persons = $document->persons;
         $court = $document->court;
         $signatory = $officers->where('class', 'SIGNATORY')->first() ?? $officers->first();
@@ -1153,7 +1287,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             : '';
 
         // 1. Rujukan (References)
-        $document->loadMissing(['laws.crimeConstitution', 'laws.crimeType']);
+        // Wait, $laws already evaluated earlier
         $rawReferences = [];
         $rawReferences[] = 'Undang-Undang Nomor 2 Tahun 2002 tentang Kepolisian Negara Republik Indonesia;';
         $rawReferences[] = 'Pasal 3 dan Pasal 618 Undang-Undang Nomor 1 Tahun 2023 tentang Kitab Undang-Undang Hukum Pidana;';
@@ -1237,22 +1371,18 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
 
         // BAP Penyitaan (semua orang)
         if ($persons && $persons->isNotEmpty()) {
-            $bapStrings = [];
             foreach ($persons as $p) {
-                if (!empty($p->bap_number)) {
-                    $bapDateFormatted = $p->bap_date ? \Carbon\Carbon::parse($p->bap_date)->locale('id')->translatedFormat('d F Y') : '';
-                    $bapStrings[] = 'Berita Acara Penyitaan Nomor ' . $p->bap_number . ($bapDateFormatted ? ' tanggal ' . $bapDateFormatted : '');
+                if (!empty($p->bap_date) && !empty($p->bap_file)) {
+                    $bapDateFormatted = \Carbon\Carbon::parse($p->bap_date)->locale('id')->translatedFormat('d F Y');
+                    
+                    $s = null;
+                    if ($p->suspect_id) { $s = $p->suspect; }
+                    elseif ($p->witness_id) { $s = $p->witness; }
+                    elseif ($p->reported_person_id) { $s = $p->reportedPerson; }
+                    $name = $s ? ($s->full_name ?? ($s->name ?? '-')) : '-';
+
+                    $rawReferences[] = 'Berita Acara Penyitaan tanggal ' . $bapDateFormatted . ' atas nama ' . $name . ';';
                 }
-            }
-            if (!empty($bapStrings)) {
-                $bapText = '';
-                if (count($bapStrings) > 1) {
-                    $last = array_pop($bapStrings);
-                    $bapText = implode(', ', $bapStrings) . ', dan ' . $last;
-                } else {
-                    $bapText = $bapStrings[0];
-                }
-                $rawReferences[] = trim($bapText) . ';';
             }
         }
 
@@ -1802,21 +1932,17 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
     private function validateForm(Request $request, $documentId = null, $fixedAccidentId = null)
     {
         $hasExistingAttachments = false;
+        $hasExistingSpPenyitaanFile = false;
         if ($documentId) {
             $hasExistingAttachments = SuratLaporanPersetujuanPenyitaanDocumentAttachment::where('surat_laporan_persetujuan_penyitaan_document_id', $documentId)->exists();
+            $existingDoc = SuratLaporanPersetujuanPenyitaanDocument::find($documentId);
+            if ($existingDoc) {
+                $hasExistingSpPenyitaanFile = !empty($existingDoc->surat_perintah_penyitaan_file);
+            }
         }
 
         $effectiveAccidentId = $fixedAccidentId ?? $request->input('accident_id');
 
-        $hasValidAdditionalLaw = false;
-        if ($request->has('lawAdditionalNames') && is_array($request->lawAdditionalNames)) {
-            foreach ($request->lawAdditionalNames as $name) {
-                if (!empty(trim($name))) {
-                    $hasValidAdditionalLaw = true;
-                    break;
-                }
-            }
-        }
 
         $rules = [
             'accident_id' => [
@@ -1845,8 +1971,14 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                     }
                 },
             ],
-            'surat_perintah_penyitaan_number' => 'nullable|string|max:255',
-            'surat_perintah_penyitaan_date' => 'nullable|date',
+            'has_surat_perintah_penyitaan' => 'required|boolean',
+            'surat_perintah_penyitaan_number' => 'required_if:has_surat_perintah_penyitaan,1,true|nullable|string|max:255',
+            'surat_perintah_penyitaan_date' => 'required_if:has_surat_perintah_penyitaan,1,true|nullable|date',
+            'surat_perintah_penyitaan_file' => [
+                $hasExistingSpPenyitaanFile ? 'nullable' : 'required_if:has_surat_perintah_penyitaan,1,true',
+                'mimes:pdf',
+                'max:10240',
+            ],
             'spdp_number' => 'nullable|string|max:255',
             'spdp_date' => 'nullable|date',
             'court_id' => [
@@ -1918,71 +2050,17 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
                 },
             ],
 
-            // Daftar UU / Pasal (Sprindik lawCrimeTypeIds atau legacy laws)
-            'lawCrimeTypeIds' => [
-                Rule::requiredIf(function () use ($request, $hasValidAdditionalLaw) {
-                    if ($hasValidAdditionalLaw) return false;
-                    return $request->has('lawCrimeTypeIds') || (!$request->has('laws') && !$request->has('lawCrimeTypeIds'));
-                }),
-                'nullable',
-                'array',
-                'min:1',
-            ],
-            'lawCrimeTypeIds.*' => 'required',
-            'laws' => [
-                Rule::requiredIf(function () use ($request, $hasValidAdditionalLaw) {
-                    if ($hasValidAdditionalLaw) return false;
-                    return $request->has('laws') && !$request->has('lawCrimeTypeIds');
-                }),
-                'nullable',
-                'array',
-                'min:1',
-                function ($attribute, $value, $fail) use ($request, $hasValidAdditionalLaw) {
-                    if (!$request->has('laws') || $request->has('lawCrimeTypeIds') || $hasValidAdditionalLaw) {
-                        return;
-                    }
-                    if (!is_array($value) || empty($value)) {
-                        $fail('Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1.');
-                        return;
-                    }
-
-                    $validCount = 0;
-                    foreach ($value as $law) {
-                        if (!is_array($law)) {
-                            continue;
-                        }
-                        $crimeId = $law['crime_constitution_id'] ?? null;
-                        $chapter = trim($law['constitution_chapter'] ?? ($law['pasal'] ?? ''));
-                        $const = trim($law['constitution'] ?? '');
-
-                        if (!empty($crimeId) || !empty($chapter) || !empty($const)) {
-                            $validCount++;
-                        }
-                    }
-
-                    if ($validCount === 0) {
-                        $fail('Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1 baris pasal/UU yang valid.');
-                    }
-                },
-            ],
-            'laws.*.crime_constitution_id' => [
-                'nullable',
-                'string',
-                Rule::exists(CrimeConstitution::class, 'id'),
-            ],
-            'laws.*.constitution_chapter' => 'nullable|string|max:255',
-            'laws.*.constitution' => 'nullable|string|max:255',
-            'laws.*.description' => 'nullable|string',
-            'laws.*.flag' => 'nullable|in:MAIN,ADDITIONAL',
+            // (Dihapus: Laws dikelola dari Sprindik)
 
             // Daftar Orang (Tersangka/Saksi/Terlapor) optional
             'persons' => 'required|array|min:1',
             'persons.*.person_id' => 'required|uuid',
             'persons.*.person_type' => 'required|string|in:suspect,witness,reported_person',
-            'persons.*.bap_number' => 'required|string|max:255',
             'persons.*.bap_date' => 'required|date',
             
             // Daftar Barang Sitaan per orang
+            'persons.*.is_seized_at_work_unit' => 'nullable|in:0,1,true,false',
+            'persons.*.seized_location' => 'required_if:persons.*.is_seized_at_work_unit,0,false|nullable|string|max:255',
             'persons.*.seized_items' => 'required|array|min:1',
             'persons.*.seized_items.*.name' => 'required|string|max:255',
             'persons.*.seized_items.*.quantity' => 'required|numeric|min:0.01',
@@ -1991,6 +2069,45 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
 
             // Dokumen digital tidak lagi diwajibkan / diproses di sini
         ];
+
+        // Conditional validation untuk bap_file (Create vs Edit)
+        if (!$documentId) {
+            // Pada create: BAP wajib di-upload untuk setiap orang
+            $rules['persons.*.bap_file'] = 'required|file|mimes:pdf|max:10240';
+        } else {
+            // Pada edit: conditional validation per orang berdasarkan apakah person sudah memiliki BAP di DB
+            $existingPersons = SuratLaporanPersetujuanPenyitaanDocumentPerson::where('surat_laporan_persetujuan_penyitaan_document_id', $documentId)->get();
+            $personsInput = (array) $request->input('persons', []);
+            $rules['persons.*.bap_file'] = 'required|file|mimes:pdf|max:10240';
+
+            foreach ($personsInput as $personIndex => $personData) {
+                $existingPerson = null;
+                if (!empty($personData['id'])) {
+                    $existingPerson = $existingPersons->firstWhere('id', $personData['id']);
+                }
+                if (!$existingPerson && !empty($personData['person_id']) && !empty($personData['person_type'])) {
+                    $existingPerson = $existingPersons->first(function ($p) use ($personData) {
+                        if ($personData['person_type'] === 'suspect') {
+                            return $p->suspect_id === $personData['person_id'];
+                        }
+                        if ($personData['person_type'] === 'witness') {
+                            return $p->witness_id === $personData['person_id'];
+                        }
+                        if ($personData['person_type'] === 'reported_person') {
+                            return $p->reported_person_id === $personData['person_id'];
+                        }
+                        return false;
+                    });
+                }
+
+                $hasExistingBap = $existingPerson && !empty($existingPerson->bap_file);
+                if ($hasExistingBap) {
+                    $rules["persons.{$personIndex}.bap_file"] = 'nullable|file|mimes:pdf|max:10240';
+                } else {
+                    $rules["persons.{$personIndex}.bap_file"] = 'required|file|mimes:pdf|max:10240';
+                }
+            }
+        }
 
         $messages = [
             'accident_id.required' => 'Id Kecelakaan wajib diisi.',
@@ -2006,6 +2123,13 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             'sprindik_number.max' => 'No SP Penyidikan maksimal 255 karakter.',
             'sprindik_date.required' => 'Tanggal SP Penyidikan wajib diisi.',
             'sprindik_date.date' => 'Format Tanggal Sprindik tidak valid.',
+
+            'has_surat_perintah_penyitaan.required' => 'Pilihan Ada/Tidak Ada Surat Perintah Penyitaan wajib diisi.',
+            'surat_perintah_penyitaan_number.required_if' => 'Nomor SP Penyitaan wajib diisi jika Ada Surat Perintah Penyitaan.',
+            'surat_perintah_penyitaan_date.required_if' => 'Tanggal SP Penyitaan wajib diisi jika Ada Surat Perintah Penyitaan.',
+            'surat_perintah_penyitaan_file.required_if' => 'File SP Penyitaan wajib diupload jika Ada Surat Perintah Penyitaan.',
+            'surat_perintah_penyitaan_file.mimes' => 'Format file SP Penyitaan harus berupa PDF.',
+            'surat_perintah_penyitaan_file.max' => 'Ukuran file SP Penyitaan maksimal 10 MB.',
 
             'surat_perintah_penyidikan_document_id.exists' => 'Dokumen Sprindik yang dipilih tidak valid.',
             'court_id.exists' => 'Pengadilan Negeri yang dipilih tidak valid.',
@@ -2023,18 +2147,17 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             'officers.required' => 'Pejabat Penandatangan wajib dipilih.',
             'officers.exists' => 'Pejabat Penandatangan yang dipilih tidak valid.',
 
-            'lawCrimeTypeIds.required' => 'Wajib memilih minimal 1 UU / Pasal.',
-            'lawCrimeTypeIds.min' => 'Wajib memilih minimal 1 UU / Pasal.',
-            'lawCrimeTypeIds.*.required' => 'Jenis kejahatan pada daftar pasal wajib dipilih.',
 
-            'laws.required' => 'Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1.',
-            'laws.min' => 'Daftar UU / Pasal yang dipersangkakan wajib diisi minimal 1.',
-            'laws.*.crime_constitution_id.exists' => 'Dasar UU yang dipilih tidak valid.',
 
             'persons.*.person_id.required' => 'Identitas orang wajib dipilih.',
             'persons.*.person_type.required' => 'Tipe identitas wajib diisi.',
-            'persons.*.bap_number.required' => 'No. Berita Acara Penyitaan wajib diisi.',
             'persons.*.bap_date.required' => 'Tgl Berita Acara Penyitaan wajib diisi.',
+            'persons.*.bap_file.required' => 'BAP wajib diupload.',
+            'persons.*.bap_file.file' => 'BAP harus berupa file.',
+            'persons.*.bap_file.mimes' => 'Format file BAP harus berupa PDF.',
+            'persons.*.bap_file.max' => 'Ukuran file BAP maksimal 10 MB.',
+            'persons.*.seized_location.required_if' => 'Lokasi penyitaan wajib diisi jika penyitaan dilakukan di luar Satker.',
+            'persons.*.seized_location.max' => 'Lokasi penyitaan maksimal 255 karakter.',
             'persons.*.seized_items.required' => 'Minimal harus ada 1 barang sitaan.',
             'persons.*.seized_items.min' => 'Minimal harus ada 1 barang sitaan.',
             'persons.*.seized_items.*.name.required' => 'Nama barang sitaan wajib diisi.',

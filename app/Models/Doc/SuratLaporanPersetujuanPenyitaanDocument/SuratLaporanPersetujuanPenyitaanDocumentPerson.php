@@ -21,8 +21,8 @@ class SuratLaporanPersetujuanPenyitaanDocumentPerson extends Model
         'suspect_id',
         'witness_id',
         'reported_person_id',
-        'bap_number',
         'bap_date',
+        'bap_file',
         'is_seized_at_work_unit',
         'seized_location',
     ];
