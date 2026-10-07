@@ -554,7 +554,8 @@
                     <label class="fw-bold col-sm-2 col-form-label" for="dugaan_tindak_pidana">Uraian Dugaan Tindak Pidana<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <textarea id="dugaan_tindak_pidana" class="form-control @error('dugaan_tindak_pidana') is-invalid @enderror" name="dugaan_tindak_pidana" rows="3"
-                            placeholder="Uraian dugaan tindak pidana..." required>{{ old('dugaan_tindak_pidana', $document->dugaan_tindak_pidana ?: $defaultDugaanTindakPidana) }}</textarea>
+                            placeholder="Uraian dugaan tindak pidana..." readonly style="background-color: #e9ecef;" required>{{ old('dugaan_tindak_pidana', $document->dugaan_tindak_pidana ?: $defaultDugaanTindakPidana) }}</textarea>
+                        <small class="text-muted"><i class="bi bi-info-circle"></i> Diambil otomatis dari data Laporan Polisi (Uraian Kejadian / Kerusakan).</small>
                         @error('dugaan_tindak_pidana')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
