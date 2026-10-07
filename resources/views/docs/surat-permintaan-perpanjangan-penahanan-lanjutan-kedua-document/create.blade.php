@@ -306,7 +306,8 @@
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_surat_perintah_perpanjangan_penahanan">Nomor Sprint Perpanjangan Penahanan (JPU)<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_surat_perintah_perpanjangan_penahanan" type="text" class="form-control @error('nomor_surat_perintah_perpanjangan_penahanan') is-invalid @enderror" name="nomor_surat_perintah_perpanjangan_penahanan"
-                                value="{{ old('nomor_surat_perintah_perpanjangan_penahanan', $defaultNomorSprintPerpanjanganJpu) }}" placeholder="Contoh: Sp.Jang.Han/05/V/2026/Lantas" required>
+                                value="{{ old('nomor_surat_perintah_perpanjangan_penahanan', $defaultNomorSprintPerpanjanganJpu) }}" placeholder="Contoh: Sp.Jang.Han/05/V/2026/Lantas" required readonly style="background-color: #e9ecef;">
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Nomor Sprint Perpanjangan Penahanan dari JPU diambil otomatis dari dokumen relasi sebelumnya.</small>
                             @error('nomor_surat_perintah_perpanjangan_penahanan')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -315,7 +316,8 @@
                             <label class="fw-bold" for="tanggal_surat_perintah_perpanjangan_penahanan">Tanggal Sprint Perpanjangan Penahanan (JPU)<span class="text-danger fs-5">*</span></label>
                             <input id="tanggal_surat_perintah_perpanjangan_penahanan" type="text" class="form-control @error('tanggal_surat_perintah_perpanjangan_penahanan') is-invalid @enderror" name="tanggal_surat_perintah_perpanjangan_penahanan"
                                 placeholder="YYYY-MM-DD" autocomplete="off"
-                                value="{{ old('tanggal_surat_perintah_perpanjangan_penahanan', $defaultTanggalSprintPerpanjanganJpu) }}" data-provide="datepicker" required>
+                                value="{{ old('tanggal_surat_perintah_perpanjangan_penahanan', $defaultTanggalSprintPerpanjanganJpu) }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Tanggal Sprint Perpanjangan Penahanan dari JPU diambil otomatis dari dokumen relasi sebelumnya.</small>
                             @error('tanggal_surat_perintah_perpanjangan_penahanan')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -333,7 +335,7 @@
                                 <option value="">-- Hubungkan Dokumen S-22 Pertama --</option>
                                 @if(isset($s22PertamaDocuments))
                                     @foreach($s22PertamaDocuments as $s22p)
-                                        <option value="{{ $s22p->id }}" data-nomor="{{ $s22p->nomor_surat ?? $s22p->document_number }}" data-tanggal="{{ $s22p->tanggal_surat ?? $s22p->document_date }}" data-akhir="{{ $s22p->tanggal_akhir_perpanjangan_penahanan }}" {{ (old('surat_permintaan_perpanjangan_penahanan_lanjutan_document_id', $defaultS22PertamaId ?? null) == $s22p->id) ? 'selected' : '' }}>
+                                        <option value="{{ $s22p->id }}" data-nomor="{{ $s22p->nomor_surat ?? $s22p->document_number }}" data-tanggal="{{ $s22p->tanggal_surat ?? $s22p->document_date }}" data-akhir="{{ $s22p->tanggal_akhir_perpanjangan_penahanan }}" data-sprint-jpu-nomor="{{ $s22p->nomor_surat_perintah_perpanjangan_penahanan }}" data-sprint-jpu-tanggal="{{ $s22p->tanggal_surat_perintah_perpanjangan_penahanan ? Carbon\Carbon::parse($s22p->tanggal_surat_perintah_perpanjangan_penahanan)->format('Y-m-d') : '' }}" {{ (old('surat_permintaan_perpanjangan_penahanan_lanjutan_document_id', $defaultS22PertamaId ?? null) == $s22p->id) ? 'selected' : '' }}>
                                             {{ ($s22p->nomor_surat ?? $s22p->document_number ?? 'S-22 Pertama') . ' (' . ($s22p->tanggal_surat ? Carbon\Carbon::parse($s22p->tanggal_surat)->format('d/m/Y') : ($s22p->document_date ? Carbon\Carbon::parse($s22p->document_date)->format('d/m/Y') : '-')) . ')' }}
                                         </option>
                                     @endforeach
@@ -345,6 +347,7 @@
                             <label class="fw-bold" for="nomor_sket_perpanjangan_kpn_pertama">Nomor S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
                             <input id="nomor_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('nomor_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="nomor_sket_perpanjangan_kpn_pertama"
                                 value="{{ old('nomor_sket_perpanjangan_kpn_pertama', $defaultNomorSketKpn1) }}" placeholder="Nomor Surat Penetapan / Izin KPN Pertama" required readonly style="background-color: #e9ecef;">
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Nomor Surat Ketetapan KPN1 diambil otomatis dari penetapan S-22 Pertama.</small>
                             @error('nomor_sket_perpanjangan_kpn_pertama')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -354,6 +357,7 @@
                             <input id="tanggal_sket_perpanjangan_kpn_pertama" type="text" class="form-control @error('tanggal_sket_perpanjangan_kpn_pertama') is-invalid @enderror" name="tanggal_sket_perpanjangan_kpn_pertama"
                                 placeholder="YYYY-MM-DD" autocomplete="off"
                                 value="{{ old('tanggal_sket_perpanjangan_kpn_pertama', $defaultTanggalSketKpn1) }}" required readonly style="background-color: #e9ecef; pointer-events: none;">
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Tanggal Surat Ketetapan KPN1 diambil otomatis dari penetapan S-22 Pertama.</small>
                             @error('tanggal_sket_perpanjangan_kpn_pertama')
                                 <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                             @enderror
@@ -393,8 +397,8 @@
                     <div class="col-lg-8 col-md-8 col-sm-12 col-12">
                         <input id="pengadilan_negeri_akhir_tanggal" type="text" class="form-control @error('pengadilan_negeri_akhir_tanggal') is-invalid @enderror" name="pengadilan_negeri_akhir_tanggal"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('pengadilan_negeri_akhir_tanggal', $defaultPengadilanNegeriAkhirTanggal) }}" data-provide="datepicker" required>
-                        <small class="text-muted">Tanggal berakhirnya masa perpanjangan penahanan dari Ketua Pengadilan Negeri (Pertama 30 Hari) sebelumnya</small>
+                            value="{{ old('pengadilan_negeri_akhir_tanggal', $defaultPengadilanNegeriAkhirTanggal) }}" readonly style="background-color: #e9ecef; pointer-events: none;" required>
+                        <small class="text-muted"><i class="bi bi-info-circle"></i> Tanggal berakhirnya masa perpanjangan penahanan dari Ketua Pengadilan Negeri (Pertama 30 Hari) diambil otomatis dari dokumen S-22 Pertama.</small>
                         @error('pengadilan_negeri_akhir_tanggal')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -798,14 +802,32 @@
                 var nomor = $opt.data('nomor');
                 var tanggal = $opt.data('tanggal');
                 var akhir = $opt.data('akhir');
+                var sprintJpuNomor = $opt.data('sprint-jpu-nomor');
+                var sprintJpuTanggal = $opt.data('sprint-jpu-tanggal');
+
                 if (nomor) {
                     $('#nomor_sket_perpanjangan_kpn_pertama').val(nomor);
                 }
                 if (tanggal) {
                     $('#tanggal_sket_perpanjangan_kpn_pertama').val(tanggal.toString().substring(0, 10));
                 }
+                if (sprintJpuNomor) {
+                    $('#nomor_surat_perintah_perpanjangan_penahanan').val(sprintJpuNomor);
+                }
+                if (sprintJpuTanggal) {
+                    $('#tanggal_surat_perintah_perpanjangan_penahanan').val(sprintJpuTanggal.toString().substring(0, 10));
+                }
                 if (akhir) {
-                    $('#pengadilan_negeri_akhir_tanggal').val(akhir.toString().substring(0, 10));
+                    var akhirStr = akhir.toString().substring(0, 10);
+                    $('#pengadilan_negeri_akhir_tanggal').val(akhirStr);
+                    var akhirDate = new Date(akhirStr);
+                    if (!isNaN(akhirDate.getTime())) {
+                        akhirDate.setDate(akhirDate.getDate() + 1);
+                        var yyyy = akhirDate.getFullYear();
+                        var mm = String(akhirDate.getMonth() + 1).padStart(2, '0');
+                        var dd = String(akhirDate.getDate()).padStart(2, '0');
+                        $('#tanggal_mulai_perpanjangan_penahanan').val(yyyy + '-' + mm + '-' + dd).trigger('change');
+                    }
                 }
             });
 
