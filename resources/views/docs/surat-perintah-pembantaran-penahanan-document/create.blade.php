@@ -925,6 +925,17 @@
                 var $field = $(fieldSelector);
                 if (!$field.length) return;
 
+                if ($field.is('table')) {
+                    $field.addClass('border border-danger is-invalid');
+                    var $wrapper = $field.closest('.table-responsive, .input-group');
+                    var $container = $wrapper.length ? $wrapper : $field;
+                    $container.siblings('.frontend-error, .invalid-feedback').remove();
+                    $container.next('.frontend-error, .invalid-feedback').remove();
+                    $container.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    if (Array.isArray(errorList)) errorList.push(message);
+                    return;
+                }
+
                 $field.addClass('is-invalid');
                 if ($field.next('.select2-container').length) {
                     $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
@@ -939,52 +950,54 @@
             }
 
             function scrollToFirstError() {
-                var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
-                if (!$firstError.length) {
-                    $firstError = $('.is-invalid, .border-danger').first();
-                }
-                if ($firstError && $firstError.length) {
-                    var $visibleTarget = $firstError;
-                    if (!$firstError.is(':visible')) {
-                        var $s2 = $firstError.next('.select2-container');
-                        if ($s2.length && $s2.is(':visible')) {
-                            $visibleTarget = $s2;
-                        } else {
-                            var $visParent = $firstError.closest('.input-group, .row, div:visible');
-                            if ($visParent.length) {
-                                $visibleTarget = $visParent;
+                setTimeout(function() {
+                    var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+                    if (!$firstError.length) {
+                        $firstError = $('.is-invalid, .border-danger').first();
+                    }
+                    if ($firstError && $firstError.length) {
+                        var $visibleTarget = $firstError;
+                        if (!$firstError.is(':visible')) {
+                            var $s2 = $firstError.next('.select2-container');
+                            if ($s2.length && $s2.is(':visible')) {
+                                $visibleTarget = $s2;
+                            } else {
+                                var $visParent = $firstError.closest('.input-group, .row, div:visible');
+                                if ($visParent.length) {
+                                    $visibleTarget = $visParent;
+                                }
                             }
                         }
-                    }
 
-                    var domEl = $visibleTarget[0];
-                    if (domEl && typeof domEl.scrollIntoView === 'function') {
-                        try {
-                            domEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        } catch (e) {
-                            domEl.scrollIntoView(true);
-                        }
-                    }
-
-                    var topPos = $visibleTarget.offset() ? $visibleTarget.offset().top : 0;
-                    $('html, body, .content-wrapper, .wrapper, main').stop().animate({
-                        scrollTop: Math.max(0, topPos - 130)
-                    }, 350);
-
-                    setTimeout(function() {
-                        if ($firstError.is('input:not([type="hidden"]), textarea') && $firstError.is(':visible')) {
-                            $firstError.trigger('focus');
-                        } else if ($firstError.is('select') || $visibleTarget.hasClass('select2-container')) {
+                        var domEl = $visibleTarget[0];
+                        if (domEl && typeof domEl.scrollIntoView === 'function') {
                             try {
-                                $firstError.select2('open');
+                                domEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             } catch (e) {
-                                $visibleTarget.find('.select2-selection').trigger('focus');
+                                domEl.scrollIntoView(true);
                             }
                         }
-                    }, 350);
-                } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
+
+                        var topPos = $visibleTarget.offset() ? $visibleTarget.offset().top : 0;
+                        $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                            scrollTop: Math.max(0, topPos - 120)
+                        }, 400);
+
+                        setTimeout(function() {
+                            if ($firstError.is('input:not([type="hidden"]), textarea') && $firstError.is(':visible')) {
+                                $firstError.trigger('focus');
+                            } else if ($firstError.is('select') || $visibleTarget.hasClass('select2-container')) {
+                                try {
+                                    $firstError.select2('open');
+                                } catch (e) {
+                                    $visibleTarget.find('.select2-selection').trigger('focus');
+                                }
+                            }
+                        }, 450);
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }, 100);
             }
 
             function checkInput(fieldSelector, label, errorList) {
@@ -1004,14 +1017,24 @@
             }
 
             // Real-time pembersihan error saat user mengetik atau memilih opsi
-            $(document).on('input change changeDate dp.change select2:select select2:clear', 'input, textarea, select', function() {
+            $(document).on('input change changeDate dp.change select2:select select2:clear select2:unselect blur', 'input, textarea, select', function() {
                 var $el = $(this);
                 if (hasFieldValue($el)) {
                     clearFieldError($el);
                 }
             });
 
-            // AJAX Validation handling on form submit with SweetAlert2
+            // Continuous watcher untuk input yang diupdate oleh plugin popover / datepicker
+            setInterval(function() {
+                $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
+                    var $field = $(this);
+                    if (hasFieldValue($field)) {
+                        clearFieldError($field);
+                    }
+                });
+            }, 200);
+
+            // AJAX Validation handling on form submit (Konsisten dengan BA-HAN: tanpa SweetAlert saat error)
             $('#s23Form').on('submit', function(e) {
                 e.preventDefault();
                 
@@ -1056,23 +1079,10 @@
                     markError('#lawTable', 'Minimal 1 Undang-Undang harus ditambahkan ke tabel', errors);
                 }
 
-                // Jika ada field kosong di frontend, tampilkan alert dan langsung fokus ke field pertama
+                // Jika ada field kosong di frontend, langsung scroll & fokus ke field pertama (tanpa SweetAlert)
                 if (errors.length > 0) {
                     $btn.prop('disabled', false).html(originalHtml);
-                    var errorHtml = '<ul class="text-start ps-3 mb-0" style="max-height: 220px; overflow-y: auto;">';
-                    $.each(errors, function(idx, msg) {
-                        errorHtml += '<li>' + msg + '</li>';
-                    });
-                    errorHtml += '</ul>';
-
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Periksa Isian Form',
-                        html: 'Terdapat <b>' + errors.length + '</b> data yang masih kosong atau belum valid:<br><br>' + errorHtml,
-                        confirmButtonText: 'Perbaiki Isian'
-                    }).then(function() {
-                        scrollToFirstError();
-                    });
+                    scrollToFirstError();
                     return false;
                 }
 
@@ -1127,20 +1137,8 @@
                                     }
                                 });
 
-                                var errorHtml = '<ul class="text-start ps-3 mb-0" style="max-height: 220px; overflow-y: auto;">';
-                                $.each(serverErrors, function(idx, msg) {
-                                    errorHtml += '<li>' + msg + '</li>';
-                                });
-                                errorHtml += '</ul>';
-
-                                return Swal.fire({
-                                    icon: 'error',
-                                    title: 'Mohon Periksa Kembali Isian Anda',
-                                    html: errorHtml,
-                                    confirmButtonText: 'Perbaiki Isian'
-                                }).then(function() {
-                                    scrollToFirstError();
-                                });
+                                scrollToFirstError();
+                                return false;
                             }
                         } catch (err) {}
 
