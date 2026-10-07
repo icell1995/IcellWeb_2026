@@ -1435,7 +1435,7 @@ class AccidentController extends Controller
             'tahap2Documents',
             'suratPermintaanIzinPenyitaanDocuments',
             'suratLaporanPersetujuanPenyitaanDocuments',
-            'suratPemberitahuanUpayaDiversiDocuments'
+            'suratPemberitahuanUpayaDiversiDocuments',
             'suratPermohonanPenetapanDiversiDocuments',
             'suratPemberitahuanUpayaDiversiDocuments',
         ];

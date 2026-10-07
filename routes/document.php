@@ -21,9 +21,7 @@ use App\Http\Controllers\Doc\Tahap1DocumentController;
 use App\Http\Controllers\Docs\P19DocumentController;
 use App\Http\Controllers\Docs\P21DocumentController;
 use App\Http\Controllers\Doc\Tahap2DocumentController;
-use App\Http\Controllers\Docs\Sp2hpDocumentController;
 use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
-use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
 use App\Http\Controllers\Docs\SuratPermintaanIzinPenyitaanController;
 use App\Http\Controllers\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
@@ -47,7 +45,6 @@ Route::prefix('/surat-pemberitahuan-upaya-diversi-document')->middleware(['docum
     Route::post('/generate-word', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'generateWord'])->name('doc.surat-pemberitahuan-upaya-diversi-document.generate-word');
     Route::post('/api/validate-request-form', [SuratPemberitahuanUpayaDiversiDocumentController::class, 'apiValidateRequestForm'])->name('doc.surat-pemberitahuan-upaya-diversi-document.api.validate-request-form');
 });
-use App\Http\Controllers\Docs\BeritaAcaraPenahananDocumentController;
 use App\Http\Controllers\Docs\SuratLaporanPersetujuanPenyitaanController;
 
 Route::post('/create', [DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');

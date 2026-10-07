@@ -23,7 +23,6 @@ use App\Helpers\PeopleNameHelper;
 use App\Models\Accident;
 use App\Models\Officer;
 use App\Models\Suspect;
-use App\Models\Witness;
 use App\Models\Informant;
 use App\Models\ReportedPerson;
 use App\Models\User;
@@ -45,7 +44,6 @@ use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyi
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocumentSeizedItem;
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocumentAttachment;
 use App\Models\Pivot\SuratPermintaanIzinPenyitaanDocumentSuspect;
-use App\Models\Pivot\SuratPermintaanIzinPenyitaanDocumentWitness;
 
 class SuratPermintaanIzinPenyitaanController extends Controller
 {
@@ -107,7 +105,6 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             ->get();
 
         $suspects = Suspect::where('accident_id', $accidentId)->get();
-        $witnesses = Witness::where('accident_id', $accidentId)->get();
         $informants = Informant::where('accident_id', $accidentId)->get();
         $reportedPersons = ReportedPerson::where('accident_id', $accidentId)->get();
 
@@ -152,7 +149,6 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             'authorizedSignatories' => $authorizedSignatories,
             'leaderOfficers' => $leaderOfficers,
             'suspects' => $suspects,
-            'witnesses' => $witnesses,
             'informants' => $informants,
             'reportedPersons' => $reportedPersons,
             'courts' => $courts,
@@ -374,25 +370,13 @@ class SuratPermintaanIzinPenyitaanController extends Controller
 
             // 3. (Dihapus: Laws dikelola dari Sprindik)
             // 4. Simpan tersangka atau saksi
-            if ($request->input('statusPihak') === 'Tersangka') {
-                $suspectIds = (array) $request->input('suspects', []);
-                foreach ($suspectIds as $suspectId) {
-                    if (!empty($suspectId)) {
-                        $pivotSuspect = new SuratPermintaanIzinPenyitaanDocumentSuspect();
-                        $pivotSuspect->surat_permintaan_izin_penyitaan_document_id = $documentId;
-                        $pivotSuspect->suspect_id = $suspectId;
-                        $pivotSuspect->save();
-                    }
-                }
-            } else if ($request->input('statusPihak') === 'Saksi') {
-                $witnessIds = (array) $request->input('witnesses', []);
-                foreach ($witnessIds as $witnessId) {
-                    if (!empty($witnessId)) {
-                        $pivotWitness = new SuratPermintaanIzinPenyitaanDocumentWitness();
-                        $pivotWitness->surat_permintaan_izin_penyitaan_document_id = $documentId;
-                        $pivotWitness->witness_id = $witnessId;
-                        $pivotWitness->save();
-                    }
+            $suspectIds = (array) $request->input('suspects', []);
+            foreach ($suspectIds as $suspectId) {
+                if (!empty($suspectId)) {
+                    $pivotSuspect = new SuratPermintaanIzinPenyitaanDocumentSuspect();
+                    $pivotSuspect->surat_permintaan_izin_penyitaan_document_id = $documentId;
+                    $pivotSuspect->suspect_id = $suspectId;
+                    $pivotSuspect->save();
                 }
             }
 
@@ -604,12 +588,9 @@ class SuratPermintaanIzinPenyitaanController extends Controller
         $currentLeaderOfficer = $officers->where('class', 'LEADER')->first();
 
         $suspects = Suspect::where('accident_id', $accidentId)->get();
-        $witnesses = Witness::where('accident_id', $accidentId)->get();
         $informants = Informant::where('accident_id', $accidentId)->get();
         $reportedPersons = ReportedPerson::where('accident_id', $accidentId)->get();
         $selectedReportedPersonIds = $document->reportedPersons()->pluck('public.reported_persons.id')->toArray();
-        $documentWitnesses = $document->documentWitnesses;
-        $selectedWitnessIds = $documentWitnesses->pluck('witness_id')->toArray();
 
         $courts = Court::where('is_active', true)
             ->orderBy('sort')
@@ -673,12 +654,9 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             'spdpDocuments' => $spdpDocuments,
             'authorizedSignatories' => $authorizedSignatories,
             'suspects' => $suspects,
-            'witnesses' => $witnesses,
             'informants' => $informants,
             'reportedPersons' => $reportedPersons,
             'selectedReportedPersonIds' => $selectedReportedPersonIds,
-            'documentWitnesses' => $documentWitnesses,
-            'selectedWitnessIds' => $selectedWitnessIds,
             'courts' => $courts,
             'prosecutors' => $prosecutors,
             'documentClassifications' => $documentClassifications,
@@ -910,32 +888,17 @@ class SuratPermintaanIzinPenyitaanController extends Controller
 
             // 3. (Dihapus: Laws dikelola dari Sprindik)
             // 4. Sync / update tersangka atau saksi
+            // 4. Sync / update tersangka atau terlapor
             SuratPermintaanIzinPenyitaanDocumentSuspect::where('surat_permintaan_izin_penyitaan_document_id', $id)->delete();
-            SuratPermintaanIzinPenyitaanDocumentWitness::where('surat_permintaan_izin_penyitaan_document_id', $id)->delete();
-            // JANGAN detach reportedPerson untuk S-12 lama!
-            // Tapi jika user mengubah ke Saksi atau Tersangka sekarang, biarkan reported_person lama karena kita hanya menambahkan Witness.
-            // Oh tunggu, jika disave ulang dan dia memilih Saksi, apakah kita detach reportedPerson? Ya, boleh di detach jika diedit.
             $document->reportedPersons()->detach();
             
-            if ($request->input('statusPihak') === 'Tersangka') {
-                $suspectIds = (array) $request->input('suspects', []);
-                foreach ($suspectIds as $suspectId) {
-                    if (!empty($suspectId)) {
-                        $pivotSuspect = new SuratPermintaanIzinPenyitaanDocumentSuspect();
-                        $pivotSuspect->surat_permintaan_izin_penyitaan_document_id = $id;
-                        $pivotSuspect->suspect_id = $suspectId;
-                        $pivotSuspect->save();
-                    }
-                }
-            } else if ($request->input('statusPihak') === 'Saksi') {
-                $witnessIds = (array) $request->input('witnesses', []);
-                foreach ($witnessIds as $witnessId) {
-                    if (!empty($witnessId)) {
-                        $pivotWitness = new SuratPermintaanIzinPenyitaanDocumentWitness();
-                        $pivotWitness->surat_permintaan_izin_penyitaan_document_id = $id;
-                        $pivotWitness->witness_id = $witnessId;
-                        $pivotWitness->save();
-                    }
+            $suspectIds = (array) $request->input('suspects', []);
+            foreach ($suspectIds as $suspectId) {
+                if (!empty($suspectId)) {
+                    $pivotSuspect = new SuratPermintaanIzinPenyitaanDocumentSuspect();
+                    $pivotSuspect->surat_permintaan_izin_penyitaan_document_id = $id;
+                    $pivotSuspect->suspect_id = $suspectId;
+                    $pivotSuspect->save();
                 }
             }
 
@@ -1292,11 +1255,8 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             $templateProcessor->setValue('block_suspects', '');
         }
 
-        $documentWitnesses = $document->documentWitnesses;
-        $hasWitnesses = $documentWitnesses && $documentWitnesses->isNotEmpty();
-
         $hasSuspects = $documentSuspects && $documentSuspects->isNotEmpty();
-        $suspectExistText = $hasSuspects ? 'tersangka dengan identitas sebagai berikut:' : 'saksi dengan identitas sebagai berikut:';
+        $suspectExistText = $hasSuspects ? 'tersangka/saksi dengan identitas sebagai berikut:' : 'saksi dengan identitas sebagai berikut:';
         $suspectNameVal = '-';
         $suspectNikVal = '-';
         $suspectNatVal = '-';
@@ -1323,7 +1283,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                 if ($s) {
                     $sNames[] = $s->full_name ?? ($s->name ?? '-');
                     $sNiks[] = $s->id_card_number ?? ($s->identity_number ?? '-');
-                    $natVal = $s->nationality ?? '-';
+                    $natVal = !empty($s->nationality) ? $s->nationality : '-';
                     $sNats[] = $natVal;
                     $sGenders[] = $s->gender->name ?? ($s->gender_name ?? ($s->gender == 'M' || $s->gender == '1' ? 'Laki-laki' : ($s->gender == 'F' || $s->gender == '2' ? 'Perempuan' : '-')));
                     $sBirthPlaces[] = $s->birth_place ?? '-';
@@ -1353,70 +1313,8 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                 $suspectReligionVal = implode(', ', array_unique($sReligions));
                 $suspectAddressVal = implode('; ', $sAddresses);
             }
-        } elseif ($hasWitnesses) {
-            // Jika ada data saksi
-            $sNames = [];
-            $sNiks = [];
-            $sNats = [];
-            $sGenders = [];
-            $sBirthPlaces = [];
-            $sBirthDates = [];
-            $sJobs = [];
-            $sReligions = [];
-            $sAddresses = [];
-
-            foreach ($documentWitnesses as $dw) {
-                $w = $dw->witness;
-                if ($w) {
-                    $sNames[] = !empty($w->name) ? $w->name : '-';
-                    $sNiks[] = !empty($w->identity_number) ? $w->identity_number : (!empty($w->id_card_number) ? $w->id_card_number : '-');
-                    $natVal = $w->nationality ?? '-';
-                    $sNats[] = $natVal;
-
-                    if (!empty($w->is_unknown_gender)) {
-                        $sGenders[] = 'TIDAK DIKETAHUI';
-                    } elseif (!empty($w->gender_id)) {
-                        $gName = \App\Models\Lib\Gender::find($w->gender_id)?->name;
-                        $sGenders[] = $gName ? ucwords(strtolower($gName)) : '-';
-                    } elseif (!empty($w->gender)) {
-                        $gStr = strtoupper((string) $w->gender);
-                        $sGenders[] = ($gStr === '1' || $gStr === 'M' || $gStr === 'L' || $gStr === 'LAKI-LAKI') ? 'Laki-laki' : (($gStr === '2' || $gStr === 'F' || $gStr === 'P' || $gStr === 'PEREMPUAN') ? 'Perempuan' : '-');
-                    } else {
-                        $sGenders[] = '-';
-                    }
-
-                    $sBirthPlaces[] = !empty($w->birth_place) ? ucwords(strtolower(trim($w->birth_place))) : '-';
-                    $sBirthDates[] = !empty($w->birth_date) ? Carbon::parse($w->birth_date)->locale('id')->translatedFormat('d F Y') : '-';
-                    
-                    $sJobs[] = \App\Models\Lib\Job::find($w->job_id)?->name ?? '-';
-                    $sReligions[] = \App\Models\Lib\Religion::find($w->religion_id)?->name ?? '-';
-
-                    $fullAddr = $w->address ?? '';
-                    $vill = \App\Models\Lib\Location::find($w->village_id)?->name;
-                    if (!empty($vill)) $fullAddr .= ', ' . $vill;
-                    $dist = \App\Models\Lib\Location::find($w->district_id)?->name;
-                    if (!empty($dist)) $fullAddr .= ', ' . $dist;
-                    $reg = \App\Models\Lib\Location::find($w->regency_id)?->name;
-                    if (!empty($reg)) $fullAddr .= ', ' . $reg;
-                    $prov = \App\Models\Lib\Location::find($w->province_id)?->name;
-                    if (!empty($prov)) $fullAddr .= ', ' . $prov;
-                    $sAddresses[] = $fullAddr ?: '-';
-                }
-            }
-
-            if (!empty($sNames)) {
-                $suspectNameVal = implode(', ', $sNames);
-                $suspectNikVal = implode(', ', $sNiks);
-                $suspectNatVal = implode(', ', array_unique($sNats));
-                $suspectGenderVal = implode(', ', $sGenders);
-                $suspectBirthPlaceVal = implode(', ', $sBirthPlaces);
-                $suspectBirthDateVal = implode(', ', $sBirthDates);
-                $suspectJobVal = implode(', ', $sJobs);
-                $suspectReligionVal = implode(', ', array_unique($sReligions));
-                $suspectAddressVal = implode('; ', $sAddresses);
-            }
         } else {
-            // Jika tidak ada tersangka maupun saksi, fallback ke data reported_person (legacy S-12)
+            // Jika tidak ada tersangka, gunakan data reported_person yang dipilih
             $reportedPersons = $document->reportedPersons()->withRelated()->get();
 
             if ($reportedPersons->isNotEmpty()) {
@@ -1434,8 +1332,11 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                     $rNames[] = !empty($reportedPerson->name) ? $reportedPerson->name : '-';
                     $rNiks[] = !empty($reportedPerson->identity_number) ? $reportedPerson->identity_number : (!empty($reportedPerson->id_card_number) ? $reportedPerson->id_card_number : '-');
 
-                    $nat = $reportedPerson->nationality->name ?? '-';
-                    $rNats[] = $nat;
+                    $nat = $reportedPerson->country->name ?? ($reportedPerson->citizenship ?? 'Indonesia');
+                    if (strtoupper($nat) === 'WNI') {
+                        $nat = 'Indonesia';
+                    }
+                    $rNats[] = !empty($nat) ? $nat : 'Indonesia';
 
                     if (!empty($reportedPerson->is_unknown_gender)) {
                         $rGenders[] = 'TIDAK DIKETAHUI';
@@ -1960,17 +1861,9 @@ class SuratPermintaanIzinPenyitaanController extends Controller
 
             // (Dihapus: Laws dikelola dari Sprindik)
 
-            'statusPihak' => [
-                'required',
-                'in:Tersangka,Saksi'
-            ],
-
-            // Daftar Tersangka optional, min 1 jika diisi dan harus terdaftar pada kasus kecelakaan
+            // Daftar Tersangka required min 1
             'suspects' => [
-                Rule::requiredIf(function () use ($request) {
-                    return $request->input('statusPihak') === 'Tersangka';
-                }),
-                'nullable',
+                'required',
                 'array',
             ],
             'suspects.*' => [
@@ -1989,29 +1882,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
                 },
             ],
 
-            // Daftar Saksi optional, min 1 jika diisi dan harus terdaftar pada kasus kecelakaan
-            'witnesses' => [
-                Rule::requiredIf(function () use ($request) {
-                    return $request->input('statusPihak') === 'Saksi';
-                }),
-                'nullable',
-                'array',
-            ],
-            'witnesses.*' => [
-                'required',
-                'uuid',
-                Rule::exists(Witness::class, 'id'),
-                function ($attribute, $value, $fail) use ($effectiveAccidentId) {
-                    if (!empty($value) && !empty($effectiveAccidentId)) {
-                        $belongsToAccident = Witness::where('id', $value)
-                            ->where('accident_id', $effectiveAccidentId)
-                            ->exists();
-                        if (!$belongsToAccident) {
-                            $fail('Saksi yang dipilih tidak terdaftar pada kecelakaan ini.');
-                        }
-                    }
-                },
-            ],
+
 
             // Daftar Barang Sitaan optional, min 1 jika diisi
             'seized_items' => 'nullable|array',

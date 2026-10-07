@@ -438,39 +438,11 @@
                             }
                             $currentSelectedSuspectIds = old('suspects', $selectedSuspectIds ?? []);
                             $hasSuspectsInDoc = count($currentSelectedSuspectIds) > 0;
-                            $currentSelectedWitnessIds = old('witnesses', $selectedWitnessIds ?? []);
-                            $hasWitnessesInDoc = count($currentSelectedWitnessIds) > 0;
-                            
-                            $statusPihakVal = old('statusPihak', $hasSuspectsInDoc ? 'Tersangka' : ($hasWitnessesInDoc ? 'Saksi' : 'Tersangka')); // default Tersangka for old data if both empty (though legacy had Saksi as reportedPerson)
-                            // If they have legacy reportedPerson, we might want to default to Saksi, but let's see. If they have suspects, Tersangka. If not, Saksi.
-                            if (!$hasSuspectsInDoc && count($selectedReportedPersonIds) > 0 && !$hasWitnessesInDoc && !old('statusPihak')) {
-                                $statusPihakVal = 'Saksi';
-                            }
+
                         @endphp
 
-                        <!-- Opsi Status Pihak -->
-                        <div class="input-group row mb-3 ms-0">
-                            <label class="fw-bold col-sm-3 col-form-label">Status Pihak Terkait Barang Sitaan<span class="text-danger fs-5">*</span></label>
-                            <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                <div class="d-flex align-items-center h-100">
-                                    <div class="form-check me-4">
-                                        <input class="form-check-input statusPihak" type="radio" id="statusTersangka" name="statusPihak" value="Tersangka" {{ $statusPihakVal == 'Tersangka' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold" for="statusTersangka">
-                                            Tersangka
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input statusPihak" type="radio" id="statusSaksi" name="statusPihak" value="Saksi" {{ $statusPihakVal == 'Saksi' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold" for="statusSaksi">
-                                            Saksi
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Form Tersangka (Jika Tersangka) -->
-                        <div id="suspectExistsSection" {{ $statusPihakVal == 'Saksi' ? 'style=display:none;' : '' }}>
+                        <!-- Form Tersangka -->
+                        <div>
                             <div class="alert alert-success">
                                 <div class="text-center">
                                     <b>
@@ -514,49 +486,13 @@
                             </div>
                         </div>
 
-                        <!-- Form Saksi (Jika Saksi) -->
-                        <div id="suspectNotExistsSection" {{ $statusPihakVal == 'Tersangka' ? 'style=display:none;' : '' }}>
-                            <div class="alert alert-success">
-                                <div class="text-center">
-                                    <b>PASTIKAN DATA SAKSI SUDAH TERSEDIA PADA DATA LP SEBELUM MEMBUAT DOKUMEN INI.</b>
-                                </div>
-                            </div>
-
-                            <div class="input-group row mb-3 ms-0">
-                                <label class="fw-bold col-sm-3 col-form-label" for="witnesses">
-                                    Pilih Saksi<span class="text-danger fs-5">*</span>
-                                </label>
-                                <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                                    <select class="form-control select2-multiple @error('witnesses') is-invalid @enderror"
-                                        name="witnesses[]" id="witnesses" multiple="multiple"
-                                        data-placeholder="Pilih Saksi Terkait (Bisa Lebih Dari Satu)">
-                                        @foreach ($witnesses as $witness)
-                                            @php
-                                                $isWitnessSelected = is_array($currentSelectedWitnessIds) && in_array($witness->id, $currentSelectedWitnessIds);
-                                                // Fallback legacy: if no witness selected, but this witness's identity matches a selected reportedPerson's identity, we might select it?
-                                                // Wait, requirement: "Jangan merusak data S-12 lama". So we don't migrate, we just let them pick.
-                                            @endphp
-                                            <option value="{{ $witness->id }}" {{ $isWitnessSelected ? 'selected' : '' }}>
-                                                {{ $witness->name }} @if(!empty($witness->id_card_number)) (NIK: {{ $witness->id_card_number }}) @elseif(!empty($witness->identity_number)) (NIK: {{ $witness->identity_number }}) @endif
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('witnesses')
-                                        <span class="invalid-feedback d-block" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-
-
-
-                        </div>
 
                         <!-- 3. DAFTAR BARANG YANG DIMINTAKAN IZIN PENYITAAN -->
-                        <div class="mb-4 mt-4 border-top pt-3">
-                            <div class="d-flex justify-content-between align-items-center mb-3" style="padding-left: 15px; padding-right: 15px;">
+                        <div class="mx-0 mb-4 mt-4 border-top pt-3 row align-items-center">
+                            <div class="col-lg-3 col-md-3 col-sm-12 mb-4" style="padding-left: 15px; padding-right: 15px;">
                                 <h6 class="fw-bold mb-0 text-dark">Daftar Barang yang Dimintakan Izin Penyitaan</h6>
+                            </div>
+                            <div class="col-lg-9 col-md-9 col-sm-12 mb-4">                            
                                 <button class="btn btn-md btn-primary" id="addSeizedItemRowButton" type="button"
                                     data-bs-toggle="modal" data-bs-target="#addSeizedItemModal">
                                     <i class="bi bi-plus-circle me-1"></i> Tambah Barang Sitaan
@@ -576,8 +512,9 @@
                                     </thead>
                                     <tbody id="seizedItemTableBody">
                                         @php
-                                            if (old('seized_items')) {
+                                            if (old('seized_items') !== null) {
                                                 $renderItems = old('seized_items');
+                                                if (!is_array($renderItems)) $renderItems = [];
                                             } elseif ($seizedItems && count($seizedItems) > 0) {
                                                 $renderItems = $seizedItems->map(function($s) {
                                                     return [
@@ -892,22 +829,7 @@
                 $('#attentionBox').toggleClass('alert-danger alert-warning');
             }, 1000);
 
-            // Toggle Ada Tersangka / Tidak Ada Tersangka
-            $(document).on('change', '.statusPihak', function() {
-                var statusPihak = $(this).val();
 
-                if (statusPihak === 'Tersangka') {
-                    $('#suspectExistsSection').show();
-                    $('#suspectNotExistsSection').hide();
-                } else if (statusPihak === 'Saksi') {
-                    $('#suspectExistsSection').hide();
-                    $('#suspectNotExistsSection').show();
-                }
-
-                $('#suspects, #witnesses').removeClass('is-invalid');
-                $('#suspects, #reportedPerson, #witnesses').next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
-                $('#suspectExistsSection, #suspectNotExistsSection').find('.frontend-error, .invalid-feedback').remove();
-            });
 
             $('.select2').select2({
                 theme: 'bootstrap4',
@@ -1261,14 +1183,8 @@
                 } else if (!hasSp) {
                     markError($('input[name="has_surat_perintah_penyitaan"]').closest('.col-lg-9'), 'Pilihan Ada/Tidak Ada SPRINSITA wajib dipilih.');
                 }
-                if ($('.statusPihak:checked').val() === 'Tersangka') {
-                    if (!$('#suspects').val() || $('#suspects').val().length === 0) {
-                        markError($('#suspects'), 'Tersangka yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan harus diisi.');
-                    }
-                } else {
-                    if (!$('#witnesses').val() || $('#witnesses').val().length === 0) {
-                        markError($('#witnesses'), 'Saksi tidak boleh kosong.');
-                    }
+                if (!$('#suspects').val() || $('#suspects').val().length === 0) {
+                    markError($('#suspects'), 'Tersangka yang disebutkan di dalam S.P. Izin Penyitaan ke Pengadilan harus diisi.');
                 }
                 var selSprindik = $('#surat_perintah_penyidikan_document_id').find(':selected');
                 if (selSprindik.data('number') && !$('#sprindik_number').val()) {
