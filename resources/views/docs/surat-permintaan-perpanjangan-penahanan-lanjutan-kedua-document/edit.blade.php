@@ -8,6 +8,19 @@
     <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+    <style>
+        .select-readonly + .select2-container {
+            pointer-events: none !important;
+        }
+        .select-readonly + .select2-container .select2-selection {
+            background-color: #e9ecef !important;
+            cursor: not-allowed !important;
+            border-color: #ced4da !important;
+        }
+        .select-readonly + .select2-container .select2-selection__arrow {
+            display: none !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -229,7 +242,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="surat_perintah_penahanan_document_id">Pilih Dokumen S-17 Terkait (Opsional)</label>
-                            <select class="form-control select2" name="surat_perintah_penahanan_document_id" id="surat_perintah_penahanan_document_id">
+                            <select class="form-control select2 select-readonly" name="surat_perintah_penahanan_document_id" id="surat_perintah_penahanan_document_id" tabindex="-1" style="pointer-events: none; background-color: #e9ecef;">
                                 <option value="">-- Hubungkan Dokumen S-17 --</option>
                                 @if(isset($s17Documents))
                                     @foreach($s17Documents as $s17)
@@ -239,7 +252,7 @@
                                     @endforeach
                                 @endif
                             </select>
-                            <small class="text-muted">Pilih dokumen S-17 untuk menautkan relasi dan mengisi otomatis nomor & tanggal di bawah.</small>
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Terhubung otomatis dari relasi berkas penahanan S-17 dan tidak dapat diubah.</small>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_surat_perintah_penahanan">Nomor Sprint Penahanan<span class="text-danger fs-5">*</span></label>
@@ -267,7 +280,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id">Pilih Dokumen S-21 Terkait (Opsional)</label>
-                            <select class="form-control select2" name="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id" id="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id">
+                            <select class="form-control select2 select-readonly" name="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id" id="surat_permohonan_perpanjangan_penahanan_kejaksaan_document_id" tabindex="-1" style="pointer-events: none; background-color: #e9ecef;">
                                 <option value="">-- Hubungkan Dokumen S-21 --</option>
                                 @if(isset($s21Documents))
                                     @foreach($s21Documents as $s21)
@@ -277,7 +290,7 @@
                                     @endforeach
                                 @endif
                             </select>
-                            <small class="text-muted">Pilih dokumen S-21 untuk menautkan relasi dan mengisi otomatis nomor & tanggal di bawah.</small>
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Terhubung otomatis dari relasi perpanjangan Kejaksaan S-21 dan tidak dapat diubah.</small>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_surat_perpanjangan_kejaksaan">Nomor Perpanjangan Kejaksaan<span class="text-danger fs-5">*</span></label>
@@ -331,7 +344,7 @@
                     <div class="row">
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id">Pilih Dokumen S-22 Pertama Terkait (Opsional)</label>
-                            <select class="form-control select2" name="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id" id="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id">
+                            <select class="form-control select2 select-readonly" name="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id" id="surat_permintaan_perpanjangan_penahanan_lanjutan_document_id" tabindex="-1" style="pointer-events: none; background-color: #e9ecef;">
                                 <option value="">-- Hubungkan Dokumen S-22 Pertama --</option>
                                 @if(isset($s22PertamaDocuments))
                                     @foreach($s22PertamaDocuments as $s22p)
@@ -341,7 +354,7 @@
                                     @endforeach
                                 @endif
                             </select>
-                            <small class="text-muted">Pilih permohonan S-22 pertama untuk menautkan relasi dan mengisi otomatis rujukan KPN1.</small>
+                            <small class="text-muted"><i class="bi bi-info-circle"></i> Terhubung otomatis dari permohonan S-22 Pertama dan tidak dapat diubah.</small>
                         </div>
                         <div class="col-12 mb-2">
                             <label class="fw-bold" for="nomor_sket_perpanjangan_kpn_pertama">Nomor S.Ket Perpanjangan KPN1<span class="text-danger fs-5">*</span></label>
@@ -480,6 +493,7 @@
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <textarea id="alasan_perpanjangan" class="form-control @error('alasan_perpanjangan') is-invalid @enderror" name="alasan_perpanjangan" rows="3"
                             placeholder="Masukkan alasan mengapa masa penahanan perlu diperpanjang..." required>{{ old('alasan_perpanjangan', $document->alasan_perpanjangan) }}</textarea>
+                        <small class="text-muted"><i class="bi bi-info-circle"></i> Masukkan alasan perpanjangan penahanan lanjutan kedua. Data ini tersimpan mandiri pada form S-22 Kedua dan tidak mengubah dokumen S-22 Pertama.</small>
                         @error('alasan_perpanjangan')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -703,6 +717,14 @@
             $('.select2').select2({
                 theme: 'bootstrap4',
                 width: '100%'
+            });
+
+            $('.select-readonly').each(function() {
+                $(this).next('.select2-container').find('.select2-selection').attr('tabindex', '-1');
+            });
+            $('.select-readonly').on('select2:opening', function(e) {
+                e.preventDefault();
+                return false;
             });
 
             $('[data-provide="datepicker"]').datepicker({

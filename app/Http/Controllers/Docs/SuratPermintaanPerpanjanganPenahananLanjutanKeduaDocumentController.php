@@ -204,7 +204,7 @@ class SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController extend
             : (!empty($accident->damage_lose_desc)
                 ? $accident->damage_lose_desc
                 : 'kecelakaan lalu lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka berat dan/atau kerusakan kendaraan');
-        $defaultAlasan = $firstExtensionDoc->alasan_perpanjangan ?? 'Pemeriksaan terhadap tersangka dan saksi-saksi tambahan belum selesai serta masih memerlukan kelengkapan berkas perkara.';
+        $defaultAlasan = null;
 
         // Master Data untuk Undang-Undang yang Dikenakan
         $crimeTypes = CrimeType::active()->orderBy('sort')->get();
