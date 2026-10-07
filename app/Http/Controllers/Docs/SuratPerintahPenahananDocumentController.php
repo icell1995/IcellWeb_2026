@@ -186,7 +186,10 @@ class SuratPerintahPenahananDocumentController extends Controller
         $kodeJenisPenahanan = intval($request->kode_jenis_penahanan);
         $kodeSatkerTempatPenahanan = $request->kode_satker_tempat_penahanan ? htmlspecialchars($request->kode_satker_tempat_penahanan) : null;
         $tanggalMulai = htmlspecialchars($request->tanggal_mulai);
-        $tanggalAkhir = htmlspecialchars($request->tanggal_akhir);
+        $tanggalAkhir = $request->tanggal_akhir ? htmlspecialchars($request->tanggal_akhir) : Carbon::parse($tanggalMulai)->addDays(19)->format('Y-m-d');
+        if ($tanggalMulai) {
+            $tanggalAkhir = Carbon::parse($tanggalMulai)->addDays(19)->format('Y-m-d');
+        }
 
         $suspectIds = $request->suspects ?? [];
         $signatoryId = htmlspecialchars($request->signatory);
@@ -525,7 +528,10 @@ class SuratPerintahPenahananDocumentController extends Controller
         $kodeJenisPenahanan = intval($request->kode_jenis_penahanan);
         $kodeSatkerTempatPenahanan = $request->kode_satker_tempat_penahanan ? htmlspecialchars($request->kode_satker_tempat_penahanan) : null;
         $tanggalMulai = htmlspecialchars($request->tanggal_mulai);
-        $tanggalAkhir = htmlspecialchars($request->tanggal_akhir);
+        $tanggalAkhir = $request->tanggal_akhir ? htmlspecialchars($request->tanggal_akhir) : Carbon::parse($tanggalMulai)->addDays(19)->format('Y-m-d');
+        if ($tanggalMulai) {
+            $tanggalAkhir = Carbon::parse($tanggalMulai)->addDays(19)->format('Y-m-d');
+        }
 
         $suspectIds = $request->suspects ?? [];
         $signatoryId = htmlspecialchars($request->signatory);
@@ -1006,6 +1012,26 @@ class SuratPerintahPenahananDocumentController extends Controller
         $templateProcessor->setValue('lokasi_penahanan_text', $penetapanTempatPenahananText);
         $templateProcessor->setValue('detentionPlace', $penetapanTempatPenahananText);
 
+        // Tanggal Mulai dan Tanggal Akhir Penahanan (20 Hari)
+        $tglMulaiRaw = $document->tanggal_mulai ?? $document->start_date;
+        $tglAkhirRaw = $document->tanggal_akhir ?? $document->end_date;
+
+        $detentionStartDate = $tglMulaiRaw ? Carbon::parse($tglMulaiRaw)->locale('id')->translatedFormat('d F Y') : '-';
+        if ($tglAkhirRaw) {
+            $detentionEndDate = Carbon::parse($tglAkhirRaw)->locale('id')->translatedFormat('d F Y');
+        } elseif ($tglMulaiRaw) {
+            $detentionEndDate = Carbon::parse($tglMulaiRaw)->addDays(19)->locale('id')->translatedFormat('d F Y');
+        } else {
+            $detentionEndDate = '-';
+        }
+
+        $templateProcessor->setValue('detentionStartDate', $detentionStartDate);
+        $templateProcessor->setValue('detentionEndDate', $detentionEndDate);
+        $templateProcessor->setValue('tanggal_mulai', $detentionStartDate);
+        $templateProcessor->setValue('tanggal_akhir', $detentionEndDate);
+        $templateProcessor->setValue('detention_start_date', $detentionStartDate);
+        $templateProcessor->setValue('detention_end_date', $detentionEndDate);
+
         // Data Tersangka
         if ($firstSuspect) {
             $templateProcessor->setValue('suspectName', $firstSuspect->name);
@@ -1484,7 +1510,7 @@ class SuratPerintahPenahananDocumentController extends Controller
             'kode_jenis_penahanan'         => intval($document->kode_jenis_penahanan ?: 1),
             'kode_satker_tempat_penahanan' => !empty($document->kode_satker_tempat_penahanan) ? (string) $document->kode_satker_tempat_penahanan : null,
             'tanggal_mulai'                => $document->tanggal_mulai ? Carbon::parse($document->tanggal_mulai)->format('Y-m-d') : ($document->start_date ? Carbon::parse($document->start_date)->format('Y-m-d') : date('Y-m-d')),
-            'tanggal_akhir'                => $document->tanggal_akhir ? Carbon::parse($document->tanggal_akhir)->format('Y-m-d') : ($document->end_date ? Carbon::parse($document->end_date)->format('Y-m-d') : date('Y-m-d')),
+            'tanggal_akhir'                => $document->tanggal_akhir ? Carbon::parse($document->tanggal_akhir)->format('Y-m-d') : ($document->end_date ? Carbon::parse($document->end_date)->format('Y-m-d') : ($document->tanggal_mulai ? Carbon::parse($document->tanggal_mulai)->addDays(19)->format('Y-m-d') : date('Y-m-d'))),
             'pejabat_penandatangan'        => $pejabatPenandatangan,
         ];
 
