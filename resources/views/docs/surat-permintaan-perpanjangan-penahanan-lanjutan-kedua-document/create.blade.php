@@ -493,7 +493,6 @@
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <textarea id="alasan_perpanjangan" class="form-control @error('alasan_perpanjangan') is-invalid @enderror" name="alasan_perpanjangan" rows="3"
                             placeholder="Masukkan alasan mengapa masa penahanan perlu diperpanjang..." required>{{ old('alasan_perpanjangan', $defaultAlasan) }}</textarea>
-                        <small class="text-muted"><i class="bi bi-info-circle"></i> Masukkan alasan perpanjangan penahanan lanjutan kedua. Data ini tersimpan mandiri pada form S-22 Kedua dan tidak mengubah dokumen S-22 Pertama.</small>
                         @error('alasan_perpanjangan')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
