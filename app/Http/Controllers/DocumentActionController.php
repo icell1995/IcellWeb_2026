@@ -17,9 +17,16 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument;
 use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
 use App\Models\BeritaAcaraPenahanan;
 use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocument;
+use App\Models\Doc\SuratPerintahPencabutanPenangguhanPenahananDocument\SuratPerintahPencabutanPenangguhanPenahananDocument;
+use App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument;
+use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument;
+use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument;
+use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument;
 use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
 use App\Models\Doc\Tahap1Document\Tahap1Document;
@@ -283,6 +290,7 @@ class DocumentActionController extends Controller
                 SuratPemberitahuanDimulainyaPenyidikanDocument::class,
                 \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class
             ],
+            '0212' => SuratPermohonanPenetapanDiversiDocument::class,
             '0211' => SuratPemberitahuanUpayaDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
             '0404' => \App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument::class,
@@ -294,6 +302,12 @@ class DocumentActionController extends Controller
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,
+            '0603' => SuratPerintahPenangguhanPenahananDocument::class,
+            '0604' => SuratPerintahPencabutanPenangguhanPenahananDocument::class,
+            '0605' => SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
+            '0606' => SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
+            '0607' => SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
+            '0608' => SuratPerintahPembantaranPenahananDocument::class,
             '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
             '0806' => Tahap1Document::class,
             '0807' => Tahap2Document::class,

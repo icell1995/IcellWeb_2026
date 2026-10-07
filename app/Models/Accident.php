@@ -169,6 +169,15 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument', 'accident_id', 'id');
     }
 
+    public function suratPermohonanPenetapanDiversiDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
     public function suratPemberitahuanUpayaDiversiDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument', 'accident_id', 'id')
@@ -242,6 +251,36 @@ class Accident extends Model
             ->with([
                 'documentCategory',
                 'attachment'
+            ]);
+    }
+
+    public function suratPermintaanPerpanjanganPenahananLanjutanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment',
+                'createdByUser',
+            ]);
+    }
+
+    public function suratPermintaanPerpanjanganPenahananLanjutanKeduaDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment',
+                'createdByUser',
+            ]);
+    }
+
+    public function suratPerintahPembantaranPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment',
+                'createdByUser',
             ]);
     }
 

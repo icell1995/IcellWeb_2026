@@ -88,6 +88,9 @@ class AccidentController extends Controller
         $allPolresIds = $this->getEffectivePolresId($user->polres_id);
         $allPoldasIds = $this->getEffectivePoldaId($user->polda_id);
 
+        $apiPolda = '-';
+        $apiPolres = '-';
+
         switch ($user->role_id) {
             case 2:
                 $poldas = Polda::where('id', '=', $user->polda_id)->get();
@@ -130,6 +133,9 @@ class AccidentController extends Controller
                 $polress = Polres::where('id', '=', $user->polres_id)->get();
                 $polda = $user->polda_id;
                 $polres = $user->polres_id;
+
+                $apiPolda = $user->polda_id;
+                $apiPolres = $user->polres_id;
 
                 /*$polres = TranslateIdHelper::getTranslatePoliceResorId(
                     regionalId: $polda,
@@ -1412,6 +1418,7 @@ class AccidentController extends Controller
             'suratKetetapanTentangPenetapanTersangkaDocuments',
             'suratPemberitahuanDimulainyaPenyidikanDocuments',
             'suratPemberitahuanPerkembanganHasilPenyidikanDocuments',
+            'suratPermohonanPenetapanDiversiDocuments',
             'beritaAcaraPenahananDocuments',
             'suratPermintaanPenggeledahanDocuments',
             'suratGunaMemperolehPersetujuanPenggeledahanDocuments',
@@ -1421,11 +1428,16 @@ class AccidentController extends Controller
             'suratPermohonanPerpanjanganPenahananKejaksaanDocuments',
             'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments',
             'suratPemberitahuanPenghentianPenyidikanDocuments',
+            'suratPermintaanPerpanjanganPenahananLanjutanDocuments',
+            'suratPermintaanPerpanjanganPenahananLanjutanKeduaDocuments',
+            'suratPerintahPembantaranPenahananDocuments',
             'tahap1Documents',
             'tahap2Documents',
             'suratPermintaanIzinPenyitaanDocuments',
             'suratLaporanPersetujuanPenyitaanDocuments',
             'suratPemberitahuanUpayaDiversiDocuments'
+            'suratPermohonanPenetapanDiversiDocuments',
+            'suratPemberitahuanUpayaDiversiDocuments',
         ];
 
         $accidentDocument = Accident::with($documentTypes)
