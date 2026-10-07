@@ -806,7 +806,7 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'category' => $categoryType,
                 'route' => 'doc.berita-acara-penahanan-document.create',
                 'base_route' => 'doc.berita-acara-penahanan-document',
-                'is_digital_signature' => true,
+                'is_digital_signature' => false,
                 'model_class' => 'App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument',
                 'alt_code' => 'berita-acara-penahanan-document',
                 'is_case_finish' => false,
