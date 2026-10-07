@@ -762,9 +762,9 @@ class SuratPerintahPenahananDocumentController extends Controller
             'suspects.maritalStatus',
             'suspects.country',
             'signatory.rank',
-            'signatory.position',
+            'signatory.position.positionCluster',
             'suratPerintahPenahananDocumentOfficers.rank',
-            'suratPerintahPenahananDocumentOfficers.position',
+            'suratPerintahPenahananDocumentOfficers.position.positionCluster',
             'suratPerintahPenyidikanDocument',
             'suratKetetapanTentangPenetapanTersangkaDocument'
         ])->where('id', $id)->firstOrFail();
@@ -1054,32 +1054,40 @@ class SuratPerintahPenahananDocumentController extends Controller
         }
 
         // Pejabat Penandatangan
+        $polresFullName = strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? ''));
+        $poldaFullName = strtoupper($accident->polres->polda->full_name ?? ($accident->polres->polda->name ?? ''));
+
+        $signatory = $signatory ?? ($document->suratPerintahPenahananDocumentOfficers ? $document->suratPerintahPenahananDocumentOfficers->where('class', 'SIGNATORY')->first() : null);
         $signatoryName = '-';
         $signatoryRankName = '-';
         $signatoryRegisterNumber = '-';
-        $signatoryPosition = '-';
-        $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? '');
-        $signatoryPositionHeadText = '';
+        $signatoryPositionName = 'KASAT LANTAS';
+        $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
 
         if ($signatory) {
             $signatoryName = PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title);
             $signatoryRankName = strtoupper($signatory->rank->name ?? '');
             $signatoryRegisterNumber = $signatory->register_number ?? '-';
-            $signatoryPosition = $signatory->position->name ?? '';
 
-            if (isset($signatory->position)) {
-                if ($signatory->position->position_cluster_id == '1') {
-                    $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? '');
-                    $signatoryPositionHeadText = '';
-                } else {
-                    $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? '');
-                    $signatoryPositionHeadText = strtoupper($signatoryPosition);
-                }
+            $signatoryPositionObj = $signatory->position;
+            $clusterId = $signatoryPositionObj?->position_cluster_id ?? ($signatoryPositionObj?->positionCluster?->id ?? null);
+            $aliasName = strtoupper($signatoryPositionObj?->positionCluster?->alias_name ?? ($signatoryPositionObj?->name ?? 'KASAT LANTAS'));
+
+            if ($clusterId == '1') {
+                $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = '';
+            } else if ($clusterId == '9') {
+                $signatoryHeadText = 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName;
+                $signatoryPositionName = $aliasName;
+            } else {
+                $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = $aliasName;
             }
         }
 
         $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText);
-        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPositionHeadText);
+        $templateProcessor->setValue('signatoryPositionName', $signatoryPositionName);
+        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPositionName);
         $templateProcessor->setValue('signatoryName', $signatoryName);
         $templateProcessor->setValue('signatoryRankName', $signatoryRankName);
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);

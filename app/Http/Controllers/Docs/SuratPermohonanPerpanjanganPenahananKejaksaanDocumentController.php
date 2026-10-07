@@ -897,6 +897,7 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
 
         $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText);
         $templateProcessor->setValue('signatoryPositionName', $signatoryPosition);
+        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPosition);
         $templateProcessor->setValue('signatoryName', $signatoryName);
         $templateProcessor->setValue('signatoryRankName', strtoupper($signatoryRank));
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryNrp);
