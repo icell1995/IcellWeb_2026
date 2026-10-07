@@ -158,7 +158,7 @@
                             <option value="">-- Pilih Kejaksaan --</option>
                             @foreach ($prosecutors as $prosecutor)
                                 <option value="{{ $prosecutor->id }}"
-                                    data-location="{{ $prosecutor->address ?? $prosecutor->name }}"
+                                    data-location="{{ $prosecutor->regency ? ucwords(strtolower($prosecutor->regency->name)) : ($prosecutor->address ?? $prosecutor->name) }}"
                                     {{ old('prosecutor_id', $defaultProsecutorId) == $prosecutor->id ? 'selected' : '' }}>
                                     {{ $prosecutor->name }}
                                 </option>
@@ -172,15 +172,7 @@
                     </div>
                 </div>
 
-                <div class="input-group row mb-4 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="lokasi_kejaksaan">Tempat / Lokasi Kejaksaan (di ...)</label>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <input id="lokasi_kejaksaan" type="text" class="form-control" name="lokasi_kejaksaan"
-                            value="{{ old('lokasi_kejaksaan', $defaultProsecutorLocation) }}"
-                            placeholder="Contoh: BANGIL / PASURUAN">
-                        <small class="text-muted">Akan dicetak pada format: <i>Kepada Yth. KEPALA [Nama Kejaksaan] di [Lokasi Kejaksaan]</i></small>
-                    </div>
-                </div>
+                <input type="hidden" id="lokasi_kejaksaan" name="lokasi_kejaksaan" value="{{ old('lokasi_kejaksaan', $defaultProsecutorLocation) }}">
 
                 {{-- 3. RUJUKAN DASAR HUKUM & SURAT --}}
                 <h5 class="fw-bold text-blue-dark border-bottom pb-2 mb-3">3. Rujukan Dokumen Terkait</h5>
@@ -273,9 +265,13 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="dugaan_tindak_pidana">Dugaan Tindak Pidana</label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="dugaan_tindak_pidana">
+                        Dugaan Tindak Pidana
+                        <small class="text-muted d-block font-weight-normal">(Standar / Tidak dapat diubah)</small>
+                    </label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <textarea id="dugaan_tindak_pidana" class="form-control" name="dugaan_tindak_pidana" rows="2">{{ old('dugaan_tindak_pidana', 'Kecelakaan Lalu Lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka berat') }}</textarea>
+                        <textarea id="dugaan_tindak_pidana" class="form-control" name="dugaan_tindak_pidana" rows="2"
+                            readonly style="background-color: #e9ecef; cursor: not-allowed;">{{ old('dugaan_tindak_pidana', 'Kecelakaan Lalu Lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka berat') }}</textarea>
                     </div>
                 </div>
 
@@ -384,7 +380,7 @@
                         Penyidik Penghubung<span class="text-danger fs-5">*</span>
                         <small class="text-muted d-block font-weight-normal">(Penyidik/Penyidik Pembantu untuk koordinasi)</small>
                     </label>
-                    <div class="col-lg-5 col-md-5 col-sm-12 col-12 mb-2">
+                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <select class="form-control select2 @error('contact_officer_id') is-invalid @enderror"
                             id="contact_officer_id" name="contact_officer_id" required style="width: 100%;">
                             <option value="">-- Pilih Penyidik / Petugas Penghubung --</option>
@@ -401,13 +397,6 @@
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-sm-12 col-12">
-                        <input id="contact_officer_phone" type="text"
-                            class="form-control" name="contact_officer_phone"
-                            value="{{ old('contact_officer_phone') }}"
-                            placeholder="No. Handphone (Contoh: 081234567890)">
-                        <small class="text-muted">Nomor kontak yang dapat dihubungi Kejaksaan</small>
                     </div>
                 </div>
 
@@ -491,26 +480,24 @@
                             id="signatory" name="signatory" required style="width: 100%;">
                             <option value="">-- Pilih Pejabat Penandatangan --</option>
                             @foreach ($authorizedSignatories as $signatory)
+                                @php
+                                    $posAlias = $signatory->position->positionCluster->alias_name ?? ($signatory->position->name ?? 'Kasat Lantas');
+                                    $clusterId = $signatory->position->position_cluster_id ?? '';
+                                @endphp
                                 <option value="{{ $signatory->id }}"
-                                    data-position="{{ $signatory->position->name ?? ($signatory->position_id ?? 'KASAT LANTAS') }}"
+                                    data-position="{{ $posAlias }}"
+                                    data-cluster="{{ $clusterId }}"
                                     {{ old('signatory') == $signatory->id ? 'selected' : '' }}>
-                                    {{ $signatory->full_name }} - {{ $signatory->rank->name ?? '' }} ({{ $signatory->position->name ?? 'Kasat Lantas' }})
+                                    {{ $signatory->full_name }} - {{ $signatory->rank->name ?? '' }} ({{ $posAlias }})
                                 </option>
                             @endforeach
                         </select>
+                        <small class="text-muted d-block mt-1">Jabatan pada dokumen: <strong id="preview_signatory_position" class="text-primary">-</strong> (Otomatis sesuai SPDP, bukan inputan manual)</small>
                         @error('signatory')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
-                    </div>
-                </div>
-
-                <div class="input-group row mb-4 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="signatory_head_text">Teks Header Tanda Tangan</label>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <textarea id="signatory_head_text" class="form-control" name="signatory_head_text" rows="2">{{ old('signatory_head_text', "a.n. KEPALA KEPOLISIAN RESOR " . strtoupper($accident->polres->name ?? 'PASURUAN')) }}</textarea>
-                        <small class="text-muted">Gunakan jika ditandatangani atas nama (a.n.), atau kosongkan jika langsung oleh Kapolres.</small>
                     </div>
                 </div>
 
@@ -529,30 +516,68 @@
 
 @push('scripts')
     <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
+    <script type="application/json" id="viewConfigData">
+        {!! json_encode([
+            'prosecutorLocations' => $prosecutorLocationsMap,
+            'officerPhones' => $officerPhonesMap,
+            'signatoryData' => $signatoryDataMap,
+            'polresName' => strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? 'PASURUAN')),
+            'poldaName' => strtoupper($accident->polres->polda->full_name ?? ($accident->polres->polda->name ?? 'JAWA TIMUR')),
+        ]) !!}
+    </script>
     <script>
         $(document).ready(function() {
+            var configEl = document.getElementById('viewConfigData');
+            var viewConfig = configEl ? JSON.parse(configEl.textContent || '{}') : {};
+            var prosecutorLocations = viewConfig.prosecutorLocations || {};
+            var officerPhones = viewConfig.officerPhones || {};
+            var signatoryData = viewConfig.signatoryData || {};
+            var polresName = viewConfig.polresName || 'PASURUAN';
+            var poldaName = viewConfig.poldaName || 'JAWA TIMUR';
+
             $('.select2').select2({
                 theme: 'bootstrap4',
                 width: '100%'
             });
 
-            // Auto-update lokasi kejaksaan saat kejaksaan dipilih
-            $('#prosecutor_id').on('change', function() {
-                var selectedOpt = $(this).find(':selected');
-                var loc = selectedOpt.data('location');
-                if (loc && !$('#lokasi_kejaksaan').val()) {
-                    $('#lokasi_kejaksaan').val(loc);
+            // Sinkronisasi lokasi kejaksaan dinamis
+            function syncProsecutorLocation() {
+                var selectedId = $('#prosecutor_id').val();
+                if (!selectedId) {
+                    $('#lokasi_kejaksaan').val('');
+                    return;
                 }
+                var loc = prosecutorLocations[selectedId];
+                if (typeof loc === 'undefined' || loc === null) {
+                    var opt = $('#prosecutor_id').find('option[value="' + selectedId + '"]');
+                    loc = opt.attr('data-location') || '';
+                }
+                $('#lokasi_kejaksaan').val(loc || '');
+            }
+
+            $('#prosecutor_id').on('change select2:select select2:clear', function() {
+                syncProsecutorLocation();
             });
 
-            // Auto-update phone saat penyidik penghubung dipilih
-            $('#contact_officer_id').on('change', function() {
-                var selectedOpt = $(this).find(':selected');
-                var phone = selectedOpt.data('phone');
-                if (phone) {
-                    $('#contact_officer_phone').val(phone);
+            // Sinkronisasi pejabat penandatangan dinamis (SPDP logic)
+            function syncSignatoryInfo() {
+                var selectedId = $('#signatory').val();
+                if (!selectedId || !signatoryData[selectedId]) {
+                    $('#preview_signatory_position').text('-');
+                    return;
                 }
+                var sData = signatoryData[selectedId];
+                var pos = sData.position;
+                $('#preview_signatory_position').text(pos || '-');
+            }
+
+            $('#signatory').on('change select2:select select2:clear', function() {
+                syncSignatoryInfo();
             });
+
+            // Eksekusi inisialisasi awal saat halaman dimuat
+            syncProsecutorLocation();
+            syncSignatoryInfo();
 
             // Auto calculate 40 hari perpanjangan saat tanggal mulai berubah
             $('#tanggal_mulai_perpanjangan').on('change', function() {

@@ -194,6 +194,10 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
             $nomorS18 = $request->nomor_surat_perintah_penangguhan ?: ($s18Doc->nomor ?? $s18Doc->document_number ?? null);
             $tanggalS18 = $s18Doc->tanggal ?? $s18Doc->document_date ?? null;
 
+            $kodeJenis = intval($request->kode_jenis_penahanan ?? 1);
+            $kodeSatkerRutan = ($kodeJenis === 1) ? $request->kode_satker_tempat_penahanan : null;
+            $tempatPenahanan = $request->tempat_penahanan ?: ($kodeJenis === 1 ? $request->kode_satker_tempat_penahanan : null);
+
             // Simpan Dokumen Utama
             $document = SuratPerintahPencabutanPenangguhanPenahananDocument::create([
                 'id'                                            => $docId,
@@ -213,9 +217,9 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
                 'tanggal_surat_perintah_penahanan'              => $tanggalS17,
                 'nomor_surat_perintah_penangguhan'              => $nomorS18,
                 'tanggal_surat_perintah_penangguhan'            => $tanggalS18,
-                'kode_jenis_penahanan'                          => $request->kode_jenis_penahanan ?? 1,
-                'kode_satker_tempat_penahanan'                  => $request->kode_satker_tempat_penahanan,
-                'tempat_penahanan'                              => $request->tempat_penahanan,
+                'kode_jenis_penahanan'                          => $kodeJenis,
+                'kode_satker_tempat_penahanan'                  => $kodeSatkerRutan,
+                'tempat_penahanan'                              => $tempatPenahanan,
                 'jumlah_hari'                                   => $request->jumlah_hari ?? 20,
                 'tanggal_mulai'                                 => $request->tanggal_mulai,
                 'tanggal_akhir'                                 => $request->tanggal_akhir,
@@ -411,6 +415,10 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
 
         DB::beginTransaction();
         try {
+            $kodeJenis = intval($request->kode_jenis_penahanan ?? 1);
+            $kodeSatkerRutan = ($kodeJenis === 1) ? $request->kode_satker_tempat_penahanan : null;
+            $tempatPenahanan = $request->tempat_penahanan ?: ($kodeJenis === 1 ? $request->kode_satker_tempat_penahanan : null);
+
             $document->update([
                 'nomor'                             => $request->nomor,
                 'document_number'                    => $request->nomor,
@@ -421,9 +429,9 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
                 'kode_satker_penerbit_spdp'         => $request->kode_satker_penerbit_spdp,
                 'nomor_surat_perintah_penahanan'    => $request->nomor_surat_perintah_penahanan,
                 'nomor_surat_perintah_penangguhan'  => $request->nomor_surat_perintah_penangguhan,
-                'kode_jenis_penahanan'              => $request->kode_jenis_penahanan ?? 1,
-                'kode_satker_tempat_penahanan'      => $request->kode_satker_tempat_penahanan,
-                'tempat_penahanan'                  => $request->tempat_penahanan,
+                'kode_jenis_penahanan'              => $kodeJenis,
+                'kode_satker_tempat_penahanan'      => $kodeSatkerRutan,
+                'tempat_penahanan'                  => $tempatPenahanan,
                 'jumlah_hari'                       => $request->jumlah_hari ?? 20,
                 'tanggal_mulai'                     => $request->tanggal_mulai,
                 'tanggal_akhir'                     => $request->tanggal_akhir,
@@ -577,7 +585,7 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
      */
     private function validateForm(Request $request)
     {
-        return Validator::make($request->all(), [
+        $rules = [
             'nomor'                        => 'required',
             'tanggal'                      => 'required|date',
             'nomor_spdp'                   => 'required',
@@ -586,11 +594,24 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
             'suspects'                     => 'required|array|min:1',
             'officerLeader'                => 'required',
             'signatory'                    => 'required',
-            'kode_jenis_penahanan'         => 'required',
+            'kode_jenis_penahanan'         => 'required|in:1,2,3',
             'jumlah_hari'                  => 'nullable|numeric|min:1',
             'tanggal_mulai'                => 'nullable|date',
             'tanggal_akhir'                => 'nullable|date',
-        ], [
+        ];
+
+        $kodeJenis = intval($request->kode_jenis_penahanan);
+        if ($kodeJenis === 1) {
+            if (empty($request->kode_satker_tempat_penahanan) && empty($request->tempat_penahanan)) {
+                $rules['kode_satker_tempat_penahanan'] = 'required';
+            }
+        } elseif ($kodeJenis === 2) {
+            $rules['tempat_penahanan'] = 'required';
+        } elseif ($kodeJenis === 3) {
+            $rules['tempat_penahanan'] = 'required';
+        }
+
+        $messages = [
             'nomor.required'                     => 'Nomor Dokumen S-19 wajib diisi.',
             'tanggal.required'                   => 'Tanggal S-19 wajib diisi.',
             'nomor_spdp.required'                => 'Nomor SPDP wajib terisi.',
@@ -601,7 +622,11 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
             'officerLeader.required'             => 'Mohon memilih Ketua Tim.',
             'signatory.required'                 => 'Pejabat Penandatangan wajib dipilih.',
             'kode_jenis_penahanan.required'      => 'Jenis penahanan wajib dipilih.',
-        ]);
+            'kode_satker_tempat_penahanan.required' => 'Rutan / Tempat Penahanan wajib dipilih.',
+            'tempat_penahanan.required'          => $kodeJenis === 2 ? 'Alamat Rumah tempat tinggal tersangka wajib diisi.' : ($kodeJenis === 3 ? 'Wilayah Kota penahanan wajib diisi.' : 'Tempat penahanan wajib diisi.'),
+        ];
+
+        return Validator::make($request->all(), $rules, $messages);
     }
 
     /**
@@ -621,7 +646,7 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
             'suratPerintahPenahananDocument',
             'suratPerintahPenangguhanPenahananDocument',
             'suratPerintahPencabutanPenangguhanPenahananDocumentOfficers.rank',
-            'suratPerintahPencabutanPenangguhanPenahananDocumentOfficers.position',
+            'suratPerintahPencabutanPenangguhanPenahananDocumentOfficers.position.positionCluster',
             'suratPerintahPencabutanPenangguhanPenahananDocumentOfficers.police'
         ])->where('id', $id)->firstOrFail();
 
@@ -776,25 +801,43 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
         $templateProcessor->setValue('leaderOfficerRegisterNumber', $leaderNrp);
 
         // 7. Pejabat Penandatangan (Signatory)
-        $signatory = $document->signatory ?? $document->suratPerintahPencabutanPenangguhanPenahananDocumentOfficers->where('class', 'SIGNATORY')->first();
+        $polresFullName = strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? ''));
+        $poldaFullName = strtoupper($accident->polres->polda->full_name ?? ($accident->polres->polda->name ?? ''));
+
+        $signatory = $document->signatory ?? ($document->suratPerintahPencabutanPenangguhanPenahananDocumentOfficers ? $document->suratPerintahPencabutanPenangguhanPenahananDocumentOfficers->where('class', 'SIGNATORY')->first() : null);
+        $signatoryName = '-';
+        $signatoryRankName = '-';
+        $signatoryRegisterNumber = '-';
+        $signatoryPositionName = 'KASAT LANTAS';
+        $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+
         if ($signatory) {
             $signatoryName = PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title);
-            $signatoryRank = $signatory->rank->name ?? ($signatory->rank_id ?? '-');
-            $signatoryNrp = $signatory->register_number ?? '-';
-            $signatoryPosition = strtoupper($signatory->position->name ?? ($signatory->position_id ?? 'KEPALA KEPOLISIAN'));
-        } else {
-            $signatoryName = '-';
-            $signatoryRank = '-';
-            $signatoryNrp = '-';
-            $signatoryPosition = 'KEPALA KEPOLISIAN';
+            $signatoryRankName = strtoupper($signatory->rank->name ?? ($signatory->rank_id ?? '-'));
+            $signatoryRegisterNumber = $signatory->register_number ?? '-';
+
+            $signatoryPositionObj = $signatory->position;
+            $clusterId = $signatoryPositionObj?->position_cluster_id ?? ($signatoryPositionObj?->positionCluster?->id ?? null);
+            $aliasName = strtoupper($signatoryPositionObj?->positionCluster?->alias_name ?? ($signatoryPositionObj?->name ?? 'KASAT LANTAS'));
+
+            if ($clusterId == '1') {
+                $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = '';
+            } else if ($clusterId == '9') {
+                $signatoryHeadText = 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName;
+                $signatoryPositionName = $aliasName;
+            } else {
+                $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = $aliasName;
+            }
         }
 
-        $polresName = strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? ''));
-        $templateProcessor->setValue('signatoryHeadText', 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresName);
-        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPosition);
+        $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText);
+        $templateProcessor->setValue('signatoryPositionName', $signatoryPositionName);
+        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPositionName);
         $templateProcessor->setValue('signatoryName', $signatoryName);
-        $templateProcessor->setValue('signatoryRankName', $signatoryRank);
-        $templateProcessor->setValue('signatoryRegisterNumber', $signatoryNrp);
+        $templateProcessor->setValue('signatoryRankName', $signatoryRankName);
+        $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);
 
         // 8. Dikeluarkan di & pada tanggal
         $kota = $accident->polres->city ?? ($accident->polres->name ?? 'Tempat');
@@ -897,20 +940,27 @@ class SuratPerintahPencabutanPenangguhanPenahananDocumentController extends Cont
         ?Suspect $suspect = null
     ): string
     {
-        if (!empty($document->tempat_penahanan)) {
-            return $document->tempat_penahanan;
-        }
-
         $kodeJenis = intval($document->kode_jenis_penahanan ?? 1);
+        $tempat = trim((string) ($document->tempat_penahanan ?? ''));
+
         if ($kodeJenis === 1) {
-            $rutan = $document->kode_satker_tempat_penahanan ?: ('Polres ' . ($accident->polres->name ?? ''));
-            return "Rumah Tahanan Negara (Rutan) pada " . $rutan;
+            $rutan = $tempat ?: ($document->kode_satker_tempat_penahanan ?: ('Polres ' . ($accident->polres->name ?? '')));
+            if (stripos($rutan, 'rutan') === false && stripos($rutan, 'rumah tahanan') === false && stripos($rutan, 'lapas') === false) {
+                return "Rumah Tahanan Negara (Rutan) pada " . $rutan;
+            }
+            return $rutan;
         } elseif ($kodeJenis === 2) {
-            $alamat = $suspect->address ?? ($accident->polres->name ?? '-');
-            return "Rumah tempat tinggal tersangka di " . $alamat;
+            $alamat = $tempat ?: ($suspect->address ?? ($accident->polres->name ?? '-'));
+            if (stripos($alamat, 'rumah tempat tinggal') === false && stripos($alamat, 'rumah tinggal') === false) {
+                return "Rumah tempat tinggal tersangka di " . $alamat;
+            }
+            return $alamat;
         } elseif ($kodeJenis === 3) {
-            $kota = $accident->polres->city ?? ($accident->polres->name ?? '-');
-            return "Kota tempat tinggal tersangka di " . $kota;
+            $kota = $tempat ?: ($accident->polres->city ?? ($accident->polres->name ?? '-'));
+            if (stripos($kota, 'kota tempat tinggal') === false) {
+                return "Kota tempat tinggal tersangka di " . $kota;
+            }
+            return $kota;
         }
 
         return "Rumah Tahanan Negara (Rutan) pada Kepolisian Resor " . ($accident->polres->name ?? '');

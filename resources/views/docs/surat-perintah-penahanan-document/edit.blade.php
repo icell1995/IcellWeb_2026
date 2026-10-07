@@ -286,9 +286,13 @@
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-3 col-form-label" for="tanggal_mulai">Tanggal Mulai Penahanan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                        @php
+                            $defaultTglMulai = $document->tanggal_mulai ? date('Y-m-d', strtotime($document->tanggal_mulai)) : ($document->start_date ? date('Y-m-d', strtotime($document->start_date)) : date('Y-m-d'));
+                            $defaultTglAkhir = date('Y-m-d', strtotime($defaultTglMulai . ' +19 days'));
+                        @endphp
                         <input class="form-control @error('tanggal_mulai') is-invalid @enderror" id="tanggal_mulai" name="tanggal_mulai"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_mulai', $document->tanggal_mulai ? date('Y-m-d', strtotime($document->tanggal_mulai)) : ($document->start_date ? date('Y-m-d', strtotime($document->start_date)) : date('Y-m-d'))) }}"
+                            value="{{ old('tanggal_mulai', $defaultTglMulai) }}"
                             data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
                         @error('tanggal_mulai')
                             <span class="invalid-feedback" role="alert">
@@ -298,16 +302,17 @@
                     </div>
                 </div>
 
-                {{-- Tanggal Akhir Penahanan --}}
+                {{-- Tanggal Akhir Penahanan (Otomatis 20 hari dari Tanggal Mulai & Readonly) --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-3 col-form-label" for="tanggal_akhir">Tanggal Akhir Penahanan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input class="form-control @error('tanggal_akhir') is-invalid @enderror" id="tanggal_akhir" name="tanggal_akhir"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_akhir', $document->tanggal_akhir ? date('Y-m-d', strtotime($document->tanggal_akhir)) : ($document->end_date ? date('Y-m-d', strtotime($document->end_date)) : date('Y-m-d', strtotime('+20 days')))) }}"
-                            data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
+                            value="{{ old('tanggal_akhir', $defaultTglAkhir) }}"
+                            readonly required style="background-color: #e9ecef; cursor: not-allowed;">
                         <small class="text-muted d-block mt-1">
-                            <span id="durasiPenahananText" class="badge bg-secondary">Durasi: 21 Hari</span>
+                            <span id="durasiPenahananText" class="badge bg-secondary">Durasi: 20 Hari</span>
+                            <span class="ms-1 text-muted small">(Dihitung otomatis 20 hari masa penahanan)</span>
                         </small>
                         @error('tanggal_akhir')
                             <span class="invalid-feedback" role="alert">
@@ -608,27 +613,36 @@
                 todayHighlight: true,
                 orientation: 'auto bottom'
             }).on('changeDate', function(selected) {
-                if (selected.date) {
-                    var startDate = new Date(selected.date.valueOf());
-                    $('#tanggal_akhir').datepicker('setStartDate', startDate);
-                }
                 $(this).trigger('change');
-                updateDurasi();
             });
 
-            $('#tanggal_akhir').datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: true,
-                todayHighlight: true,
-                orientation: 'auto bottom'
-            }).on('changeDate', function(selected) {
-                if (selected.date) {
-                    var endDate = new Date(selected.date.valueOf());
-                    $('#tanggal_mulai').datepicker('setEndDate', endDate);
-                }
-                $(this).trigger('change');
-                updateDurasi();
+            $('#tanggal_mulai, #tanggal_akhir').keydown(function(e) {
+                e.preventDefault();
+                return false;
             });
+
+            // Hitung otomatis Tanggal Akhir Penahanan (20 hari penahanan)
+            function calculateTanggalAkhir() {
+                var startVal = ($('#tanggal_mulai').val() || '').trim();
+                if (startVal) {
+                    var parts = startVal.split('-');
+                    if (parts.length === 3) {
+                        var y = parseInt(parts[0], 10);
+                        var m = parseInt(parts[1], 10) - 1;
+                        var d = parseInt(parts[2], 10);
+                        var date = new Date(y, m, d);
+                        if (!isNaN(date.getTime())) {
+                            // Durasi 20 hari: hari mulai dihitung hari ke-1 (tgl akhir = mulai + 19 hari)
+                            date.setDate(date.getDate() + 19);
+                            var yyyy = date.getFullYear();
+                            var mm = String(date.getMonth() + 1).padStart(2, '0');
+                            var dd = String(date.getDate()).padStart(2, '0');
+                            $('#tanggal_akhir').val(yyyy + '-' + mm + '-' + dd);
+                        }
+                    }
+                }
+                updateDurasi();
+            }
 
             // Toggle Satker Rutan based on jenis penahanan
             function toggleRutanSection() {
@@ -642,7 +656,7 @@
             $('#kode_jenis_penahanan').on('change', toggleRutanSection);
             toggleRutanSection();
 
-            // Hitung durasi hari otomatis
+            // Hitung durasi hari otomatis untuk badge
             function updateDurasi() {
                 var tglMulai = $('#tanggal_mulai').val();
                 var tglAkhir = $('#tanggal_akhir').val();
@@ -658,8 +672,14 @@
                     }
                 }
             }
-            $('#tanggal_mulai, #tanggal_akhir').on('change', updateDurasi);
-            updateDurasi();
+            $('#tanggal_mulai').on('change input', calculateTanggalAkhir);
+            
+            // Panggil saat page load
+            if ($('#tanggal_mulai').val()) {
+                calculateTanggalAkhir();
+            } else {
+                updateDurasi();
+            }
 
             // Tambah Petugas yang Diperintahkan (Poin 6)
             $('#officerInternalMemberOptionAddButtton').on('click', function() {

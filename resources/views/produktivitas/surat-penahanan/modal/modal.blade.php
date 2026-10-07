@@ -6,9 +6,16 @@
                 <h5 class="modal-title fw-bold">Surat Perintah Penahanan</h5>
             </div>
 
-            <form action="{{ route('file.upload.post') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="modal-body">
+            <div class="modal-body">
+                <div class="mb-3 text-center">
+                    <a href="{{ route('doc.surat-perintah-penahanan-document.create', ['accident_id' => $id]) }}" class="btn btn-dark-blue w-100 mb-2">
+                        <i class="bi bi-file-earmark-plus"></i> Buat Surat Perintah Penahanan (S-17)
+                    </a>
+                    <div class="text-muted small">--- Atau unggah file PDF yang sudah ada ---</div>
+                </div>
+
+                <form action="{{ route('file.upload.post') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
                     <div class="row">
                         <div>
                             <input id="form_id" name="form_id" type="text" value="surat_perintah_penahanan"
@@ -26,16 +33,13 @@
                             <button type="submit" class="btn btn-dark-blue">Upload</button>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-secondary">
-                        {{ __('Delete') }}
-                    </button>
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                        {{ __('Batal') }}
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                    {{ __('Batal') }}
+                </button>
+            </div>
         </div>
     </div>
 </div>

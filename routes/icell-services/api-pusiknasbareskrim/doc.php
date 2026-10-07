@@ -22,6 +22,12 @@ use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Tahap2PusiknasDo
 | sp3         → DIK-40  (Surat Pemberitahuan Penghentian Penyidikan)
 | spud        → VER-10  (Surat Pemberitahuan Upaya Diversi)
 |
+| Mapping Kode Dokumen → Kode Proses SPPT-TI:
+| spdp        → DIK-10  (Surat Pemberitahuan Dimulainya Penyidikan)
+| sp3         → DIK-40  (Surat Pemberitahuan Penghentian Penyidikan)
+| s22         → HAN-10.30 (Surat Permintaan Perpanjangan Penahanan Lanjutan)
+| s23         → DAT-5   (Surat Perintah Pembantaran Penahanan)
+|
 */
 
 Route::prefix('spdp-pusiknas')->group(function () {
@@ -115,6 +121,19 @@ Route::prefix('s21')->group(function () {
         '/{id}',
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S21DocumentController::class, 'show']
     )->name('api.pusiknasbareskrim.doc.s21.show');
+});
+Route::prefix('s22')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S22DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s22.index');
+});
+
+Route::prefix('s23')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S23DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s23.index');
 });
 
 Route::prefix('surat-permintaan-penggeledahan')->group(function () {
