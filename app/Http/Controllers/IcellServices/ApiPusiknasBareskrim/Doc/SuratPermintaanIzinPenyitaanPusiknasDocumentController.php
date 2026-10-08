@@ -46,13 +46,10 @@ class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
             $documents = SuratPermintaanIzinPenyitaanDocument::with([
                 'accident',
                 'suratPerintahPenyidikanDocument' => function($q) {
-                    $q->with('attachment');
+                    $q->with(['attachment', 'suratPerintahPenyidikanDocumentLaws.crimeConstitution']);
                 },
                 'suspects',
                 'seizedItems',
-                'laws' => function($q) {
-                    $q->with('crimeConstitution');
-                },
                 'signatories' => function($q) {
                     $q->with(['position', 'rank']);
                 },
@@ -78,10 +75,11 @@ class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
                     'tanggal' => $doc->document_date ? date('Y-m-d', strtotime($doc->document_date)) : null
                 ];
 
-                // 2. Daftar UU Pasal
+                // 2. Daftar UU Pasal dari Sprindik
                 $daftarUUPasal = [];
-                if ($doc->laws && count($doc->laws) > 0) {
-                    foreach ($doc->laws as $law) {
+                $sprindikLaws = $doc->suratPerintahPenyidikanDocument?->suratPerintahPenyidikanDocumentLaws;
+                if ($sprindikLaws && count($sprindikLaws) > 0) {
+                    foreach ($sprindikLaws as $law) {
                         if ($law->flag === 'ADDITIONAL' || $law->flag === 'ADDT') {
                             if (!empty($law->constitution)) {
                                 $daftarUUPasal[] = $law->constitution;
@@ -108,16 +106,6 @@ class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
                         $daftarTersangka[] = [
                             'nama' => $suspect->full_name ?? ($suspect->name ?? '-'),
                             'nomor_identitas' => $suspect->id_card_number ?? ($suspect->identity_number ?? '-')
-                        ];
-                    }
-                }
-                
-                // Fallback ke Terlapor/Saksi jika opsi "isSuspectExists" false pada form S-12
-                if (count($daftarTersangka) === 0 && $doc->reportedPersons && count($doc->reportedPersons) > 0) {
-                    foreach ($doc->reportedPersons as $rp) {
-                        $daftarTersangka[] = [
-                            'nama' => $rp->name ?? '-',
-                            'nomor_identitas' => $rp->identity_number ?? '-'
                         ];
                     }
                 }
@@ -167,6 +155,18 @@ class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
 
                 $s12Digital = $getDocDigital($doc->attachment);
                 $sprindikDigital = $doc->suratPerintahPenyidikanDocument ? $getDocDigital($doc->suratPerintahPenyidikanDocument->attachment) : $getDocDigital(null);
+                $sprinsitaDigital = null;
+
+                if (!empty($doc->surat_perintah_penyitaan_file)) {
+                    $sprinsitaDigital = [
+                        'kode_jenis_dokumen' => 'sprin-sita',
+                        'mime_type' => 'application/pdf',
+                        'url' => asset(
+                            'file/penyitaan/surat-perintah-penyitaan/' .
+                            $doc->surat_perintah_penyitaan_file
+                        )
+                    ];
+                }
 
                 $daftarDokumenDigital = [
                     [
@@ -179,34 +179,53 @@ class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
                         'mime_type' => 'application/pdf',
                         'url' => $sprindikDigital['url']
                     ],
-                    [
-                        'kode_jenis_dokumen' => 'sprin-sita',
-                        'mime_type' => 'application/pdf',
-                        'url' => ''
-                    ],
-                    [
-                        'kode_jenis_dokumen' => 'resume',
-                        'mime_type' => 'application/pdf',
-                        'url' => ''
-                    ]
+                    // [
+                    //     'kode_jenis_dokumen' => 'resume',
+                    //     'mime_type' => 'application/pdf',
+                    //     'url' => ''
+                    // ]
                 ];
 
+                if ($sprinsitaDigital) {
+                    $daftarDokumenDigital[] = $sprinsitaDigital;
+                }
+
+                $kontenDokumen = [
+                    'nomor_laporan_pengaduan' => $doc->accident->no_lp ?? '-',
+                    'tanggal_laporan_pengaduan' => $doc->accident->report_date ? date('Y-m-d', strtotime($doc->accident->report_date)) : null,
+                    'nomor_sprindik' => $doc->suratPerintahPenyidikanDocument->document_number ?? $doc->sprindik_number ?? '-',
+                    'tanggal_sprindik' => $doc->suratPerintahPenyidikanDocument->document_date ? date('Y-m-d', strtotime($doc->suratPerintahPenyidikanDocument->document_date)) : ($doc->sprindik_date ? date('Y-m-d', strtotime($doc->sprindik_date)) : null),
+                ];
+
+                if ($sprinsitaDigital) {
+                    $kontenDokumen['nomor_surat_perintah_penyitaan'] =
+                        $doc->surat_perintah_penyitaan_number ?? '-';
+
+                    $kontenDokumen['tanggal_surat_perintah_penyitaan'] =
+                        $doc->surat_perintah_penyitaan_date
+                            ? date('Y-m-d', strtotime($doc->surat_perintah_penyitaan_date))
+                            : null;
+                }
+
+                if (!empty($doc->spdp_number)) {
+                    $kontenDokumen['nomor_spdp'] = $doc->spdp_number;
+                }
+
+                if (!empty($doc->spdp_date)) {
+                    $kontenDokumen['tanggal_spdp'] = date('Y-m-d', strtotime($doc->spdp_date));
+                }
+
+                $kontenDokumen = array_merge($kontenDokumen, [
+                    'daftar_uu_pasal' => $daftarUUPasal,
+                    'daftar_tersangka' => $daftarTersangka,
+                    'daftar_barang_sitaan' => $daftarBarangSitaan,
+                    'pejabat_penandatangan' => $pejabatPenandatangan
+                ]);
 
                 $responseData[] = [
                     'kode_jenis_dokumen' => 's12',
                     'identitas_dokumen' => $identitasDokumen,
-                    'konten_dokumen' => [
-                        'nomor_laporan_pengaduan' => $doc->accident->no_lp ?? '-',
-                        'tanggal_laporan_pengaduan' => $doc->accident->report_date ? date('Y-m-d', strtotime($doc->accident->report_date)) : null,
-                        'nomor_sprindik' => $doc->suratPerintahPenyidikanDocument->document_number ?? $doc->sprindik_number ?? '-',
-                        'tanggal_sprindik' => $doc->suratPerintahPenyidikanDocument->document_date ? date('Y-m-d', strtotime($doc->suratPerintahPenyidikanDocument->document_date)) : ($doc->sprindik_date ? date('Y-m-d', strtotime($doc->sprindik_date)) : null),
-                        'nomor_surat_perintah_penyitaan' => $doc->surat_perintah_penyitaan_number ?? '-',
-                        'tanggal_surat_perintah_penyitaan' => $doc->surat_perintah_penyitaan_date ? date('Y-m-d', strtotime($doc->surat_perintah_penyitaan_date)) : null,
-                        'daftar_uu_pasal' => $daftarUUPasal,
-                        'daftar_tersangka' => $daftarTersangka,
-                        'daftar_barang_sitaan' => $daftarBarangSitaan,
-                        'pejabat_penandatangan' => $pejabatPenandatangan
-                    ],
+                    'konten_dokumen' => $kontenDokumen,
                     'daftar_dokumen_digital' => $daftarDokumenDigital
                 ];
 

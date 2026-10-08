@@ -46,15 +46,12 @@ class SuratLaporanPersetujuanPenyitaanPusiknasDocumentController extends Control
             $documents = SuratLaporanPersetujuanPenyitaanDocument::with([
                 'accident',
                 'suratPerintahPenyidikanDocument' => function($q) {
-                    $q->with('attachment');
+                    $q->with(['attachment', 'suratPerintahPenyidikanDocumentLaws.crimeConstitution']);
                 },
                 'persons.suspect',
                 'persons.witness',
                 'persons.reportedPerson',
                 'persons.seizedItems',
-                'laws' => function($q) {
-                    $q->with('crimeConstitution');
-                },
                 'signatories' => function($q) {
                     $q->with(['position', 'rank']);
                 },
@@ -82,8 +79,9 @@ class SuratLaporanPersetujuanPenyitaanPusiknasDocumentController extends Control
 
                 // 2. Daftar UU Pasal
                 $daftarUUPasal = [];
-                if ($doc->laws && count($doc->laws) > 0) {
-                    foreach ($doc->laws as $law) {
+                $sprindikLaws = $doc->suratPerintahPenyidikanDocument?->suratPerintahPenyidikanDocumentLaws;
+                if ($sprindikLaws && count($sprindikLaws) > 0) {
+                    foreach ($sprindikLaws as $law) {
                         if ($law->flag === 'ADDITIONAL' || $law->flag === 'ADDT') {
                             if (!empty($law->constitution)) {
                                 $daftarUUPasal[] = $law->constitution;
@@ -176,6 +174,37 @@ class SuratLaporanPersetujuanPenyitaanPusiknasDocumentController extends Control
                 $s13Digital = $getDocDigital($doc->attachment);
                 $sprindikDigital = $doc->suratPerintahPenyidikanDocument ? $getDocDigital($doc->suratPerintahPenyidikanDocument->attachment) : $getDocDigital(null);
 
+                // Sprin Sita
+                $sprinsitaDigital = null;
+                if (!empty($doc->surat_perintah_penyitaan_file)) {
+                    $sprinsitaDigital = [
+                        'kode_jenis_dokumen' => 'sprin-sita',
+                        'mime_type' => 'application/pdf',
+                        'url' => asset(
+                            'file/penyitaan/surat-perintah-penyitaan/' .
+                            $doc->surat_perintah_penyitaan_file
+                        )
+                    ];
+                }
+
+                // BA Sita
+                $baSitaUrls = [];
+                if ($doc->persons && count($doc->persons) > 0) {
+                    foreach ($doc->persons as $person) {
+                        if (!empty($person->bap_file)) {
+                            $baSitaUrls[] = asset('file/penyitaan/berita-acara-penyitaan/' . $person->bap_file);
+                        }
+                    }
+                }
+                $baSitaDigital = null;
+                if (!empty($baSitaUrls)) {
+                    $baSitaDigital = [
+                        'kode_jenis_dokumen' => 'ba-sita',
+                        'mime_type' => 'application/pdf',
+                        'url' => count($baSitaUrls) > 1 ? array_values(array_unique($baSitaUrls)) : $baSitaUrls[0]
+                    ];
+                }
+
                 $daftarDokumenDigital = [
                     [
                         'kode_jenis_dokumen' => 's13',
@@ -186,40 +215,53 @@ class SuratLaporanPersetujuanPenyitaanPusiknasDocumentController extends Control
                         'kode_jenis_dokumen' => 'sprindik',
                         'mime_type' => 'application/pdf',
                         'url' => $sprindikDigital['url']
-                    ],
-                    [
-                        'kode_jenis_dokumen' => 'sprin-sita',
-                        'mime_type' => 'application/pdf',
-                        'url' => ''
-                    ],
-                    [
-                        'kode_jenis_dokumen' => 'ba-sita',
-                        'mime_type' => 'application/pdf',
-                        'url' => ''
-                    ],
-                    [
-                        'kode_jenis_dokumen' => 'resume',
-                        'mime_type' => 'application/pdf',
-                        'url' => ''
                     ]
                 ];
 
+                if ($sprinsitaDigital) {
+                    $daftarDokumenDigital[] = $sprinsitaDigital;
+                }
+
+                if ($baSitaDigital) {
+                    $daftarDokumenDigital[] = $baSitaDigital;
+                }
+
+                $kontenDokumen = [
+                    'nomor_laporan_pengaduan' => $doc->accident->no_lp ?? '-',
+                    'tanggal_laporan_pengaduan' => $doc->accident->report_date ? date('Y-m-d', strtotime($doc->accident->report_date)) : null,
+                    'nomor_sprindik' => $doc->suratPerintahPenyidikanDocument->document_number ?? $doc->sprindik_number ?? '-',
+                    'tanggal_sprindik' => $doc->suratPerintahPenyidikanDocument->document_date ? date('Y-m-d', strtotime($doc->suratPerintahPenyidikanDocument->document_date)) : ($doc->sprindik_date ? date('Y-m-d', strtotime($doc->sprindik_date)) : null),
+                ];
+
+                if (!empty($doc->spdp_number)) {
+                    $kontenDokumen['nomor_spdp'] = $doc->spdp_number;
+                }
+
+                if (!empty($doc->spdp_date)) {
+                    $kontenDokumen['tanggal_spdp'] = date('Y-m-d', strtotime($doc->spdp_date));
+                }
+
+                if ($sprinsitaDigital) {
+                    $kontenDokumen['nomor_surat_perintah_penyitaan'] =
+                        $doc->surat_perintah_penyitaan_number ?? '-';
+
+                    $kontenDokumen['tanggal_surat_perintah_penyitaan'] =
+                        $doc->surat_perintah_penyitaan_date
+                            ? date('Y-m-d', strtotime($doc->surat_perintah_penyitaan_date))
+                            : null;
+                }
+
+                $kontenDokumen = array_merge($kontenDokumen, [
+                    'daftar_uu_pasal' => $daftarUUPasal,
+                    'daftar_tersangka' => $daftarTersangka,
+                    'daftar_barang_sitaan' => $daftarBarangSitaan,
+                    'pejabat_penandatangan' => $pejabatPenandatangan
+                ]);
 
                 $responseData[] = [
                     'kode_jenis_dokumen' => 's13',
                     'identitas_dokumen' => $identitasDokumen,
-                    'konten_dokumen' => [
-                        'nomor_laporan_pengaduan' => $doc->accident->no_lp ?? '-',
-                        'tanggal_laporan_pengaduan' => $doc->accident->report_date ? date('Y-m-d', strtotime($doc->accident->report_date)) : null,
-                        'nomor_sprindik' => $doc->suratPerintahPenyidikanDocument->document_number ?? $doc->sprindik_number ?? '-',
-                        'tanggal_sprindik' => $doc->suratPerintahPenyidikanDocument->document_date ? date('Y-m-d', strtotime($doc->suratPerintahPenyidikanDocument->document_date)) : ($doc->sprindik_date ? date('Y-m-d', strtotime($doc->sprindik_date)) : null),
-                        'nomor_surat_perintah_penyitaan' => $doc->surat_perintah_penyitaan_number ?? '-',
-                        'tanggal_surat_perintah_penyitaan' => $doc->surat_perintah_penyitaan_date ? date('Y-m-d', strtotime($doc->surat_perintah_penyitaan_date)) : null,
-                        'daftar_uu_pasal' => $daftarUUPasal,
-                        'daftar_tersangka' => $daftarTersangka,
-                        'daftar_barang_sitaan' => $daftarBarangSitaan,
-                        'pejabat_penandatangan' => $pejabatPenandatangan
-                    ],
+                    'konten_dokumen' => $kontenDokumen,
                     'daftar_dokumen_digital' => $daftarDokumenDigital
                 ];
 

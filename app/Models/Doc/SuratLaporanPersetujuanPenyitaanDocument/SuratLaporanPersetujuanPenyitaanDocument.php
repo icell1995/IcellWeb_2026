@@ -165,14 +165,7 @@ class SuratLaporanPersetujuanPenyitaanDocument extends Model
         )->where('class', 'SIGNATORY')->orderBy('sort');
     }
 
-    public function laws()
-    {
-        return $this->hasMany(
-            'App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocumentLaw',
-            'surat_laporan_persetujuan_penyitaan_document_id',
-            'id'
-        );
-    }
+
 
     public function persons()
     {

@@ -166,16 +166,16 @@ Route::prefix('bahan')->group(function () {
     )->name('api.pusiknasbareskrim.doc.bahan.index');
 });
 
-Route::prefix('sp-izin-sita-pusiknas')->group(function () {
+Route::prefix('s12')->group(function () {
     Route::get(
         '/',
         [SuratPermintaanIzinPenyitaanPusiknasDocumentController::class, 'index']
-    )->name('api.pusiknasbareskrim.doc.sp-izin-sita-pusiknas.index');
+    )->name('api.pusiknasbareskrim.doc.s12.index');
 });
 
-Route::prefix('sl-persetujuan-sita-pusiknas')->group(function () {
+Route::prefix('s13')->group(function () {
     Route::get(
         '/',
         [SuratLaporanPersetujuanPenyitaanPusiknasDocumentController::class, 'index']
-    )->name('api.pusiknasbareskrim.doc.sl-persetujuan-sita-pusiknas.index');
+    )->name('api.pusiknasbareskrim.doc.s13.index');
 });

@@ -40,7 +40,6 @@ use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberita
 
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument;
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocumentOfficer;
-use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocumentLaw;
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocumentSeizedItem;
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocumentAttachment;
 use App\Models\Pivot\SuratPermintaanIzinPenyitaanDocumentSuspect;
@@ -76,7 +75,7 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             ->get();
 
         $spdpDocuments = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $accidentId)
-            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->where('status_id', '86')
             ->orderBy('document_date', 'desc')
             ->get();
 
@@ -557,7 +556,12 @@ class SuratPermintaanIzinPenyitaanController extends Controller
             ->get();
 
         $spdpDocuments = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $accidentId)
-            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->where(function ($query) use ($document) {
+                $query->where('status_id', '86');
+                if (!empty($document->spdp_number)) {
+                    $query->orWhere('document_number', $document->spdp_number);
+                }
+            })
             ->orderBy('document_date', 'desc')
             ->get();
 

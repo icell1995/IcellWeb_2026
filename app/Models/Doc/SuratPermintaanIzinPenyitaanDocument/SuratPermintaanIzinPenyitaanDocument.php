@@ -163,14 +163,7 @@ class SuratPermintaanIzinPenyitaanDocument extends Model
         )->where('class', 'SIGNATORY')->orderBy('sort');
     }
 
-    public function laws()
-    {
-        return $this->hasMany(
-            'App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocumentLaw',
-            'surat_permintaan_izin_penyitaan_document_id',
-            'id'
-        );
-    }
+
 
     public function seizedItems()
     {

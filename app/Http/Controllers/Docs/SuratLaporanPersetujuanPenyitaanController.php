@@ -41,7 +41,6 @@ use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberita
 
 use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument;
 use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocumentOfficer;
-use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocumentLaw;
 use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocumentSeizedItem;
 use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocumentAttachment;
 use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocumentPerson;
@@ -174,7 +173,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
             ->get();
 
         $spdpDocuments = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $accidentId)
-            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->where('status_id', '86')
             ->orderBy('document_date', 'desc')
             ->get();
 
@@ -287,7 +286,7 @@ class SuratLaporanPersetujuanPenyitaanController extends Controller
         if ($request->filled('spdp_number')) {
             $spdpDoc = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $request->input('accident_id'))
                 ->where('document_number', $request->input('spdp_number'))
-                ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+                ->where('status_id', '86')
                 ->first();
 
             if ($spdpDoc) {
