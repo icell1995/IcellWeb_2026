@@ -913,16 +913,30 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
             $resorPoliceFullName = (in_array($accident->polres->id ?? '', ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR '.strtoupper($accident->polres->full_name ?? '');
             $poldaFullName = $accident->polres->polda->name ?? ($accident->polres->polda->full_name ?? '');
             $resorPoliceAddress = ucwords(strtolower(($accident->polres->address ?? '').', '.($accident->polres->polres_district ?? '').', '.($accident->polres->polres_zipcode ?? '')));
-            // Resolusi Tempat Surat Dikeluarkan (${documentLocation}) - Tanpa awalan Kota/Kabupaten
+            // Resolusi Tempat Surat Dikeluarkan (${documentLocation}) - Disertai Kota/Kabupaten
             $documentLocation = '';
             if (!empty($accident->polres->polres_regency)) {
-                $cleanReg = preg_replace('/^(KABUPATEN|KAB\.?|KOTA)\s+/i', '', trim($accident->polres->polres_regency));
-                $documentLocation = ucwords(strtolower(trim($cleanReg)));
+                $reg = trim($accident->polres->polres_regency);
+                if (preg_match('/^KAB\.?\s+/i', $reg)) {
+                    $reg = preg_replace('/^KAB\.?\s+/i', 'Kabupaten ', $reg);
+                }
+                $documentLocation = ucwords(strtolower(trim($reg)));
             }
             if (empty($documentLocation) && $accident->polres) {
                 $rawPolresName = trim(preg_replace('/^(POLRESTABES|POLRESTA|POLRES METRO|POLRES|KEPOLISIAN RESOR|POLSEK|POLDA)\s+/i', '', trim($accident->polres->name ?? ($accident->polres->full_name ?? ''))));
-                $cleanName = preg_replace('/^(KABUPATEN|KAB\.?|KOTA)\s+/i', '', trim($rawPolresName));
-                $documentLocation = ucwords(strtolower(trim($cleanName)));
+                if (preg_match('/^(KABUPATEN|KOTA)\s+/i', $rawPolresName)) {
+                    $documentLocation = ucwords(strtolower($rawPolresName));
+                } else {
+                    $loc = \Illuminate\Support\Facades\DB::table('lib.locations')
+                        ->where('class', 'REGENCY')
+                        ->where('name', 'ILIKE', '%' . $rawPolresName . '%')
+                        ->first();
+                    if ($loc && !empty($loc->name)) {
+                        $documentLocation = ucwords(strtolower(trim($loc->name)));
+                    } else {
+                        $documentLocation = 'Kabupaten ' . ucwords(strtolower($rawPolresName));
+                    }
+                }
             }
             if (empty($documentLocation)) {
                 $documentLocation = 'Tempat';
@@ -973,7 +987,8 @@ class SuratPermintaanPerpanjanganPenahananLanjutanDocumentController extends Con
             $templateProcessor->setValue('appendix', $appendix);
 
             // 2. Tujuan Surat (Pengadilan Negeri)
-            $targetPN = $document->nama_pengadilan_negeri ?: ('Pengadilan Negeri ' . $documentLocation);
+            $cleanLocation = preg_replace('/^(KABUPATEN|KAB\.?|KOTA)\s+/i', '', trim($documentLocation));
+            $targetPN = $document->nama_pengadilan_negeri ?: ('Pengadilan Negeri ' . ucwords(strtolower(trim($cleanLocation))));
 
             // Resolusi Kota/Kabupaten Pengadilan Negeri (${courtLocation})
             $courtRaw = trim(preg_replace('/^(PENGADILAN NEGERI|PENGADILAN|PN)\s+/i', '', trim($targetPN)));
