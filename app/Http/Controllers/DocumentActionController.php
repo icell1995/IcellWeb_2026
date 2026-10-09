@@ -31,6 +31,8 @@ use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberit
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
 use App\Models\Doc\Tahap1Document\Tahap1Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
+use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument;
+use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument;
 
 class DocumentActionController extends Controller
 {
@@ -295,6 +297,8 @@ class DocumentActionController extends Controller
             '0405' => \App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
             '0605' => \App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
             '0609' => BeritaAcaraPenahanan::class,
+            '0504' => SuratPermintaanIzinPenyitaanDocument::class,
+            '0505' => SuratLaporanPersetujuanPenyitaanDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,

@@ -146,6 +146,24 @@ class Accident extends Model
             ]);
     }
 
+    public function suratPermintaanIzinPenyitaanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
+    public function suratLaporanPersetujuanPenyitaanDocuments()
+    {
+        return $this->hasMany(
+            \App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument::class,
+            'accident_id',
+            'id'
+        );
+    }
+
     public function suratPemberitahuanPerkembanganHasilPenyidikanDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument', 'accident_id', 'id');
@@ -170,6 +188,7 @@ class Accident extends Model
                 'createdByUser',
             ]);
     }
+
     public function beritaAcaraPenahananDocuments()
     {
         return $this->hasMany('App\Models\BeritaAcaraPenahanan', 'accident_id', 'id')

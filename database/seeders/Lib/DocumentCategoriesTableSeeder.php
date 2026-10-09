@@ -652,6 +652,32 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'alt_code' => 'surat-perintah-pengembalian-barang-bukti-document',
                 'is_case_finish' => false,
             ],
+            [
+                'id' => '0504',
+                'code' => 'DCT-0504',
+                'parent_id' => '05',
+                'name' => 'SURAT PERMINTAAN IZIN PENYITAAN',
+                'category' => $categoryType,
+                'route' => 'doc.surat-permintaan-izin-penyitaan-document.create',
+                'base_route' => 'doc.surat-permintaan-izin-penyitaan-document',
+                'is_digital_signature' => false,
+                'model_class' => NULL,
+                'alt_code' => 'surat-permintaan-izin-penyitaan-document',
+                'is_case_finish' => false,
+            ],
+            [
+                'id' => '0505',
+                'code' => 'DCT-0505',
+                'parent_id' => '05',
+                'name' => 'SURAT LAPORAN PERSETUJUAN PENYITAAN',
+                'category' => $categoryType,
+                'route' => 'doc.surat-laporan-persetujuan-penyitaan-document.create',
+                'base_route' => 'doc.surat-laporan-persetujuan-penyitaan-document',
+                'is_digital_signature' => false,
+                'model_class' => NULL,
+                'alt_code' => 'surat-laporan-persetujuan-penyitaan-document',
+                'is_case_finish' => false,
+            ],
             // =====( END PENYITAAN )=====
 
             // =====( PENAHANAN )=====

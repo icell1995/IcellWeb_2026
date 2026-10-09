@@ -6,6 +6,8 @@ use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPemberitahu
 use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
 use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Tahap1PusiknasDocumentController;
 use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Tahap2PusiknasDocumentController;
+use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPermintaanIzinPenyitaanPusiknasDocumentController;
+use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratLaporanPersetujuanPenyitaanPusiknasDocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -162,4 +164,18 @@ Route::prefix('bahan')->group(function () {
         '/',
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\BaHanDocumentController::class, 'index']
     )->name('api.pusiknasbareskrim.doc.bahan.index');
+});
+
+Route::prefix('s12')->group(function () {
+    Route::get(
+        '/',
+        [SuratPermintaanIzinPenyitaanPusiknasDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s12.index');
+});
+
+Route::prefix('s13')->group(function () {
+    Route::get(
+        '/',
+        [SuratLaporanPersetujuanPenyitaanPusiknasDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s13.index');
 });

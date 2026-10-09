@@ -1220,6 +1220,7 @@ class AccidentController extends Controller
         $TotalKategori5 = ((($DocPenggeledahan1 + $DocPenggeledahan2 + $DocPenggeledahan3 + $DocPenggeledahan4) / 4) * 100);
 
         //kategori 6
+        $surat_permintaan_izin_penyitaan_document = \App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument::where('accident_id', $get_accident)->first();
         $surat_izin_penyitaan = DB::select('select * from surat_izin_penyitaan where accident_id = \'' . $get_accident . '\'');
         $surat_persetujuan_penyitaan = DB::select('select * from surat_persetujuan_penyitaan where accident_id = \'' . $get_accident . '\'');
         $daftar_barang_bukti = DB::select('select * from daftar_barang_bukti where accident_id = \'' . $get_accident . '\'');
@@ -1432,6 +1433,9 @@ class AccidentController extends Controller
             'suratPerintahPembantaranPenahananDocuments',
             'tahap1Documents',
             'tahap2Documents',
+            'suratPermintaanIzinPenyitaanDocuments',
+            'suratLaporanPersetujuanPenyitaanDocuments',
+            'suratPemberitahuanUpayaDiversiDocuments',
             'suratPermohonanPenetapanDiversiDocuments',
             'suratPemberitahuanUpayaDiversiDocuments',
         ];
@@ -1593,7 +1597,8 @@ class AccidentController extends Controller
         $data['berita_acara_penggeledahan'] = $berita_acara_penggeledahan;
         $data['TotalKategori5'] = $TotalKategori5;
 
-        //kategori 6
+        //kategori 6 
+        $data['surat_permintaan_izin_penyitaan_document'] = $surat_permintaan_izin_penyitaan_document;
         $data['surat_izin_penyitaan'] = $surat_izin_penyitaan;
         $data['surat_persetujuan_penyitaan'] = $surat_persetujuan_penyitaan;
         $data['daftar_barang_bukti'] = $daftar_barang_bukti;
@@ -1703,6 +1708,8 @@ class AccidentController extends Controller
         $data['TotalKategori13'] = $TotalKategori13;
         $data['documentStages'] = $documentStages;
         $data['showImage'] = $showImage;
+
+        // dd($data);
 
         return view('produktivitas.produktivitas-view', $data);
     }

@@ -1,0 +1,69 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        DB::beginTransaction();
+        try {
+            Schema::create('doc.surat_laporan_persetujuan_penyitaan_document_officers', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->uuid('surat_laporan_persetujuan_penyitaan_document_id');
+                
+                $table->bigInteger('sort')->default(0);
+                $table->string('register_number');
+                $table->string('first_title')->nullable();
+                $table->string('first_name');
+                $table->string('last_name')->nullable();
+                $table->string('last_title')->nullable();
+
+                $table->string('rank_id')->nullable();
+                $table->string('position_id')->nullable();
+                $table->string('phone_number')->nullable();
+                $table->string('email')->nullable();
+                $table->text('information')->nullable();
+
+                $table->string('police_id')->nullable();
+
+                $table->enum('status', ['PRESENT', 'PAST', 'EXTERNAL'])->default('PRESENT')->nullable();
+                $table->enum('class', ['MEMBER', 'LEADER', 'SIGNATORY'])->default('SIGNATORY')->nullable();
+                $table->enum('flag', ['INTERNAL', 'MOVED', 'EXTERNAL'])->default('INTERNAL')->nullable();
+                $table->enum('insert_method', ['MANUAL', 'IMPORT'])->default('IMPORT')->nullable();
+
+                $table->timestamps();
+                $table->softDeletes();
+
+                $table->foreign('surat_laporan_persetujuan_penyitaan_document_id', 'fk_s13_officers_doc_id')
+                    ->references('id')->on('doc.surat_laporan_persetujuan_penyitaan_documents')
+                    ->onDelete('cascade')->onUpdate('cascade');
+            });
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+
+    public function down(): void
+    {
+        DB::beginTransaction();
+        try {
+            Schema::table('doc.surat_laporan_persetujuan_penyitaan_document_officers', function (Blueprint $table) {
+                $table->dropForeign('fk_s13_officers_doc_id');
+            });
+
+            Schema::dropIfExists('doc.surat_laporan_persetujuan_penyitaan_document_officers');
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th;
+        }
+    }
+};

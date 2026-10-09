@@ -29,6 +29,8 @@ use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberit
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
 use App\Models\Doc\Tahap1Document\Tahap1Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
+use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument;
+use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument;
 
 use App\Traits\DocsOfficersTraits;
 
@@ -236,6 +238,8 @@ class DocumentApprovalController extends Controller
             SpdpPusiknasDocument::class,
             Tahap1Document::class,
             Tahap2Document::class,
+            SuratPermintaanIzinPenyitaanDocument::class,
+            SuratLaporanPersetujuanPenyitaanDocument::class,
         ];
 
         $documentsCollection = Collection::make();
@@ -273,6 +277,8 @@ class DocumentApprovalController extends Controller
             '0405' => SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
             '0605' => \App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
             '0609' => BeritaAcaraPenahanan::class,
+            '0504' => SuratPermintaanIzinPenyitaanDocument::class,
+            '0505' => SuratLaporanPersetujuanPenyitaanDocument::class,
             '0702' => SuratPerintahTugasDocument::class,
             '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,
