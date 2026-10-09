@@ -88,6 +88,11 @@ class SuratPemberitahuanDimulainyaPenyidikanDocument extends Model
         ]);
     }
 
+    public function getBaseRouteAttribute(): string
+    {
+        return 'doc.surat-pemberitahuan-dimulainya-penyidikan-document';
+    }
+
     public function documentCategory(){
         return $this->belongsTo('App\Models\Lib\DocumentCategory', 'document_category_id', 'id');
     }

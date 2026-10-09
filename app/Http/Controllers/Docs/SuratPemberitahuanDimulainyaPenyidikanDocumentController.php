@@ -242,6 +242,17 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
             ->where('id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)
             ->first();
 
+        if (!$suratPemberitahuanDimulainyaPenyidikanDocument) {
+            $pusiknasDoc = \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::find($suratPemberitahuanDimulainyaPenyidikanDocumentId);
+            if ($pusiknasDoc) {
+                return redirect()->route('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.show', [
+                    'id' => $suratPemberitahuanDimulainyaPenyidikanDocumentId,
+                    'accident_id' => $accidentId,
+                ]);
+            }
+            return redirect()->back()->with('error', 'Dokumen Surat Pemberitahuan Dimulainya Penyidikan tidak ditemukan.');
+        }
+
         $accident = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         $viewData = [
@@ -261,6 +272,16 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
         $suratPemberitahuanDimulainyaPenyidikanDocumentId = $id;
 
         $suratPemberitahuanDimulainyaPenyidikanDocument = SuratPemberitahuanDimulainyaPenyidikanDocument::with(['suratPemberitahuanDimulainyaPenyidikanDocumentOfficers', 'suratPerintahPenyidikanDocument'])->where('id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)->first();
+        if (!$suratPemberitahuanDimulainyaPenyidikanDocument) {
+            $pusiknasDoc = \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::find($suratPemberitahuanDimulainyaPenyidikanDocumentId);
+            if ($pusiknasDoc) {
+                return redirect()->route('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.edit', [
+                    'id' => $suratPemberitahuanDimulainyaPenyidikanDocumentId,
+                    'accident_id' => $accidentId,
+                ]);
+            }
+            return redirect()->back()->with('error', 'Dokumen Surat Pemberitahuan Dimulainya Penyidikan tidak ditemukan.');
+        }
         $accident = Accident::where('id', $accidentId)->first();
 
         $selectedSuspects = $suratPemberitahuanDimulainyaPenyidikanDocument->suspects()->get()->pluck('id')->toArray();
@@ -495,7 +516,12 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
         try {
             // Delete from database
             $suratPemberitahuanDimulainyaPenyidikanDocument = SuratPemberitahuanDimulainyaPenyidikanDocument::where('id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)->first();
-            if ($suratPemberitahuanDimulainyaPenyidikanDocument) {
+            if (!$suratPemberitahuanDimulainyaPenyidikanDocument) {
+                $pusiknasDoc = \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::find($suratPemberitahuanDimulainyaPenyidikanDocumentId);
+                if ($pusiknasDoc) {
+                    $pusiknasDoc->delete();
+                }
+            } elseif ($suratPemberitahuanDimulainyaPenyidikanDocument) {
                 $suratPemberitahuanDimulainyaPenyidikanDocument->delete();
             }
 
@@ -516,6 +542,17 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentController extends Controlle
         $suratPemberitahuanDimulainyaPenyidikanDocumentId = $id;
 
         $suratPemberitahuanDimulainyaPenyidikanDocument = SuratPemberitahuanDimulainyaPenyidikanDocument::withRelated()->where('id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)->first();
+        if (!$suratPemberitahuanDimulainyaPenyidikanDocument) {
+            $pusiknasDoc = \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::find($suratPemberitahuanDimulainyaPenyidikanDocumentId);
+            if ($pusiknasDoc) {
+                return redirect()->route('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.download', [
+                    'id' => $suratPemberitahuanDimulainyaPenyidikanDocumentId,
+                    'accident_id' => $accidentId,
+                    'document_category_id' => request()->query('document_category_id', '0204'),
+                ]);
+            }
+            return redirect()->back()->with('error', 'Dokumen Surat Pemberitahuan Dimulainya Penyidikan tidak ditemukan.');
+        }
         $signatory = $suratPemberitahuanDimulainyaPenyidikanDocument->suratPemberitahuanDimulainyaPenyidikanDocumentOfficers->where('class', '=', SuratPemberitahuanDimulainyaPenyidikanDocumentOfficer::getEnumOption('class', 'SIGNATORY'))->first();
         $suspects = $suratPemberitahuanDimulainyaPenyidikanDocument->suspects()->get();
         $reportedPersons = $suratPemberitahuanDimulainyaPenyidikanDocument->reportedPersons()->get();

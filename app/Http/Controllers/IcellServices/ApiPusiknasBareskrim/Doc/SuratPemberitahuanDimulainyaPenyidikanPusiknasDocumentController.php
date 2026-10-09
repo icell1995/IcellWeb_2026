@@ -192,7 +192,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
                     $daftarDokumenDigital[] = [
                         'kode_jenis_dokumen' => 'spdp',
                         'mime_type' => 'application/pdf',
-                        'url' => asset("documents/attachments/{$att->name}")
+                        'url' => url("documents/attachments/{$att->name}")
                     ];
                 }
 
@@ -203,7 +203,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
                     $daftarDokumenDigital[] = [
                         'kode_jenis_dokumen' => 'sprindik',
                         'mime_type' => 'application/pdf',
-                        'url' => asset("documents/attachments/{$sprindikAtt->name}")
+                        'url' => url("documents/attachments/{$sprindikAtt->name}")
                     ];
                 } else {
                     $daftarDokumenDigital[] = [
@@ -214,10 +214,11 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
                 }
 
                 // 3. lp (Laporan Polisi)
+                $lpDoc = \App\Models\LaporanPolisi::where('accident_id', $doc->accident_id)->latest()->first();
                 $daftarDokumenDigital[] = [
                     'kode_jenis_dokumen' => 'lp',
                     'mime_type' => 'application/pdf',
-                    'url' => ''
+                    'url' => ($lpDoc && $lpDoc->name) ? url("file/tugas/laporan_polisi/{$lpDoc->name}") : ''
                 ];
 
                 $identitasDokumen = [

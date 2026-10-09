@@ -115,6 +115,16 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument extends Model
         return $this->hasMany(SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentOfficer::class, 'surat_pemberitahuan_dimulainya_penyidikan_pusiknas_document_id');
     }
 
+    public function suratPemberitahuanDimulainyaPenyidikanDocumentOfficers()
+    {
+        return $this->officers();
+    }
+
+    public function suratPemberitahuanDimulainyaPenyidikanPusiknasDocumentOfficers()
+    {
+        return $this->officers();
+    }
+
     public function attachments()
     {
         return $this->hasMany(SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentAttachment::class, 'surat_pemberitahuan_dimulainya_penyidikan_pusiknas_document_id');
@@ -132,9 +142,26 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument extends Model
             ->withTimestamps();
     }
 
+    public function getBaseRouteAttribute(): string
+    {
+        return 'doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document';
+    }
+
     public function documentCategory()
     {
         return $this->belongsTo(\App\Models\Lib\DocumentCategory::class, 'document_category_id', 'id');
+    }
+
+    public function getDocumentCategoryAttribute()
+    {
+        $cat = $this->getRelationValue('documentCategory');
+        if ($cat) {
+            $cat = clone $cat;
+            $cat->base_route = 'doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document';
+            $cat->route = 'doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.create';
+            $cat->model_class = self::class;
+        }
+        return $cat;
     }
 
     public function attachment()

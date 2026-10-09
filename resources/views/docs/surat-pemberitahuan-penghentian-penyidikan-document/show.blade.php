@@ -29,10 +29,12 @@
                 <thead class="table-secondary"><tr><th colspan="2">identitas_dokumen</th></tr></thead>
                 <tbody>
                     <tr><td class="fw-bold" width="40%">kode_jenis_dokumen</td><td><code>sp3</code></td></tr>
-                    <tr><td class="fw-bold">nomor</td><td>{{ $sp3->no_sp3 }}</td></tr>
+                    <tr><td class="fw-bold">nomor</td><td>{{ $sp3->document_number ?? $sp3->no_sp3 }}</td></tr>
                     <tr><td class="fw-bold">tanggal</td>
-                        <td>{{ $sp3->tanggal_berlaku ? date('Y-m-d', strtotime($sp3->tanggal_berlaku)) : '-' }}</td></tr>
+                        <td>{{ $sp3->document_date ? date('Y-m-d', strtotime($sp3->document_date)) : ($sp3->tanggal_berlaku ? date('Y-m-d', strtotime($sp3->tanggal_berlaku)) : '-') }}</td></tr>
                     <tr><td class="fw-bold">nomor_spdp</td><td>{{ $sp3->no_spdp ?? '-' }}</td></tr>
+                    <tr><td class="fw-bold">kejaksaan</td><td>{{ $sp3->prosecutor->name ?? '-' }}</td></tr>
+                    <tr><td class="fw-bold">pengadilan</td><td>{{ $sp3->court->name ?? '-' }}</td></tr>
                 </tbody>
             </table>
 
@@ -95,6 +97,25 @@
                             @empty
                                 <span class="text-muted">-</span>
                             @endforelse
+                        </td>
+                    </tr>
+
+                    {{-- tembusan --}}
+                    <tr>
+                        <td class="fw-bold">tembusan</td>
+                        <td>
+                            @php
+                                $carbonCopies = is_array($sp3->carbon_copies) ? $sp3->carbon_copies : (json_decode($sp3->carbon_copies, true) ?? []);
+                            @endphp
+                            @if (!empty($carbonCopies))
+                                <ol class="mb-0 ps-3">
+                                    @foreach($carbonCopies as $cc)
+                                        <li>{{ $cc }}</li>
+                                    @endforeach
+                                </ol>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
                         </td>
                     </tr>
                 </tbody>

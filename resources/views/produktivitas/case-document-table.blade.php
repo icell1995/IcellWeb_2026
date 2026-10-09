@@ -146,6 +146,17 @@
                             if ($isSp2hpDocument && Auth::getUser()->role_id != 1) {
                                 continue;
                             }
+
+                            $baseRoute = $accidentDocument->base_route ?? ($accidentDocument->documentCategory->base_route ?? null);
+                            if (empty($baseRoute)) {
+                                if ($accidentDocument instanceof \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument) {
+                                    $baseRoute = 'doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document';
+                                } elseif ($accidentDocument instanceof \App\Models\Doc\Tahap1Document\Tahap1Document) {
+                                    $baseRoute = 'doc.tahap-1-document';
+                                } elseif ($accidentDocument instanceof \App\Models\Doc\Tahap2Document\Tahap2Document) {
+                                    $baseRoute = 'doc.tahap-2-document';
+                                }
+                            }
                         @endphp
                         <tr class="{{ $isLegacy ? 'table-primary' : '' }}">
                             <td class="text-center align-middle">
@@ -235,7 +246,7 @@
                                     </button>
                                 @else
                                     <a target="_blank"
-                                        href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.download', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                        href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.download', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                         class="btn btn-primary btn-lg">
                                         <i class="bi bi-printer"></i>
                                         
@@ -273,10 +284,10 @@
                                         @case('1')
 
                                             @if (in_array(Auth::getUser()->role_id, [4, 1]) || $isCanEntryDocument == true)
-                                                <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                                <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                     class="btn btn-warning btn-sm m-1"><i class="bi bi-pencil-square"></i> Edit</a>
                                                 <br>
-                                                <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                                <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                     class="btn btn-danger btn-sm m-1" data-method="delete"
                                                     data-token="{{ csrf_token() }}"
                                                     data-confirm="Apakah Anda yakin ingin menghapus ini?"><i
@@ -300,10 +311,10 @@
                                                 <br>
                                             @endif
 
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                 class="btn btn-warning btn-sm m-1"><i class="bi bi-pencil-square"></i> Edit</a>
                                             <br>
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                 class="btn btn-danger btn-sm m-1" data-method="delete"
                                                 data-token="{{ csrf_token() }}"
                                                 data-confirm="Apakah Anda yakin ingin menghapus ini?"><i
@@ -336,10 +347,10 @@
                                                 <br>
                                             @endif
 
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                 class="btn btn-warning btn-sm m-1"><i class="fa fa-edit"></i> Revisi</a>
                                             <br>
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                 class="btn btn-danger btn-sm m-1" data-method="delete"
                                                 data-token="{{ csrf_token() }}"
                                                 data-confirm="Apakah Anda yakin ingin menghapus ini?"><i
@@ -444,6 +455,13 @@
                                     @endswitch
                                 @endif
 
+                                @if(!$isSp2hpDocument && in_array($accidentDocument->document_category_id, ['0601', '0603', '0604', '0605', '0903']))
+                                    <a href="{{ route(($baseRoute ?? 'doc.surat-perintah-penahanan-document') . '.show', ['id' => $accidentDocument->id, 'accident_id' => $id]) }}"
+                                        class="btn btn-info btn-sm m-1 text-white" target="_blank">
+                                        <i class="bi bi-eye"></i> Detail / JSON
+                                    </a>
+                                    <br>
+                                @endif
                                 @if (Auth::getUser()->role_id == 1)
                                     <br>
                                     <button type="button" data-document-id="{{$accidentDocument->id}}"

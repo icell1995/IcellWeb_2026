@@ -262,7 +262,7 @@ class Tahap2PusiknasDocumentController extends Controller
                     $daftarDokumenDigital[] = [
                         'kode_jenis_dokumen' => 'bpt2',
                         'mime_type' => 'application/pdf',
-                        'url' => asset("documents/attachments/{$att->name}")
+                        'url' => url("documents/attachments/{$att->name}")
                     ];
                 }
 
@@ -273,7 +273,7 @@ class Tahap2PusiknasDocumentController extends Controller
                     $daftarDokumenDigital[] = [
                         'kode_jenis_dokumen' => 'sprindik',
                         'mime_type' => 'application/pdf',
-                        'url' => asset("documents/attachments/{$sprindikAtt->name}")
+                        'url' => url("documents/attachments/{$sprindikAtt->name}")
                     ];
                 } else {
                     $daftarDokumenDigital[] = [
@@ -284,19 +284,25 @@ class Tahap2PusiknasDocumentController extends Controller
                 }
 
                 // 3. lp (Laporan Polisi)
+                $lpDoc = \App\Models\LaporanPolisi::where('accident_id', $doc->accident_id)->latest()->first();
                 $daftarDokumenDigital[] = [
                     'kode_jenis_dokumen' => 'lp',
                     'mime_type' => 'application/pdf',
-                    'url' => ''
+                    'url' => ($lpDoc && $lpDoc->name) ? url("file/tugas/laporan_polisi/{$lpDoc->name}") : ''
                 ];
                 
                 $messages = $doc->messages ?? [];
 
+                $nomorSpdp = $doc->no_spdp
+                    ?: ($doc->suratPemberitahuanDimulainyaPenyidikan->document_number ?? null)
+                    ?: (\App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::find($doc->surat_pemberitahuan_dimulainya_penyidikan_id)->document_number ?? null)
+                    ?: (\App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::where('accident_id', $doc->accident_id)->value('document_number') ?? '-');
+
                 $identitasDokumen = [
                     'nomor_surat_pengantar' => $doc->document_number ?? '-',
                     'tanggal_surat_pengantar' => $doc->document_date ? date('Y-m-d', strtotime($doc->document_date)) : date('Y-m-d'),
-                    'nomor_berkas_perkara' => $doc->berkas_perkara_number ?? '-',
-                    'nomor_spdp' => $doc->no_spdp ?? '-',
+                    'nomor_berkas_perkara' => $doc->no_berkas_perkara ?? $doc->berkas_perkara_number ?? '-',
+                    'nomor_spdp' => $nomorSpdp ?: '-',
                     'tanggal_terima_p21' => $doc->tanggal_terima_p21 ? date('Y-m-d', strtotime($doc->tanggal_terima_p21)) : date('Y-m-d')
                 ];
 

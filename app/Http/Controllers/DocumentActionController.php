@@ -31,6 +31,12 @@ use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberit
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
 use App\Models\Doc\Tahap1Document\Tahap1Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
+use App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument;
+use App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument;
+use App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument;
+use App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument;
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument;
 use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument;
 
@@ -55,7 +61,12 @@ class DocumentActionController extends Controller
             ->get();
    
         $document = $this->getDocumentRouter($documentCategoryId, $documentId, $accidentId);
-        $documentSignatory = $document->signatory;
+
+        if ($document instanceof \Illuminate\Http\RedirectResponse) {
+            return $document;
+        }
+
+        $documentSignatory = $document->signatory ?? null;
 
         $viewData = [
             'accidentId' => $accidentId,
@@ -94,6 +105,10 @@ class DocumentActionController extends Controller
         DB::beginTransaction();
         try{
             $document = $this->getDocumentRouter($documentCategoryId, $documentId, $accidentId);
+
+            if ($document instanceof \Illuminate\Http\RedirectResponse) {
+                return $document;
+            }
 
             if(!empty($document)){
                 if(!in_array($document->status_id, [2, 4])){
@@ -186,6 +201,11 @@ class DocumentActionController extends Controller
         DB::beginTransaction();
         try{
             $document = $this->getDocumentRouter($documentCategoryId, $documentId, $accidentId);
+
+            if ($document instanceof \Illuminate\Http\RedirectResponse) {
+                return $document;
+            }
+
             $documentId = $document->id;
             
             \Illuminate\Support\Facades\Log::info('UPLOAD DEBUG', [
@@ -217,18 +237,28 @@ class DocumentActionController extends Controller
     
                 $documentAttachment = $document->attachment()->first();
     
+                $attachmentData = [
+                    'original_name'  => $fileOriginalName,
+                    'name'           => $fileHashName,
+                    'extension'      => $fileExtension,
+                    'file_extension' => $fileExtension,
+                    'size'           => $fileSize,
+                    'file_size'      => $fileSize,
+                    'file_path'      => 'documents/attachments/' . $fileHashName,
+                    'mimetype'       => $fileMimeType,
+                    'type'           => 'DOCUMENT',
+                    'is_active'      => true,
+                    'url'            => 'documents/attachments/' . $fileHashName,
+                ];
+                $attachmentModel = $document->attachment()->getRelated();
+                $tableColumns = \Illuminate\Support\Facades\Schema::getColumnListing($attachmentModel->getTable());
+                $dataToSave = array_intersect_key($attachmentData, array_flip($tableColumns));
+
                 $document->attachment()->updateOrCreate(
                     [
                         'id' => $documentAttachment->id ?? null,
                     ],
-                    [
-                        'original_name' => $fileOriginalName,
-                        'name' => $fileHashName,
-                        'extension' => $fileExtension,
-                        'size' => $fileSize,
-                        'mimetype' => $fileMimeType,
-                        'type' => 'DOCUMENT',
-                    ]
+                    $dataToSave
                 ); 
                 
                 //move file to public
@@ -269,6 +299,10 @@ class DocumentActionController extends Controller
 
         $document = $this->getDocumentRouter($documentCategoryId, $documentId, $accidentId);
 
+        if ($document instanceof \Illuminate\Http\RedirectResponse) {
+            return $document;
+        }
+
         $viewData = [
             'accidentId' => $accidentId,
             'documentId' => $documentId,
@@ -290,17 +324,16 @@ class DocumentActionController extends Controller
                 SuratPemberitahuanDimulainyaPenyidikanDocument::class,
                 \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class
             ],
-            '0212' => SuratPermohonanPenetapanDiversiDocument::class,
+            '0205' => SuratPerintahPenghentianPenyidikanDocument::class,
+            '0206' => SuratKetetapanPenghentianPenyidikanDocument::class,
             '0211' => SuratPemberitahuanUpayaDiversiDocument::class,
+            '0212' => SuratPermohonanPenetapanDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
-            '0404' => \App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument::class,
-            '0405' => \App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
-            '0605' => \App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
-            '0609' => BeritaAcaraPenahanan::class,
+            '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
+            '0404' => SuratPermintaanPenggeledahanDocument::class,
+            '0405' => SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
             '0504' => SuratPermintaanIzinPenyitaanDocument::class,
             '0505' => SuratLaporanPersetujuanPenyitaanDocument::class,
-            '0702' => SuratPerintahTugasDocument::class,
-            '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,
             '0603' => SuratPerintahPenangguhanPenahananDocument::class,
             '0604' => SuratPerintahPencabutanPenangguhanPenahananDocument::class,
@@ -308,7 +341,14 @@ class DocumentActionController extends Controller
             '0606' => SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
             '0607' => SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
             '0608' => SuratPerintahPembantaranPenahananDocument::class,
-            '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
+            '0609' => [
+                BeritaAcaraPenahanan::class,
+                BeritaAcaraPenahananDocument::class,
+            ],
+            '0702' => SuratPerintahTugasDocument::class,
+            '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0709' => SuratPemberitahuanPerkembanganHasilPenyidikanDocument::class,
+            '0805' => Tahap1Document::class,
             '0806' => Tahap1Document::class,
             '0807' => Tahap2Document::class,
             // Add more document types here

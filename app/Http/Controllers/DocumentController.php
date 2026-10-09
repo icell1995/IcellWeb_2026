@@ -26,7 +26,29 @@ class DocumentController extends Controller
                 return redirect()->back()->with('error', 'Dokumen Permintaan Penggeledahan belum dibuat, mohon untuk buat Surat Permintaan Penggeledahan terlebih dahulu.');
             }
         }
+
+        if ($typeDocumentId == '0206') {
+            $hasSprintHenti = \App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument::where('accident_id', $accidentId)->exists();
+            if (!$hasSprintHenti) {
+                return redirect()->back()->with('error', 'Dokumen Surat Perintah Penghentian Penyidikan belum dibuat, mohon untuk buat Surat Perintah Penghentian Penyidikan terlebih dahulu.');
+            }
+        }
+
+        if ($typeDocumentId == '0216') {
+            $hasSprintHenti = \App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument::where('accident_id', $accidentId)->exists();
+            if (!$hasSprintHenti) {
+                return redirect()->back()->with('error', 'Dokumen Surat Perintah Penghentian Penyidikan belum dibuat, mohon untuk buat Surat Perintah Penghentian Penyidikan terlebih dahulu.');
+            }
+            $hasSketHenti = \App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument::where('accident_id', $accidentId)->exists();
+            if (!$hasSketHenti) {
+                return redirect()->back()->with('error', 'Dokumen Surat Ketetapan Penghentian Penyidikan belum dibuat, mohon untuk buat Surat Ketetapan Penghentian Penyidikan terlebih dahulu.');
+            }
+        }
         
+        if ($typeDocumentId == '0204') {
+            return redirect()->route('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.create', ['accident_id' => $accidentId]);
+        }
+
         return redirect()->route($typeDocument->route, ['accident_id' => $accidentId]);
     }
 
@@ -35,6 +57,8 @@ class DocumentController extends Controller
                                 ->where('category', 'TYPE')
                                 ->where('route', '!=', NULL)
                                 ->where('is_active', true)
+                                ->orderBy('sort', 'asc')
+                                ->orderBy('id', 'asc')
                                 ->get();
         
         // Filter SP2HP documents - only show for role_id 1
