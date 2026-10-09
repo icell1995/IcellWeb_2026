@@ -172,7 +172,7 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
                     $daftarDokumenDigital[] = [
                         'kode_jenis_dokumen' => 'sp3',
                         'mime_type' => 'application/pdf',
-                        'url' => asset("documents/attachments/{$sp3Att->name}")
+                        'url' => url("documents/attachments/{$sp3Att->name}")
                     ];
                 } else {
                     $daftarDokumenDigital[] = [
@@ -183,13 +183,14 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
                 }
 
                 // 2. sprindik
-                $sprindikDoc = $doc->suratPerintahPenyidikanDocument;
+                $sprindikDoc = $doc->suratPerintahPenyidikanDocument
+                    ?? \App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument::where('accident_id', $doc->accident_id)->with('attachment')->first();
                 if ($sprindikDoc && $sprindikDoc->attachment) {
                     $sprindikAtt = $sprindikDoc->attachment;
                     $daftarDokumenDigital[] = [
                         'kode_jenis_dokumen' => 'sprindik',
                         'mime_type' => 'application/pdf',
-                        'url' => asset("documents/attachments/{$sprindikAtt->name}")
+                        'url' => url("documents/attachments/{$sprindikAtt->name}")
                     ];
                 } else {
                     $daftarDokumenDigital[] = [
@@ -200,16 +201,20 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
                 }
 
                 // 3. lp (Laporan Polisi)
+                $lpDoc = \App\Models\LaporanPolisi::where('accident_id', $doc->accident_id)->latest()->first();
                 $daftarDokumenDigital[] = [
                     'kode_jenis_dokumen' => 'lp',
                     'mime_type' => 'application/pdf',
-                    'url' => ''
+                    'url' => ($lpDoc && $lpDoc->name) ? url("file/tugas/laporan_polisi/{$lpDoc->name}") : ''
                 ];
+
+                $nomorSpdp = $doc->no_spdp
+                    ?: (\App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::where('accident_id', $doc->accident_id)->value('document_number') ?? '-');
 
                 $identitasDokumen = [
                     'nomor' => $doc->document_number ?? '-',
                     'tanggal' => $doc->document_date ? date('Y-m-d', strtotime($doc->document_date)) : date('Y-m-d'),
-                    'nomor_spdp' => $doc->no_spdp ?? null
+                    'nomor_spdp' => $nomorSpdp ?: '-'
                 ];
 
                 $kontenDokumen = [

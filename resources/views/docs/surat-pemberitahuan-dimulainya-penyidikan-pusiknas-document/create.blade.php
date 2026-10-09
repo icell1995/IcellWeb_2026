@@ -7,6 +7,18 @@
 @push('style')
     <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
+    <style>
+        .select2-container .select2-selection.border-danger,
+        .select2-container .select2-selection.is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .invalid-feedback.frontend-error {
+            display: block;
+            font-size: 80%;
+            color: #dc3545;
+            margin-top: 0.25rem;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -49,7 +61,7 @@
 
         <div class="box-body">
             <form action="{{ route('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.store', ['accident_id' => $accidentId]) }}"
-                method="POST" enctype="multipart/form-data" id="spdpPusiknasForm">
+                method="POST" enctype="multipart/form-data" id="spdpPusiknasForm" novalidate>
                 @csrf
                 <input type="hidden" name="accident_id" value="{{ $accidentId }}">
 
@@ -477,9 +489,156 @@
                 if (charCode > 31 && (charCode < 48 || charCode > 57)) { e.preventDefault(); }
             });
 
-            // AJAX Validate & Submit
+            // Helper check field has value
+            function hasFieldValue($field) {
+                var raw = $field.val();
+                if (raw === null || raw === undefined) return false;
+                if (Array.isArray(raw)) return raw.length > 0;
+                var str = String(raw).trim();
+                return str !== '' && str !== '0';
+            }
+
+            // Helper clear single field error
+            function clearFieldError($field) {
+                $field.removeClass('is-invalid border border-danger');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                    $field.next('.select2-container').next('.frontend-error, .invalid-feedback').remove();
+                }
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.closest('.input-group, .form-group, .mb-3, .col-sm-9, div').find('.frontend-error, .invalid-feedback').remove();
+            }
+
+            // Auto-clear realtime saat user mengetik atau mengubah nilai field
+            $(document).on('input change changeDate dp.change keyup blur', 'input, textarea, select', function() {
+                var $field = $(this);
+                if (hasFieldValue($field)) {
+                    clearFieldError($field);
+                }
+            });
+
+            $(document).on('select2:select select2:unselect change', 'select', function() {
+                var $field = $(this);
+                if (hasFieldValue($field)) {
+                    clearFieldError($field);
+                }
+            });
+
+            // Continuous watcher
+            setInterval(function() {
+                $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
+                    var $field = $(this);
+                    if (hasFieldValue($field)) {
+                        clearFieldError($field);
+                    }
+                });
+            }, 200);
+
+            // Helper scrollToFirstError
+            function scrollToFirstError() {
+                var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+                if (!$firstError.length) {
+                    $firstError = $('.is-invalid, .border-danger').first();
+                }
+                if ($firstError && $firstError.length) {
+                    var el = $firstError[0];
+                    if (el && typeof el.scrollIntoView === 'function') {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    var topPos = $firstError.offset() ? $firstError.offset().top : 0;
+                    $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                        scrollTop: Math.max(0, topPos - 140)
+                    }, 400);
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            // Validasi Submit Form
             $('#spdpPusiknasFormSubmit').on('click', function (e) {
                 e.preventDefault();
+
+                // Bersihkan error sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.border.border-danger').removeClass('border border-danger');
+                $('.select2-selection').removeClass('border border-danger is-invalid');
+                $('.frontend-error').remove();
+                $('.invalid-feedback').remove();
+
+                let errors = [];
+
+                function markError(fieldSelector, message) {
+                    var $field = typeof fieldSelector === 'string' ? $(fieldSelector) : fieldSelector;
+                    if (!$field || !$field.length) return;
+
+                    $field.addClass('is-invalid');
+                    if ($field.next('.select2-container').length) {
+                        $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    }
+                    var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                    $target.siblings('.frontend-error, .invalid-feedback').remove();
+                    $target.next('.frontend-error, .invalid-feedback').remove();
+                    $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    errors.push(message);
+                }
+
+                function checkInput(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || !$field.is(':visible')) return;
+                    var raw = $field.val();
+                    var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                    if (!val || val === '') {
+                        markError(fieldSelector, label + ' harus diisi');
+                    }
+                }
+
+                function checkSelect(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                    var raw = $field.val();
+                    var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                    if (!hasVal) {
+                        markError(fieldSelector, label + ' harus dipilih');
+                    }
+                }
+
+                // Validasi field wajib di sisi frontend
+                checkInput('#documentNumber', 'Nomor SPDP');
+                checkInput('#documentDate', 'Tanggal SPDP');
+                checkSelect('#documentClassification', 'Klasifikasi Surat');
+                checkSelect('#suratPerintahPenyidikanDocument', 'Nomor SP Penyidikan');
+                checkSelect('#suratPerintahTugasDocument', 'Nomor SP Tugas Penyidikan');
+                checkSelect('#prosecutor', 'Kejaksaan');
+                checkSelect('#court', 'Pengadilan');
+                checkSelect('#kode_wilayah', 'Kode Wilayah (Kecamatan)');
+
+                // Tersangka / Terlapor
+                var isSuspect = $('.isSuspectExists:checked').val();
+                if (isSuspect === 'true') {
+                    checkSelect('#suspects', 'Pilih Tersangka');
+                } else {
+                    checkSelect('#reportedPerson', 'Pilih Terlapor');
+                }
+
+                // Tembusan
+                $('#carbonCopiesContainer .carbon-copy-input').each(function(idx) {
+                    var val = ($(this).val() || '').trim();
+                    if (!val) {
+                        markError($(this), 'Tembusan ke-' + (idx + 1) + ' harus diisi');
+                    }
+                });
+
+                checkSelect('#signatory', 'Penandatangan');
+                checkInput('#appendix', 'Jumlah Lampiran');
+
+                // Jika ada error di frontend, scroll ke field pertama
+                if (errors.length > 0) {
+                    scrollToFirstError();
+                    return false;
+                }
+
+                // Validasi sisi server via Ajax
                 $.ajax({
                     url: "{{ route('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.api.validate-request-form', ['accident_id' => $accidentId]) }}",
                     type: 'POST',
@@ -487,15 +646,53 @@
                     data: $('#spdpPusiknasForm').serialize(),
                     success: function (response) {
                         if (response.success) {
-                            $('#spdpPusiknasForm')[0].submit();
+                            Swal.fire({
+                                title: 'Berhasil',
+                                text: response.message || 'Silahkan menunggu proses simpan data',
+                                icon: 'success',
+                                confirmButtonText: 'Ok'
+                            }).then((result) => {
+                                $('#spdpPusiknasForm')[0].submit();
+                            });
                         }
                     },
                     error: function (xhr) {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.code == '422') {
-                            var errorMessages = '';
-                            $.each(response.errors, function (key, value) { errorMessages += '- ' + value + '<br>'; });
-                            Swal.fire({ icon: 'error', title: 'Periksa Isian', html: errorMessages });
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.code == '422' && response.errors) {
+                                if (typeof response.errors === 'object' && !Array.isArray(response.errors)) {
+                                    $.each(response.errors, function(key, messages) {
+                                        var msg = Array.isArray(messages) ? messages[0] : messages;
+                                        var $target = $('#' + key + ', [name="' + key + '"], [name="' + key + '[]"]');
+                                        if ($target.length) {
+                                            markError($target, msg);
+                                        } else if (key === 'carbonCopies') {
+                                            markError('#carbonCopiesContainer .carbon-copy-input:first', msg);
+                                        } else if (key.indexOf('carbonCopies.') === 0) {
+                                            var idx = parseInt(key.split('.')[1]);
+                                            markError($('#carbonCopiesContainer .carbon-copy-input').eq(idx), msg);
+                                        } else if (key === 'suspects') {
+                                            markError('#suspects', msg);
+                                        } else {
+                                            markError('#' + key, msg);
+                                        }
+                                    });
+                                    scrollToFirstError();
+                                } else {
+                                    var errorMessages = '';
+                                    $.each(response.errors, function (key, value) { errorMessages += '- ' + value + '<br>'; });
+                                    Swal.fire({ icon: 'error', title: 'Periksa Isian', html: errorMessages });
+                                }
+                            } else {
+                                var message = response.message || response.errors || 'Terjadi kesalahan saat memproses data.';
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Perhatian',
+                                    text: typeof message === 'string' ? message : JSON.stringify(message)
+                                });
+                            }
+                        } catch (e) {
+                            console.error(e);
                         }
                     }
                 });

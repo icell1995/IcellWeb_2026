@@ -21,6 +21,9 @@ use App\Models\Lib\DocumentClassification;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Doc\Tahap2Document\Tahap2DocumentOfficer;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument;
+use App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocument;
 use App\Traits\DocsOfficersTraits;
 
 class Tahap2DocumentController extends Controller
@@ -73,7 +76,23 @@ class Tahap2DocumentController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $suratPerintahPenahananDocuments = collect(); // Mock for now
+        $suratPerintahPenahananDocuments = SuratPerintahPenahananDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $suratPerpanjanganPenahananDocuments = SuratPermohonanPerpanjanganPenahananKejaksaanDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $suratPenangguhanPenahananDocuments = SuratPerintahPenangguhanPenahananDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $prisons = \App\Models\Lib\Prison::where('is_active', true)->orderBy('name')->get();
 
@@ -87,7 +106,7 @@ class Tahap2DocumentController extends Controller
             ->orderBy('first_name')
             ->get();
 
-$districts = $this->loadDistricts($accident);
+        $districts = $this->loadDistricts($accident);
 
         $extractedDistrict = '';
         if (preg_match('/(?:KECAMATAN|KEC)\.?\s*([A-Za-z\s]+?)\s*(?:KABUPATEN|KAB\.|KAB|KOTA|,|$)/i', $accident->road_name ?? '', $matches)) {
@@ -150,6 +169,8 @@ $districts = $this->loadDistricts($accident);
             'suratKetetapanTentangPenetapanTersangkaDocuments',
             'suratPerintahPenyidikanDocuments',
             'suratPerintahPenahananDocuments',
+            'suratPerpanjanganPenahananDocuments',
+            'suratPenangguhanPenahananDocuments',
             'prisons',
             'authorizedOfficers'
         ));
@@ -196,6 +217,7 @@ $districts = $this->loadDistricts($accident);
         $daftarSaksi       = $this->parseSaksi($request);
         $daftarBarangBukti = $this->parseBarangBukti($request);
         $daftarAhli        = $this->parseAhli($request);
+        $penahananStatus   = $request->penahanan_status ?? 'TIDAK_DITAHAN';
 
         DB::beginTransaction();
         try {
@@ -222,19 +244,19 @@ $districts = $this->loadDistricts($accident);
                 'berkas_perkara_date'                    => $request->berkas_perkara_date ?: null,
                 'berkas_perkara_rangkap'                 => intval($request->berkas_perkara_rangkap ?? 1),
                 'pasal_disangkakan'                      => $request->pasal_disangkakan ?? null,
-                'penahanan_status'                       => $request->penahanan_status ?? 'TIDAK_DITAHAN',
-                'penahanan_rutan'                        => $request->penahanan_rutan ?? null,
-                'penahanan_cabang'                       => $request->penahanan_cabang ?? null,
-                'penahanan_start_date'                   => $request->penahanan_start_date ?: null,
-                'penahanan_end_date'                     => $request->penahanan_end_date ?: null,
-                'surat_perintah_penahanan_number'        => $request->surat_perintah_penahanan_number ?? null,
-                'surat_perintah_penahanan_date'          => $request->surat_perintah_penahanan_date ?: null,
-                'surat_perpanjangan_penahanan_number'    => $request->surat_perpanjangan_penahanan_number ?? null,
-                'surat_perpanjangan_penahanan_date'      => $request->surat_perpanjangan_penahanan_date ?: null,
-                'surat_perpanjangan_penahanan_court_number' => $request->surat_perpanjangan_penahanan_court_number ?? null,
-                'surat_perpanjangan_penahanan_court_date'   => $request->surat_perpanjangan_penahanan_court_date ?: null,
-                'surat_penangguhan_penahanan_number'     => $request->surat_penangguhan_penahanan_number ?? null,
-                'surat_penangguhan_penahanan_date'       => $request->surat_penangguhan_penahanan_date ?: null,
+                'penahanan_status'                       => $penahananStatus,
+                'penahanan_rutan'                        => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->penahanan_rutan ?? null),
+                'penahanan_cabang'                       => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->penahanan_cabang ?? null),
+                'penahanan_start_date'                   => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->penahanan_start_date ?: null),
+                'penahanan_end_date'                     => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->penahanan_end_date ?: null),
+                'surat_perintah_penahanan_number'        => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perintah_penahanan_number ?? null),
+                'surat_perintah_penahanan_date'          => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perintah_penahanan_date ?: null),
+                'surat_perpanjangan_penahanan_number'    => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perpanjangan_penahanan_number ?? null),
+                'surat_perpanjangan_penahanan_date'      => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perpanjangan_penahanan_date ?: null),
+                'surat_perpanjangan_penahanan_court_number' => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perpanjangan_penahanan_court_number ?? null),
+                'surat_perpanjangan_penahanan_court_date'   => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perpanjangan_penahanan_court_date ?: null),
+                'surat_penangguhan_penahanan_number'     => ($penahananStatus === 'DITANGGUHKAN') ? ($request->surat_penangguhan_penahanan_number ?? null) : null,
+                'surat_penangguhan_penahanan_date'       => ($penahananStatus === 'DITANGGUHKAN') ? ($request->surat_penangguhan_penahanan_date ?: null) : null,
                 'barang_bukti_storage'                   => $request->barang_bukti_storage ?? null,
                 'barang_bukti'                           => $daftarBarangBukti,
                 'jumlah_bb'                              => collect($daftarBarangBukti)->sum('jumlah'),
@@ -443,7 +465,23 @@ $districts = $this->loadDistricts($accident);
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $suratPerintahPenahananDocuments = collect(); // Mock for now
+        $suratPerintahPenahananDocuments = SuratPerintahPenahananDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $suratPerpanjanganPenahananDocuments = SuratPermohonanPerpanjanganPenahananKejaksaanDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $suratPenangguhanPenahananDocuments = SuratPerintahPenangguhanPenahananDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $prisons = \App\Models\Lib\Prison::where('is_active', true)->orderBy('name')->get();
 
@@ -465,6 +503,8 @@ $districts = $this->loadDistricts($accident);
             'suratKetetapanTentangPenetapanTersangkaDocuments',
             'suratPerintahPenyidikanDocuments',
             'suratPerintahPenahananDocuments',
+            'suratPerpanjanganPenahananDocuments',
+            'suratPenangguhanPenahananDocuments',
             'prisons',
             'authorizedOfficers'
         ));
@@ -516,6 +556,7 @@ $districts = $this->loadDistricts($accident);
         $daftarSaksi       = $this->parseSaksi($request);
         $daftarBarangBukti = $this->parseBarangBukti($request);
         $daftarAhli        = $this->parseAhli($request);
+        $penahananStatus   = $request->penahanan_status ?? 'TIDAK_DITAHAN';
 
         DB::beginTransaction();
         try {
@@ -541,19 +582,19 @@ $districts = $this->loadDistricts($accident);
                 'berkas_perkara_date'                    => $request->berkas_perkara_date ?: null,
                 'berkas_perkara_rangkap'                 => intval($request->berkas_perkara_rangkap ?? 1),
                 'pasal_disangkakan'                      => $request->pasal_disangkakan ?? null,
-                'penahanan_status'                       => $request->penahanan_status ?? 'TIDAK_DITAHAN',
-                'penahanan_rutan'                        => $request->penahanan_rutan ?? null,
-                'penahanan_cabang'                       => $request->penahanan_cabang ?? null,
-                'penahanan_start_date'                   => $request->penahanan_start_date ?: null,
-                'penahanan_end_date'                     => $request->penahanan_end_date ?: null,
-                'surat_perintah_penahanan_number'        => $request->surat_perintah_penahanan_number ?? null,
-                'surat_perintah_penahanan_date'          => $request->surat_perintah_penahanan_date ?: null,
-                'surat_perpanjangan_penahanan_number'    => $request->surat_perpanjangan_penahanan_number ?? null,
-                'surat_perpanjangan_penahanan_date'      => $request->surat_perpanjangan_penahanan_date ?: null,
-                'surat_perpanjangan_penahanan_court_number' => $request->surat_perpanjangan_penahanan_court_number ?? null,
-                'surat_perpanjangan_penahanan_court_date'   => $request->surat_perpanjangan_penahanan_court_date ?: null,
-                'surat_penangguhan_penahanan_number'     => $request->surat_penangguhan_penahanan_number ?? null,
-                'surat_penangguhan_penahanan_date'       => $request->surat_penangguhan_penahanan_date ?: null,
+                'penahanan_status'                       => $penahananStatus,
+                'penahanan_rutan'                        => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->penahanan_rutan ?? null),
+                'penahanan_cabang'                       => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->penahanan_cabang ?? null),
+                'penahanan_start_date'                   => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->penahanan_start_date ?: null),
+                'penahanan_end_date'                     => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->penahanan_end_date ?: null),
+                'surat_perintah_penahanan_number'        => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perintah_penahanan_number ?? null),
+                'surat_perintah_penahanan_date'          => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perintah_penahanan_date ?: null),
+                'surat_perpanjangan_penahanan_number'    => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perpanjangan_penahanan_number ?? null),
+                'surat_perpanjangan_penahanan_date'      => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perpanjangan_penahanan_date ?: null),
+                'surat_perpanjangan_penahanan_court_number' => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perpanjangan_penahanan_court_number ?? null),
+                'surat_perpanjangan_penahanan_court_date'   => ($penahananStatus === 'TIDAK_DITAHAN') ? null : ($request->surat_perpanjangan_penahanan_court_date ?: null),
+                'surat_penangguhan_penahanan_number'     => ($penahananStatus === 'DITANGGUHKAN') ? ($request->surat_penangguhan_penahanan_number ?? null) : null,
+                'surat_penangguhan_penahanan_date'       => ($penahananStatus === 'DITANGGUHKAN') ? ($request->surat_penangguhan_penahanan_date ?: null) : null,
                 'barang_bukti_storage'                   => $request->barang_bukti_storage ?? null,
                 'barang_bukti'                           => $daftarBarangBukti,
                 'jumlah_bb'                              => collect($daftarBarangBukti)->sum('jumlah'),
@@ -691,7 +732,7 @@ $districts = $this->loadDistricts($accident);
         $daerahPoliceFullName = strtoupper($accident->polres->polda->full_name ?? '');
         $resorPoliceFullName  = $resorPolice ? ((in_array($resorPolice->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice->full_name)) : '';
         $resorPoliceAddress   = $resorPolice ? ($resorPolice->address . ', ' . $resorPolice->polres_zipcode) : '';
-        $documentLocation     = ucwords(strtolower($resorPolice->polres_province ?? ''));
+        $documentLocation     = ucwords(strtolower($resorPolice->polres_regency ?? ($resorPolice->name ?? '')));
 
         $signatoryPositionId = $signatory ? (is_array($signatory->position) ? ($signatory->position['id'] ?? null) : $signatory->position_id) : null;
         $signatoryPositionDetail = $signatoryPositionId
@@ -858,7 +899,8 @@ $districts = $this->loadDistricts($accident);
 
         $signatoryName           = trim(implode(' ', array_filter([$signatory->first_title ?? '', $signatory->first_name ?? '', $signatory->last_name ?? '', $signatory->last_title ?? ''])));
         $signatoryName           = $signatoryName ?: '-';
-        $signatoryRankName       = $signatory->rank->name ?? '';
+        $signatoryRank           = $signatory->rank ?? ($signatory->rank_id ? \App\Models\Lib\Rank::find($signatory->rank_id) : null);
+        $signatoryRankName       = $signatoryRank->full_name ?? ($signatoryRank->name ?? '');
         $signatoryRegisterNumber = $signatory->register_number ?? '';
 
         $carbonCopies = $document->carbon_copies ?? [];
@@ -926,7 +968,7 @@ $districts = $this->loadDistricts($accident);
             return response()->json([
                 'code'    => '422',
                 'success' => false,
-                'errors'  => $validator->errors()->all(),
+                'errors'  => $validator->errors(),
             ], 422);
         }
         return response()->json(['success' => true, 'message' => 'Data valid, dokumen siap disimpan.']);
@@ -950,20 +992,22 @@ $districts = $this->loadDistricts($accident);
             'bulanKejadian'   => 'required|integer|min:1|max:12',
             // Penahanan
             'penahanan_status'                   => 'required|in:DITAHAN,DITANGGUHKAN,TIDAK_DITAHAN',
-            'penahanan_rutan'                    => 'nullable|required_if:penahanan_status,DITAHAN|string|max:255',
+            'penahanan_rutan'                    => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|string|max:255',
             'penahanan_cabang'                   => 'nullable|string|max:255',
-            'penahanan_start_date'               => 'nullable|required_if:penahanan_status,DITAHAN|date',
-            'penahanan_end_date'                 => 'nullable|required_if:penahanan_status,DITAHAN|date|after_or_equal:penahanan_start_date',
+            'penahanan_start_date'               => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date',
+            'penahanan_end_date'                 => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date|after_or_equal:penahanan_start_date',
+            'surat_perintah_penahanan_number'    => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|string|max:255',
+            'surat_perintah_penahanan_date'      => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date',
+            'surat_perpanjangan_penahanan_number'       => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+            'surat_perpanjangan_penahanan_date'         => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
+            'surat_perpanjangan_penahanan_court_number' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+            'surat_perpanjangan_penahanan_court_date'   => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
             'surat_penangguhan_penahanan_number' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
             'surat_penangguhan_penahanan_date'   => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
             // Tersangka
             'suspects'   => 'required|array|min:1',
             'suspects.*' => 'exists:suspects,id',
             // Opsional
-            'surat_perpanjangan_penahanan_number'       => 'nullable|string|max:255',
-            'surat_perpanjangan_penahanan_date'         => 'nullable|date',
-            'surat_perpanjangan_penahanan_court_number' => 'nullable|string|max:255',
-            'surat_perpanjangan_penahanan_court_date'   => 'nullable|date',
             'investigator_pangkat_nama' => 'nullable|string|max:255',
             'investigator_hp'           => 'nullable|string|max:255',
             'tanggalTerimaP21'          => 'nullable|date',
@@ -981,12 +1025,18 @@ $districts = $this->loadDistricts($accident);
             'bulanKejadian.required'    => 'Mohon mengisi Bulan Kejadian.',
             'penahanan_status.required' => 'Mohon memilih Status Penahanan.',
             'penahanan_status.in'       => 'Status Penahanan tidak valid.',
-            'penahanan_rutan.required_if'       => 'Nama Rutan wajib diisi jika status Ditahan.',
-            'penahanan_start_date.required_if'  => 'Tanggal Mulai Penahanan wajib diisi jika status Ditahan.',
-            'penahanan_end_date.required_if'    => 'Tanggal Selesai Penahanan wajib diisi jika status Ditahan.',
+            'penahanan_rutan.required_if'       => 'Nama Rutan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'penahanan_start_date.required_if'  => 'Tanggal Mulai Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'penahanan_end_date.required_if'    => 'Tanggal Selesai Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
             'penahanan_end_date.after_or_equal' => 'Tanggal Selesai Penahanan harus setelah atau sama dengan Tanggal Mulai.',
-            'surat_penangguhan_penahanan_number.required_if' => 'Nomor Surat Penangguhan wajib diisi jika status Ditangguhkan.',
-            'surat_penangguhan_penahanan_date.required_if'   => 'Tanggal Surat Penangguhan wajib diisi jika status Ditangguhkan.',
+            'surat_perintah_penahanan_number.required_if' => 'Nomor Surat Perintah Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'surat_perintah_penahanan_date.required_if'   => 'Tanggal Surat Perintah Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'surat_perpanjangan_penahanan_number.required_if'       => 'Nomor Surat Perpanjangan Penahanan wajib diisi jika status Ditangguhkan.',
+            'surat_perpanjangan_penahanan_date.required_if'         => 'Tanggal Surat Perpanjangan Penahanan wajib diisi jika status Ditangguhkan.',
+            'surat_perpanjangan_penahanan_court_number.required_if' => 'Nomor Surat Perpanjangan Penahanan ke Pengadilan wajib diisi jika status Ditangguhkan.',
+            'surat_perpanjangan_penahanan_court_date.required_if'   => 'Tanggal Surat Perpanjangan Penahanan ke Pengadilan wajib diisi jika status Ditangguhkan.',
+            'surat_penangguhan_penahanan_number.required_if' => 'Nomor Surat Penangguhan Penahanan wajib diisi jika status Ditangguhkan.',
+            'surat_penangguhan_penahanan_date.required_if'   => 'Tanggal Surat Penangguhan Penahanan wajib diisi jika status Ditangguhkan.',
             'suspects.required' => 'Mohon memilih minimal 1 Tersangka.',
             'suspects.min'      => 'Mohon memilih minimal 1 Tersangka.',
         ]);

@@ -96,24 +96,24 @@
                                             count($accident->suratPerintahTugasDocuments) +
                                             count($accident->laporanHasilGelarPerkaraDocuments) +
                                             count($accident->suratKetetapanTentangPenetapanTersangkaDocuments) +
-                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments);
-                                            // count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments);
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments) +
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments);
 
                                             $totalDocumentFinal = count($accident->suratPerintahPenyelidikanDocuments->whereIn('status_id', ['86', '85'])) +
                                             count($accident->suratPerintahPenyidikanDocuments->whereIn('status_id', ['86', '85'])) +
                                             count($accident->suratPerintahTugasDocuments->whereIn('status_id', ['86', '85'])) +
                                             count($accident->laporanHasilGelarPerkaraDocuments->whereIn('status_id', ['86', '85'])) +
                                             count($accident->suratKetetapanTentangPenetapanTersangkaDocuments->whereIn('status_id', ['86', '85'])) +
-                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments->whereIn('status_id', ['86', '85']));
-                                            // count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments->whereIn('status_id', ['86', '85']));
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments->whereIn('status_id', ['86', '85'])) +
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments->whereIn('status_id', ['86', '85']));
                                             
                                             $totalDocumentEntry = count($accident->suratPerintahPenyelidikanDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
                                             count($accident->suratPerintahPenyidikanDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
                                             count($accident->suratPerintahTugasDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
                                             count($accident->laporanHasilGelarPerkaraDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
                                             count($accident->suratKetetapanTentangPenetapanTersangkaDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
-                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments->whereIn('status_id', ['12', '11', '10', '9']));
-                                            // count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments->whereIn('status_id', ['12', '11', '10', '9']));
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanDocuments->whereIn('status_id', ['12', '11', '10', '9'])) +
+                                            count($accident->suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments->whereIn('status_id', ['12', '11', '10', '9']));
                                         @endphp
 
                                         Dokumen Dibuat : {{ $totalDocumentCreated }}

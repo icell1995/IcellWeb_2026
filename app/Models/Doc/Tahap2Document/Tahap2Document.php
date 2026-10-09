@@ -168,9 +168,26 @@ class Tahap2Document extends Model
         return $this->belongsTo(\App\Models\Lib\DocumentClassification::class, 'document_classification_id');
     }
 
+    public function getBaseRouteAttribute(): string
+    {
+        return 'doc.tahap-2-document';
+    }
+
     public function documentCategory()
     {
         return $this->belongsTo(\App\Models\Lib\DocumentCategory::class, 'document_category_id');
+    }
+
+    public function getDocumentCategoryAttribute()
+    {
+        $cat = $this->getRelationValue('documentCategory');
+        if ($cat) {
+            $cat = clone $cat;
+            $cat->base_route = 'doc.tahap-2-document';
+            $cat->route = 'doc.tahap-2-document.create';
+            $cat->model_class = self::class;
+        }
+        return $cat;
     }
 
     public function createdByUser()

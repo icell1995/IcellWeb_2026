@@ -22,6 +22,11 @@ class Suspect extends Model
         'is_child' => 'boolean',
     ];
 
+    public function getNikAttribute()
+    {
+        return $this->identity_number;
+    }
+
     // public static function boot()
     // {
     //     parent::boot();

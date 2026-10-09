@@ -142,6 +142,12 @@ class SuratPemberitahuanPenghentianPenyidikanDocument extends Model
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocumentOfficer', 'surat_pemberitahuan_penghentian_penyidikan_document_id', 'id');
     }
 
+    public function signatory()
+    {
+        return $this->hasOne('App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocumentOfficer', 'surat_pemberitahuan_penghentian_penyidikan_document_id', 'id')
+            ->where('class', 'SIGNATORY');
+    }
+
     public function suspects(){
         return $this->belongsToMany('App\Models\Suspect', 'pivot.surat_pemberitahuan_penghentian_penyidikan_document_suspect', 'surat_pemberitahuan_penghentian_penyidikan_document_id', 'suspect_id')
             ->withRelated();

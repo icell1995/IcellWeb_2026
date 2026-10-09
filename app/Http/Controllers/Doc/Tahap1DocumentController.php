@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Traits\DocsOfficersTraits;
@@ -24,6 +25,9 @@ use App\Models\Lib\MaritalStatus;
 use App\Models\Lib\Education;
 use App\Models\Lib\Job;
 use App\Models\Lib\Nationality as Country;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument;
+use App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocument;
 
 class Tahap1DocumentController extends Controller
 {
@@ -119,8 +123,24 @@ class Tahap1DocumentController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        // Surat Perintah Penahanan yang sudah dibuat untuk accident ini
-        $suratPerintahPenahananDocuments = collect(); // Mock untuk sementara karena tim lain belum selesai
+        // Dokumen Terkait Penahanan
+        $suratPerintahPenahananDocuments = SuratPerintahPenahananDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $suratPerpanjanganPenahananDocuments = SuratPermohonanPerpanjanganPenahananKejaksaanDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $suratPenangguhanPenahananDocuments = SuratPerintahPenangguhanPenahananDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $genders = Gender::where('is_active', true)->get();
         $religions = Religion::where('is_active', true)->get();
@@ -162,6 +182,8 @@ class Tahap1DocumentController extends Controller
             'prisons',
             'authorizedOfficers',
             'suratPerintahPenahananDocuments',
+            'suratPerpanjanganPenahananDocuments',
+            'suratPenangguhanPenahananDocuments',
             'genders',
             'religions',
             'maritalStatuses',
@@ -193,17 +215,18 @@ class Tahap1DocumentController extends Controller
                 'berkas_perkara_date' => 'required|date',
                 'berkas_perkara_rangkap' => 'required|integer',
                 'pasal_disangkakan' => 'nullable|string',
-                'penahanan_rutan' => 'nullable|string|max:255',
-                'penahanan_cabang' => 'nullable|string|max:255',
-                'penahanan_start_date' => 'nullable|date',
-                'penahanan_end_date' => 'nullable|date',
-                'surat_perintah_penahanan_number' => 'nullable|string|max:255',
-                'surat_perintah_penahanan_date' => 'nullable|date',
-                'surat_perpanjangan_penahanan_number' => 'nullable|string|max:255',
-                'surat_perpanjangan_penahanan_date' => 'nullable|date',
-                'surat_perpanjangan_penahanan_court_number' => 'nullable|string|max:255',
-                'surat_perpanjangan_penahanan_court_date' => 'nullable|date',
+                // Penahanan
                 'penahanan_status' => 'required|string|in:DITAHAN,DITANGGUHKAN,TIDAK_DITAHAN',
+                'penahanan_rutan' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|string|max:255',
+                'penahanan_cabang' => 'nullable|string|max:255',
+                'penahanan_start_date' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date',
+                'penahanan_end_date' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date|after_or_equal:penahanan_start_date',
+                'surat_perintah_penahanan_number' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|string|max:255',
+                'surat_perintah_penahanan_date' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date',
+                'surat_perpanjangan_penahanan_number' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+                'surat_perpanjangan_penahanan_date' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
+                'surat_perpanjangan_penahanan_court_number' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+                'surat_perpanjangan_penahanan_court_date' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
                 'surat_penangguhan_penahanan_number' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
                 'surat_penangguhan_penahanan_date' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
                 'barang_bukti_storage' => 'nullable|string|max:255',
@@ -223,7 +246,41 @@ class Tahap1DocumentController extends Controller
                 'daftar_barang_bukti.*.satuan' => 'required|string|max:255',
                 'daftar_barang_bukti.*.keterangan' => 'nullable|string',
                 'tembusan' => 'nullable|array',
+            ], [
+                'penahanan_status.required' => 'Mohon memilih Status Penahanan.',
+                'penahanan_status.in' => 'Status Penahanan tidak valid.',
+                'penahanan_rutan.required_if' => 'Nama Rutan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'penahanan_start_date.required_if' => 'Tanggal Mulai Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'penahanan_end_date.required_if' => 'Tanggal Selesai Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'penahanan_end_date.after_or_equal' => 'Tanggal Selesai Penahanan harus setelah atau sama dengan Tanggal Mulai.',
+                'surat_perintah_penahanan_number.required_if' => 'Nomor Surat Perintah Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'surat_perintah_penahanan_date.required_if' => 'Tanggal Surat Perintah Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'surat_perpanjangan_penahanan_number.required_if' => 'Nomor Surat Perpanjangan Penahanan wajib diisi jika status Ditangguhkan.',
+                'surat_perpanjangan_penahanan_date.required_if' => 'Tanggal Surat Perpanjangan Penahanan wajib diisi jika status Ditangguhkan.',
+                'surat_perpanjangan_penahanan_court_number.required_if' => 'Nomor Surat Perpanjangan Penahanan ke Pengadilan wajib diisi jika status Ditangguhkan.',
+                'surat_perpanjangan_penahanan_court_date.required_if' => 'Tanggal Surat Perpanjangan Penahanan ke Pengadilan wajib diisi jika status Ditangguhkan.',
+                'surat_penangguhan_penahanan_number.required_if' => 'Nomor Surat Penangguhan Penahanan wajib diisi jika status Ditangguhkan.',
+                'surat_penangguhan_penahanan_date.required_if' => 'Tanggal Surat Penangguhan Penahanan wajib diisi jika status Ditangguhkan.',
             ]);
+
+            // Sanitasi field penahanan sesuai penahanan_status
+            if ($validated['penahanan_status'] === 'TIDAK_DITAHAN') {
+                $validated['penahanan_rutan'] = null;
+                $validated['penahanan_cabang'] = null;
+                $validated['penahanan_start_date'] = null;
+                $validated['penahanan_end_date'] = null;
+                $validated['surat_perintah_penahanan_number'] = null;
+                $validated['surat_perintah_penahanan_date'] = null;
+                $validated['surat_perpanjangan_penahanan_number'] = null;
+                $validated['surat_perpanjangan_penahanan_date'] = null;
+                $validated['surat_perpanjangan_penahanan_court_number'] = null;
+                $validated['surat_perpanjangan_penahanan_court_date'] = null;
+                $validated['surat_penangguhan_penahanan_number'] = null;
+                $validated['surat_penangguhan_penahanan_date'] = null;
+            } elseif ($validated['penahanan_status'] === 'DITAHAN') {
+                $validated['surat_penangguhan_penahanan_number'] = null;
+                $validated['surat_penangguhan_penahanan_date'] = null;
+            }
 
             $signatoryOfficer = Officer::with(['rank', 'position', 'police'])->findOrFail($validated['signatory']);
             unset($validated['signatory']);
@@ -444,10 +501,25 @@ class Tahap1DocumentController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        // Surat Perintah Penahanan yang sudah dibuat untuk accident ini
-        $suratPerintahPenahananDocuments = collect(); // Mock untuk sementara karena tim lain belum selesai
+        // Dokumen Terkait Penahanan
+        $suratPerintahPenahananDocuments = SuratPerintahPenahananDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        
+        $suratPerpanjanganPenahananDocuments = SuratPermohonanPerpanjanganPenahananKejaksaanDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $suratPenangguhanPenahananDocuments = SuratPerintahPenangguhanPenahananDocument::where('accident_id', $accidentId)
+            ->where('is_active', true)
+            ->with(['suspects'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $districts = $this->loadDistricts($accident);
         
         $genders = Gender::where('is_active', true)->get();
@@ -485,11 +557,20 @@ class Tahap1DocumentController extends Controller
             'daftarBarangBukti',
             'surat_penyitaan',
             'officer',
-              'prisons',
             'prisons',
             'authorizedOfficers',
-            'suratPerintahPenahananDocuments'
-        , 'districts', 'defaultKodeWilayah', 'genders', 'religions', 'maritalStatuses', 'educations', 'jobs', 'countries'));
+            'suratPerintahPenahananDocuments',
+            'suratPerpanjanganPenahananDocuments',
+            'suratPenangguhanPenahananDocuments',
+            'districts',
+            'defaultKodeWilayah',
+            'genders',
+            'religions',
+            'maritalStatuses',
+            'educations',
+            'jobs',
+            'countries'
+        ));
     }
 
     /**
@@ -522,17 +603,18 @@ class Tahap1DocumentController extends Controller
                 'berkas_perkara_date' => 'required|date',
                 'berkas_perkara_rangkap' => 'required|integer',
                 'pasal_disangkakan' => 'nullable|string',
-                'penahanan_rutan' => 'nullable|string|max:255',
-                'penahanan_cabang' => 'nullable|string|max:255',
-                'penahanan_start_date' => 'nullable|date',
-                'penahanan_end_date' => 'nullable|date',
-                'surat_perintah_penahanan_number' => 'nullable|string|max:255',
-                'surat_perintah_penahanan_date' => 'nullable|date',
-                'surat_perpanjangan_penahanan_number' => 'nullable|string|max:255',
-                'surat_perpanjangan_penahanan_date' => 'nullable|date',
-                'surat_perpanjangan_penahanan_court_number' => 'nullable|string|max:255',
-                'surat_perpanjangan_penahanan_court_date' => 'nullable|date',
+                // Penahanan
                 'penahanan_status' => 'required|string|in:DITAHAN,DITANGGUHKAN,TIDAK_DITAHAN',
+                'penahanan_rutan' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|string|max:255',
+                'penahanan_cabang' => 'nullable|string|max:255',
+                'penahanan_start_date' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date',
+                'penahanan_end_date' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date|after_or_equal:penahanan_start_date',
+                'surat_perintah_penahanan_number' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|string|max:255',
+                'surat_perintah_penahanan_date' => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date',
+                'surat_perpanjangan_penahanan_number' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+                'surat_perpanjangan_penahanan_date' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
+                'surat_perpanjangan_penahanan_court_number' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+                'surat_perpanjangan_penahanan_court_date' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
                 'surat_penangguhan_penahanan_number' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
                 'surat_penangguhan_penahanan_date' => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
                 'barang_bukti_storage' => 'nullable|string|max:255',
@@ -540,7 +622,6 @@ class Tahap1DocumentController extends Controller
                 'investigator_hp' => 'nullable|string|max:255',
                 'signatory' => 'required|string|exists:officers,id',
                 'suspects' => 'required|array',
-                'suspects.*' => 'exists:suspects,id',
                 'suspects.*' => 'exists:suspects,id',
                 'daftar_saksi' => 'nullable|array',
                 'daftar_saksi.*.nama' => 'required|string|max:255',
@@ -553,7 +634,41 @@ class Tahap1DocumentController extends Controller
                 'daftar_barang_bukti.*.satuan' => 'required|string|max:255',
                 'daftar_barang_bukti.*.keterangan' => 'nullable|string',
                 'tembusan' => 'nullable|array',
+            ], [
+                'penahanan_status.required' => 'Mohon memilih Status Penahanan.',
+                'penahanan_status.in' => 'Status Penahanan tidak valid.',
+                'penahanan_rutan.required_if' => 'Nama Rutan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'penahanan_start_date.required_if' => 'Tanggal Mulai Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'penahanan_end_date.required_if' => 'Tanggal Selesai Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'penahanan_end_date.after_or_equal' => 'Tanggal Selesai Penahanan harus setelah atau sama dengan Tanggal Mulai.',
+                'surat_perintah_penahanan_number.required_if' => 'Nomor Surat Perintah Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'surat_perintah_penahanan_date.required_if' => 'Tanggal Surat Perintah Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+                'surat_perpanjangan_penahanan_number.required_if' => 'Nomor Surat Perpanjangan Penahanan wajib diisi jika status Ditangguhkan.',
+                'surat_perpanjangan_penahanan_date.required_if' => 'Tanggal Surat Perpanjangan Penahanan wajib diisi jika status Ditangguhkan.',
+                'surat_perpanjangan_penahanan_court_number.required_if' => 'Nomor Surat Perpanjangan Penahanan ke Pengadilan wajib diisi jika status Ditangguhkan.',
+                'surat_perpanjangan_penahanan_court_date.required_if' => 'Tanggal Surat Perpanjangan Penahanan ke Pengadilan wajib diisi jika status Ditangguhkan.',
+                'surat_penangguhan_penahanan_number.required_if' => 'Nomor Surat Penangguhan Penahanan wajib diisi jika status Ditangguhkan.',
+                'surat_penangguhan_penahanan_date.required_if' => 'Tanggal Surat Penangguhan Penahanan wajib diisi jika status Ditangguhkan.',
             ]);
+
+            // Sanitasi field penahanan sesuai penahanan_status
+            if ($validated['penahanan_status'] === 'TIDAK_DITAHAN') {
+                $validated['penahanan_rutan'] = null;
+                $validated['penahanan_cabang'] = null;
+                $validated['penahanan_start_date'] = null;
+                $validated['penahanan_end_date'] = null;
+                $validated['surat_perintah_penahanan_number'] = null;
+                $validated['surat_perintah_penahanan_date'] = null;
+                $validated['surat_perpanjangan_penahanan_number'] = null;
+                $validated['surat_perpanjangan_penahanan_date'] = null;
+                $validated['surat_perpanjangan_penahanan_court_number'] = null;
+                $validated['surat_perpanjangan_penahanan_court_date'] = null;
+                $validated['surat_penangguhan_penahanan_number'] = null;
+                $validated['surat_penangguhan_penahanan_date'] = null;
+            } elseif ($validated['penahanan_status'] === 'DITAHAN') {
+                $validated['surat_penangguhan_penahanan_number'] = null;
+                $validated['surat_penangguhan_penahanan_date'] = null;
+            }
 
             $signatoryOfficer = Officer::with(['rank', 'position', 'police'])->findOrFail($validated['signatory']);
             unset($validated['signatory']);
@@ -847,41 +962,47 @@ class Tahap1DocumentController extends Controller
         ])->findOrFail($id);
 
         $accident = $document->accident;
-        $signatory = $document->officers->where('class', 'SIGNATORY')->first();
+        $signatory = $document->officers()->where('class', 'SIGNATORY')->first();
+        if (!$signatory) {
+            return redirect()->back()->with('error', 'Penandatangan belum diset.');
+        }
 
-        $signatoryHeadText = [
-            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . $accident->polres->polda->full_name,
-        ];
+        $resorPolice          = $accident->polres;
+        $daerahPoliceFullName = strtoupper($accident->polres->polda->full_name ?? '');
+        $resorPoliceFullName  = $resorPolice ? ((in_array($resorPolice->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice->full_name)) : '';
+        $resorPoliceAddress   = $resorPolice ? ($resorPolice->address . ', ' . $resorPolice->polres_zipcode) : '';
+        $documentLocation     = ucwords(strtolower($resorPolice->polres_regency ?? ($resorPolice->name ?? '')));
 
         $signatoryPositionId = $signatory ? (is_array($signatory->position) ? ($signatory->position['id'] ?? null) : $signatory->position_id) : null;
         $signatoryPositionDetail = $signatoryPositionId
             ? \App\Models\Lib\Position::with('positionCluster')->find($signatoryPositionId)
             : null;
 
-        $signatoryPositionHeadText = [
-            'NO_KAPOLRES'  => $signatoryPositionDetail?->positionCluster?->alias_name ?? '',
-            'NO_DIRLANTAS' => $signatoryPositionDetail?->positionCluster?->alias_name ?? '',
-        ];
-
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/berkas_perkara_tahap_I.docx');
-
-        if (isset($signatoryPositionDetail)) {
+        $polresFullName = $accident->polres->full_name ?? '';
+        $poldaFullName  = $accident->polres->polda->full_name ?? '';
+        $signatoryHeadText     = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+        $signatoryPositionName = '';
+        if ($signatoryPositionDetail) {
             if ($signatoryPositionDetail->position_cluster_id == '1') {
-                $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['KAPOLRES']);
-                $templateProcessor->setValue('signatoryPositionName', '');
-            } else if ($signatoryPositionDetail->position_cluster_id == '9') {
-                $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['NO_DIRLANTAS']);
-                $templateProcessor->setValue('signatoryPositionName', $signatoryPositionHeadText['NO_DIRLANTAS']);
+                $signatoryHeadText     = 'KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = '';
+            } elseif ($signatoryPositionDetail->position_cluster_id == '9') {
+                $signatoryHeadText     = 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName;
+                $signatoryPositionName = $signatoryPositionDetail->positionCluster->alias_name ?? $signatoryPositionDetail->name;
             } else {
-                $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['NO_KAPOLRES']);
-                $templateProcessor->setValue('signatoryPositionName', $signatoryPositionHeadText['NO_KAPOLRES']);
+                $signatoryPositionName = $signatoryPositionDetail->positionCluster->alias_name ?? $signatoryPositionDetail->name;
             }
-        } else {
-            $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['NO_KAPOLRES']);
-            $templateProcessor->setValue('signatoryPositionName', 'KASAT LANTAS'); // Fallback matching original
         }
+        if (!$signatoryPositionName && $signatoryPositionDetail && $signatoryPositionDetail->position_cluster_id != '1') {
+            $signatoryPositionName = 'KASAT LANTAS';
+        }
+
+        $templatePath = public_path('word-template/berkas_perkara_tahap_I.docx');
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
+
+        $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText);
+        $templateProcessor->setValue('signatoryPositionName', $signatoryPositionName);
+        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPositionName);
 
         $daerahPolice = $accident->polres->polda;
         $daerahPoliceFullName = strtoupper($daerahPolice->full_name ?? '');
@@ -891,7 +1012,7 @@ class Tahap1DocumentController extends Controller
         $resorPoliceFullName = (in_array($resorPolice->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice->full_name ?? '');
         $resorPoliceProvinceName = $resorPolice->polres_province;
 
-        $documentLocation = ucwords(strtolower($resorPoliceProvinceName ?? ''));
+        $documentLocation = ucwords(strtolower($resorPolice->polres_regency ?? ($resorPolice->name ?? '')));
 
         $templateProcessor->setValue('daerahPoliceFullName', $daerahPoliceFullName);
         $templateProcessor->setValue('resorPoliceFullName', $resorPoliceFullName);
@@ -1023,7 +1144,8 @@ class Tahap1DocumentController extends Controller
 
         $signatoryName = trim(implode(' ', array_filter([$signatory->first_title ?? '', $signatory->first_name ?? '', $signatory->last_name ?? '', $signatory->last_title ?? ''])));
         $signatoryName = $signatoryName ?: '-';
-        $signatoryRankName = $signatory->rank->name ?? '';
+        $signatoryRank = $signatory->rank ?? ($signatory->rank_id ? \App\Models\Lib\Rank::find($signatory->rank_id) : null);
+        $signatoryRankName = $signatoryRank->full_name ?? ($signatoryRank->name ?? '');
         $signatoryRegisterNumber = $signatory->register_number ?? '';
 
         $templateProcessor->setValue('signatoryName', strtoupper($signatoryName));
@@ -1040,14 +1162,14 @@ class Tahap1DocumentController extends Controller
         }
         $templateProcessor->cloneRowAndSetValues('carbon_copy_iteration', $blockCarbonCopies);
 
-        $filename = 'generate/' . Str::uuid() . ' - Surat Pengiriman Berkas Perkara (Tahap I) - Resor ' . ($accident->polres->full_name ?? '');
-        $templateProcessor->saveAs($filename . '.docx');
+        $filename = 'generate/' . $document->id . ' - Surat Pengiriman Berkas Perkara (Tahap I) - Resor ' . ($accident->polres->full_name ?? '');
+        $templateProcessor->saveAs(public_path($filename . '.docx'));
         
         if (ob_get_length()) {
             ob_end_clean();
         }
         
-        return response()->download($filename . '.docx')->deleteFileAfterSend(true);
+        return response()->download(public_path($filename . '.docx'))->deleteFileAfterSend(true);
     }
 
     /**
@@ -1280,4 +1402,70 @@ class Tahap1DocumentController extends Controller
         return $districts;
     }
 
+    // ─────────────────────────────────────────────
+    // VALIDATE FORM (AJAX)
+    // ─────────────────────────────────────────────
+    public function validateRequestForm(Request $request)
+    {
+        $validator = $this->validateForm($request);
+        if ($validator->fails()) {
+            return response()->json([
+                'code'    => '422',
+                'success' => false,
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+        return response()->json(['success' => true, 'message' => 'Data valid, dokumen siap disimpan.']);
+    }
+
+    private function validateForm(Request $request)
+    {
+        return Validator::make($request->all(), [
+            'document_number'                             => 'required|string|max:255',
+            'document_date'                               => 'required|date',
+            'klasifikasi'                                 => 'required|string|max:255',
+            'surat_pemberitahuan_dimulainya_penyidikan_id' => 'required',
+            'berkas_perkara_number'                       => 'required|string|max:255',
+            'berkas_perkara_date'                         => 'required|date',
+            'berkas_perkara_rangkap'                      => 'required|integer',
+            'signatory'                                   => 'required',
+            'suspects'                                    => 'required|array|min:1',
+            'penahanan_status'                            => 'required|string|in:DITAHAN,DITANGGUHKAN,TIDAK_DITAHAN',
+            'penahanan_rutan'                             => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|string|max:255',
+            'penahanan_start_date'                        => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date',
+            'penahanan_end_date'                          => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date|after_or_equal:penahanan_start_date',
+            'surat_perintah_penahanan_number'             => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|string|max:255',
+            'surat_perintah_penahanan_date'               => 'nullable|required_if:penahanan_status,DITAHAN,DITANGGUHKAN|date',
+            'surat_perpanjangan_penahanan_number'         => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+            'surat_perpanjangan_penahanan_date'           => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
+            'surat_perpanjangan_penahanan_court_number'   => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+            'surat_perpanjangan_penahanan_court_date'     => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
+            'surat_penangguhan_penahanan_number'          => 'nullable|required_if:penahanan_status,DITANGGUHKAN|string|max:255',
+            'surat_penangguhan_penahanan_date'            => 'nullable|required_if:penahanan_status,DITANGGUHKAN|date',
+        ], [
+            'document_number.required'                             => 'Nomor surat pengantar wajib diisi.',
+            'document_date.required'                               => 'Tanggal surat pengantar wajib diisi.',
+            'klasifikasi.required'                                 => 'Klasifikasi dokumen wajib dipilih.',
+            'surat_pemberitahuan_dimulainya_penyidikan_id.required' => 'Nomor SPDP terkait wajib dipilih.',
+            'berkas_perkara_number.required'                       => 'Nomor berkas perkara wajib diisi.',
+            'berkas_perkara_date.required'                         => 'Tanggal berkas perkara wajib diisi.',
+            'berkas_perkara_rangkap.required'                      => 'Jumlah rangkap berkas perkara wajib diisi.',
+            'signatory.required'                                   => 'Pejabat penandatangan wajib dipilih.',
+            'suspects.required'                                    => 'Tersangka wajib dipilih minimal 1.',
+            'penahanan_status.required'                            => 'Mohon memilih Status Penahanan.',
+            'penahanan_status.in'                                  => 'Status Penahanan tidak valid.',
+            'penahanan_rutan.required_if'                          => 'Nama Rutan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'penahanan_start_date.required_if'                     => 'Tanggal Mulai Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'penahanan_end_date.required_if'                       => 'Tanggal Selesai Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'penahanan_end_date.after_or_equal'                    => 'Tanggal Selesai Penahanan harus setelah atau sama dengan Tanggal Mulai.',
+            'surat_perintah_penahanan_number.required_if'          => 'Nomor Surat Perintah Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'surat_perintah_penahanan_date.required_if'            => 'Tanggal Surat Perintah Penahanan wajib diisi jika status Ditahan atau Ditangguhkan.',
+            'surat_perpanjangan_penahanan_number.required_if'      => 'Nomor Surat Perpanjangan Penahanan wajib diisi jika status Ditangguhkan.',
+            'surat_perpanjangan_penahanan_date.required_if'        => 'Tanggal Surat Perpanjangan Penahanan wajib diisi jika status Ditangguhkan.',
+            'surat_perpanjangan_penahanan_court_number.required_if' => 'Nomor Surat Perpanjangan Penahanan ke Pengadilan wajib diisi jika status Ditangguhkan.',
+            'surat_perpanjangan_penahanan_court_date.required_if'  => 'Tanggal Surat Perpanjangan Penahanan ke Pengadilan wajib diisi jika status Ditangguhkan.',
+            'surat_penangguhan_penahanan_number.required_if'       => 'Nomor Surat Penangguhan Penahanan wajib diisi jika status Ditangguhkan.',
+            'surat_penangguhan_penahanan_date.required_if'         => 'Tanggal Surat Penangguhan Penahanan wajib diisi jika status Ditangguhkan.',
+        ]);
+    }
 }

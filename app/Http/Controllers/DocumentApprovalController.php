@@ -29,6 +29,9 @@ use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberit
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
 use App\Models\Doc\Tahap1Document\Tahap1Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
+use App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument;
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument;
 use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument;
 
@@ -171,9 +174,11 @@ class DocumentApprovalController extends Controller
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
                     if(in_array($documentCategoryId, [
                         '0101', '0201', '0211', '0212', '0213', '0215',
+                        '0205', '0206', '0216', // Penghentian Penyidikan (Sprint, Sket, Pemberitahuan)
                         '0404', '0405',
                         '0601', '0603', '0604', '0605', '0606', '0607', '0608', '0609',
-                        '0702', '0706'
+                        '0702', '0706',
+                        '0805', '0806', '0807', // Berkas Perkara Tahap I & Tahap II
                     ])){
                         $document->status_id = '86';
                     }else{
@@ -230,6 +235,8 @@ class DocumentApprovalController extends Controller
             SuratPerintahPenahananDocument::class,
             SuratPerintahPenangguhanPenahananDocument::class,
             SuratPerintahPencabutanPenangguhanPenahananDocument::class,
+            SuratPerintahPenghentianPenyidikanDocument::class,
+            SuratKetetapanPenghentianPenyidikanDocument::class,
             SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
             SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
             SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
@@ -270,17 +277,16 @@ class DocumentApprovalController extends Controller
                 SuratPemberitahuanDimulainyaPenyidikanDocument::class,
                 \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class
             ],
-            '0212' => SuratPermohonanPenetapanDiversiDocument::class,
+            '0205' => SuratPerintahPenghentianPenyidikanDocument::class,
+            '0206' => SuratKetetapanPenghentianPenyidikanDocument::class,
             '0211' => SuratPemberitahuanUpayaDiversiDocument::class,
+            '0212' => SuratPermohonanPenetapanDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
+            '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
             '0404' => SuratPermintaanPenggeledahanDocument::class,
             '0405' => SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
-            '0605' => \App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
-            '0609' => BeritaAcaraPenahanan::class,
             '0504' => SuratPermintaanIzinPenyitaanDocument::class,
             '0505' => SuratLaporanPersetujuanPenyitaanDocument::class,
-            '0702' => SuratPerintahTugasDocument::class,
-            '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,
             '0603' => SuratPerintahPenangguhanPenahananDocument::class,
             '0604' => SuratPerintahPencabutanPenangguhanPenahananDocument::class,
@@ -288,7 +294,12 @@ class DocumentApprovalController extends Controller
             '0606' => SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
             '0607' => SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
             '0608' => SuratPerintahPembantaranPenahananDocument::class,
-            '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
+            '0609' => [
+                BeritaAcaraPenahanan::class,
+                BeritaAcaraPenahananDocument::class,
+            ],
+            '0702' => SuratPerintahTugasDocument::class,
+            '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0805' => Tahap1Document::class,
             '0806' => Tahap1Document::class,
             '0807' => Tahap2Document::class,
