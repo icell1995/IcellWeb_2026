@@ -23,7 +23,7 @@ class SuratPermintaanPenggeledahan extends Controller
 
     public function index(Request $request)
     {
-         $docService = $this->docService;
+        $docService = $this->docService;
         $no_lp          = $request->input('no_lp');
         $kode_jenis_doc = $request->input('kode_jenis_doc');
 

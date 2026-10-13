@@ -23,10 +23,24 @@ use App\Models\Doc\Tahap1Document\Tahap1Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
 
 use App\Traits\DocsOfficersTraits;
+use App\Services\Kafka\KafkaService;
+use App\Services\IcellServices\PusiknasDocDataService;
+use Illuminate\Support\Facades\Log;
 
 class DocumentApprovalController extends Controller
 {
     use DocsOfficersTraits;
+
+    protected $kafkaService;
+    protected $pusiknasDocDataService;
+
+    public function __construct(
+        KafkaService $kafkaService,
+        PusiknasDocDataService $pusiknasDocDataService
+    ) {
+        $this->kafkaService = $kafkaService;
+        $this->pusiknasDocDataService = $pusiknasDocDataService;
+    }
 
     public function index()
     {
@@ -181,6 +195,33 @@ class DocumentApprovalController extends Controller
                 $document->save();
 
                 DB::commit();
+
+                // Kirim data ke Kafka jika dokumen disetujui (Approved)
+                if (filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true) {
+                    try {
+                        $noLp = $document->accident->no_lp ?? null;
+
+                        if (!empty($noLp)) {
+                            // Ambil responseData dari controller API terkait
+                            $responseData = $this->pusiknasDocDataService->getResponseData(
+                                $documentCategoryId,
+                                $noLp,
+                                $accidentId,
+                                $documentId
+                            );
+
+                            if (!empty($responseData)) {
+                                $this->kafkaService->sendSppti($responseData);
+                            } else {
+                                Log::warning("Kafka: responseData kosong untuk documentCategoryId [{$documentCategoryId}] dan no_lp [{$noLp}]");
+                            }
+                        } else {
+                            Log::warning("Kafka: no_lp tidak ditemukan pada dokumen id [{$documentId}]");
+                        }
+                    } catch (\Exception $kafkaEx) {
+                        Log::error("Gagal mengirim pesan ke Kafka saat approval: " . $kafkaEx->getMessage());
+                    }
+                }
             }
         }catch(\Exception $e){
             DB::rollback();
