@@ -85,9 +85,9 @@
                     </div>
                 </div>
 
-                {{-- Nomor Dokumen S-18 --}}
+                {{-- Nomor Dokumen --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="nomor">Nomor Dokumen S-18<span class="text-danger fs-5">*</span>
+                    <label class="fw-bold col-sm-3 col-form-label" for="nomor">Nomor Dokumen<span class="text-danger fs-5">*</span>
                         <small class="text-muted d-block font-weight-normal">(Nomor Surat Perintah Penangguhan Penahanan)</small>
                     </label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
@@ -103,9 +103,9 @@
                     </div>
                 </div>
 
-                {{-- Tanggal Dokumen S-18 --}}
+                {{-- Tanggal Ditandatangani Dokumen --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="tanggal">Tanggal S-18<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="tanggal">Tanggal Ditandatangani Dokumen<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input class="form-control @error('tanggal') is-invalid @enderror" id="tanggal" name="tanggal"
                             placeholder="YYYY-MM-DD" autocomplete="off"
@@ -196,7 +196,7 @@
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input class="form-control @error('tanggal_surat_permohonan') is-invalid @enderror" id="tanggal_surat_permohonan" name="tanggal_surat_permohonan"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_surat_permohonan', $document->tanggal_surat_permohonan ? date('Y-m-d', strtotime($document->tanggal_surat_permohonan)) : date('Y-m-d')) }}"
+                            value="{{ old('tanggal_surat_permohonan', $document->tanggal_surat_permohonan ? date('Y-m-d', strtotime($document->tanggal_surat_permohonan)) : '') }}"
                             data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
                         <small class="text-muted">(*Tanggal Surat Permohonan Penangguhan Penahanan oleh tersangka/kuasa hukum/keluarga)</small>
                         @error('tanggal_surat_permohonan')
@@ -430,8 +430,9 @@
                             <input id="lokasi_penyimpanan_jaminan" type="text"
                                 class="form-control"
                                 name="lokasi_penyimpanan_jaminan"
-                                value="{{ old('lokasi_penyimpanan_jaminan', $document->lokasi_penyimpanan_jaminan ?? ('Panitera Pengadilan Negeri ' . ($accident->polres->name ?? ''))) }}"
-                                placeholder="Contoh: Panitera Pengadilan Negeri Jakarta Pusat">
+                                style="text-transform: capitalize;"
+                                value="{{ old('lokasi_penyimpanan_jaminan', $document->lokasi_penyimpanan_jaminan ?? '') }}"
+                                placeholder="Contoh: Panitera Pengadilan Negeri Sumedang">
                             <small class="text-muted">(*Tempat penyimpanan jaminan uang, contoh: Panitera Pengadilan Negeri ...)</small>
                         </div>
                     </div>
@@ -486,6 +487,22 @@
                                 placeholder="Contoh: 50000000">
                             <small class="text-muted">(*Besaran uang tanggungan Pasal 110 KUHAP bila ditetapkan)</small>
                         </div>
+                    </div>
+                </div>
+
+                {{-- Hari Wajib Lapor --}}
+                <div class="input-group row mb-3 ms-0 mt-3">
+                    <label class="fw-bold col-sm-3 col-form-label" for="hari_wajib_lapor">
+                        Hari Wajib Lapor
+                        <small class="text-muted d-block font-weight-normal">(Syarat Penangguhan Penahanan)</small>
+                    </label>
+                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                        <input id="hari_wajib_lapor" type="text"
+                            class="form-control"
+                            name="hari_wajib_lapor"
+                            value="{{ old('hari_wajib_lapor', $document->messages['hari_wajib_lapor'] ?? '') }}"
+                            placeholder="Contoh: Senin dan Kamis">
+                        <small class="text-muted">(*Klausul syarat: "wajib lapor setiap hari ...", contoh: <b>Senin dan Kamis</b>)</small>
                     </div>
                 </div>
 
@@ -864,6 +881,96 @@
                 $('#besaran_uang_jaminan').val($(this).val());
             });
 
+            // Cache semua opsi asli anggota
+            var allMemberOptions = [];
+            $('#officerInternalMemberOption option').each(function() {
+                allMemberOptions.push({
+                    val: $(this).val(),
+                    text: $(this).text(),
+                    nrp: String($(this).data('register-number') || $(this).val() || '').trim(),
+                    rank: $(this).data('rank-name') || '',
+                    name: $(this).data('name') || '',
+                    position: $(this).data('position-name') || '',
+                    police: $(this).data('police-name') || ''
+                });
+            });
+
+            function filterMemberOptions() {
+                var leaderOpt = $('#officerLeader option:selected');
+                var selectedLeaderNrp = String(leaderOpt.data('register-number') || leaderOpt.attr('data-register-number') || '').trim();
+                var selectedLeaderId = String($('#officerLeader').val() || '').trim();
+
+                // Ambil daftar NRP dan ID yang sudah ada di tabel anggota
+                var existingMemberNrps = [];
+                var existingMemberIds = [];
+                $('#internalOfficerMemberTable tbody tr').each(function() {
+                    var nrp = String($(this).find('.registerNumber').text() || '').trim();
+                    var offId = String($(this).find('input[name="officers[]"]').val() || '').trim();
+                    if (nrp) existingMemberNrps.push(nrp);
+                    if (offId) existingMemberIds.push(offId);
+                });
+
+                // Jika Ketua Tim yang baru dipilih ternyata sudah ada di tabel anggota, hapus otomatis dari tabel
+                if (selectedLeaderNrp || selectedLeaderId) {
+                    $('#internalOfficerMemberTable tbody tr').each(function() {
+                        var nrp = String($(this).find('.registerNumber').text() || '').trim();
+                        var offId = String($(this).find('input[name="officers[]"]').val() || '').trim();
+                        if ((selectedLeaderNrp && nrp === selectedLeaderNrp) || (selectedLeaderId && offId === selectedLeaderId)) {
+                            $(this).remove();
+                        }
+                    });
+                }
+
+                // Rebuild dropdown #officerInternalMemberOption
+                var curVal = $('#officerInternalMemberOption').val();
+                $('#officerInternalMemberOption').empty();
+
+                $.each(allMemberOptions, function(index, opt) {
+                    if (!opt.val) {
+                        $('#officerInternalMemberOption').append($('<option>', {
+                            value: '',
+                            text: opt.text
+                        }));
+                        return;
+                    }
+
+                    // Sembunyikan/hilangkan jika sama dengan Ketua Tim ATAU sudah ada di tabel anggota
+                    if ((selectedLeaderNrp && opt.nrp === selectedLeaderNrp) ||
+                        (selectedLeaderId && String(opt.val).trim() === selectedLeaderId) ||
+                        existingMemberNrps.includes(opt.nrp) ||
+                        existingMemberIds.includes(String(opt.val).trim())) {
+                        return;
+                    }
+
+                    var $opt = $('<option>', {
+                        value: opt.val,
+                        text: opt.text
+                    });
+                    $opt.attr('data-register-number', opt.nrp);
+                    $opt.attr('data-rank-name', opt.rank);
+                    $opt.attr('data-name', opt.name);
+                    $opt.attr('data-position-name', opt.position);
+                    $opt.attr('data-police-name', opt.police);
+
+                    $('#officerInternalMemberOption').append($opt);
+                });
+
+                if (curVal && $('#officerInternalMemberOption option[value="' + curVal + '"]').length) {
+                    $('#officerInternalMemberOption').val(curVal);
+                } else {
+                    $('#officerInternalMemberOption').val('');
+                }
+
+                $('#officerInternalMemberOption').trigger('change');
+            }
+
+            $('#officerLeader').on('change', function() {
+                filterMemberOptions();
+            });
+
+            // Inisialisasi filter opsi anggota saat halaman dibuka
+            filterMemberOptions();
+
             // Tambah Petugas yang Diperintahkan
             $('#officerInternalMemberOptionAddButtton').on('click', function() {
                 var selectedOption = $('#officerInternalMemberOption').find('option:selected');
@@ -878,7 +985,20 @@
                     });
                 }
 
+                var leaderOpt = $('#officerLeader option:selected');
+                var selectedLeaderNrp = String(leaderOpt.data('register-number') || leaderOpt.attr('data-register-number') || '').trim();
+                var selectedLeaderId = String($('#officerLeader').val() || '').trim();
+
                 var registerNumber = selectedOption.data('register-number') || '-';
+                if ((selectedLeaderNrp && String(registerNumber).trim() === selectedLeaderNrp) || (selectedLeaderId && String(officerId).trim() === selectedLeaderId)) {
+                    return Swal.fire({
+                        title: 'Perhatian',
+                        text: 'Petugas ini sudah dipilih sebagai Ketua Tim dan tidak dapat ditambahkan sebagai anggota.',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+
                 var rankName = selectedOption.data('rank-name') || '-';
                 var name = selectedOption.data('name') || '-';
                 var positionName = selectedOption.data('position-name') || '-';
@@ -888,7 +1008,8 @@
                 var isAppended = false;
                 $('#internalOfficerMemberTable tbody tr').each(function() {
                     var appendedRegisterNumber = $(this).find('.registerNumber').text().trim();
-                    if (appendedRegisterNumber === registerNumber) {
+                    var appendedId = $(this).find('input[name="officers[]"]').val();
+                    if (appendedRegisterNumber === registerNumber || appendedId === officerId) {
                         isAppended = true;
                         return false;
                     }
@@ -916,11 +1037,13 @@
 
                 $('#internalOfficerMemberTable tbody').append(rowHtml);
                 $('#officerInternalMemberOption').val('').trigger('change');
+                filterMemberOptions();
             });
 
             // Hapus Petugas dari tabel
             $(document).on('click', '.btn-delete-officer', function() {
                 $(this).closest('tr').remove();
+                filterMemberOptions();
             });
 
             // Handle Submit Form with Inline markError & AJAX Validation
@@ -998,8 +1121,8 @@
                 }
 
                 // 1. Validasi Identitas Dokumen
-                checkInput('#nomor', 'Nomor Dokumen S-18');
-                checkInput('#tanggal', 'Tanggal S-18');
+                checkInput('#nomor', 'Nomor Dokumen');
+                checkInput('#tanggal', 'Tanggal Ditandatangani Dokumen');
                 checkInput('#nomor_spdp', 'Nomor SPDP');
                 checkInput('#tanggal_spdp', 'Tanggal SPDP');
                 checkInput('#kode_satker_penerbit_spdp', 'Kode Satker Penerbit SPDP');
