@@ -30,9 +30,11 @@ class S23DocumentController extends Controller
         $service = $this->s23Service;
 
         // 1. Ambil Query Parameter
-        $id = $request->query('id'); // Filter UUID spesifik jika ada
+        $id = $request->query('id') ?: $request->input('id'); // Filter UUID spesifik jika ada
+        $accidentId = $request->query('accident_id') ?: $request->input('accident_id');
+        $noLp = $request->query('no_lp') ?: $request->input('no_lp');
         $mode = $request->query('mode');
-        $statusId = $request->query('status_id', '11'); // default '11' (selesai / rilis)
+        $statusId = $request->query('status_id') ?: $request->input('status_id'); // default null (diperlakukan sebagai 11 atau 86)
         $startReleaseDate = $request->query('start_release_date');
         $endReleaseDate = $request->query('end_release_date');
         $startDocDate = $request->query('start_doc_date');
@@ -86,10 +88,23 @@ class S23DocumentController extends Controller
                 if ($statusId === '11') {
                     $query->whereNotNull('released_at');
                 }
+            } else {
+                // Default: rilis selesai (11 atau 86)
+                $query->whereIn('status_id', ['11', '86']);
             }
 
             if (!empty($id)) {
                 $query->where('id', $id);
+            }
+
+            if (!empty($accidentId)) {
+                $query->where('accident_id', $accidentId);
+            }
+
+            if (!empty($noLp)) {
+                $query->whereHas('accident', function ($q) use ($noLp) {
+                    $q->where('no_lp', trim($noLp));
+                });
             }
 
             if (!empty($nomorSurat)) {
@@ -186,8 +201,15 @@ class S23DocumentController extends Controller
 
     /**
      * Menerapkan filter rentang tanggal pada query
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $startReleaseDate
+     * @param string|null $endReleaseDate
+     * @param string|null $startDocDate
+     * @param string|null $endDocDate
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function applyFilters($query, $startReleaseDate, $endReleaseDate, $startDocDate, $endDocDate)
+    protected function applyFilters($query, ?string $startReleaseDate = null, ?string $endReleaseDate = null, ?string $startDocDate = null, ?string $endDocDate = null)
     {
         if (!empty($startReleaseDate) && !empty($endReleaseDate)) {
             $query->whereBetween('released_at', [
@@ -216,8 +238,11 @@ class S23DocumentController extends Controller
 
     /**
      * Menyimpan momen sinkronisasi dokumen ke database
+     *
+     * @param Request $request
+     * @param object $document
      */
-    protected function recordSyncMoment(Request $request, $document): void
+    protected function recordSyncMoment(Request $request, object $document): void
     {
         try {
             $document->update([

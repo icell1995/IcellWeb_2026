@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
+use App\Models\User;
 
 use App\Models\Doc\SuratPerintahPenyelidikanDocument\SuratPerintahPenyelidikanDocument;
 use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument;
@@ -44,8 +45,15 @@ class DocumentApprovalController extends Controller
 {
     use DocsOfficersTraits;
 
-    protected $kafkaService;
-    protected $pusiknasDocDataService;
+    /**
+     * @var KafkaService
+     */
+    protected KafkaService $kafkaService;
+
+    /**
+     * @var PusiknasDocDataService
+     */
+    protected PusiknasDocDataService $pusiknasDocDataService;
 
     public function __construct(
         KafkaService $kafkaService,
@@ -190,6 +198,7 @@ class DocumentApprovalController extends Controller
                         '0101', '0201', '0211', '0212', '0213', '0215',
                         '0205', '0206', '0216', // Penghentian Penyidikan (Sprint, Sket, Pemberitahuan)
                         '0404', '0405',
+                        '0504', '0505', // Penyitaan (Permintaan Izin & Laporan Persetujuan)
                         '0601', '0603', '0604', '0605', '0606', '0607', '0608', '0609',
                         '0702', '0706',
                         '0805', '0806', '0807', // Berkas Perkara Tahap I & Tahap II
@@ -260,7 +269,13 @@ class DocumentApprovalController extends Controller
 
     //===================================================================================================
 
-    private function getDocumentsByStatus($user, $statusIds) {
+    /**
+     * @param \App\Models\User|null $user
+     * @param array<int|string> $statusIds
+     * @return \Illuminate\Support\Collection
+     */
+    private function getDocumentsByStatus(?User $user, array $statusIds): Collection
+    {
         $documentTypes = [
             SuratPerintahPenyelidikanDocument::class,
             SuratPerintahPenyidikanDocument::class,
@@ -309,7 +324,13 @@ class DocumentApprovalController extends Controller
         return $documentsCollection;
     }
 
-    private function getDocumentRouter($documentCategoryId, $documentId, $accidentId)
+    /**
+     * @param string $documentCategoryId
+     * @param string $documentId
+     * @param string|null $accidentId
+     * @return mixed
+     */
+    private function getDocumentRouter(string $documentCategoryId, string $documentId, ?string $accidentId = null)
     {
         $documentModels = [
             '0101' => SuratPerintahPenyelidikanDocument::class,

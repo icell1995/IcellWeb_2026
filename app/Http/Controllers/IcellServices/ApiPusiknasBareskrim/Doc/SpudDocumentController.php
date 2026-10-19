@@ -14,8 +14,8 @@ use App\Models\LaporanPolisi;
 
 class SpudDocumentController extends Controller
 {
-    protected $docService;
-    private $tableSchemaName = 'doc' . '.';
+    protected DocService $docService;
+    private string $tableSchemaName = 'doc.';
 
     public function __construct(DocService $docService)
     {
@@ -34,6 +34,9 @@ class SpudDocumentController extends Controller
         $endReleaseDate    = $request->input('end_release_date');
         $perPage           = $request->query('perPage', 100);
         $page              = $request->query('page', 1);
+        $id                = $request->input('id');
+        $accidentId        = $request->input('accident_id');
+        $noLp              = $request->input('no_lp');
 
         // Initialize variable
         $responseData = [];
@@ -79,6 +82,18 @@ class SpudDocumentController extends Controller
             })
             ->whereIn('status_id', $docService->requiredDocumentStatusIds)
             ->orderBy('document_date', 'ASC');
+
+            if ($id) {
+                $documents->where('id', $id);
+            }
+            if ($accidentId) {
+                $documents->where('accident_id', $accidentId);
+            }
+            if ($noLp) {
+                $documents->whereHas('accident', function ($q) use ($noLp) {
+                    $q->where('no_lp', trim($noLp));
+                });
+            }
 
             // Filter: exclude legacy documents
             $documents = $docService->applyIncludeLegacyDocumentFilter($documents, false);

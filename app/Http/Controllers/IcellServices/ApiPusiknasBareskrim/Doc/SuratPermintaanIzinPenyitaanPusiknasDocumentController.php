@@ -10,7 +10,7 @@ use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyi
 
 class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
 {
-    protected $docService;
+    protected DocService $docService;
 
     public function __construct(DocService $docService)
     {
@@ -28,6 +28,9 @@ class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
         $endReleaseDate    = $request->input('end_release_date');
         $perPage           = $request->query('perPage', 100);
         $page              = $request->query('page', 1);
+        $id                = $request->input('id');
+        $accidentId        = $request->input('accident_id');
+        $noLp              = $request->input('no_lp');
 
         $page = is_numeric($page) ? intval($page) : 1;
         $perPage = is_numeric($perPage) ? intval($perPage) : 100;
@@ -43,7 +46,7 @@ class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
 
         DB::beginTransaction();
         try {
-            $documents = SuratPermintaanIzinPenyitaanDocument::with([
+            $query = SuratPermintaanIzinPenyitaanDocument::with([
                 'accident',
                 'suratPerintahPenyidikanDocument' => function($q) {
                     $q->with(['attachment', 'suratPerintahPenyidikanDocumentLaws.crimeConstitution']);
@@ -58,10 +61,22 @@ class SuratPermintaanIzinPenyitaanPusiknasDocumentController extends Controller
             ->whereHas('accident', function ($query) {
                 // Asumsi kecelakaan sudah valid
             })
-            ->where('status_id', '11')
+            ->whereIn('status_id', ['11', '86'])
             ->orderBy('document_date', 'ASC');
 
-            $documents = $docService->applyDateRangeFilter($documents, 'released_at', $startReleaseDate, $endReleaseDate);
+            if ($id) {
+                $query->where('id', $id);
+            }
+            if ($accidentId) {
+                $query->where('accident_id', $accidentId);
+            }
+            if ($noLp) {
+                $query->whereHas('accident', function ($q) use ($noLp) {
+                    $q->where('no_lp', trim($noLp));
+                });
+            }
+
+            $documents = $docService->applyDateRangeFilter($query, 'released_at', $startReleaseDate, $endReleaseDate);
             $documents = $docService->applyDateRangeFilter($documents, 'document_date', $startDocumentDate, $endDocumentDate);
 
             $documents = $documents->paginate($perPage, ['*'], 'page', $page);

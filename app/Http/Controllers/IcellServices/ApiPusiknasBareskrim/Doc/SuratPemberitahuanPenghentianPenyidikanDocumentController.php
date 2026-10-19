@@ -28,6 +28,9 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         $endReleaseDate    = $request->input('end_release_date');
         $perPage           = $request->query('perPage', 100);
         $page              = $request->query('page', 1);
+        $id                = $request->input('id');
+        $accidentId        = $request->input('accident_id');
+        $noLp              = $request->input('no_lp');
 
         $page = is_numeric($page) ? intval($page) : 1;
         $perPage = is_numeric($perPage) ? intval($perPage) : 100;
@@ -56,6 +59,18 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
             })
             // ->whereIn('status_id', $docService->requiredDocumentStatusIds)
             ->orderBy('document_date', 'ASC');
+
+            if ($id) {
+                $documents->where('id', $id);
+            }
+            if ($accidentId) {
+                $documents->where('accident_id', $accidentId);
+            }
+            if ($noLp) {
+                $documents->whereHas('accident', function ($q) use ($noLp) {
+                    $q->where('no_lp', trim($noLp));
+                });
+            }
 
             $documents = $docService->applyDateRangeFilter($documents, 'released_at', $startReleaseDate, $endReleaseDate);
             $documents = $docService->applyDateRangeFilter($documents, 'document_date', $startDocumentDate, $endDocumentDate);

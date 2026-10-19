@@ -12,8 +12,8 @@ use App\Models\Officer;
 
 class BaHanDocumentController extends Controller
 {
-    protected $docService;
-    private $tableName = 'berita_acara_penahanan';
+    protected DocService $docService;
+    private string $tableName = 'berita_acara_penahanan';
 
     public function __construct(DocService $docService)
     {
@@ -32,6 +32,9 @@ class BaHanDocumentController extends Controller
         $endReleaseDate    = $request->input('end_release_date');
         $perPage           = $request->query('perPage', 100);
         $page              = $request->query('page', 1);
+        $id                = $request->input('id');
+        $accidentId        = $request->input('accident_id');
+        $noLp              = $request->input('no_lp');
 
         // Initialize variable
         $responseData = [];
@@ -68,6 +71,20 @@ class BaHanDocumentController extends Controller
                 $query->whereNotNull('id');
             })
             ->orderBy('document_date', 'ASC');
+
+            if ($id) {
+                $documents->where('id', $id);
+            }
+
+            if ($accidentId) {
+                $documents->where('accident_id', $accidentId);
+            }
+
+            if ($noLp) {
+                $documents->whereHas('accident', function ($q) use ($noLp) {
+                    $q->where('no_lp', trim($noLp));
+                });
+            }
 
             // Filter: document_date date range
             $documents = $docService->applyDateRangeFilter(

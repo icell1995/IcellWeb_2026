@@ -33,6 +33,9 @@ class PpdPolDocumentController extends Controller
         $endReleaseDate    = $request->input('end_release_date');
         $perPage           = $request->query('perPage', 100);
         $page              = $request->query('page', 1);
+        $id                = $request->input('id');
+        $accidentId        = $request->input('accident_id');
+        $noLp              = $request->input('no_lp');
 
         // Initialize variable
         $responseData = [];
@@ -73,6 +76,18 @@ class PpdPolDocumentController extends Controller
                 $query->whereNotNull('id');
             })
             ->orderBy('document_date', 'ASC');
+
+            if ($id) {
+                $documents->where('id', $id);
+            }
+            if ($accidentId) {
+                $documents->where('accident_id', $accidentId);
+            }
+            if ($noLp) {
+                $documents->whereHas('accident', function ($q) use ($noLp) {
+                    $q->where('no_lp', trim($noLp));
+                });
+            }
 
             // Filter: exclude legacy documents
             $documents = $docService->applyIncludeLegacyDocumentFilter($documents, false);

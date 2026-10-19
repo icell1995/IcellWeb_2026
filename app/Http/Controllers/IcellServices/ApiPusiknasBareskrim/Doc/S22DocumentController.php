@@ -32,7 +32,9 @@ class S22DocumentController extends Controller
 
         // 1. Ambil Query Parameter
         $type = strtolower($request->query('type', 'all')); // 'all', 'pertama', 'kedua', '0606', '0607'
-        $id = $request->query('id'); // Filter UUID spesifik jika ada
+        $id = $request->query('id') ?: $request->input('id'); // Filter UUID spesifik jika ada
+        $accidentId = $request->query('accident_id') ?: $request->input('accident_id');
+        $noLp = $request->query('no_lp') ?: $request->input('no_lp');
         $mode = $request->query('mode');
         $startReleaseDate = $request->query('start_release_date');
         $endReleaseDate = $request->query('end_release_date');
@@ -83,11 +85,19 @@ class S22DocumentController extends Controller
             // 3. Query S-22 Pertama (0606)
             if ($fetchPertama) {
                 $q1 = SuratPermintaanPerpanjanganPenahananLanjutanDocument::with($eagerRelations)
-                    ->where('status_id', '11')
+                    ->whereIn('status_id', ['11', '86'])
                     ->whereNotNull('released_at');
 
                 if (! empty($id)) {
                     $q1->where('id', $id);
+                }
+                if (! empty($accidentId)) {
+                    $q1->where('accident_id', $accidentId);
+                }
+                if (! empty($noLp)) {
+                    $q1->whereHas('accident', function ($q) use ($noLp) {
+                        $q->where('no_lp', trim($noLp));
+                    });
                 }
 
                 $this->applyFilters($q1, $startReleaseDate, $endReleaseDate, $startDocDate, $endDocDate);
@@ -98,11 +108,19 @@ class S22DocumentController extends Controller
             // 4. Query S-22 Kedua (0607)
             if ($fetchKedua) {
                 $q2 = SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::with($eagerRelations)
-                    ->where('status_id', '11')
+                    ->whereIn('status_id', ['11', '86'])
                     ->whereNotNull('released_at');
 
                 if (! empty($id)) {
                     $q2->where('id', $id);
+                }
+                if (! empty($accidentId)) {
+                    $q2->where('accident_id', $accidentId);
+                }
+                if (! empty($noLp)) {
+                    $q2->whereHas('accident', function ($q) use ($noLp) {
+                        $q->where('no_lp', trim($noLp));
+                    });
                 }
 
                 $this->applyFilters($q2, $startReleaseDate, $endReleaseDate, $startDocDate, $endDocDate);
@@ -181,8 +199,15 @@ class S22DocumentController extends Controller
 
     /**
      * Menerapkan filter rentang tanggal pada query
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string|null $startReleaseDate
+     * @param string|null $endReleaseDate
+     * @param string|null $startDocDate
+     * @param string|null $endDocDate
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function applyFilters($query, $startReleaseDate, $endReleaseDate, $startDocDate, $endDocDate)
+    protected function applyFilters($query, ?string $startReleaseDate = null, ?string $endReleaseDate = null, ?string $startDocDate = null, ?string $endDocDate = null)
     {
         if (! empty($startReleaseDate) && ! empty($endReleaseDate)) {
             $query->whereBetween('released_at', [
@@ -211,8 +236,11 @@ class S22DocumentController extends Controller
 
     /**
      * Menyimpan momen sinkronisasi dokumen ke database
+     *
+     * @param Request $request
+     * @param object $document
      */
-    protected function recordSyncMoment(Request $request, $document): void
+    protected function recordSyncMoment(Request $request, object $document): void
     {
         try {
             $document->update([
