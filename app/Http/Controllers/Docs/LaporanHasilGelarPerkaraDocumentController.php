@@ -16,6 +16,7 @@ use App\Helpers\PeopleNameHelper;
 
 use App\Services\Doc\DocService;
 
+use App\Models\Doc\SuratPerintahPenyelidikanDocument\SuratPerintahPenyelidikanDocument;
 use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocumentFile;
@@ -70,12 +71,26 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->get();
 
+        $suratPerintahPenyelidikanDocuments = SuratPerintahPenyelidikanDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->get();
+
         $authorizedSignatories = Officer::withRelated()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
             ->hasDataComplete()
             ->signatory()
+            ->active()
+            ->valid()
+            ->orderBy('first_name')
+            ->get();
+
+        $availableOfficers = Officer::withRelated()
+            ->selectFullName()
+            ->whereIn('police_id', $getOldNewPolresIds)
+            ->whereHasUserActive()
+            ->hasDataComplete()
             ->active()
             ->valid()
             ->orderBy('first_name')
@@ -156,7 +171,9 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             'accidentId' => $accidentId,
             'accident' => $accident,
             'suratPerintahPenyidikanDocuments' => $suratPerintahPenyidikanDocuments,
+            'suratPerintahPenyelidikanDocuments' => $suratPerintahPenyelidikanDocuments,
             'authorizedSignatories' => $authorizedSignatories,
+            'availableOfficers' => $availableOfficers,
             'ranks' => $ranks,
             'positions' => $positions,
             'timezones' => $timezones,
@@ -192,7 +209,10 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
 
         // Define & Sanitize Text Input
         $user = Auth::user();
-        $suratPerintahPenyidikanDocumentId = htmlspecialchars($request->suratPerintahPenyidikanDocument);
+        $sprinId = htmlspecialchars($request->suratPerintahPenyidikanDocument);
+        $isSprinlidik = SuratPerintahPenyelidikanDocument::where('id', $sprinId)->exists();
+        $suratPerintahPenyelidikanDocumentId = $isSprinlidik ? $sprinId : null;
+        $suratPerintahPenyidikanDocumentId = $isSprinlidik ? null : $sprinId;
         $documentType = htmlspecialchars($request->documentType);
         $caseDegreeTypeId = htmlspecialchars($request->caseDegreeType);
         $caseDegreeInviteReference = htmlspecialchars($request->caseDegreeInviteReference);
@@ -208,6 +228,21 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $discussion = htmlspecialchars($request->discussion);
         $conclusion = htmlspecialchars($request->conclusion);
         $closing = htmlspecialchars($request->closing);
+
+        $attendancesInput = $request->attendances ?? [];
+        $attendances = [];
+        if (is_array($attendancesInput)) {
+            foreach ($attendancesInput as $att) {
+                $trimmed = trim(htmlspecialchars($att));
+                if (!empty($trimmed)) {
+                    $attendances[] = $trimmed;
+                }
+            }
+        }
+        $attendeesCount = count($attendances) > 0 ? count($attendances) : (int) $request->attendees;
+        if ($attendeesCount < 1) {
+            $attendeesCount = 1;
+        }
 
         $documentDate = htmlspecialchars($request->documentDate);
         $signatoryId = htmlspecialchars($request->signatory);
@@ -228,6 +263,7 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             $laporanHasilGelarPerkaraDocument = LaporanHasilGelarPerkaraDocument::create([
                 'accident_id' => $accidentId,
                 'surat_perintah_penyidikan_document_id' => $suratPerintahPenyidikanDocumentId,
+                'surat_perintah_penyelidikan_document_id' => $suratPerintahPenyelidikanDocumentId,
                 'document_date' => $documentDate,
                 'document_type' => $documentType,
                 'case_degree_type_id' => $caseDegreeTypeId,
@@ -240,7 +276,8 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
                 'timezone_id' => $timezoneId,
                 'place' => $place,
                 'case_degree_leader' => $caseDegreeLeader,
-                'attendees' => $attendees,
+                'attendees' => $attendeesCount,
+                'attendances' => $attendances,
 
                 'discussion' => $discussion,
                 'conclusion' => $conclusion,
@@ -327,6 +364,29 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
                 ];
             }
             $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers()->create($signatoryCreateData);
+
+            if ($request->notulen) {
+                $notulenOfficer = Officer::where('id', $request->notulen)->first();
+                if ($notulenOfficer) {
+                    $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers()->create([
+                        'laporan_hasil_gelar_perkara_document_id' => $laporanHasilGelarPerkaraDocumentId,
+                        'register_number' => $notulenOfficer->register_number,
+                        'first_title' => $notulenOfficer->first_title,
+                        'first_name' => $notulenOfficer->first_name,
+                        'last_name' => $notulenOfficer->last_name,
+                        'last_title' => $notulenOfficer->last_title,
+                        'rank_id' => $notulenOfficer->rank_id,
+                        'position_id' => $notulenOfficer->position_id,
+                        'phone_number' => $notulenOfficer->phone_number,
+                        'email' => $notulenOfficer->email,
+                        'police_id' => $notulenOfficer->police_id,
+                        'status' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('status', 'PRESENT'),
+                        'flag' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('flag', 'INTERNAL'),
+                        'class' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('class', 'NOTULEN'),
+                        'insert_method' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('insert_method', 'IMPORT'),
+                    ]);
+                }
+            }
 
             $suspectIds = [];
 
@@ -695,7 +755,7 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $laporanHasilGelarPerkaraDocumentId = $id;
 
-        $laporanHasilGelarPerkaraDocument = LaporanHasilGelarPerkaraDocument::with(['laporanHasilGelarPerkaraDocumentOfficers', 'caseDegreeType', 'timezone', 'suratPerintahPenyidikanDocument'])->where('id', $laporanHasilGelarPerkaraDocumentId)->first();
+        $laporanHasilGelarPerkaraDocument = LaporanHasilGelarPerkaraDocument::with(['laporanHasilGelarPerkaraDocumentOfficers.rank', 'caseDegreeType', 'timezone', 'suratPerintahPenyidikanDocument', 'suratPerintahPenyelidikanDocument'])->where('id', $laporanHasilGelarPerkaraDocumentId)->first();
         $accident = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         $viewData =[
@@ -729,6 +789,21 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             ->valid()
             ->orderBy('first_name')
             ->get();
+
+        $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
+        $availableOfficers = Officer::withRelated()
+            ->selectFullName()
+            ->whereIn('police_id', $getOldNewPolresIds)
+            ->whereHasUserActive()
+            ->hasDataComplete()
+            ->active()
+            ->valid()
+            ->orderBy('first_name')
+            ->get();
+
+        $notulen = $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers
+            ->where('class', LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('class', 'NOTULEN'))
+            ->first();
 
         $ranks = Rank::where('is_active', true)
             ->wherePolri()
@@ -796,8 +871,14 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->get();
 
+        $suratPerintahPenyelidikanDocuments = SuratPerintahPenyelidikanDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->get();
+
         $viewData =[
             'authorizedSignatories' => $authorizedSignatories,
+            'availableOfficers' => $availableOfficers,
+            'notulen' => $notulen,
             'accidentId' => $accidentId,
             'accident' => $accident,
             'laporanHasilGelarPerkaraDocument' => $laporanHasilGelarPerkaraDocument,
@@ -806,6 +887,7 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             'positions' => $positions,
             'officers' => $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers,
             'suratPerintahPenyidikanDocuments' => $suratPerintahPenyidikanDocuments,
+            'suratPerintahPenyelidikanDocuments' => $suratPerintahPenyelidikanDocuments,
             'timezones' => $timezones,
             'suspectSources' => $suspectSources,
             'identityTypes' => $identityTypes,
@@ -842,7 +924,10 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
 
         // Define & Sanitize Text Input
         $user = Auth::user();
-        $suratPerintahPenyidikanDocumentId = htmlspecialchars($request->suratPerintahPenyidikanDocument);
+        $sprinId = htmlspecialchars($request->suratPerintahPenyidikanDocument);
+        $isSprinlidik = SuratPerintahPenyelidikanDocument::where('id', $sprinId)->exists();
+        $suratPerintahPenyelidikanDocumentId = $isSprinlidik ? $sprinId : null;
+        $suratPerintahPenyidikanDocumentId = $isSprinlidik ? null : $sprinId;
         $documentType = htmlspecialchars($request->documentType);
         $caseDegreeTypeId = htmlspecialchars($request->caseDegreeType);
         $caseDegreeInviteReference = htmlspecialchars($request->caseDegreeInviteReference);
@@ -854,6 +939,21 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $place = htmlspecialchars($request->place);
         $caseDegreeLeader = htmlspecialchars($request->caseDegreeLeader);
         $attendees = htmlspecialchars($request->attendees);
+
+        $attendancesInput = $request->attendances ?? [];
+        $attendances = [];
+        if (is_array($attendancesInput)) {
+            foreach ($attendancesInput as $att) {
+                $trimmed = trim(htmlspecialchars($att));
+                if (!empty($trimmed)) {
+                    $attendances[] = $trimmed;
+                }
+            }
+        }
+        $attendeesCount = count($attendances) > 0 ? count($attendances) : (int) $attendees;
+        if ($attendeesCount < 1) {
+            $attendeesCount = 1;
+        }
 
         $discussion = htmlspecialchars($request->discussion);
         $conclusion = htmlspecialchars($request->conclusion);
@@ -881,6 +981,7 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             $laporanHasilGelarPerkaraDocument->update([
                 'accident_id' => $accidentId,
                 'surat_perintah_penyidikan_document_id' => $suratPerintahPenyidikanDocumentId,
+                'surat_perintah_penyelidikan_document_id' => $suratPerintahPenyelidikanDocumentId,
                 'document_date' => $documentDate,
                 'document_type' => $documentType,
                 'case_degree_type_id' => $caseDegreeTypeId,
@@ -893,7 +994,8 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
                 'timezone_id' => $timezoneId,
                 'place' => $place,
                 'case_degree_leader' => $caseDegreeLeader,
-                'attendees' => $attendees,
+                'attendees' => $attendeesCount,
+                'attendances' => $attendances,
 
                 'discussion' => $discussion,
                 'conclusion' => $conclusion,
@@ -1000,6 +1102,36 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
                     ],
                     $signatoryCreateData
                 );
+
+            if ($request->notulen) {
+                $notulenOfficer = Officer::where('id', $request->notulen)->first();
+                if ($notulenOfficer) {
+                    $notulenData = [
+                        'laporan_hasil_gelar_perkara_document_id' => $laporanHasilGelarPerkaraDocumentId,
+                        'register_number' => $notulenOfficer->register_number,
+                        'first_title' => $notulenOfficer->first_title,
+                        'first_name' => $notulenOfficer->first_name,
+                        'last_name' => $notulenOfficer->last_name,
+                        'last_title' => $notulenOfficer->last_title,
+                        'rank_id' => $notulenOfficer->rank_id,
+                        'position_id' => $notulenOfficer->position_id,
+                        'phone_number' => $notulenOfficer->phone_number,
+                        'email' => $notulenOfficer->email,
+                        'police_id' => $notulenOfficer->police_id,
+                        'status' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('status', 'PRESENT'),
+                        'flag' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('flag', 'INTERNAL'),
+                        'class' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('class', 'NOTULEN'),
+                        'insert_method' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('insert_method', 'IMPORT'),
+                    ];
+                    $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers()
+                        ->updateOrCreate(
+                            [
+                                'class' => LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('class', 'NOTULEN')
+                            ],
+                            $notulenData
+                        );
+                }
+            }
 
             $suspectIds = [];
 
@@ -1462,41 +1594,28 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $laporanHasilGelarPerkaraDocumentId = $id;
         
-        $laporanHasilGelarPerkaraDocument = LaporanHasilGelarPerkaraDocument::with(['laporanHasilGelarPerkaraDocumentOfficers', 'suratPerintahPenyidikanDocument', 'timezone'])->where('id', $laporanHasilGelarPerkaraDocumentId)->first();
+        $laporanHasilGelarPerkaraDocument = LaporanHasilGelarPerkaraDocument::with(['laporanHasilGelarPerkaraDocumentOfficers.rank', 'suratPerintahPenyidikanDocument', 'suratPerintahPenyelidikanDocument', 'timezone'])->where('id', $laporanHasilGelarPerkaraDocumentId)->first();
         $signatory = $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers->where('class','=', LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('class', 'SIGNATORY'))->first();
+        $notulen = $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers->where('class','=', LaporanHasilGelarPerkaraDocumentOfficer::getEnumOption('class', 'NOTULEN'))->first();
 
         $accident = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
-        $signatoryHeadText = [
-            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? ''),
-            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? '') . '</w:t><w:p/><w:t>' . ($signatory?->position?->name ?? ''),
-            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . ($accident->polres->polda->full_name ?? '') . '</w:t><w:p/><w:t>' . ($signatory?->position?->name ?? ''),
-        ];
-
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/laporan_hasil_gelar_perkara.docx');
-
-        if(isset($signatory->position)){
-            if($signatory->position->position_cluster_id == '1'){
-                $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['KAPOLRES']);
-            }else if($signatory->position->position_cluster_id == '9'){
-                $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['NO_DIRLANTAS']);
-            }else{
-                $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['NO_KAPOLRES']);
-            }
-        } else {
-            $templateProcessor->setValue('signatoryHeadText', '');
-        }
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/laporan_hasil_gelar_perkara_2025.docx');
 
         $documentDate = Carbon::parse($laporanHasilGelarPerkaraDocument->document_date)->locale('id')->translatedFormat('d F Y');
         $accidentNumber = $accident->no_lp ?? '-';
+        $accidentDate = $accident->accident_date
+            ? Carbon::parse($accident->accident_date)->locale('id')->translatedFormat('d F Y')
+            : ($accident->report_date ? Carbon::parse($accident->report_date)->locale('id')->translatedFormat('d F Y') : '-');
 
-        // Validasi ketersediaan dokumen induk SP.Sidik
-        $spSidik = $laporanHasilGelarPerkaraDocument->suratPerintahPenyidikanDocument;
-        if (!$spSidik) {
-            $message = "Surat Perintah Penyidikan (Sp.Sidik) yang menjadi dasar dokumen LHGP ini tidak ditemukan atau telah dihapus. Silakan klik menu 'Edit' pada dokumen ini untuk memilih Sp.Sidik yang aktif terlebih dahulu sebelum mengunduh.";
+        // Validasi ketersediaan dokumen induk SP.Sidik / SP.Lidik
+        $spDoc = $laporanHasilGelarPerkaraDocument->suratPerintahPenyidikanDocument
+            ?? $laporanHasilGelarPerkaraDocument->suratPerintahPenyelidikanDocument;
+        if (!$spDoc) {
+            $message = "Surat Perintah (Sp.Lidik / Sp.Sidik) yang menjadi dasar dokumen LHGP ini tidak ditemukan atau telah dihapus. Silakan klik menu 'Edit' pada dokumen ini untuk memilih Surat Perintah yang aktif terlebih dahulu sebelum mengunduh.";
             return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
         }
-        $suratPerintahPenyidikanDocumentNumber = $spSidik->document_number ?? '-';
+        $suratPerintahPenyidikanDocumentNumber = $spDoc->document_number ?? '-';
 
         $caseDegreeInviteReference = $laporanHasilGelarPerkaraDocument->case_degree_invite_reference;
         $dayDate = $laporanHasilGelarPerkaraDocument->date 
@@ -1505,7 +1624,6 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $time = $laporanHasilGelarPerkaraDocument->time . ' ' . ($laporanHasilGelarPerkaraDocument->timezone?->name ?? '');
         $place = $laporanHasilGelarPerkaraDocument->place;
         $caseDegreeLeader = $laporanHasilGelarPerkaraDocument->case_degree_leader;
-        $attendees = $laporanHasilGelarPerkaraDocument->attendees;
         $discussion = $laporanHasilGelarPerkaraDocument->discussion;
         $conclusion = $laporanHasilGelarPerkaraDocument->conclusion;
         $closing = $laporanHasilGelarPerkaraDocument->closing;
@@ -1514,29 +1632,63 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
         $policeAddress = ($police?->address ?? '') . ', ' . ($police?->polres_zipcode ?? '');
         $policeFullName = (in_array($police?->id, ['1114'])) ? ($police->full_name ?? '') : 'SAT LANTAS ' . ($police->full_name ?? '');
         $policeProvinceName = $police?->polres_province ?? '';
+        $policeDistrict = $police?->polres_district ?? $police?->polres_city ?? $policeProvinceName;
 
         $signatoryName = $signatory ? PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title) : '';
         $signatoryRankName = $signatory?->rank?->name ?? '';
         $signatoryRegisterNumber = $signatory?->register_number ?? '';
 
-        $templateProcessor->setValue('documentLocation', $policeProvinceName);
-        $templateProcessor->setValue('documentDate', $documentDate);
+        $notulenName = $notulen ? PeopleNameHelper::getFullName($notulen->first_title, $notulen->first_name, $notulen->last_name, $notulen->last_title) : '-';
+        $notulenRankName = strtoupper($notulen?->rank?->name ?? '-');
+        $notulenRegisterNumber = $notulen?->register_number ?? '-';
+
+        $templateProcessor->setValue('policeFullName', strtoupper($policeFullName));
+        $templateProcessor->setValue('policeAddress', $policeAddress);
         $templateProcessor->setValue('accidentNumber', $accidentNumber);
+        $templateProcessor->setValue('accident_date', $accidentDate);
         $templateProcessor->setValue('suratPerintahPenyidikanDocumentNumber', $suratPerintahPenyidikanDocumentNumber);
+        $templateProcessor->setValue('documentDate', $documentDate);
         $templateProcessor->setValue('caseDegreeInviteReference', $caseDegreeInviteReference);
+
+        $templateProcessor->setValue('implementer', 'SAT LANTAS ' . strtoupper($police->full_name ?? ''));
+        $templateProcessor->setValue('litigated', 'Perkara Kecelakaan Lalu Lintas LP No. ' . $accidentNumber);
         $templateProcessor->setValue('dayDate', $dayDate);
         $templateProcessor->setValue('time', $time);
         $templateProcessor->setValue('place', $place);
         $templateProcessor->setValue('caseDegreeLeader', $caseDegreeLeader);
-        $templateProcessor->setValue('attendees', $attendees);
+
+        // Peserta Gelar
+        $attendancesList = $laporanHasilGelarPerkaraDocument->attendances ?? [];
+        if (!is_array($attendancesList) || empty($attendancesList)) {
+            $attendancesList = [
+                ($caseDegreeLeader ?? 'Pimpinan Gelar') . ' (Pimpinan Gelar)',
+                'Penyidik / Penyidik Pembantu Sat Lantas',
+                'Peserta Gelar Perkara Lainnya'
+            ];
+        }
+        $blockAttendances = [];
+        foreach ($attendancesList as $idx => $att) {
+            $blockAttendances[] = [
+                'numbers' => chr(97 + $idx),
+                'attendance' => $att
+            ];
+        }
+        $templateProcessor->cloneBlock('block_attendances', count($blockAttendances), true, false, $blockAttendances);
+
         $templateProcessor->setValue('discussion', $discussion);
         $templateProcessor->setValue('conclusion', $conclusion);
         $templateProcessor->setValue('closing', $closing);
-        $templateProcessor->setValue('policeAddress', $policeAddress);
-        $templateProcessor->setValue('policeFullName', strtoupper($policeFullName));
+
+        $templateProcessor->setValue('location_created', $policeDistrict);
+        $templateProcessor->setValue('issued_date', $documentDate);
+
         $templateProcessor->setValue('signatoryName', $signatoryName);
         $templateProcessor->setValue('signatoryRankName', strtoupper($signatoryRankName));
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);
+
+        $templateProcessor->setValue('notulenName', $notulenName);
+        $templateProcessor->setValue('notulenRankName', $notulenRankName);
+        $templateProcessor->setValue('notulenRegisterNumber', $notulenRegisterNumber);
 
         $filename = 'generate/' . Str::uuid() . ' - Laporan Hasil Gelar Perkara - Resor ' . ($accident->polres->full_name ?? '');
         $templateProcessor->saveAs($filename.'.docx');
@@ -1665,6 +1817,7 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
             'discussion' => 'required | max:65535',
             'conclusion' => 'required | max:65535',
             'closing' => 'required | max:65535',
+            'notulen' => 'required',
 
             'signatory' => 'required_unless:isUpperUnitDocument,true',
 
@@ -1700,7 +1853,8 @@ class LaporanHasilGelarPerkaraDocumentController extends Controller
                 })
             ],
         ], [
-            'suratPerintahPenyidikanDocument.required' => 'No Surat Perintah Penyidikan harus diisi',
+            'suratPerintahPenyidikanDocument.required' => 'No Surat Perintah (Sprinlidik / Sprindik) harus diisi',
+            'notulen.required' => 'Notulen Gelar Perkara harus dipilih',
             'type.required' => 'Jenis LHGP harus diisi',
             'caseDegreeType.required' => 'Jenis Gelar Perkara harus diisi',
 
