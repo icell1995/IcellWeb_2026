@@ -473,3 +473,12 @@ Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['docu
     Route::get('/{id}/download', [SuratPermohonanPenetapanDiversiDocumentController::class, 'download'])->name('doc.surat-permohonan-penetapan-diversi-document.download');
 });
 
+
+Route::prefix('/berita-acara-pemeriksaan-tersangka-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\BeritaAcaraPemeriksaanTersangkaDocumentController::class, 'create'])->name('doc.berita-acara-pemeriksaan-tersangka-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\BeritaAcaraPemeriksaanTersangkaDocumentController::class, 'store'])->name('doc.berita-acara-pemeriksaan-tersangka-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\BeritaAcaraPemeriksaanTersangkaDocumentController::class, 'edit'])->name('doc.berita-acara-pemeriksaan-tersangka-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\BeritaAcaraPemeriksaanTersangkaDocumentController::class, 'update'])->name('doc.berita-acara-pemeriksaan-tersangka-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\BeritaAcaraPemeriksaanTersangkaDocumentController::class, 'destroy'])->name('doc.berita-acara-pemeriksaan-tersangka-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\BeritaAcaraPemeriksaanTersangkaDocumentController::class, 'downloadWord'])->name('doc.berita-acara-pemeriksaan-tersangka.download-word');
+});

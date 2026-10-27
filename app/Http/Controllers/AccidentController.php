@@ -1154,6 +1154,8 @@ class AccidentController extends Controller
         $DocSuratTersangka2 = DB::table("surat_panggilan_tersangka")->where("accident_id", "=", "$get_accident")->count();
         // $DocSuratTersangka3 = DB::table("surat_perintah_penangkapan")->where("accident_id","=","$get_accident")->count();
         $DocSuratTersangka4 = DB::table("berita_acara_pemeriksaan_tersangka")->where("accident_id", "=", "$get_accident")->count();
+        $DocBapTersangka = \App\Models\Doc\BeritaAcaraPemeriksaanTersangkaDocument\BeritaAcaraPemeriksaanTersangkaDocument::where('accident_id', $get_accident)->count();
+        $hasBapTersangka = ($DocSuratTersangka4 > 0 || $DocBapTersangka > 0) ? 1 : 0;
         $DocSuratTersangka5 = DB::table("berita_acara_konfrontasi")->where("accident_id", "=", "$get_accident")->count();
         $DocSuratTersangka6 = DB::table("berita_acara_rekonstruksi")->where("accident_id", "=", "$get_accident")->count();
         $DocSuratTersangka7 = DB::table("sket_tkp")->where("accident_id", "=", "$get_accident")->count();
@@ -1168,7 +1170,7 @@ class AccidentController extends Controller
         }
         $TotalKategori3 = (
             (int)$ArrayDocTersangka1 + $DocSuratTersangka2 +
-            $DocSuratTersangka4 + $DocSuratTersangka5 + $DocSuratTersangka6 + $DocSuratTersangka7 +
+            $hasBapTersangka + $DocSuratTersangka5 + $DocSuratTersangka6 + $DocSuratTersangka7 +
             $DocSuratTersangka8 + $DocSuratTersangka9
         ) / 10 * 100;
 
@@ -1578,6 +1580,7 @@ class AccidentController extends Controller
         $data['berita_penyerahan_tersangka'] = $berita_penyerahan_tersangka;
         // $data['berita_pelepasan_tersangka']=$berita_pelepasan_tersangka;
         $data['TotalKategori3'] = $TotalKategori3;
+        $data['berita_acara_pemeriksaan_tersangka_doc'] = \App\Models\Doc\BeritaAcaraPemeriksaanTersangkaDocument\BeritaAcaraPemeriksaanTersangkaDocument::where('accident_id', $get_accident)->first();
 
         //kategori 4
         $data['berita_penahanan_lanjutan'] = $berita_penahanan_lanjutan;
