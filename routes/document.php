@@ -473,3 +473,12 @@ Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['docu
     Route::get('/{id}/download', [SuratPermohonanPenetapanDiversiDocumentController::class, 'download'])->name('doc.surat-permohonan-penetapan-diversi-document.download');
 });
 
+
+Route::prefix('/surat-perintah-penggeledahan-badan-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanBadanDocumentController::class, 'create'])->name('doc.surat-perintah-penggeledahan-badan-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanBadanDocumentController::class, 'store'])->name('doc.surat-perintah-penggeledahan-badan-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanBadanDocumentController::class, 'edit'])->name('doc.surat-perintah-penggeledahan-badan-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanBadanDocumentController::class, 'update'])->name('doc.surat-perintah-penggeledahan-badan-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanBadanDocumentController::class, 'destroy'])->name('doc.surat-perintah-penggeledahan-badan-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanBadanDocumentController::class, 'downloadWord'])->name('doc.surat-perintah-penggeledahan-badan.download-word');
+});
