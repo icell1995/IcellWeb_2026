@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use App\Services\IcellServices\ApiPusiknasBareskrim\DocService;
 use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
 use App\Http\Controllers\Docs\SuratPerintahPenahananDocumentController;
+use Junges\Kafka\Facades\Kafka;
+use Junges\Kafka\Message\Message;
 
 class S17DocumentController extends Controller
 {
@@ -21,142 +23,155 @@ class S17DocumentController extends Controller
 
     public function index(Request $request)
     {
-        $docService = $this->docService;
+        // $docService = $this->docService;
 
-        // Get request data
-        $mode              = $request->input('mode');
-        $startDocumentDate = $request->input('start_doc_date');
-        $endDocumentDate   = $request->input('end_doc_date');
-        $startReleaseDate  = $request->input('start_release_date');
-        $endReleaseDate    = $request->input('end_release_date');
-        $perPage           = $request->query('perPage', 100);
-        $page              = $request->query('page', 1);
-        $id                = $request->input('id');
-        $nomor             = $request->input('nomor');
-        $accidentId        = $request->input('accident_id');
+        // // Get request data
+        // $mode              = $request->input('mode');
+        // $startDocumentDate = $request->input('start_doc_date');
+        // $endDocumentDate   = $request->input('end_doc_date');
+        // $startReleaseDate  = $request->input('start_release_date');
+        // $endReleaseDate    = $request->input('end_release_date');
+        // $perPage           = $request->query('perPage', 100);
+        // $page              = $request->query('page', 1);
+        // $id                = $request->input('id');
+        // $nomor             = $request->input('nomor');
+        // $accidentId        = $request->input('accident_id');
 
-        if (!is_numeric($page)) {
-            $page = 1;
-        }
+        // if (!is_numeric($page)) {
+        //     $page = 1;
+        // }
 
-        if (!is_numeric($perPage)) {
-            $perPage = 100;
-        }
+        // if (!is_numeric($perPage)) {
+        //     $perPage = 100;
+        // }
 
-        $page = intval($page);
+        // $page = intval($page);
 
-        // Validate date parameter
-        $dateParams = [$startDocumentDate, $endDocumentDate, $startReleaseDate, $endReleaseDate];
-        foreach ($dateParams as $dateParam) {
-            $validateDateParamRequestResponse = $docService->validateDateParamRequest($dateParam, $page);
-            if (!empty($validateDateParamRequestResponse)) {
-                return $validateDateParamRequestResponse;
-            }
-        }
+        // // Validate date parameter
+        // $dateParams = [$startDocumentDate, $endDocumentDate, $startReleaseDate, $endReleaseDate];
+        // foreach ($dateParams as $dateParam) {
+        //     $validateDateParamRequestResponse = $docService->validateDateParamRequest($dateParam, $page);
+        //     if (!empty($validateDateParamRequestResponse)) {
+        //         return $validateDateParamRequestResponse;
+        //     }
+        // }
 
-        DB::beginTransaction();
-        try {
-            $query = SuratPerintahPenahananDocument::with([
-                'accident',
-                'accident.polres',
-                'accident.polres.polda',
-                'accident.suratPemberitahuanDimulainyaPenyidikanDocuments',
-                'suspects.gender',
-                'suspects.education',
-                'suspects.job',
-                'suspects.religion',
-                'suspects.maritalStatus',
-                'suspects.country',
-                'suspects.location',
-                'suratPerintahPenahananDocumentOfficers.rank',
-                'suratPerintahPenahananDocumentOfficers.position',
-                'signatory.rank',
-                'signatory.position',
-                'status',
-                'attachment'
-            ])
-            ->whereHas('accident', function ($q) {
-                $q->whereNotNull('id');
-            })
-            ->orderBy('tanggal', 'ASC')
-            ->orderBy('created_at', 'ASC');
+        // DB::beginTransaction();
+        // try {
+        //     $query = SuratPerintahPenahananDocument::with([
+        //         'accident',
+        //         'accident.polres',
+        //         'accident.polres.polda',
+        //         'accident.suratPemberitahuanDimulainyaPenyidikanDocuments',
+        //         'suspects.gender',
+        //         'suspects.education',
+        //         'suspects.job',
+        //         'suspects.religion',
+        //         'suspects.maritalStatus',
+        //         'suspects.country',
+        //         'suspects.location',
+        //         'suratPerintahPenahananDocumentOfficers.rank',
+        //         'suratPerintahPenahananDocumentOfficers.position',
+        //         'signatory.rank',
+        //         'signatory.position',
+        //         'status',
+        //         'attachment'
+        //     ])
+        //         ->whereHas('accident', function ($q) {
+        //             $q->whereNotNull('id');
+        //         })
+        //         ->orderBy('tanggal', 'ASC')
+        //         ->orderBy('created_at', 'ASC');
 
-            if ($id) {
-                $query->where('id', $id);
-            }
-            if ($nomor) {
-                $query->where(function ($q) use ($nomor) {
-                    $q->where('nomor', $nomor)->orWhere('document_number', $nomor);
-                });
-            }
-            if ($accidentId) {
-                $query->where('accident_id', $accidentId);
-            }
+        //     if ($id) {
+        //         $query->where('id', $id);
+        //     }
+        //     if ($nomor) {
+        //         $query->where(function ($q) use ($nomor) {
+        //             $q->where('nomor', $nomor)->orWhere('document_number', $nomor);
+        //         });
+        //     }
+        //     if ($accidentId) {
+        //         $query->where('accident_id', $accidentId);
+        //     }
 
-            // Exclude legacy documents
-            $query = $docService->applyIncludeLegacyDocumentFilter($query, false);
+        //     // Exclude legacy documents
+        //     $query = $docService->applyIncludeLegacyDocumentFilter($query, false);
 
-            // Filter: released_at or created_at
-            $query = $docService->applyDateRangeFilter($query, 'released_at', $startReleaseDate, $endReleaseDate);
+        //     // Filter: released_at or created_at
+        //     $query = $docService->applyDateRangeFilter($query, 'released_at', $startReleaseDate, $endReleaseDate);
 
-            // Filter: tanggal dokumen
-            $query = $docService->applyDateRangeFilter($query, 'tanggal', $startDocumentDate, $endDocumentDate);
+        //     // Filter: tanggal dokumen
+        //     $query = $docService->applyDateRangeFilter($query, 'tanggal', $startDocumentDate, $endDocumentDate);
 
-            $documents = $query->paginate($perPage, ['*'], 'page', $page);
+        //     $documents = $query->paginate($perPage, ['*'], 'page', $page);
 
-            if ($documents->isEmpty()) {
-                return response()->json([
-                    "code"       => "404",
-                    "status"     => "NOT_FOUND",
-                    "message"    => "Data not found.",
-                    "pagination" => [
-                        "Page"          => $page,
-                        "TotalData"     => 0,
-                        "TotalPage"     => 0,
-                        "TotalDataSent" => 0,
-                    ],
-                    "data" => [],
-                ], 404);
-            }
+        //     if ($documents->isEmpty()) {
+        //         return response()->json([
+        //             "code"       => "404",
+        //             "status"     => "NOT_FOUND",
+        //             "message"    => "Data not found.",
+        //             "pagination" => [
+        //                 "Page"          => $page,
+        //                 "TotalData"     => 0,
+        //                 "TotalPage"     => 0,
+        //                 "TotalDataSent" => 0,
+        //             ],
+        //             "data" => [],
+        //         ], 404);
+        //     }
 
-            $responseData = [];
+        //     $responseData = [];
 
-            foreach ($documents as $document) {
-                $payload = SuratPerintahPenahananDocumentController::buildJsonPayloadStatic($document);
-                $responseData[] = $payload;
+        //     foreach ($documents as $document) {
+        //         $payload = SuratPerintahPenahananDocumentController::buildJsonPayloadStatic($document);
+        //         $responseData[] = $payload;
 
-                $docService->putApiSyncMoment(
-                    $request,
-                    $document,
-                    get_class(new SuratPerintahPenahananDocument()),
-                    $this->tableSchemaName . 'surat_perintah_penahanan_documents',
-                    $mode
-                );
-            }
+        //         $docService->putApiSyncMoment(
+        //             $request,
+        //             $document,
+        //             get_class(new SuratPerintahPenahananDocument()),
+        //             $this->tableSchemaName . 'surat_perintah_penahanan_documents',
+        //             $mode
+        //         );
+        //     }
 
-            DB::commit();
+        //     DB::commit();
+        $testdata = [];
 
-            return response()->json([
-                "code"       => "200",
-                "status"     => "OK",
-                "message"    => "Success",
-                "pagination" => [
-                    "Page"          => $page,
-                    "TotalData"     => $documents->total(),
-                    "TotalPage"     => $documents->lastPage(),
-                    "TotalDataSent" => count($responseData),
-                ],
-                "data"       => $responseData,
-            ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $kafkaproduce = Kafka::publish(config('kafka.brokers'))
+            ->onTopic('icell-dev')
+            ->withSasl(
+                username: config('kafka.sasl.username'),
+                password: config('kafka.sasl.password'),
+                mechanisms: config('kafka.sasl.mechanisms'),
+                securityProtocol: config('kafka.securityProtocol')
+            )
+            ->withMessage(new Message(body: $testdata))
+            ->send();
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                "code"    => "500",
-                "status"  => "INTERNAL_SERVER_ERROR",
-                "message" => $e->getMessage(),
-            ], 500);
-        }
+        dd($kafkaproduce);
+
+        return response()->json([
+            "code"       => "200",
+            "status"     => "OK",
+            "message"    => "Success",
+            "pagination" => [
+                "Page"          => $page,
+                "TotalData"     => $documents->total(),
+                "TotalPage"     => $documents->lastPage(),
+                "TotalDataSent" => count($responseData),
+            ],
+            "data"       => $responseData,
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        // } catch (\Exception $e) {
+        //     DB::rollBack();
+        //     return response()->json([
+        //         "code"    => "500",
+        //         "status"  => "INTERNAL_SERVER_ERROR",
+        //         "message" => $e->getMessage(),
+        //     ], 500);
+        // }
     }
 
     public function show(Request $request, $id)
@@ -195,7 +210,6 @@ class S17DocumentController extends Controller
                 "message" => "Success",
                 "data"    => $payload,
             ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
         } catch (\Exception $e) {
             return response()->json([
                 "code"    => "404",

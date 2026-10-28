@@ -14,7 +14,7 @@ use Carbon\Carbon;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
+use App\Services\Regional\RegionalScopeService;
 
 class TicketingController extends Controller
 {
@@ -35,21 +35,11 @@ class TicketingController extends Controller
             $polresId = '';
         }
 
-        // daftar polda yang harus di-exclude (persis seperti rekap)
-        $excludePolda = ['90', '99', '80'];
-
-        // Validasi kombinasi Polda & Polres (Polres harus milik Polda)
-        if ($poldaId !== '' && $polresId !== '') {
-            $validCombo = DB::table('polres')
-                ->where('id', $polresId)
-                ->where('polda_id', $poldaId)
-                ->exists();
-
-            if (! $validCombo) {
-                return back()
-                    ->withErrors(['polres_id' => 'Polres tidak sesuai dengan Polda yang dipilih.'])
-                    ->withInput();
-            }
+        // Validasi kombinasi Polda & Polres (Polres harus milik Polda) menggunakan RegionalScopeService
+        if (! RegionalScopeService::validateCombo($poldaId, $polresId)) {
+            return back()
+                ->withErrors(['polres_id' => 'Polres tidak sesuai dengan Polda yang dipilih.'])
+                ->withInput();
         }
 
         // ===== Query Ticket dasar + eager load Polda/Polres/Assigned =====
@@ -72,25 +62,9 @@ class TicketingController extends Controller
 
         $assignedUsers = $this->getHelpdeskUsers();
 
-        // === Dropdown Polda/Polres ===
-
-        // Pusat: semua polda (kecuali yang di-exclude), polres di-load via AJAX
-        $poldas = DB::table('polda')
-            ->select('id', 'name')
-            ->whereNotIn('id', $excludePolda)
-            ->orderBy('name')
-            ->get();
-
-        // Polres: kalau ada filter polda, preload daftar polres polda tsb (kalau tidak, kosong)
-        $polress = collect();
-        if ($poldaId !== '') {
-            $polress = DB::table('polres')
-                ->select('id', 'name')
-                ->where('state', '<>', 0)
-                ->where('polda_id', $poldaId)
-                ->orderBy('name')
-                ->get();
-        }
+        // === Dropdown Polda/Polres via RegionalScopeService ===
+        $poldas = RegionalScopeService::getPoldas();
+        $polress = RegionalScopeService::getPolresByPolda($poldaId);
 
         return view('cms.tickets.index', compact(
             'tickets',

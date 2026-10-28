@@ -21,6 +21,7 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Http;
 use App\Traits\AnevQueryTraits;
+use App\Helpers\AppModeHelper;
 
 class AnevController extends Controller
 {
@@ -59,15 +60,19 @@ class AnevController extends Controller
     public function get_report_anev(Request $request)
     {
         try {
-            // -------------------------------
-            // 1) Parameter
-            // -------------------------------
-            $poldaId         = $request->input('polda') ?? '-';
-            $polresId        = $request->input('polres');
-            // Jika polresId null/empty, set ke '-'
+            // Sanitisasi input polda & polres dari karakter non-alfanumerik
+            $rawPolda  = $request->input('polda') ?? '-';
+            $poldaId   = preg_replace('/[^A-Za-z0-9_-]/', '', (string)$rawPolda);
+            if (empty($poldaId)) {
+                $poldaId = '-';
+            }
+
+            $rawPolres = $request->input('polres');
+            $polresId  = !empty($rawPolres) ? preg_replace('/[^A-Za-z0-9_-]/', '', (string)$rawPolres) : '-';
             if (empty($polresId)) {
                 $polresId = '-';
             }
+
             $start_date_then = date('Y-m-d', strtotime($request->input('date_from')));
             $end_date_then   = date('Y-m-d', strtotime($request->input('date_to')));
             $start_date_now  = date('Y-m-d', strtotime($request->input('date_from_now')));
@@ -89,8 +94,7 @@ class AnevController extends Controller
             }
 
             // Validasi kombinasi polda & polres (polres harus milik polda)
-            // Jika polresId bukan '-' dan bukan null, baru lakukan validasi
-            if ($poldaId !== '-' && $polresId !== '-' && !empty($polresId)) {
+            if ($poldaId !== '-' && $polresId !== '-') {
                 $validCombo = DB::table('polres')
                     ->where('id', $polresId)
                     ->where('polda_id', $poldaId)
@@ -105,23 +109,28 @@ class AnevController extends Controller
             }
 
             // -------------------------------
-            // 2) Ambil data API IRSMS
+            // 2) Ambil data API IRSMS (Hanya jika APP_MODE=PRODUCTION)
             // -------------------------------
-            $apiLalu = Http::withHeaders([
-                'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell',
-                'Content-Type' => 'application/json'
-            ])->withQueryParameters([
-                'start_date' => $start_date_then,
-                'end_date'   => $end_date_then
-            ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getTotalLaka')->json();
+            if (AppModeHelper::isApiEnabled('AnevController@get_report_anev')) {
+                $apiLalu = Http::withHeaders([
+                    'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell',
+                    'Content-Type' => 'application/json'
+                ])->timeout(10)->withQueryParameters([
+                    'start_date' => $start_date_then,
+                    'end_date'   => $end_date_then
+                ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getTotalLaka')->json();
 
-            $apiIni = Http::withHeaders([
-                'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell',
-                'Content-Type' => 'application/json'
-            ])->withQueryParameters([
-                'start_date' => $start_date_now,
-                'end_date'   => $end_date_now
-            ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getTotalLaka')->json();
+                $apiIni = Http::withHeaders([
+                    'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell',
+                    'Content-Type' => 'application/json'
+                ])->timeout(10)->withQueryParameters([
+                    'start_date' => $start_date_now,
+                    'end_date'   => $end_date_now
+                ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getTotalLaka')->json();
+            } else {
+                $apiLalu = ['result' => []];
+                $apiIni  = ['result' => []];
+            }
 
             $dataApiLalu = $apiLalu['result'] ?? [];
             $dataApiIni  = $apiIni['result'] ?? [];

@@ -1,5 +1,5 @@
 <?php
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use F9WebLtd\QrCode\Facades\QrCode;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;

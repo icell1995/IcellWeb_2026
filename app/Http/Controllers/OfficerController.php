@@ -330,26 +330,30 @@ class OfficerController extends Controller
         // dd($status);
         // dd($search);
         // $petugas = DB::table('officers')->where('first_name', 'like', '%' . $search . '%')->paginate(2);
-        $petugas = DB::select(
-            "select officers.id as nrp,officers.first_name,officers.last_name,
-            officers.rank_short_name,polres.name as polres_name, position,
-            polda.name as polda_name
-            from officers left join polres on polres.id = officers.polres_id left join polda on polda.id = polres.polda_id
-            where
-            case
-                when '$polda_input' <> '-' then officers.polda_id = '$polda_input' else true
-            end
-            and
-            case
-                when '$status' <>  '-' then officers.state = '$status' else true
-            end
-            and
-            case
-                when '$polres_input' <> '-' then officers.polres_id = '$polres_input' else true
-            end
-            order by officers.created_at desc
-            "
-        );
+        $query = DB::table('officers')
+            ->leftJoin('polres', 'polres.id', '=', 'officers.polres_id')
+            ->leftJoin('polda', 'polda.id', '=', 'polres.polda_id')
+            ->select([
+                'officers.id as nrp',
+                'officers.first_name',
+                'officers.last_name',
+                'officers.rank_short_name',
+                'polres.name as polres_name',
+                'officers.position',
+                'polda.name as polda_name'
+            ]);
+
+        if (!empty($polda_input) && $polda_input !== '-') {
+            $query->where('officers.polda_id', '=', $polda_input);
+        }
+        if (!empty($status) && $status !== '-') {
+            $query->where('officers.state', '=', $status);
+        }
+        if (!empty($polres_input) && $polres_input !== '-') {
+            $query->where('officers.polres_id', '=', $polres_input);
+        }
+
+        $petugas = $query->orderBy('officers.created_at', 'desc')->get();
 
         return Excel::download(new OfficerExport($petugas), 'Petugas.xlsx');
     }

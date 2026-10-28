@@ -108,33 +108,31 @@ class HomeController extends Controller
                     ->where('polres.state', '1')
                     ->get();
         }
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_total_accident?user=" . $user->role_id . "&polda=" . $polda . "&polres=" . $polres,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_TIMEOUT => 30000,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                // Set Here Your Requesred Headers
-                'Content-Type: application/json',
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        //  dd($response);
-        curl_close($curl);
+        if (\App\Helpers\AppModeHelper::isApiEnabled()) {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_total_accident?user=" . $user->role_id . "&polda=" . $polda . "&polres=" . $polres,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_TIMEOUT => 5000,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/json',
+                ),
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
 
-        if ($err) {
-            //  echo "cURL Error #:" . $err;
-            $total_laka = 'Coba Refresh Kembali';
+            if ($err) {
+                $total_laka = 'Coba Refresh Kembali';
+            } else {
+                $get_data = json_decode($response);
+                $total_laka = ($get_data && isset($get_data->result[0]->total)) ? $get_data->result[0]->total : ($get_accident[0]->total_laka ?? '0');
+            }
         } else {
-            //  print_r(json_decode($response));
-            //  dd(json_decode($response));
-            $get_data = json_decode($response);
-            $total_laka = ($get_data) ? $get_data->result[0]->total : 'Null';
-            //  $data = $response->json();
+            $total_laka = $get_accident[0]->total_laka ?? '0';
         }
 
         $accident = $get_accident[0]->total_laka;
@@ -1071,16 +1069,26 @@ class HomeController extends Controller
         if ($request->hasFile('avatar')) {
             $avatar = $request->file('avatar');
             $filename = time() . '.' . $avatar->getClientOriginalExtension();
-            Image::make($avatar)->resize(300, 300)->save(public_path('/image-profile/profile640/' . $filename));
+            $targetDir = public_path('/image-profile/profile640');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0755, true);
+            }
+
+            try {
+                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                $image = $manager->read($avatar->getPathname());
+                $image->cover(300, 300);
+                $image->save($targetDir . '/' . $filename);
+            } catch (\Exception $e) {
+                $avatar->move($targetDir, $filename);
+            }
 
             $user = Auth::user();
             $user->avatar = $filename;
             $user->save();
         }
 
-        // return view('profile', array('user' => Auth::user()) );
-
-        return redirect('profile')->with(array('user' => Auth::user()));
+        return redirect()->route('profile')->with(array('user' => Auth::user()));
     }
 
     // $this->validate($request , [

@@ -332,7 +332,7 @@ class LoginController extends Controller
         $userId = session('otp_user_id');
 
         if (!$userId) {
-            return response()->json()([
+            return response()->json([
                 'status' => 'Error',
                 'message' => 'Session OTP tidak ditemukan, Silahkan Login Ulang'
             ]);

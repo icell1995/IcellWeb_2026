@@ -2,7 +2,7 @@
 
 
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\api;
 
 
 
@@ -26,8 +26,7 @@ class BaseController extends Controller
 
      */
 
-    public function sendResponse($result, $message)
-
+    public function sendResponse(mixed $result, string $message = ''): \Illuminate\Http\JsonResponse
     {
     	$response = [
             'success' => true,
@@ -35,31 +34,19 @@ class BaseController extends Controller
             'message' => $message,
         ];
         return response()->json($response, 200);
-
     }
 
-
-
     /**
-
      * return error response.
-
      *
-
      * @return \Illuminate\Http\Response
-
      */
-
-    public function sendError($error, $errorMessages = [], $code = 404)
-
+    public function sendError(string $error, array $errorMessages = [], int $code = 404): \Illuminate\Http\JsonResponse
     {
-
     	$response = [
             'success' => false,
             'message' => $error,
         ];
-
-
 
         if(!empty($errorMessages)){
             $response['data'] = $errorMessages;

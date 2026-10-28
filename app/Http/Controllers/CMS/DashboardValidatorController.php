@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cms;
+namespace App\Http\Controllers\CMS;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -220,7 +220,7 @@ class DashboardValidatorController extends Controller
     }
 
     // Method untuk mendapatkan data trend sesuai range filter
-    private function getValidationTrendData($range, $startDate, $endDate)
+    private function getValidationTrendData(string $range, $startDate, $endDate)
     {
         // Format sesuai dengan range yang dipilih
         if ($range === 'today') {
@@ -232,7 +232,7 @@ class DashboardValidatorController extends Controller
             // Generate 24 jam
             for ($hour = 0; $hour < 24; $hour++) {
                 $hourStart = Carbon::today()->addHours($hour);
-                $hourEnd = Carbon::today()->addHours($hour + 1)->subSecond(1);
+                $hourEnd = Carbon::today()->addHours($hour + 1)->subSeconds(1);
 
                 $hours[] = sprintf('%02d:00', $hour);
 

@@ -18,33 +18,35 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class ExportAnev implements  ShouldAutoSize, WithHeadings , WithEvents, WithStrictNullComparison, FromArray
-
+class ExportAnev implements ShouldAutoSize, WithHeadings , WithEvents, WithStrictNullComparison, FromArray
 {
+    protected string $poldaId;
+    protected string $polresId;
+    protected string $start_date_then;
+    protected string $end_date_then;
+    protected string $start_date_now;
+    protected string $end_date_now;
+
     /**
     * @return \Illuminate\Support\Collection
     */
 
     public function __construct($poldaId, $polresId, $start_date_then, $end_date_then, $start_date_now, $end_date_now)
     {
-        if ($poldaId !== null) {
-            $this->poldaId = $poldaId;
-        } else {
+        $this->poldaId = $poldaId !== null ? preg_replace('/[^A-Za-z0-9_-]/', '', (string)$poldaId) : '-';
+        if ($this->poldaId === '') {
             $this->poldaId = '-';
         }
-        
-        if ($polresId !== null) {
-            $this->polresId = $polresId;
-        } else {
+
+        $this->polresId = $polresId !== null ? preg_replace('/[^A-Za-z0-9_-]/', '', (string)$polresId) : '-';
+        if ($this->polresId === '') {
             $this->polresId = '-';
         }
-                
 
-        $this->start_date_then = $start_date_then;
-        $this->end_date_then = $end_date_then;
-        $this->start_date_now = $start_date_now;
-        $this->end_date_now = $end_date_now;
-
+        $this->start_date_then = !empty($start_date_then) && $start_date_then !== '-' ? date('Y-m-d', strtotime($start_date_then)) : '1970-01-01';
+        $this->end_date_then   = !empty($end_date_then) && $end_date_then !== '-' ? date('Y-m-d', strtotime($end_date_then)) : '2099-12-31';
+        $this->start_date_now  = !empty($start_date_now) && $start_date_now !== '-' ? date('Y-m-d', strtotime($start_date_now)) : '1970-01-01';
+        $this->end_date_now    = !empty($end_date_now) && $end_date_now !== '-' ? date('Y-m-d', strtotime($end_date_now)) : '2099-12-31';
     }
 
     public function array(): array

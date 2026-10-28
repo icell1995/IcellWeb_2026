@@ -14,10 +14,10 @@ class CheckOfficerDataController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $checkofficerDataHistories = CheckOfficerDataHistory::with(['createdByUser'])
-                ->orderBy('created_at', 'desc')->get();
+            $query = CheckOfficerDataHistory::with(['createdByUser'])
+                ->orderBy('created_at', 'desc');
    
-            return DataTables::of($checkofficerDataHistories)->make();
+            return DataTables::of($query)->make(true);
         }
 
         $viewData = [

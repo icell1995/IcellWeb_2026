@@ -31,7 +31,8 @@ class UserActionObserver
     public function creating($model)
     {
         if (Auth::check()) {
-            $model->created_by_user_id = $this->user;
+            $userId = Auth::id() ?? $this->user;
+            $model->created_by_user_id = $userId;
 
             $currentIpAddresses = $model->ip_addresses ?? [];
             $currentIpAddresses['created_ip'] = request()->ip();
@@ -42,7 +43,8 @@ class UserActionObserver
     public function updating($model)
     {
         if (Auth::check()) {
-            $model->updated_by_user_id = $this->user;
+            $userId = Auth::id() ?? $this->user;
+            $model->updated_by_user_id = $userId;
 
             $currentIpAddresses = $model->ip_addresses ?? [];
             $currentIpAddresses['updated_ip'] = request()->ip();
@@ -53,7 +55,8 @@ class UserActionObserver
     public function deleting($model)
     {
         if (Auth::check()) {
-            $model->deleted_by_user_id = $this->user;
+            $userId = Auth::id() ?? $this->user;
+            $model->deleted_by_user_id = $userId;
 
             $currentIpAddresses = $model->ip_addresses ?? [];
             $currentIpAddresses['deleted_ip'] = request()->ip();

@@ -84,8 +84,7 @@ class Sp2hpDocumentController extends Controller
             $accidentId = $request->accident_id;
             
             $data = SuratPemberitahuanPerkembanganHasilPenyidikanDocument::where('accident_id', $accidentId)
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->orderBy('created_at', 'desc');
 
             return DataTables::of($data)
                 ->addIndexColumn()

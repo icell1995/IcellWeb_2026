@@ -72,7 +72,7 @@ class AccidentController extends Controller
 
     function __construct(Accident $_accidentModel)
     {
-        $this->$_accidentModel = $_accidentModel;
+        $this->_accidentModel = $_accidentModel;
 
         view()->share('_view', $this->_view);
     }
@@ -166,15 +166,14 @@ class AccidentController extends Controller
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            //  CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_icell?no_lp=".$no_lp."&polda=".$polda."&polres=".$polres,
             CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_icell?no_lp=" . $no_lp . "&polda=" . $apiPolda . "&polres=" . $apiPolres . "&tipe_laka=" . $tipe_laka,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
-            CURLOPT_TIMEOUT => 30000,
+            CURLOPT_TIMEOUT => 15,
+            CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
-                // Set Here Your Requesred Headers
                 'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
                 'Content-Type: application/json',
             ),
@@ -183,26 +182,19 @@ class AccidentController extends Controller
         $err = curl_error($curl);
         curl_close($curl);
 
-        if ($err) {
-            return view('home');
-        } else {
-            //  print_r(json_decode($response));
-            $get_data = json_decode($response);
-            //  $data = $response->json();
-        }
+        $get_data = $response ? json_decode($response) : null;
 
-        if ($get_data->status == "failed") {
-            $status = $get_data->status;
-            return view('accident.accident-index', compact('status', 'user', 'poldas', 'polress'));
+        if ($err || !$get_data || !isset($get_data->status) || $get_data->status == "failed") {
+            $status = $get_data->status ?? 'failed';
+            $data = $this->paginate([]);
+            $data->appends($request->all());
+            return view('accident.accident-index', compact('status', 'data', 'user', 'poldas', 'polress'));
         } else {
             $status = $get_data->status;
-            $data = $this->paginate($get_data->result);
+            $data = $this->paginate($get_data->result ?? []);
             $data->appends($request->all());
         }
-        // dd($data);
-        // dd($curl);
 
-        // dd($allPoldasIds);
         return view('accident.accident-index', compact('status', 'data', 'poldas', 'polress'));
     }
 
@@ -276,51 +268,43 @@ class AccidentController extends Controller
                 }
         }
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            //  CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/search?no_lp=".$no_lp."&polda=".$polda."&polres=".$polres,
-            //  CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell?no_lp=".$no_lp."&polda=".$polda."&polres=".$polres."&accident_date=".$accident_date,
-            CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_TIMEOUT => 30000,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_HTTPHEADER => array(
-                // Set Here Your Requesred Headers
-                'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
-                'Content-Type: application/json',
-            ),
-            CURLOPT_POSTFIELDS => json_encode([
-                'no_lp' => $no_lp,
-                'polda' => $polda,
-                'polres' => $polres,
-                'accident_date' => $accident_date,
-                'tipe_laka' => $tipe_laka
-            ])
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
-
-        if ($err) {
-            echo "cURL Error #:" . $err;
+        if (\App\Helpers\AppModeHelper::isApiEnabled()) {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_TIMEOUT => 10000,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_HTTPHEADER => array(
+                    'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
+                    'Content-Type: application/json',
+                ),
+                CURLOPT_POSTFIELDS => json_encode([
+                    'no_lp' => $no_lp,
+                    'polda' => $polda,
+                    'polres' => $polres,
+                    'accident_date' => $accident_date,
+                    'tipe_laka' => $tipe_laka
+                ])
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+            $get_data = (!$err && $response) ? json_decode($response) : (object)['status' => 'failed', 'result' => []];
         } else {
-            //  print_r(json_decode($response));
-            $get_data = json_decode($response);
-
-            //  $data = $response->json();
+            $get_data = (object)['status' => 'success', 'result' => []];
         }
-        if ($get_data->status == "failed") {
+
+        if (isset($get_data->status) && $get_data->status == "failed") {
             $status = $get_data->status;
             return view('accident.accident-index', compact('status', 'user', 'poldas', 'polress'));
         } else {
-            $status = $get_data->status;
-            $data = $this->paginate($get_data->result);
+            $status = $get_data->status ?? 'success';
+            $data = $this->paginate($get_data->result ?? []);
             $data->appends($request->all());
         }
-        //  $status=$get_data->status;
-        //  $data = $this->paginate($get_data->result);
         return view('accident.accident-index', compact('status', 'data', 'poldas', 'polress'));
     }
 
@@ -334,32 +318,33 @@ class AccidentController extends Controller
     public function view(Request $request)
     {
         $accident_id = $request->input('accident_id');
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/view?accident_id=" . $accident_id,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_TIMEOUT => 30000,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                // Set Here Your Requesred Headers
-                'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
-                'Content-Type: application/json',
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        curl_close($curl);
+        if (\App\Helpers\AppModeHelper::isApiEnabled()) {
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/view?accident_id=" . $accident_id,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_TIMEOUT => 10000,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "GET",
+                CURLOPT_HTTPHEADER => array(
+                    'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
+                    'Content-Type: application/json',
+                ),
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
 
-        $get_data = json_decode($response);
+            $get_data = (!$err && $response) ? json_decode($response) : null;
+        } else {
+            $get_data = null;
+        }
 
         $data = array(
-            'result' => $get_data->result,
-            'person' => $get_data->person
+            'result' => $get_data->result ?? [],
+            'person' => $get_data->person ?? []
         );
-        // $data=$get_data->result;
-        // $data['accident_date']=$get_data[0]->accident_date;
         return view($this->_view . '/accident-view', compact('data'));
     }
 

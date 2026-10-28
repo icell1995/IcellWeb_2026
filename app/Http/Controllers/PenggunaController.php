@@ -218,17 +218,14 @@ class PenggunaController extends Controller{
 
     public function edit_modal_pengguna(Request $request)
     {
-        $id=$request->id;
-        $get_users= DB::select('select * from users where id = \''.$id.'\' ');
-        $role=Role::all();
-        $polda=Polda::all();
-        $polres=Polres::all();
-        // $poldaId = $request->old_value['polda_id_edit']; // tambahkan baris ini
-        // $polres = Polres::where('polda_id', $poldaId)->get();
-        $rank=Ref::where('grp_id','=','RANK')->orderBy('sort')->get();
-        $users= $get_users[0];
-        $data=[
-            'users'=>$users,
+        $id = $request->id;
+        $users = User::find($id);
+        $role = Role::all();
+        $polda = Polda::all();
+        $polres = Polres::all();
+        $rank = Ref::where('grp_id', '=', 'RANK')->orderBy('sort')->get();
+        $data = [
+            'users' => $users,
             'role'=>$role,
             'polda'=>$polda,
             'polres'=>$polres,

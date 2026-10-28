@@ -52,7 +52,7 @@ trait AccidentQueryTraits
             left join polda on polda.id = polres.polda_id
             left join ref on a.selra_flag = ref.id
             order by a.accident_date desc
-            limit 200000
+            limit 10000
             "
         );
     }

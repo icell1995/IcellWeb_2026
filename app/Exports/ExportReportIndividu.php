@@ -13,26 +13,37 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class ExportReportIndividu implements WithEvents,WithHeadings, ShouldAutoSize, WithStrictNullComparison, FromCollection
 {
+    protected string $poldaId;
+    protected string $polresId;
+    protected ?string $start_date_then;
+    protected ?string $end_date_then;
+    protected ?string $start_date_now;
+    protected ?string $end_date_now;
+
     /**
     * @return \Illuminate\Support\Collection
     */
 
     public function __construct($poldaId, $polresId, $start_date_then, $end_date_then, $start_date_now, $end_date_now)
     {
-        $this->poldaId = $poldaId;
-        if($polresId==''){
-            $this->polresId = '-';
-        }else{
-            $this->polresId = $polresId;
+        $this->poldaId = $poldaId !== null ? preg_replace('/[^A-Za-z0-9_-]/', '', (string)$poldaId) : '-';
+        if ($this->poldaId === '') {
+            $this->poldaId = '-';
         }
-        $this->start_date_then = $start_date_then;
-        $this->end_date_then = $end_date_then;
-        $this->start_date_now = $start_date_now;
-        $this->end_date_now = $end_date_now;
+
+        $this->polresId = $polresId !== null ? preg_replace('/[^A-Za-z0-9_-]/', '', (string)$polresId) : '-';
+        if ($this->polresId === '') {
+            $this->polresId = '-';
+        }
+
+        $this->start_date_then = !empty($start_date_then) && $start_date_then !== '-' ? date('Y-m-d', strtotime($start_date_then)) : null;
+        $this->end_date_then   = !empty($end_date_then) && $end_date_then !== '-' ? date('Y-m-d', strtotime($end_date_then)) : null;
+        $this->start_date_now  = !empty($start_date_now) && $start_date_now !== '-' ? date('Y-m-d', strtotime($start_date_now)) : null;
+        $this->end_date_now    = !empty($end_date_now) && $end_date_now !== '-' ? date('Y-m-d', strtotime($end_date_now)) : null;
     }
 
     public function collection()
