@@ -33,6 +33,8 @@ use App\Models\Doc\Tahap1Document\Tahap1Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument;
 use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenghentianPenyelidikanDocument\SuratPerintahPenghentianPenyelidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument;
 use App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument;
 use App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument;
 use App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument;
@@ -319,6 +321,8 @@ class DocumentActionController extends Controller
     {
         $documentModels = [
             '0101' => SuratPerintahPenyelidikanDocument::class,
+            '0112' => SuratKetetapanPenghentianPenyelidikanDocument::class,
+            '0113' => SuratPerintahPenghentianPenyelidikanDocument::class,
             '0201' => SuratPerintahPenyidikanDocument::class,
             '0204' => [
                 SuratPemberitahuanDimulainyaPenyidikanDocument::class,

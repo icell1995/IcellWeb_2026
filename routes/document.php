@@ -25,6 +25,8 @@ use App\Http\Controllers\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocum
 use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
 use App\Http\Controllers\Doc\SuratPerintahPenghentianPenyidikanDocumentController;
 use App\Http\Controllers\Doc\SuratKetetapanPenghentianPenyidikanDocumentController;
+use App\Http\Controllers\Doc\SuratPerintahPenghentianPenyelidikanDocumentController;
+use App\Http\Controllers\Doc\SuratKetetapanPenghentianPenyelidikanDocumentController;
 use App\Http\Controllers\Docs\SuratPermintaanPerpanjanganPenahananLanjutanDocumentController;
 use App\Http\Controllers\Docs\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocumentController;
 use App\Http\Controllers\Docs\SuratPerintahPembantaranPenahananDocumentController;
@@ -460,6 +462,44 @@ Route::prefix('/surat-ketetapan-penghentian-penyidikan-document')->middleware(['
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Penghentian Penyelidikan — LIDIK (Kategori 0113)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-penghentian-penyelidikan-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'index'])->name('doc.surat-perintah-penghentian-penyelidikan-document.index');
+    Route::get('/{id}/show', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'show'])->name('doc.surat-perintah-penghentian-penyelidikan-document.show');
+    Route::get('/create', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'create'])->name('doc.surat-perintah-penghentian-penyelidikan-document.create');
+    Route::post('/create', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'store'])->name('doc.surat-perintah-penghentian-penyelidikan-document.store');
+    Route::get('/{id}/edit', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'edit'])->name('doc.surat-perintah-penghentian-penyelidikan-document.edit');
+    Route::post('/{id}/edit', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'update'])->name('doc.surat-perintah-penghentian-penyelidikan-document.update');
+    Route::delete('/{id}/delete', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'delete'])->name('doc.surat-perintah-penghentian-penyelidikan-document.delete');
+    Route::get('/{id}/download', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'download'])->name('doc.surat-perintah-penghentian-penyelidikan-document.download');
+
+    Route::post('/api/validate-request-form', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-perintah-penghentian-penyelidikan-document.api.validate-request-form');
+    Route::post('/validate-request-form', [SuratPerintahPenghentianPenyelidikanDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-perintah-penghentian-penyelidikan-document.validateRequestForm');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Ketetapan Penghentian Penyelidikan — LIDIK (Kategori 0112)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-ketetapan-penghentian-penyelidikan-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'index'])->name('doc.surat-ketetapan-penghentian-penyelidikan-document.index');
+    Route::get('/{id}/show', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'show'])->name('doc.surat-ketetapan-penghentian-penyelidikan-document.show');
+    Route::get('/create', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'create'])->name('doc.surat-ketetapan-penghentian-penyelidikan-document.create');
+    Route::post('/create', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'store'])->name('doc.surat-ketetapan-penghentian-penyelidikan-document.store');
+    Route::get('/{id}/edit', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'edit'])->name('doc.surat-ketetapan-penghentian-penyelidikan-document.edit');
+    Route::post('/{id}/edit', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'update'])->name('doc.surat-ketetapan-penghentian-penyelidikan-document.update');
+    Route::delete('/{id}/delete', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'delete'])->name('doc.surat-ketetapan-penghentian-penyelidikan-document.delete');
+    Route::get('/{id}/download', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'download'])->name('doc.surat-ketetapan-penghentian-penyelidikan-document.download');
+
+    Route::post('/api/validate-request-form', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-ketetapan-penghentian-penyelidikan-document.api.validate-request-form');
+    Route::post('/validate-request-form', [SuratKetetapanPenghentianPenyelidikanDocumentController::class, 'validateRequestForm'])
+        ->name('doc.surat-ketetapan-penghentian-penyelidikan-document.validateRequestForm');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Surat Permohonan Penetapan Diversi Document
 // ─────────────────────────────────────────────────────────────────────────────
 Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['document-access'])->group(function () {
@@ -472,4 +512,3 @@ Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['docu
     Route::delete('/{id}/delete', [SuratPermohonanPenetapanDiversiDocumentController::class, 'delete'])->name('doc.surat-permohonan-penetapan-diversi-document.delete');
     Route::get('/{id}/download', [SuratPermohonanPenetapanDiversiDocumentController::class, 'download'])->name('doc.surat-permohonan-penetapan-diversi-document.download');
 });
-
