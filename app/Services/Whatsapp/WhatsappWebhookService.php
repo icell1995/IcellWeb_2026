@@ -11,11 +11,6 @@ class WhatsappWebhookService
     public function sendMessageTemplate($destinationPhoneNumber, $templateId, $props = [], $sandbox = 'false')
     {
         if (is_numeric($destinationPhoneNumber) && Str::startsWith($destinationPhoneNumber, '62')) {
-            if (!\App\Helpers\AppModeHelper::isApiEnabled()) {
-                Log::info("[MOCK/NON-PROD] WhatsApp notification to {$destinationPhoneNumber}: template={$templateId}, variables=" . json_encode($props));
-                return true;
-            }
-
             try {
                 $appKey = env('WHATSAPP_BOT_APP_KEY');
                 $authKey = env('WHATSAPP_BOT_AUTH_KEY');

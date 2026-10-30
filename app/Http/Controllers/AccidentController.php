@@ -81,7 +81,7 @@ class AccidentController extends Controller
 
     public function index(Request $request)
     {
-        $no_lp = $request->input('no_lp');
+        $no_lp = $request->input('no_lp') ?: '-';
         $user = Auth::user();
         $tipe_laka = 0;
 
@@ -184,6 +184,8 @@ class AccidentController extends Controller
 
         $get_data = $response ? json_decode($response) : null;
 
+        // dd($apiPolda);
+
         if ($err || !$get_data || !isset($get_data->status) || $get_data->status == "failed") {
             $status = $get_data->status ?? 'failed';
             $data = $this->paginate([]);
@@ -194,6 +196,7 @@ class AccidentController extends Controller
             $data = $this->paginate($get_data->result ?? []);
             $data->appends($request->all());
         }
+
 
         return view('accident.accident-index', compact('status', 'data', 'poldas', 'polress'));
     }

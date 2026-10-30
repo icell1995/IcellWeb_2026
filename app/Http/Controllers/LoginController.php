@@ -58,6 +58,8 @@ class LoginController extends Controller
         $this->otpService = $otpService;
     }
 
+
+
     public function authenticate(Request $request, Captcha $captcha)
     {
         // Inputan yg diambil
@@ -89,7 +91,7 @@ class LoginController extends Controller
         if (!in_array($user->officer->status, ['PRESENT', 'ASSISTANCE'])) {
             return response()->json(['status' => 'error', 'message' => 'Akun anda sedang tidak aktif, silahkan hubungi admin satker']);
         }
-        if (empty($user->officer->position_id) && !in_array($user->role_id, [1, 2])) {
+        if (empty($user->officer->position_id) && $user->role_id != 1) {
             return response()->json(['status' => 'error', 'message' => 'Akun anda sedang di nonaktifkan karena datanya belum lengkap, silahkan hubungi admin satker untuk melengkapi data anda']);
         }
 
@@ -99,12 +101,11 @@ class LoginController extends Controller
 
             switch ($user->role_id) {
                 case 1:
-                case 2:
                     $sendResult = $this->sendOTPViaWhatsapp($user, $otp);
 
                     if ($sendResult === 'saungwa_logout' || $sendResult === 'api_error' || $sendResult === 'unauthorized') {
                         $response = [
-                            'status' => 'otp_required',
+                            'status' => $sendResult,
                             'message' => 'Gagal mengirim OTP via WhatsApp. Gunakan OTP berikut',
                             'otp' => $otp // Selalu tampilkan OTP untuk error koneksi WhatsApp
                         ];
@@ -174,95 +175,6 @@ class LoginController extends Controller
         return response()->json($response);
     }
 
-    public function resendOtp(Request $request)
-    {
-        try {
-            // Get user from session or previous login attempt
-            $username = session('otp_user_id');
-
-            if (!$username) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sesi OTP tidak valid. Silakan login ulang.'
-                ], 400);
-            }
-
-            $user = User::where('id', $username)->first();
-
-            // Generate new OTP
-            $otp = $this->otpService->generateOtp();
-            $this->otpService->saveOtpUser($user, $otp);
-
-            switch ($user->role_id) {
-                case 1:
-                case 2:
-                    $sendResult = $this->sendOTPViaWhatsapp($user, $otp);
-
-                    if ($sendResult === true) {
-                        $response = [
-                            'success' => true,
-                            'message' => 'Kode OTP baru telah dikirim ke WhatsApp Anda.',
-                            'otp' => null
-                        ];
-                    } else {
-                        // Jika gagal kirim WhatsApp (apapun penyebabnya), selalu tampilkan OTP fallback
-                        $response = [
-                            'success' => true,
-                            'message' => 'Gagal mengirim OTP ke WhatsApp, gunakan OTP berikut:',
-                            'otp' => $otp
-                        ];
-                    }
-                    break;
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                    $this->otpService->sendOtpToEmail($user);
-
-                    $response = [
-                        'success' => true,
-                        'message' => 'Kode OTP baru telah dikirim ke Email Polri Anda',
-                        'otp' => null
-                    ];
-                    break;
-            }
-
-            // Log the resend attempt
-            Log::info('OTP Resent', [
-                'user_id' => $user->id,
-                'username' => $user->username,
-                'timestamp' => now()
-            ]);
-        } catch (\Exception $e) {
-            $statusCode = method_exists($e, 'getCode') ? $e->getCode() : 500;
-
-            Log::error("Gagal mengirim OTP", [
-                'status_code' => $statusCode,
-                'error' => $e->getMessage()
-            ]);
-
-            switch ($user->role_id) {
-                case 1:
-                case 2:
-                    Log::error('Resend OTP Error: ' . $e->getMessage());
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Terjadi kesalahan server. Silakan coba lagi.'
-                    ], 500);
-                    break;
-                case 3:
-                case 4:
-                case 5:
-                    $response = [
-                        'status' => 'error',
-                        'message' => 'Gagal Mengirim OTP ke Email Polri',
-                        'otp' => $otp ?? null
-                    ];
-                    break;
-            }
-        }
-        return response()->json($response);
-    }
 
     private function sendOTPViaWhatsapp($user, $code)
     {
