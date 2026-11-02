@@ -81,7 +81,7 @@ class AccidentController extends Controller
 
     public function index(Request $request)
     {
-        $no_lp = $request->input('no_lp') ?: '-';
+        $no_lp = $request->input('no_lp') ?: '';
         $user = Auth::user();
         $tipe_laka = 0;
 
@@ -155,8 +155,6 @@ class AccidentController extends Controller
                 $apiPolres = implode(',', $allPolresIds);
                 $apiPolres = $apiPolres === '0' ? "-" : $apiPolres;
         }
-
-        //dd($apiPolres);
 
         // $response = Http::get('https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_icell?polres_id='.$id);
         // $data = $response->json();
