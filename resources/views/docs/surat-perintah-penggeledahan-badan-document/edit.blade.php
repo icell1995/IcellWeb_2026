@@ -56,7 +56,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="nomor_surat_perintah">Nomor Surat Perintah Penggeledahan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="nomor_surat_perintah" type="text" class="form-control font-weight-bold" name="nomor_surat_perintah"
-                            value="{{ $d['nomor_surat_perintah'] ?? ($savedDoc->document_number ?? $defaultDocNumber) }}" required>
+                            value="{{ $d['nomor_surat_perintah'] ?? ($savedDoc->document_number ?? '') }}" placeholder="Contoh: SP.Dah/01/X/RES.0.0./2026/Lantas" required>
                     </div>
                 </div>
 
@@ -76,7 +76,7 @@
                             @foreach ($suratPerintahPenyidikanDocuments as $sp)
                                 <option value="{{ $sp->id }}"
                                     data-laws="{{ $sp->formatted_laws ?? '' }}"
-                                    {{ (isset($d['surat_perintah_penyidikan_id']) && $d['surat_perintah_penyidikan_id'] == $sp->id) || $loop->first ? 'selected' : '' }}>
+                                    {{ (isset($d['surat_perintah_penyidikan_id']) && $d['surat_perintah_penyidikan_id'] == $sp->id) ? 'selected' : '' }}>
                                     {{ $sp->document_number }} ({{ $sp->document_date ? \Carbon\Carbon::parse($sp->document_date)->format('d-m-Y') : '-' }})
                                 </option>
                             @endforeach
@@ -88,7 +88,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="dasar_pasal_uu">Dasar Pasal & Undang-Undang<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="dasar_pasal_uu" type="text" class="form-control" name="dasar_pasal_uu"
-                            value="{{ $d['dasar_pasal_uu'] ?? $pasalText }}" required>
+                            value="{{ $d['dasar_pasal_uu'] ?? $pasalText }}" placeholder="Contoh: Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan" required>
                     </div>
                 </div>
 
@@ -103,14 +103,14 @@
                             <select class="form-control select2" name="suspect_id" id="suspect_id">
                                 <option value="">-- Pilih Tersangka --</option>
                                 @foreach ($suspects as $s)
-                                    <option value="{{ $s->id }}" {{ (isset($d['suspect_id']) && $d['suspect_id'] == $s->id) || $loop->first ? 'selected' : '' }}>
+                                    <option value="{{ $s->id }}" {{ (isset($d['suspect_id']) && $d['suspect_id'] == $s->id) ? 'selected' : '' }}>
                                         {{ $s->name }} (NIK: {{ $s->identity_number ?? '-' }}) - {{ $s->job->name ?? $s->job_name ?? 'Swasta' }}
                                     </option>
                                 @endforeach
                             </select>
                         @else
                             <input id="nama_tersangka" type="text" class="form-control font-weight-bold" name="nama_tersangka"
-                                value="{{ $d['nama_tersangka'] ?? $namaTersangkaDefault }}" required>
+                                value="{{ $d['nama_tersangka'] ?? $namaTersangkaDefault }}" placeholder="Nama Tersangka" required>
                         @endif
                     </div>
                 </div>
@@ -119,7 +119,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="tindak_pidana">Dugaan Tindak Pidana<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="tindak_pidana" type="text" class="form-control" name="tindak_pidana"
-                            value="{{ $d['tindak_pidana'] ?? 'Kecelakaan Lalu Lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka-luka serta kerusakan kendaraan' }}" required>
+                            value="{{ $d['tindak_pidana'] ?? '' }}" placeholder="Contoh: Kecelakaan Lalu Lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka-luka serta kerusakan kendaraan" required>
                     </div>
                 </div>
 
@@ -127,7 +127,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="pasal_pelanggaran">Pasal Pelanggaran<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="pasal_pelanggaran" type="text" class="form-control" name="pasal_pelanggaran"
-                            value="{{ $d['pasal_pelanggaran'] ?? 'Pasal 310 ayat (4)' }}" required>
+                            value="{{ $d['pasal_pelanggaran'] ?? '' }}" placeholder="Contoh: Pasal 310 ayat (4)" required>
                     </div>
                 </div>
 
@@ -135,7 +135,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="uu_nomor_tahun">UU Nomor / Tahun<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="uu_nomor_tahun" type="text" class="form-control" name="uu_nomor_tahun"
-                            value="{{ $d['uu_nomor_tahun'] ?? 'Nomor 22 Tahun 2009' }}" required>
+                            value="{{ $d['uu_nomor_tahun'] ?? '' }}" placeholder="Contoh: Nomor 22 Tahun 2009" required>
                     </div>
                 </div>
 
@@ -143,7 +143,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="perihal_uu">Perihal Undang-Undang<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="perihal_uu" type="text" class="form-control" name="perihal_uu"
-                            value="{{ $d['perihal_uu'] ?? 'Lalu Lintas dan Angkutan Jalan' }}" required>
+                            value="{{ $d['perihal_uu'] ?? '' }}" placeholder="Contoh: Lalu Lintas dan Angkutan Jalan" required>
                     </div>
                 </div>
 
@@ -175,7 +175,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="tanggal_berlaku_sampai">Berlaku Sampai Dengan Tanggal<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="tanggal_berlaku_sampai" type="text" class="form-control datepicker" name="tanggal_berlaku_sampai"
-                            value="{{ $d['tanggal_berlaku_sampai'] ?? $defaultBerlakuSampai }}" autocomplete="off" required>
+                            value="{{ $d['tanggal_berlaku_sampai'] ?? '' }}" placeholder="dd-mm-yyyy" autocomplete="off" required>
                     </div>
                 </div>
 
@@ -189,7 +189,7 @@
                         <select class="form-control select2" name="petugas_1_id" id="petugas_1_id" required>
                             <option value="">-- Pilih Petugas 1 --</option>
                             @foreach ($availableOfficers as $officer)
-                                <option value="{{ $officer->id }}" {{ (isset($d['petugas_1_id']) && $d['petugas_1_id'] == $officer->id) || $loop->first ? 'selected' : '' }}>
+                                <option value="{{ $officer->id }}" {{ (isset($d['petugas_1_id']) && $d['petugas_1_id'] == $officer->id) ? 'selected' : '' }}>
                                     {{ $officer->rank->name ?? '' }} {{ $officer->full_name }} (NRP: {{ $officer->register_number ?? $officer->nrp }}) - {{ $officer->position->name ?? '-' }}
                                 </option>
                             @endforeach
@@ -203,7 +203,7 @@
                         <select class="form-control select2" name="petugas_2_id" id="petugas_2_id" required>
                             <option value="">-- Pilih Petugas 2 --</option>
                             @foreach ($availableOfficers as $officer)
-                                <option value="{{ $officer->id }}" {{ (isset($d['petugas_2_id']) && $d['petugas_2_id'] == $officer->id) || ($loop->iteration == 2) ? 'selected' : '' }}>
+                                <option value="{{ $officer->id }}" {{ (isset($d['petugas_2_id']) && $d['petugas_2_id'] == $officer->id) ? 'selected' : '' }}>
                                     {{ $officer->rank->name ?? '' }} {{ $officer->full_name }} (NRP: {{ $officer->register_number ?? $officer->nrp }}) - {{ $officer->position->name ?? '-' }}
                                 </option>
                             @endforeach
@@ -243,7 +243,7 @@
                         <select class="form-control select2" name="penerima_id" id="penerima_id" required>
                             <option value="">-- Pilih Penyidik / Penerima Perintah --</option>
                             @foreach ($availableOfficers as $officer)
-                                <option value="{{ $officer->id }}" {{ (isset($d['penerima_id']) && $d['penerima_id'] == $officer->id) || $loop->first ? 'selected' : '' }}>
+                                <option value="{{ $officer->id }}" {{ (isset($d['penerima_id']) && $d['penerima_id'] == $officer->id) ? 'selected' : '' }}>
                                     {{ $officer->rank->name ?? '' }} {{ $officer->full_name }} (NRP: {{ $officer->register_number ?? $officer->nrp }}) - {{ $officer->position->name ?? '-' }}
                                 </option>
                             @endforeach
@@ -257,7 +257,7 @@
                         <select class="form-control select2" name="atasan_id" id="atasan_id" required>
                             <option value="">-- Pilih Atasan Penyidik / Penandatangan --</option>
                             @foreach ($authorizedSignatories as $signatory)
-                                <option value="{{ $signatory->id }}" {{ (isset($d['atasan_id']) && $d['atasan_id'] == $signatory->id) || $loop->first ? 'selected' : '' }}>
+                                <option value="{{ $signatory->id }}" {{ (isset($d['atasan_id']) && $d['atasan_id'] == $signatory->id) ? 'selected' : '' }}>
                                     {{ $signatory->rank->name ?? '' }} {{ $signatory->full_name }} (NRP: {{ $signatory->register_number ?? $signatory->nrp }}) - {{ $signatory->position->name ?? '-' }}
                                 </option>
                             @endforeach

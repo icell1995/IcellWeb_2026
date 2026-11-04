@@ -77,7 +77,7 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
         $sprindik = $suratPerintahPenyidikanDocuments->first();
         $pasalText = ($sprindik && !empty($sprindik->formatted_laws))
             ? $sprindik->formatted_laws
-            : 'Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan';
+            : '';
 
         $suspects = collect();
         try {
@@ -85,7 +85,7 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
         } catch (\Exception $e) {}
 
         $suspect = $suspects->first();
-        $namaTersangkaDefault = $suspect ? $suspect->name : ($accident->driver_name ?? 'Tersangka');
+        $namaTersangkaDefault = $suspect ? $suspect->name : ($accident->driver_name ?? '');
 
         $getOldNewPolresIds = [$accident->polres_id];
         try {
@@ -125,10 +125,9 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        // Default data
-        $today = Carbon::now();
-        $defaultDocNumber = 'SP.Dah/' . str_pad(rand(1, 99), 2, '0', STR_PAD_LEFT) . '/' . $today->format('m') . '/RES.0.0./' . $today->format('Y') . '/Lantas';
-        $defaultValidUntil = $today->copy()->addDays(3)->format('d-m-Y');
+        // Default data form (dikosongkan agar pengguna mengisi data riil)
+        $defaultDocNumber = '';
+        $defaultValidUntil = '';
 
         return compact(
             'accident', 'accidentId', 'suratPerintahPenyidikanDocuments', 'sprindik', 'pasalText', 'suspects', 'namaTersangkaDefault',
@@ -231,15 +230,15 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
         $template->setValue('resorPoliceAddress', $polresAddress);
 
         // 2. Nomor Surat
-        $noSurat = $request->input('nomor_surat_perintah') ?? ('SP.Dah/01/' . date('m') . '/RES.0.0./' . date('Y') . '/Lantas');
+        $noSurat = $request->input('nomor_surat_perintah') ?? '-';
         $template->setValue('nomor_surat_perintah', $noSurat);
 
         // 3. Dasar
-        $dasarPasalUu = $request->input('dasar_pasal_uu') ?? 'Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan';
+        $dasarPasalUu = $request->input('dasar_pasal_uu') ?? '-';
         $noLp = $request->input('no_lp') ?? ($accident->no_lp ?? '-');
         $tglLp = $this->formatDateIndo($request->input('tanggal_lp') ?? ($accident->accident_report_date ?? date('Y-m-d')));
-        $noSprindik = $request->input('no_sprindik') ?? ('SP.Sidik/01/' . date('m') . '/RES.0.0./' . date('Y') . '/Lantas');
-        $tglSprindik = $this->formatDateIndo($request->input('tanggal_sprindik') ?? date('Y-m-d'));
+        $noSprindik = $request->input('no_sprindik') ?? '-';
+        $tglSprindik = $request->input('tanggal_sprindik') ? $this->formatDateIndo($request->input('tanggal_sprindik')) : '-';
         if ($request->filled('surat_perintah_penyidikan_id')) {
             $sprindikObj = SuratPerintahPenyidikanDocument::find($request->input('surat_perintah_penyidikan_id'));
             if ($sprindikObj) {
@@ -255,31 +254,31 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
         $template->setValue('tanggal_sprindik', $tglSprindik);
 
         // 4. Kepada (Petugas 1, 2, 3)
-        $p1Nama = strtoupper($request->input('petugas_1_nama') ?? 'PENYIDIK PEMERIKSA');
-        $p1Pangkat = strtoupper($request->input('petugas_1_pangkat') ?? 'AIPDA');
-        $p1Nrp = $request->input('petugas_1_nrp') ?? '00000000';
-        $p1Jabatan = $request->input('petugas_1_jabatan') ?? 'Penyidik Pembantu';
+        $p1Nama = strtoupper($request->input('petugas_1_nama') ?? '-');
+        $p1Pangkat = strtoupper($request->input('petugas_1_pangkat') ?? '-');
+        $p1Nrp = $request->input('petugas_1_nrp') ?? '-';
+        $p1Jabatan = $request->input('petugas_1_jabatan') ?? '-';
         if ($request->filled('petugas_1_id')) {
             $p1 = Officer::with(['rank', 'position'])->selectFullName()->find($request->input('petugas_1_id'));
             if ($p1) {
                 $p1Nama = strtoupper($p1->full_name ?? ($p1->first_name . ' ' . $p1->last_name));
-                $p1Pangkat = strtoupper($p1->rank->name ?? 'AIPDA');
-                $p1Nrp = $p1->register_number ?? $p1->nrp ?? '00000000';
-                $p1Jabatan = $p1->position->name ?? 'Penyidik Pembantu';
+                $p1Pangkat = strtoupper($p1->rank->name ?? '');
+                $p1Nrp = $p1->register_number ?? $p1->nrp ?? '-';
+                $p1Jabatan = $p1->position->name ?? '-';
             }
         }
 
-        $p2Nama = strtoupper($request->input('petugas_2_nama') ?? $p1Nama);
-        $p2Pangkat = strtoupper($request->input('petugas_2_pangkat') ?? $p1Pangkat);
-        $p2Nrp = $request->input('petugas_2_nrp') ?? $p1Nrp;
-        $p2Jabatan = $request->input('petugas_2_jabatan') ?? 'Penyidik Pembantu';
+        $p2Nama = strtoupper($request->input('petugas_2_nama') ?? '-');
+        $p2Pangkat = strtoupper($request->input('petugas_2_pangkat') ?? '-');
+        $p2Nrp = $request->input('petugas_2_nrp') ?? '-';
+        $p2Jabatan = $request->input('petugas_2_jabatan') ?? '-';
         if ($request->filled('petugas_2_id')) {
             $p2 = Officer::with(['rank', 'position'])->selectFullName()->find($request->input('petugas_2_id'));
             if ($p2) {
                 $p2Nama = strtoupper($p2->full_name ?? ($p2->first_name . ' ' . $p2->last_name));
-                $p2Pangkat = strtoupper($p2->rank->name ?? 'BRIPKA');
-                $p2Nrp = $p2->register_number ?? $p2->nrp ?? '00000000';
-                $p2Jabatan = $p2->position->name ?? 'Penyidik Pembantu';
+                $p2Pangkat = strtoupper($p2->rank->name ?? '');
+                $p2Nrp = $p2->register_number ?? $p2->nrp ?? '-';
+                $p2Jabatan = $p2->position->name ?? '-';
             }
         }
 
@@ -291,9 +290,9 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
             $p3 = Officer::with(['rank', 'position'])->selectFullName()->find($request->input('petugas_3_id'));
             if ($p3) {
                 $p3Nama = strtoupper($p3->full_name ?? ($p3->first_name . ' ' . $p3->last_name));
-                $p3Pangkat = strtoupper($p3->rank->name ?? 'BRIGADIR');
-                $p3Nrp = $p3->register_number ?? $p3->nrp ?? '00000000';
-                $p3Jabatan = $p3->position->name ?? 'Penyidik Pembantu';
+                $p3Pangkat = strtoupper($p3->rank->name ?? '');
+                $p3Nrp = $p3->register_number ?? $p3->nrp ?? '-';
+                $p3Jabatan = $p3->position->name ?? '-';
             }
         }
 
@@ -321,21 +320,21 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
         }
 
         // 5. Untuk
-        $namaTersangka = $request->input('nama_tersangka') ?? ($accident->driver_name ?? 'Tersangka');
+        $namaTersangka = $request->input('nama_tersangka') ?? ($accident->driver_name ?? '-');
         if ($request->filled('suspect_id')) {
             $sObj = Suspect::find($request->input('suspect_id'));
             if ($sObj) {
                 $namaTersangka = $sObj->name;
             }
         }
-        $tindakPidana = $request->input('tindak_pidana') ?? 'Kecelakaan Lalu Lintas yang mengakibatkan orang lain meninggal dunia';
-        $pasalPelanggaran = $request->input('pasal_pelanggaran') ?? 'Pasal 310 ayat (4)';
-        $uuNomorTahun = $request->input('uu_nomor_tahun') ?? 'Nomor 22 Tahun 2009';
-        $perihalUu = $request->input('perihal_uu') ?? 'Lalu Lintas dan Angkutan Jalan';
+        $tindakPidana = $request->input('tindak_pidana') ?? '-';
+        $pasalPelanggaran = $request->input('pasal_pelanggaran') ?? '-';
+        $uuNomorTahun = $request->input('uu_nomor_tahun') ?? '-';
+        $perihalUu = $request->input('perihal_uu') ?? '-';
         $tkp = $request->input('tkp') ?? ($accident->accident_road ?? $accident->accident_address ?? '-');
-        $hariKejadian = $request->input('hari_kejadian') ?? $this->getNamaHari($accident->accident_date);
+        $hariKejadian = $request->input('hari_kejadian') ?? ($accident->accident_date ? $this->getNamaHari($accident->accident_date) : '-');
         $tglKejadian = $this->formatDateIndo($request->input('tanggal_kejadian') ?? ($accident->accident_date ?? date('Y-m-d')));
-        $tglBerlakuSampai = $this->formatDateIndo($request->input('tanggal_berlaku_sampai') ?? Carbon::now()->addDays(3)->format('Y-m-d'));
+        $tglBerlakuSampai = $request->input('tanggal_berlaku_sampai') ? $this->formatDateIndo($request->input('tanggal_berlaku_sampai')) : '-';
 
         $template->setValue('nama_tersangka', $namaTersangka);
         $template->setValue('tindak_pidana', $tindakPidana);
@@ -348,7 +347,7 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
         $template->setValue('tanggal_berlaku_sampai', $tglBerlakuSampai);
 
         // 6. Footer / Tanda Tangan
-        $tempatDikeluarkan = $request->input('tempat_dikeluarkan') ?? ($accident->polres->name ?? 'Sidoarjo');
+        $tempatDikeluarkan = $request->input('tempat_dikeluarkan') ?? ($accident->polres->name ?? '-');
         $tglDikeluarkan = $this->formatDateIndo($request->input('tanggal_dikeluarkan') ?? ($request->input('tanggal_surat') ?? date('Y-m-d')));
 
         $penerimaNama = strtoupper($request->input('penerima_perintah_nama') ?? $p1Nama);
@@ -357,20 +356,20 @@ class SuratPerintahPenggeledahanBadanDocumentController extends Controller
             $penerima = Officer::with(['rank', 'position'])->selectFullName()->find($request->input('penerima_id'));
             if ($penerima) {
                 $penerimaNama = strtoupper($penerima->full_name ?? ($penerima->first_name . ' ' . $penerima->last_name));
-                $penerimaPangkatNrp = ($penerima->rank->name ?? 'AIPDA') . ' NRP ' . ($penerima->register_number ?? $penerima->nrp ?? '-');
+                $penerimaPangkatNrp = ($penerima->rank->name ?? '') . ' NRP ' . ($penerima->register_number ?? $penerima->nrp ?? '-');
             }
         }
 
         $atasanSebutan = strtoupper($request->input('atasan_penyidik_sebutan') ?? 'ATASAN PENYIDIK');
-        $atasanNama = strtoupper($request->input('atasan_penyidik_nama') ?? 'KASAT LANTAS');
-        $atasanPangkatNrp = $request->input('atasan_penyidik_pangkat_nrp') ?? 'AKP NRP 00000000';
+        $atasanNama = strtoupper($request->input('atasan_penyidik_nama') ?? '-');
+        $atasanPangkatNrp = $request->input('atasan_penyidik_pangkat_nrp') ?? '-';
         if ($request->filled('atasan_id')) {
             $atasan = Officer::with(['rank', 'position'])->selectFullName()->find($request->input('atasan_id'));
             if ($atasan) {
                 $atasanNama = strtoupper($atasan->full_name ?? ($atasan->first_name . ' ' . $atasan->last_name));
-                $atasanPangkatNrp = ($atasan->rank->name ?? 'AKP') . ' NRP ' . ($atasan->register_number ?? $atasan->nrp ?? '-');
+                $atasanPangkatNrp = ($atasan->rank->name ?? '') . ' NRP ' . ($atasan->register_number ?? $atasan->nrp ?? '-');
                 if ($atasan->position) {
-                    $atasanSebutan = strtoupper($atasan->position->name ?? 'KASAT LANTAS') . ' SELAKU ATASAN PENYIDIK';
+                    $atasanSebutan = strtoupper($atasan->position->name ?? '') . ' SELAKU ATASAN PENYIDIK';
                 }
             }
         }

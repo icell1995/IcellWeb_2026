@@ -54,7 +54,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="nomor_surat_perintah">Nomor Surat Perintah Penggeledahan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="nomor_surat_perintah" type="text" class="form-control font-weight-bold" name="nomor_surat_perintah"
-                            value="{{ $defaultDocNumber }}" required>
+                            value="{{ old('nomor_surat_perintah', $defaultDocNumber) }}" placeholder="Contoh: SP.Dah/01/X/RES.0.0./2026/Lantas" required>
                     </div>
                 </div>
 
@@ -72,8 +72,7 @@
                             <option value="">-- Pilih No Surat Perintah Penyidikan --</option>
                             @foreach ($suratPerintahPenyidikanDocuments as $sp)
                                 <option value="{{ $sp->id }}"
-                                    data-laws="{{ $sp->formatted_laws ?? '' }}"
-                                    {{ $loop->first ? 'selected' : '' }}>
+                                    data-laws="{{ $sp->formatted_laws ?? '' }}">
                                     {{ $sp->document_number }} ({{ $sp->document_date ? \Carbon\Carbon::parse($sp->document_date)->format('d-m-Y') : '-' }})
                                 </option>
                             @endforeach
@@ -85,7 +84,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="dasar_pasal_uu">Dasar Pasal & Undang-Undang<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="dasar_pasal_uu" type="text" class="form-control" name="dasar_pasal_uu"
-                            value="{{ $pasalText }}" required>
+                            value="{{ $pasalText }}" placeholder="Contoh: Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan" required>
                     </div>
                 </div>
 
@@ -100,14 +99,14 @@
                             <select class="form-control select2" name="suspect_id" id="suspect_id">
                                 <option value="">-- Pilih Tersangka --</option>
                                 @foreach ($suspects as $s)
-                                    <option value="{{ $s->id }}" {{ $loop->first ? 'selected' : '' }}>
+                                    <option value="{{ $s->id }}">
                                         {{ $s->name }} (NIK: {{ $s->identity_number ?? '-' }}) - {{ $s->job->name ?? $s->job_name ?? 'Swasta' }}
                                     </option>
                                 @endforeach
                             </select>
                         @else
                             <input id="nama_tersangka" type="text" class="form-control font-weight-bold" name="nama_tersangka"
-                                value="{{ $namaTersangkaDefault }}" required>
+                                value="{{ $namaTersangkaDefault }}" placeholder="Nama Tersangka" required>
                         @endif
                     </div>
                 </div>
@@ -116,7 +115,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="tindak_pidana">Dugaan Tindak Pidana<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="tindak_pidana" type="text" class="form-control" name="tindak_pidana"
-                            value="Kecelakaan Lalu Lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka-luka serta kerusakan kendaraan" required>
+                            value="" placeholder="Contoh: Kecelakaan Lalu Lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka-luka serta kerusakan kendaraan" required>
                     </div>
                 </div>
 
@@ -124,7 +123,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="pasal_pelanggaran">Pasal Pelanggaran<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="pasal_pelanggaran" type="text" class="form-control" name="pasal_pelanggaran"
-                            value="Pasal 310 ayat (4)" required>
+                            value="" placeholder="Contoh: Pasal 310 ayat (4)" required>
                     </div>
                 </div>
 
@@ -132,7 +131,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="uu_nomor_tahun">UU Nomor / Tahun<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="uu_nomor_tahun" type="text" class="form-control" name="uu_nomor_tahun"
-                            value="Nomor 22 Tahun 2009" required>
+                            value="" placeholder="Contoh: Nomor 22 Tahun 2009" required>
                     </div>
                 </div>
 
@@ -140,7 +139,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="perihal_uu">Perihal Undang-Undang<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="perihal_uu" type="text" class="form-control" name="perihal_uu"
-                            value="Lalu Lintas dan Angkutan Jalan" required>
+                            value="" placeholder="Contoh: Lalu Lintas dan Angkutan Jalan" required>
                     </div>
                 </div>
 
@@ -172,7 +171,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="tanggal_berlaku_sampai">Berlaku Sampai Dengan Tanggal<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="tanggal_berlaku_sampai" type="text" class="form-control datepicker" name="tanggal_berlaku_sampai"
-                            value="{{ $defaultBerlakuSampai }}" autocomplete="off" required>
+                            value="{{ $defaultValidUntil }}" placeholder="dd-mm-yyyy" autocomplete="off" required>
                     </div>
                 </div>
 
@@ -186,7 +185,7 @@
                         <select class="form-control select2" name="petugas_1_id" id="petugas_1_id" required>
                             <option value="">-- Pilih Petugas 1 --</option>
                             @foreach ($availableOfficers as $officer)
-                                <option value="{{ $officer->id }}" {{ $loop->first ? 'selected' : '' }}>
+                                <option value="{{ $officer->id }}">
                                     {{ $officer->rank->name ?? '' }} {{ $officer->full_name }} (NRP: {{ $officer->register_number ?? $officer->nrp }}) - {{ $officer->position->name ?? '-' }}
                                 </option>
                             @endforeach
@@ -200,7 +199,7 @@
                         <select class="form-control select2" name="petugas_2_id" id="petugas_2_id" required>
                             <option value="">-- Pilih Petugas 2 --</option>
                             @foreach ($availableOfficers as $officer)
-                                <option value="{{ $officer->id }}" {{ ($loop->iteration == 2) ? 'selected' : '' }}>
+                                <option value="{{ $officer->id }}">
                                     {{ $officer->rank->name ?? '' }} {{ $officer->full_name }} (NRP: {{ $officer->register_number ?? $officer->nrp }}) - {{ $officer->position->name ?? '-' }}
                                 </option>
                             @endforeach
@@ -240,7 +239,7 @@
                         <select class="form-control select2" name="penerima_id" id="penerima_id" required>
                             <option value="">-- Pilih Penyidik / Penerima Perintah --</option>
                             @foreach ($availableOfficers as $officer)
-                                <option value="{{ $officer->id }}" {{ $loop->first ? 'selected' : '' }}>
+                                <option value="{{ $officer->id }}">
                                     {{ $officer->rank->name ?? '' }} {{ $officer->full_name }} (NRP: {{ $officer->register_number ?? $officer->nrp }}) - {{ $officer->position->name ?? '-' }}
                                 </option>
                             @endforeach
@@ -254,7 +253,7 @@
                         <select class="form-control select2" name="atasan_id" id="atasan_id" required>
                             <option value="">-- Pilih Atasan Penyidik / Penandatangan --</option>
                             @foreach ($authorizedSignatories as $signatory)
-                                <option value="{{ $signatory->id }}" {{ $loop->first ? 'selected' : '' }}>
+                                <option value="{{ $signatory->id }}">
                                     {{ $signatory->rank->name ?? '' }} {{ $signatory->full_name }} (NRP: {{ $signatory->register_number ?? $signatory->nrp }}) - {{ $signatory->position->name ?? '-' }}
                                 </option>
                             @endforeach
