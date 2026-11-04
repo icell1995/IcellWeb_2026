@@ -56,7 +56,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="nomor_surat_perintah">Nomor Surat Perintah Penggeledahan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="nomor_surat_perintah" type="text" class="form-control font-weight-bold" name="nomor_surat_perintah"
-                            value="{{ $d['nomor_surat_perintah'] ?? ($savedDoc->document_number ?? $defaultDocNumber) }}" required>
+                            value="{{ $d['nomor_surat_perintah'] ?? ($savedDoc->document_number ?? '') }}" placeholder="Nomor Surat Perintah" required>
                     </div>
                 </div>
 
@@ -127,7 +127,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="tindak_pidana">Dugaan Tindak Pidana<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="tindak_pidana" type="text" class="form-control" name="tindak_pidana"
-                            value="{{ $d['tindak_pidana'] ?? 'Kecelakaan Lalu Lintas yang mengakibatkan orang lain meninggal dunia dan/atau luka-luka serta kerusakan kendaraan' }}" required>
+                            value="{{ $d['tindak_pidana'] ?? '' }}" placeholder="Dugaan Tindak Pidana" required>
                     </div>
                 </div>
 
@@ -135,7 +135,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="pasal_pelanggaran">Pasal Pelanggaran<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="pasal_pelanggaran" type="text" class="form-control" name="pasal_pelanggaran"
-                            value="{{ $d['pasal_pelanggaran'] ?? 'Pasal 310 ayat (4)' }}" required>
+                            value="{{ $d['pasal_pelanggaran'] ?? '' }}" placeholder="Pasal Pelanggaran" required>
                     </div>
                 </div>
 
@@ -143,7 +143,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="uu_nomor_tahun">UU Nomor / Tahun<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="uu_nomor_tahun" type="text" class="form-control" name="uu_nomor_tahun"
-                            value="{{ $d['uu_nomor_tahun'] ?? 'Nomor 22 Tahun 2009' }}" required>
+                            value="{{ $d['uu_nomor_tahun'] ?? '' }}" placeholder="UU Nomor / Tahun" required>
                     </div>
                 </div>
 
@@ -151,7 +151,7 @@
                     <label class="fw-bold col-sm-3 col-form-label" for="perihal_uu">Perihal Undang-Undang<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="perihal_uu" type="text" class="form-control" name="perihal_uu"
-                            value="{{ $d['perihal_uu'] ?? 'Lalu Lintas dan Angkutan Jalan' }}" required>
+                            value="{{ $d['perihal_uu'] ?? '' }}" placeholder="Perihal Undang-Undang" required>
                     </div>
                 </div>
 

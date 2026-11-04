@@ -121,10 +121,8 @@ class SuratPerintahPenggeledahanAngkutanDocumentController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        // Default default data
-        $today = Carbon::now();
-        $defaultDocNumber = 'SP.Dah/' . str_pad(rand(1, 99), 2, '0', STR_PAD_LEFT) . '/' . $today->format('m') . '/RES.0.0./' . $today->format('Y') . '/Lantas';
-        $defaultValidUntil = $today->copy()->addDays(3)->format('d-m-Y');
+        $defaultDocNumber = '';
+        $defaultValidUntil = '';
 
         return compact(
             'accident', 'accidentId', 'suratPerintahPenyidikanDocuments', 'sprindik', 'pasalText', 'suspects',
@@ -227,7 +225,7 @@ class SuratPerintahPenggeledahanAngkutanDocumentController extends Controller
         $template->setValue('resorPoliceAddress', $polresAddress);
 
         // 2. Nomor Surat
-        $noSurat = $request->input('nomor_surat_perintah') ?? ('SP.Dah/01/' . date('m') . '/RES.0.0./' . date('Y') . '/Lantas');
+        $noSurat = $request->input('nomor_surat_perintah') ?? '-';
         $template->setValue('nomor_surat_perintah', $noSurat);
 
         // 3. Pertimbangan
@@ -235,10 +233,10 @@ class SuratPerintahPenggeledahanAngkutanDocumentController extends Controller
         $template->setValue('jenis_alat_angkutan', $jenisAngkutan);
 
         // 4. Dasar
-        $dasarPasalUu = $request->input('dasar_pasal_uu') ?? 'Pasal 310 ayat (4) Undang-Undang Nomor 22 Tahun 2009 tentang Lalu Lintas dan Angkutan Jalan';
+        $dasarPasalUu = $request->input('dasar_pasal_uu') ?? '-';
         $noLp = $request->input('no_lp') ?? ($accident->no_lp ?? '-');
         $tglLp = $this->formatDateIndo($request->input('tanggal_lp') ?? ($accident->accident_report_date ?? date('Y-m-d')));
-        $noSprindik = $request->input('no_sprindik') ?? ('SP.Sidik/01/' . date('m') . '/RES.0.0./' . date('Y') . '/Lantas');
+        $noSprindik = $request->input('no_sprindik') ?? '-';
         $tglSprindik = $this->formatDateIndo($request->input('tanggal_sprindik') ?? date('Y-m-d'));
         if ($request->filled('surat_perintah_penyidikan_id')) {
             $sprindikObj = SuratPerintahPenyidikanDocument::find($request->input('surat_perintah_penyidikan_id'));
