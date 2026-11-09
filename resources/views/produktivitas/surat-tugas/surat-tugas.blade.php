@@ -148,6 +148,28 @@
                     </div>
                 @endif
             </div>
+            
+            <div class="item-list">
+                <span>Rencana Penyidikan</span>
+                @php
+                    $rencanaDoc = $rencana_penyidikan_doc ?? \App\Models\Doc\RencanaPenyidikanDocument\RencanaPenyidikanDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (empty($rencanaDoc))
+                    <a href="{{ route('doc.rencana-penyidikan-document.create', ['accident_id' => $id]) }}" title="Tambah Rencana Penyidikan">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+                @else
+                    <div class="d-flex flex-column align-items-end" style="line-height: 1.15;">
+                        <a href="{{ route('doc.rencana-penyidikan.download-word', ['accident_id' => $id]) }}" style="color: #000080; font-weight: bold; text-decoration: none; line-height: 1.15;" target="_blank">UNDUH</a>
+                        <a href="{{ route('doc.rencana-penyidikan-document.edit', ['accident_id' => $id]) }}" style="color: #000080; font-weight: bold; text-decoration: none; line-height: 1.15;">UBAH</a>
+                        <form action="{{ route('doc.rencana-penyidikan-document.destroy', ['accident_id' => $id]) }}" method="post" class="m-0 p-0" style="line-height: 1.15;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit" style="color: #000080; border: none; background: none; font-weight: bold; text-decoration: none; padding: 0; margin: 0; line-height: 1.15;">HAPUS</button>
+                        </form>
+                    </div>
+                @endif
+            </div>
             <div class="item-list">
                 <span>SP2HP</span>
                 <i class="bi bi-pencil-square" id="sp2hp" name="sp2hp"></i>
