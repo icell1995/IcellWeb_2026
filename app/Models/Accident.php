@@ -218,6 +218,16 @@ class Accident extends Model
             ]);
     }
 
+    public function suratPerintahPenangkapanDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratPerintahPenangkapanDocument\SuratPerintahPenangkapanDocument::class, 'accident_id', 'id');
+    }
+
+    public function suratPerintahPenggeledahanRumahDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratPerintahPenggeledahanRumahDocument\SuratPerintahPenggeledahanRumahDocument::class, 'accident_id', 'id');
+    }
+
     public function suratPerintahPenahananDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument', 'accident_id', 'id')
@@ -329,6 +339,11 @@ class Accident extends Model
         return $this->hasMany(ReportedPerson::class, 'accident_id', 'id');
     }
 
+    public function reportingPersons()
+    {
+        return $this->hasMany(ReportingPerson::class, 'accident_id', 'id');
+    }
+
     public function caseVehicle()
     {
         return $this->hasMany('App\Models\CaseVehicle', 'accident_id', 'id');
@@ -338,4 +353,15 @@ class Accident extends Model
     {
         return $this->hasMany(InvolvedPeople::class, 'accident_id', 'id');
     }
+
+    public function resumeDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\ResumeDocument\ResumeDocument::class, 'accident_id', 'id');
+    }
+
+    public function resumeDocument()
+    {
+        return $this->hasOne(\App\Models\Doc\ResumeDocument\ResumeDocument::class, 'accident_id', 'id')->latest();
+    }
 }
+

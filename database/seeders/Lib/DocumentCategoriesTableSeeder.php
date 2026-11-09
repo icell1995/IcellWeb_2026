@@ -13,6 +13,8 @@ use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPer
 use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument;
 use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument;
 use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
+use App\Models\Doc\SuratDaftarPencarianOrangDocument\SuratDaftarPencarianOrangDocument;
+use App\Models\Doc\SuratPerintahTugasPenangkapanDocument\SuratPerintahTugasPenangkapanDocument;
 use App\Models\Lib\DocumentCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -496,10 +498,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '03',
                 'name' => 'SURAT DAFTAR PENCARIAN ORANG',
                 'category' => $categoryType,
-                'route' => null,
-                'base_route' => null,
+                'route' => 'doc.surat-daftar-pencarian-orang-document.create',
+                'base_route' => 'doc.surat-daftar-pencarian-orang-document',
                 'is_digital_signature' => false,
-                'model_class' => null,
+                'model_class' => get_class(new SuratDaftarPencarianOrangDocument).'::class',
                 'alt_code' => 'surat-daftar-pencarian-orang-document',
                 'is_case_finish' => false,
             ],
@@ -509,10 +511,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '03',
                 'name' => 'SURAT PERINTAH TUGAS PENANGKAPAN',
                 'category' => $categoryType,
-                'route' => null,
-                'base_route' => null,
+                'route' => 'doc.surat-perintah-tugas-penangkapan-document.create',
+                'base_route' => 'doc.surat-perintah-tugas-penangkapan-document',
                 'is_digital_signature' => false,
-                'model_class' => null,
+                'model_class' => get_class(new SuratPerintahTugasPenangkapanDocument).'::class',
                 'alt_code' => 'surat-perintah-tugas-penangkapan-document',
                 'is_case_finish' => false,
             ],
@@ -538,10 +540,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '04',
                 'name' => 'SURAT PERINTAH PENGGELEDAHAN RUMAH TINGGAL/ TEMPAT-TEMPAT TERTUTUP LAINNYA',
                 'category' => $categoryType,
-                'route' => null,
-                'base_route' => null,
+                'route' => 'doc.surat-perintah-penggeledahan-rumah-document.create',
+                'base_route' => 'doc.surat-perintah-penggeledahan-rumah-document',
                 'is_digital_signature' => false,
-                'model_class' => null,
+                'model_class' => 'App\Models\Doc\SuratPerintahPenggeledahanRumahDocument\SuratPerintahPenggeledahanRumahDocument',
                 'alt_code' => 'surat-perintah-penggeledahan-rumah-tinggal-tempat-tempat-tertutup-lainnya-document',
                 'is_case_finish' => false,
             ],
@@ -1044,10 +1046,10 @@ class DocumentCategoriesTableSeeder extends Seeder
                 'parent_id' => '08',
                 'name' => 'RESUME',
                 'category' => $categoryType,
-                'route' => null,
-                'base_route' => null,
+                'route' => 'doc.resume-document.create',
+                'base_route' => 'doc.resume-document',
                 'is_digital_signature' => false,
-                'model_class' => null,
+                'model_class' => 'App\Models\Doc\ResumeDocument\ResumeDocument::class',
                 'alt_code' => 'resume-document',
                 'is_case_finish' => false,
             ],

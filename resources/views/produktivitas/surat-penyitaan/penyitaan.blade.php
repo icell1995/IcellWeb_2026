@@ -90,6 +90,32 @@
             </div>
 
             <div class="item-list">
+                <span>Dokumen Resume Berkas Perkara</span>
+                @php
+                    $docResume = \App\Models\Doc\ResumeDocument\ResumeDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (!$docResume)
+                    <a href="{{ route('doc.resume-document.create', ['accident_id' => $id]) }}" style="text-decoration: none; color: inherit;" title="Buat Dokumen Resume Berkas Perkara">
+                        <i class="bi bi-pencil-square" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex flex-column align-items-end justify-content-center" style="gap: 2px;">
+                        <a href="{{ route('doc.resume-document.download', ['id' => $docResume->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;" title="Unduh Dokumen Word (.docx)">UNDUH</a>
+                        <a href="{{ route('doc.resume-document.edit', ['id' => $docResume->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;" title="Ubah Dokumen">UBAH</a>
+                        <form action="{{ route('doc.resume-document.delete', ['id' => $docResume->id, 'accident_id' => $id]) }}"
+                            method="post" class="m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen Resume Berkas Perkara ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit"
+                                style="color: #000080; border: none; background: none; font-weight: bold; padding: 0; line-height: 1.2; cursor: pointer;">HAPUS</button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+
+            <div class="item-list">
                 <span>Surat pengiriman berkas perkara</span>
                 @if ($surat_pengiriman_berkas_perkara == null)
                     <i class="bi bi-pencil-square" id="surat_penyitaan_6" name="surat_penyitaan_6"></i>

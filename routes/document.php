@@ -31,6 +31,16 @@ use App\Http\Controllers\Docs\SuratPerintahPembantaranPenahananDocumentControlle
 use App\Http\Controllers\Docs\SuratPermohonanPenetapanDiversiDocumentController;
 use App\Http\Controllers\Docs\SuratPemberitahuanUpayaDiversiDocumentController;
 use App\Http\Controllers\Docs\BeritaAcaraPenahananDocumentController;
+use App\Http\Controllers\Docs\SuratPermintaanVisumDocumentController;
+use App\Http\Controllers\Docs\SuratPencabutanDpbDocumentController;
+use App\Http\Controllers\Docs\DaftarSaksiDocumentController;
+use App\Http\Controllers\Docs\DaftarAhliDocumentController;
+use App\Http\Controllers\Docs\DaftarTersangkaDocumentController;
+use App\Http\Controllers\Docs\ResumeDocumentController;
+use App\Http\Controllers\Docs\SuratPerintahPenangkapanDocumentController;
+use App\Http\Controllers\Docs\SuratDaftarPencarianOrangDocumentController;
+use App\Http\Controllers\Docs\SuratPerintahTugasPenangkapanDocumentController;
+use App\Http\Controllers\Docs\SuratPerintahPenggeledahanRumahDocumentController;
 
 // Surat Pemberitahuan Upaya Diversi (SPUD) Routes
 Route::prefix('/surat-pemberitahuan-upaya-diversi-document')->middleware(['document-access'])->group(function () {
@@ -472,4 +482,193 @@ Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['docu
     Route::delete('/{id}/delete', [SuratPermohonanPenetapanDiversiDocumentController::class, 'delete'])->name('doc.surat-permohonan-penetapan-diversi-document.delete');
     Route::get('/{id}/download', [SuratPermohonanPenetapanDiversiDocumentController::class, 'download'])->name('doc.surat-permohonan-penetapan-diversi-document.download');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Permintaan Visum Et Repertum / Psikiatrikum (S-48)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-permintaan-visum-document')->group(function () {
+    Route::get('/create', [SuratPermintaanVisumDocumentController::class, 'create'])
+        ->name('doc.surat-permintaan-visum-document.create');
+    Route::post('/create', [SuratPermintaanVisumDocumentController::class, 'store'])
+        ->name('doc.surat-permintaan-visum-document.store');
+    Route::get('/{id}/edit', [SuratPermintaanVisumDocumentController::class, 'edit'])
+        ->name('doc.surat-permintaan-visum-document.edit');
+    Route::post('/{id}/edit', [SuratPermintaanVisumDocumentController::class, 'update'])
+        ->name('doc.surat-permintaan-visum-document.update');
+    Route::get('/{id}/download', [SuratPermintaanVisumDocumentController::class, 'download'])
+        ->name('doc.surat-permintaan-visum-document.download');
+    Route::delete('/{id}/delete', [SuratPermintaanVisumDocumentController::class, 'delete'])
+        ->name('doc.surat-permintaan-visum-document.delete');
+    Route::post('/download-word', [SuratPermintaanVisumDocumentController::class, 'downloadWord'])
+        ->name('doc.surat-permintaan-visum.download-word');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Pencabutan Daftar Pencarian Barang (S-24.6.2)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-pencabutan-dpb-document')->group(function () {
+    Route::get('/create', [SuratPencabutanDpbDocumentController::class, 'create'])
+        ->name('doc.surat-pencabutan-dpb-document.create');
+    Route::post('/create', [SuratPencabutanDpbDocumentController::class, 'store'])
+        ->name('doc.surat-pencabutan-dpb-document.store');
+    Route::get('/{id}/edit', [SuratPencabutanDpbDocumentController::class, 'edit'])
+        ->name('doc.surat-pencabutan-dpb-document.edit');
+    Route::post('/{id}/edit', [SuratPencabutanDpbDocumentController::class, 'update'])
+        ->name('doc.surat-pencabutan-dpb-document.update');
+    Route::get('/{id}/download', [SuratPencabutanDpbDocumentController::class, 'download'])
+        ->name('doc.surat-pencabutan-dpb-document.download');
+    Route::delete('/{id}/delete', [SuratPencabutanDpbDocumentController::class, 'delete'])
+        ->name('doc.surat-pencabutan-dpb-document.delete');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Daftar Saksi (S-38.1)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/daftar-saksi-document')->group(function () {
+    Route::get('/create', [DaftarSaksiDocumentController::class, 'create'])
+        ->name('doc.daftar-saksi-document.create');
+    Route::post('/create', [DaftarSaksiDocumentController::class, 'store'])
+        ->name('doc.daftar-saksi-document.store');
+    Route::get('/{id}/edit', [DaftarSaksiDocumentController::class, 'edit'])
+        ->name('doc.daftar-saksi-document.edit');
+    Route::post('/{id}/edit', [DaftarSaksiDocumentController::class, 'update'])
+        ->name('doc.daftar-saksi-document.update');
+    Route::get('/{id}/download', [DaftarSaksiDocumentController::class, 'download'])
+        ->name('doc.daftar-saksi-document.download');
+    Route::delete('/{id}/delete', [DaftarSaksiDocumentController::class, 'delete'])
+        ->name('doc.daftar-saksi-document.delete');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Daftar Ahli (S-38.2)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/daftar-ahli-document')->group(function () {
+    Route::get('/create', [DaftarAhliDocumentController::class, 'create'])
+        ->name('doc.daftar-ahli-document.create');
+    Route::post('/create', [DaftarAhliDocumentController::class, 'store'])
+        ->name('doc.daftar-ahli-document.store');
+    Route::get('/{id}/edit', [DaftarAhliDocumentController::class, 'edit'])
+        ->name('doc.daftar-ahli-document.edit');
+    Route::post('/{id}/edit', [DaftarAhliDocumentController::class, 'update'])
+        ->name('doc.daftar-ahli-document.update');
+    Route::get('/{id}/download', [DaftarAhliDocumentController::class, 'download'])
+        ->name('doc.daftar-ahli-document.download');
+    Route::delete('/{id}/delete', [DaftarAhliDocumentController::class, 'delete'])
+        ->name('doc.daftar-ahli-document.delete');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Daftar Tersangka (S-38.3)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/daftar-tersangka-document')->group(function () {
+    Route::get('/create', [DaftarTersangkaDocumentController::class, 'create'])
+        ->name('doc.daftar-tersangka-document.create');
+    Route::post('/create', [DaftarTersangkaDocumentController::class, 'store'])
+        ->name('doc.daftar-tersangka-document.store');
+    Route::get('/{id}/edit', [DaftarTersangkaDocumentController::class, 'edit'])
+        ->name('doc.daftar-tersangka-document.edit');
+    Route::post('/{id}/edit', [DaftarTersangkaDocumentController::class, 'update'])
+        ->name('doc.daftar-tersangka-document.update');
+    Route::get('/{id}/download', [DaftarTersangkaDocumentController::class, 'download'])
+        ->name('doc.daftar-tersangka-document.download');
+    Route::delete('/{id}/delete', [DaftarTersangkaDocumentController::class, 'delete'])
+        ->name('doc.daftar-tersangka-document.delete');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Resume Berkas Perkara (S-1.1.3)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/resume-document')->group(function () {
+    Route::get('/create', [ResumeDocumentController::class, 'create'])
+        ->name('doc.resume-document.create');
+    Route::post('/create', [ResumeDocumentController::class, 'store'])
+        ->name('doc.resume-document.store');
+    Route::get('/{id}/edit', [ResumeDocumentController::class, 'edit'])
+        ->name('doc.resume-document.edit');
+    Route::match(['post', 'put'], '/{id}/edit', [ResumeDocumentController::class, 'update'])
+        ->name('doc.resume-document.update');
+    Route::match(['post', 'put'], '/{id}/update', [ResumeDocumentController::class, 'update']);
+    Route::get('/{id}/download', [ResumeDocumentController::class, 'download'])
+        ->name('doc.resume-document.download');
+    Route::match(['delete', 'post'], '/{id}/delete', [ResumeDocumentController::class, 'delete'])
+        ->name('doc.resume-document.delete');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Penangkapan (S-10.1.1)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-penangkapan-document')->group(function () {
+    Route::get('/create', [SuratPerintahPenangkapanDocumentController::class, 'create'])
+        ->name('doc.surat-perintah-penangkapan-document.create');
+    Route::post('/create', [SuratPerintahPenangkapanDocumentController::class, 'store'])
+        ->name('doc.surat-perintah-penangkapan-document.store');
+    Route::get('/{id}/edit', [SuratPerintahPenangkapanDocumentController::class, 'edit'])
+        ->name('doc.surat-perintah-penangkapan-document.edit');
+    Route::match(['post', 'put'], '/{id}/edit', [SuratPerintahPenangkapanDocumentController::class, 'update'])
+        ->name('doc.surat-perintah-penangkapan-document.update');
+    Route::match(['post', 'put'], '/{id}/update', [SuratPerintahPenangkapanDocumentController::class, 'update']);
+    Route::get('/{id}/download', [SuratPerintahPenangkapanDocumentController::class, 'download'])
+        ->name('doc.surat-perintah-penangkapan-document.download');
+    Route::match(['delete', 'post'], '/{id}/delete', [SuratPerintahPenangkapanDocumentController::class, 'delete'])
+        ->name('doc.surat-perintah-penangkapan-document.delete');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Daftar Pencarian Orang / DPO (S-5.6.1)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-daftar-pencarian-orang-document')->group(function () {
+    Route::get('/create', [SuratDaftarPencarianOrangDocumentController::class, 'create'])
+        ->name('doc.surat-daftar-pencarian-orang-document.create');
+    Route::post('/create', [SuratDaftarPencarianOrangDocumentController::class, 'store'])
+        ->name('doc.surat-daftar-pencarian-orang-document.store');
+    Route::get('/{id}/edit', [SuratDaftarPencarianOrangDocumentController::class, 'edit'])
+        ->name('doc.surat-daftar-pencarian-orang-document.edit');
+    Route::match(['post', 'put'], '/{id}/edit', [SuratDaftarPencarianOrangDocumentController::class, 'update'])
+        ->name('doc.surat-daftar-pencarian-orang-document.update');
+    Route::match(['post', 'put'], '/{id}/update', [SuratDaftarPencarianOrangDocumentController::class, 'update']);
+    Route::get('/{id}/download', [SuratDaftarPencarianOrangDocumentController::class, 'download'])
+        ->name('doc.surat-daftar-pencarian-orang-document.download');
+    Route::match(['delete', 'post'], '/{id}/delete', [SuratDaftarPencarianOrangDocumentController::class, 'delete'])
+        ->name('doc.surat-daftar-pencarian-orang-document.delete');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Tugas Penangkapan (S-10.1.2)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-tugas-penangkapan-document')->group(function () {
+    Route::get('/create', [SuratPerintahTugasPenangkapanDocumentController::class, 'create'])
+        ->name('doc.surat-perintah-tugas-penangkapan-document.create');
+    Route::post('/create', [SuratPerintahTugasPenangkapanDocumentController::class, 'store'])
+        ->name('doc.surat-perintah-tugas-penangkapan-document.store');
+    Route::get('/{id}/edit', [SuratPerintahTugasPenangkapanDocumentController::class, 'edit'])
+        ->name('doc.surat-perintah-tugas-penangkapan-document.edit');
+    Route::match(['post', 'put'], '/{id}/edit', [SuratPerintahTugasPenangkapanDocumentController::class, 'update'])
+        ->name('doc.surat-perintah-tugas-penangkapan-document.update');
+    Route::match(['post', 'put'], '/{id}/update', [SuratPerintahTugasPenangkapanDocumentController::class, 'update']);
+    Route::get('/{id}/download', [SuratPerintahTugasPenangkapanDocumentController::class, 'download'])
+        ->name('doc.surat-perintah-tugas-penangkapan-document.download');
+    Route::match(['delete', 'post'], '/{id}/delete', [SuratPerintahTugasPenangkapanDocumentController::class, 'delete'])
+        ->name('doc.surat-perintah-tugas-penangkapan-document.delete');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Penggeledahan Rumah dan Tempat Tertutup Lainnya (S-23.1.1.1)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-penggeledahan-rumah-document')->group(function () {
+    Route::get('/create', [SuratPerintahPenggeledahanRumahDocumentController::class, 'create'])
+        ->name('doc.surat-perintah-penggeledahan-rumah-document.create');
+    Route::post('/create', [SuratPerintahPenggeledahanRumahDocumentController::class, 'store'])
+        ->name('doc.surat-perintah-penggeledahan-rumah-document.store');
+    Route::get('/{id}/edit', [SuratPerintahPenggeledahanRumahDocumentController::class, 'edit'])
+        ->name('doc.surat-perintah-penggeledahan-rumah-document.edit');
+    Route::match(['post', 'put'], '/{id}/edit', [SuratPerintahPenggeledahanRumahDocumentController::class, 'update'])
+        ->name('doc.surat-perintah-penggeledahan-rumah-document.update');
+    Route::match(['post', 'put'], '/{id}/update', [SuratPerintahPenggeledahanRumahDocumentController::class, 'update']);
+    Route::get('/{id}/download', [SuratPerintahPenggeledahanRumahDocumentController::class, 'download'])
+        ->name('doc.surat-perintah-penggeledahan-rumah-document.download');
+    Route::match(['delete', 'post'], '/{id}/delete', [SuratPerintahPenggeledahanRumahDocumentController::class, 'delete'])
+        ->name('doc.surat-perintah-penggeledahan-rumah-document.delete');
+});
+
+
 

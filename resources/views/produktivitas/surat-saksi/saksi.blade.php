@@ -114,6 +114,58 @@
                     </form>
                 @endif
             </div>
+
+            <div class="item-list">
+                <span>Daftar Saksi</span>
+                @php
+                    $docDaftarSaksi = $daftar_saksi_doc ?? \App\Models\Doc\DaftarSaksiDocument\DaftarSaksiDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (!$docDaftarSaksi)
+                    <a href="{{ route('doc.daftar-saksi-document.create', ['accident_id' => $id]) }}" style="text-decoration: none; color: inherit;">
+                        <i class="bi bi-pencil-square" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex flex-column align-items-end justify-content-center" style="gap: 2px;">
+                        <a href="{{ route('doc.daftar-saksi-document.download', ['id' => $docDaftarSaksi->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UNDUH</a>
+                        <a href="{{ route('doc.daftar-saksi-document.edit', ['id' => $docDaftarSaksi->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UBAH</a>
+                        <form action="{{ route('doc.daftar-saksi-document.delete', ['id' => $docDaftarSaksi->id, 'accident_id' => $id]) }}"
+                            method="post" class="m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen Daftar Saksi ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit"
+                                style="color: #000080; border: none; background: none; font-weight: bold; padding: 0; line-height: 1.2; cursor: pointer;">HAPUS</button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+
+            <div class="item-list">
+                <span>Daftar Ahli</span>
+                @php
+                    $docDaftarAhli = $daftar_ahli_doc ?? \App\Models\Doc\DaftarAhliDocument\DaftarAhliDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (!$docDaftarAhli)
+                    <a href="{{ route('doc.daftar-ahli-document.create', ['accident_id' => $id]) }}" style="text-decoration: none; color: inherit;">
+                        <i class="bi bi-pencil-square" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex flex-column align-items-end justify-content-center" style="gap: 2px;">
+                        <a href="{{ route('doc.daftar-ahli-document.download', ['id' => $docDaftarAhli->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UNDUH</a>
+                        <a href="{{ route('doc.daftar-ahli-document.edit', ['id' => $docDaftarAhli->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UBAH</a>
+                        <form action="{{ route('doc.daftar-ahli-document.delete', ['id' => $docDaftarAhli->id, 'accident_id' => $id]) }}"
+                            method="post" class="m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen Daftar Ahli ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit"
+                                style="color: #000080; border: none; background: none; font-weight: bold; padding: 0; line-height: 1.2; cursor: pointer;">HAPUS</button>
+                        </form>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>
