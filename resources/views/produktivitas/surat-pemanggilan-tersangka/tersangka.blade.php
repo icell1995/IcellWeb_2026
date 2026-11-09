@@ -11,9 +11,30 @@
     </h2>
     <div id="collapseTersangka" class="accordion-collapse collapse" data-bs-parent="#accordionProduktivitas">
         <div class="accordion-body item-body">
-            <div class="item-list" style="display: none !important">
+            <div class="item-list">
                 <span>Daftar Tersangka</span>
-                <i class="bi bi-pencil-square" id="daftar_tersangka" name="daftar_tersangka"></i>
+                @php
+                    $docDaftarTersangka = $daftar_tersangka_doc ?? \App\Models\Doc\DaftarTersangkaDocument\DaftarTersangkaDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (!$docDaftarTersangka)
+                    <a href="{{ route('doc.daftar-tersangka-document.create', ['accident_id' => $id]) }}" style="text-decoration: none; color: inherit;" title="Buat Dokumen Daftar Tersangka (S-38.3)">
+                        <i class="bi bi-pencil-square" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex flex-column align-items-end justify-content-center" style="gap: 2px;">
+                        <a href="{{ route('doc.daftar-tersangka-document.download', ['id' => $docDaftarTersangka->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;" title="Unduh Dokumen Word (.docx)">UNDUH</a>
+                        <a href="{{ route('doc.daftar-tersangka-document.edit', ['id' => $docDaftarTersangka->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;" title="Ubah Dokumen">UBAH</a>
+                        <form action="{{ route('doc.daftar-tersangka-document.delete', ['id' => $docDaftarTersangka->id, 'accident_id' => $id]) }}"
+                            method="post" class="m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen Daftar Tersangka ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit"
+                                style="color: #000080; border: none; background: none; font-weight: bold; padding: 0; line-height: 1.2; cursor: pointer;">HAPUS</button>
+                        </form>
+                    </div>
+                @endif
             </div>
 
             <div class="item-list">

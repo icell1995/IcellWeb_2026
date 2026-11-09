@@ -17,3 +17,9 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/scratch/
+public/word-template/*_new.docx
+public/word-template/*_v2.docx
+public/word-template/*.old_bak
+public/word-template/~$*
+

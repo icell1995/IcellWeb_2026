@@ -142,6 +142,31 @@
                 @endif
             </div>
 
+            <div class="item-list">
+                <span>Surat Permintaan Visum Et Repertum / Visum Et Psikiatrikum</span>
+                @php
+                    $docVisum = \App\Models\Doc\SuratPermintaanVisumDocument\SuratPermintaanVisumDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (!$docVisum)
+                    <a href="{{ route('doc.surat-permintaan-visum-document.create', ['accident_id' => $id]) }}" style="text-decoration: none; color: inherit;">
+                        <i class="bi bi-pencil-square" id="surat_labfor_8" name="surat_labfor_8" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex flex-column align-items-end justify-content-center" style="gap: 2px;">
+                        <a href="{{ route('doc.surat-permintaan-visum-document.download', ['id' => $docVisum->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UNDUH</a>
+                        <a href="{{ route('doc.surat-permintaan-visum-document.edit', ['id' => $docVisum->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UBAH</a>
+                        <form action="{{ route('doc.surat-permintaan-visum-document.delete', ['id' => $docVisum->id, 'accident_id' => $id]) }}"
+                            method="post" class="m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit"
+                                style="color: #000080; border: none; background: none; font-weight: bold; padding: 0; line-height: 1.2; cursor: pointer;">HAPUS</button>
+                        </form>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>
