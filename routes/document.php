@@ -473,3 +473,12 @@ Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['docu
     Route::get('/{id}/download', [SuratPermohonanPenetapanDiversiDocumentController::class, 'download'])->name('doc.surat-permohonan-penetapan-diversi-document.download');
 });
 
+
+Route::prefix('/surat-panggilan-saksi-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'create'])->name('doc.surat-panggilan-saksi-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'store'])->name('doc.surat-panggilan-saksi-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'edit'])->name('doc.surat-panggilan-saksi-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'update'])->name('doc.surat-panggilan-saksi-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'destroy'])->name('doc.surat-panggilan-saksi-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'downloadWord'])->name('doc.surat-panggilan-saksi.download-word');
+});
