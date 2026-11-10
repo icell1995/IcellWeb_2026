@@ -180,6 +180,53 @@
                 {{-- <a href=# class="" id="delete" name="delete">Delete</a> --}}
                 @endif
             </div>
+
+            <div class="item-list">
+                <span>Berita Acara Serah Terima Tersangka Dan Barang Bukti</span>
+                @php
+                    $baSerahTerimaDoc = $baSerahTerimaDoc
+                        ?? (isset($accidentDocuments) ? $accidentDocuments->where('document_category_id', '0602')->first() : null)
+                        ?? (isset($accidentDocumentCollection) ? $accidentDocumentCollection->where('document_category_id', '0602')->first() : null)
+                        ?? \App\Models\Doc\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument::where('accident_id', $id)->first();
+                @endphp
+                @if ($baSerahTerimaDoc == null && $berita_acara_serah_terima_tersangka == null)
+                    <a href="{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.create', ['accident_id' => $id]) }}" title="Buat Berita Acara Serah Terima Tersangka & Barang Bukti">
+                        <i class="bi bi-pencil-square" id="surat_penahanan_11" name="surat_penahanan_11" style="cursor: pointer;"></i>
+                    </a>
+                @elseif ($baSerahTerimaDoc != null)
+                    <div class="d-flex align-items-center">
+                        <a href="{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.download', ['id' => $baSerahTerimaDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0d6efd; font-size: 1.15rem; text-decoration: none;" title="Unduh File Word">
+                            <i class="bi bi-download"></i>
+                        </a>
+                        <a target="_blank" href="{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.show', ['id' => $baSerahTerimaDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0dcaf0; font-size: 1.15rem; text-decoration: none;" title="Lihat Dokumen">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.edit', ['id' => $baSerahTerimaDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #ffc107; font-size: 1.15rem; text-decoration: none;" title="Edit Data">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.delete', ['id' => $baSerahTerimaDoc->id, 'accident_id' => $id]) }}" method="post" style="display:inline; margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit" style="color: #dc3545; border: none; background: none; font-size: 1.15rem; padding: 0 4px; cursor: pointer;" title="Hapus Dokumen">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                @else
+                    <div class="d-flex align-items-center">
+                        <a target="_blank" href="/berita-acara-terima-tersangka/{{$id}}" id="" class="me-2" style="color: #0dcaf0; font-size: 1.15rem; text-decoration: none;" title="Lihat">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <form action="/berita-acara-terima-tersangka/{{$id}}" method="post" style="display:inline; margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit" style="color: #dc3545; border: none; background: none; font-size: 1.15rem; padding: 0 4px; cursor: pointer;" title="Hapus">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>
@@ -190,6 +237,11 @@
 <script type="text/javascript">
 
 $(document).ready(function(){
+    $('#surat_penahanan_11').click(function(e) {
+        e.preventDefault();
+        window.location.href = "{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.create', ['accident_id' => $id]) }}";
+    });
+
     $(".kategori4").css("width","{{$TotalKategori4}}%")
     $(".progress4").hide();
    if({{$TotalKategori4}}>=40 && {{$TotalKategori4}}<=70){

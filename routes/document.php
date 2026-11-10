@@ -14,6 +14,7 @@ use App\Http\Controllers\Docs\SuratPerintahPenahananDocumentController;
 use App\Http\Controllers\Docs\SuratPerintahPenangguhanPenahananDocumentController;
 use App\Http\Controllers\Docs\SuratPerintahPencabutanPenangguhanPenahananDocumentController;
 use App\Http\Controllers\Docs\SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController;
+use App\Http\Controllers\Docs\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController;
 use App\Http\Controllers\Docs\DaftarTersangkaDocumentController;
 use App\Http\Controllers\Doc\Tahap1DocumentController;
 use App\Http\Controllers\Docs\P19DocumentController;
@@ -24,6 +25,12 @@ use App\Http\Controllers\Doc\SpdpPusiknasDocumentController;
 use App\Http\Controllers\Doc\Sp3PusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController;
 use App\Http\Controllers\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
+use App\Http\Controllers\Docs\UndanganGelarPerkaraDocumentController;
+use App\Http\Controllers\Docs\SuratKuasaDocumentController;
+use App\Http\Controllers\Docs\SuratPermintaanBlokirRekeningBankDocumentController;
+use App\Http\Controllers\Docs\SuratPermintaanBukaBlokirRekeningBankDocumentController;
+use App\Http\Controllers\Docs\SuratPenunjukanPenasihatHukumDocumentController;
+use App\Http\Controllers\Docs\DaftarPencarianBarangDocumentController;
 
 Route::post('/create',[DocumentController::class, 'createDocumentRouter'])->name('doc.createDocumentRouter');
 Route::get('/type-document/{id}',[DocumentController::class, 'getTypeDocument'])->name('doc.getTypeDocument');
@@ -242,6 +249,7 @@ Route::prefix('/surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document')->m
         ->name('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.api.validate-request-form');
 });
 
+/*
 // ─────────────────────────────────────────────────────────────────────────────
 // SP3 Pusiknas — DIK-40 (SPPT-TI)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -258,6 +266,7 @@ Route::prefix('/sp3-pusiknas-document')->middleware(['document-access'])->group(
     Route::post('/api/validate-request-form', [Sp3PusiknasDocumentController::class, 'validateRequestForm'])
         ->name('doc.sp3-pusiknas-document.api.validate-request-form');
 });
+*/
 
 // surat perintah penggeledahan 
 Route::prefix('/surat-permintaan-penggeledahan-document')->middleware(['document-access'])->group(function () {
@@ -370,3 +379,108 @@ Route::prefix('/surat-pemberitahuan-penghentian-penyidikan-document')->middlewar
     Route::post('/api/validate-request-form', [SuratPemberitahuanPenghentianPenyidikanDocumentController::class, 'validateRequestForm'])
         ->name('doc.surat-pemberitahuan-penghentian-penyidikan-document.api.validate-request-form');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Berita Acara Serah Terima Tersangka Dan Barang Bukti — DCT-0602
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/berita-acara-serah-terima-tersangka-dan-barang-bukti-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'index'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.index');
+    Route::get('/{id}/show', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'show'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.show');
+    Route::get('/create', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'create'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.create');
+    Route::post('/create', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'store'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.store');
+    Route::get('/{id}/edit', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'edit'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.edit');
+    Route::post('/{id}/edit', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'update'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.update');
+    Route::delete('/{id}/delete', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'delete'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.delete');
+    Route::get('/{id}/download', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'download'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.download');
+    Route::get('/{id}/json', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'json'])->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.json');
+    Route::post('/api/validate-request-form', [BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController::class, 'validateRequestForm'])
+        ->name('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.api.validate-request-form');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Undangan Gelar Perkara — DCT-0701
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/undangan-gelar-perkara-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [UndanganGelarPerkaraDocumentController::class, 'index'])->name('doc.undangan-gelar-perkara-document.index');
+    Route::get('/{id}/show', [UndanganGelarPerkaraDocumentController::class, 'show'])->name('doc.undangan-gelar-perkara-document.show');
+    Route::get('/create', [UndanganGelarPerkaraDocumentController::class, 'create'])->name('doc.undangan-gelar-perkara-document.create');
+    Route::post('/create', [UndanganGelarPerkaraDocumentController::class, 'store'])->name('doc.undangan-gelar-perkara-document.store');
+    Route::get('/{id}/edit', [UndanganGelarPerkaraDocumentController::class, 'edit'])->name('doc.undangan-gelar-perkara-document.edit');
+    Route::post('/{id}/edit', [UndanganGelarPerkaraDocumentController::class, 'update'])->name('doc.undangan-gelar-perkara-document.update');
+    Route::delete('/{id}/delete', [UndanganGelarPerkaraDocumentController::class, 'delete'])->name('doc.undangan-gelar-perkara-document.delete');
+    Route::get('/{id}/download', [UndanganGelarPerkaraDocumentController::class, 'download'])->name('doc.undangan-gelar-perkara-document.download');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Kuasa — DCT-0703
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-kuasa-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratKuasaDocumentController::class, 'index'])->name('doc.surat-kuasa-document.index');
+    Route::get('/{id}/show', [SuratKuasaDocumentController::class, 'show'])->name('doc.surat-kuasa-document.show');
+    Route::get('/create', [SuratKuasaDocumentController::class, 'create'])->name('doc.surat-kuasa-document.create');
+    Route::post('/create', [SuratKuasaDocumentController::class, 'store'])->name('doc.surat-kuasa-document.store');
+    Route::get('/{id}/edit', [SuratKuasaDocumentController::class, 'edit'])->name('doc.surat-kuasa-document.edit');
+    Route::post('/{id}/edit', [SuratKuasaDocumentController::class, 'update'])->name('doc.surat-kuasa-document.update');
+    Route::delete('/{id}/delete', [SuratKuasaDocumentController::class, 'delete'])->name('doc.surat-kuasa-document.delete');
+    Route::get('/{id}/download', [SuratKuasaDocumentController::class, 'download'])->name('doc.surat-kuasa-document.download');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Permintaan Pemblokiran Rekening Bank — DCT-0707
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-permintaan-blokir-rekening-bank-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPermintaanBlokirRekeningBankDocumentController::class, 'index'])->name('doc.surat-permintaan-blokir-rekening-bank-document.index');
+    Route::get('/{id}/show', [SuratPermintaanBlokirRekeningBankDocumentController::class, 'show'])->name('doc.surat-permintaan-blokir-rekening-bank-document.show');
+    Route::get('/create', [SuratPermintaanBlokirRekeningBankDocumentController::class, 'create'])->name('doc.surat-permintaan-blokir-rekening-bank-document.create');
+    Route::post('/create', [SuratPermintaanBlokirRekeningBankDocumentController::class, 'store'])->name('doc.surat-permintaan-blokir-rekening-bank-document.store');
+    Route::get('/{id}/edit', [SuratPermintaanBlokirRekeningBankDocumentController::class, 'edit'])->name('doc.surat-permintaan-blokir-rekening-bank-document.edit');
+    Route::post('/{id}/edit', [SuratPermintaanBlokirRekeningBankDocumentController::class, 'update'])->name('doc.surat-permintaan-blokir-rekening-bank-document.update');
+    Route::delete('/{id}/delete', [SuratPermintaanBlokirRekeningBankDocumentController::class, 'delete'])->name('doc.surat-permintaan-blokir-rekening-bank-document.delete');
+    Route::get('/{id}/download', [SuratPermintaanBlokirRekeningBankDocumentController::class, 'download'])->name('doc.surat-permintaan-blokir-rekening-bank-document.download');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Penunjukan Penasihat Hukum — DCT-0704
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-penunjukan-penasihat-hukum-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPenunjukanPenasihatHukumDocumentController::class, 'index'])->name('doc.surat-penunjukan-penasihat-hukum-document.index');
+    Route::get('/{id}/show', [SuratPenunjukanPenasihatHukumDocumentController::class, 'show'])->name('doc.surat-penunjukan-penasihat-hukum-document.show');
+    Route::get('/create', [SuratPenunjukanPenasihatHukumDocumentController::class, 'create'])->name('doc.surat-penunjukan-penasihat-hukum-document.create');
+    Route::post('/create', [SuratPenunjukanPenasihatHukumDocumentController::class, 'store'])->name('doc.surat-penunjukan-penasihat-hukum-document.store');
+    Route::get('/{id}/edit', [SuratPenunjukanPenasihatHukumDocumentController::class, 'edit'])->name('doc.surat-penunjukan-penasihat-hukum-document.edit');
+    Route::post('/{id}/edit', [SuratPenunjukanPenasihatHukumDocumentController::class, 'update'])->name('doc.surat-penunjukan-penasihat-hukum-document.update');
+    Route::delete('/{id}/delete', [SuratPenunjukanPenasihatHukumDocumentController::class, 'delete'])->name('doc.surat-penunjukan-penasihat-hukum-document.delete');
+    Route::get('/{id}/download', [SuratPenunjukanPenasihatHukumDocumentController::class, 'download'])->name('doc.surat-penunjukan-penasihat-hukum-document.download');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Permintaan Buka Blokir Rekening Bank — DCT-0708
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-permintaan-buka-blokir-rekening-bank-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [SuratPermintaanBukaBlokirRekeningBankDocumentController::class, 'index'])->name('doc.surat-permintaan-buka-blokir-rekening-bank-document.index');
+    Route::get('/{id}/show', [SuratPermintaanBukaBlokirRekeningBankDocumentController::class, 'show'])->name('doc.surat-permintaan-buka-blokir-rekening-bank-document.show');
+    Route::get('/create', [SuratPermintaanBukaBlokirRekeningBankDocumentController::class, 'create'])->name('doc.surat-permintaan-buka-blokir-rekening-bank-document.create');
+    Route::post('/create', [SuratPermintaanBukaBlokirRekeningBankDocumentController::class, 'store'])->name('doc.surat-permintaan-buka-blokir-rekening-bank-document.store');
+    Route::get('/{id}/edit', [SuratPermintaanBukaBlokirRekeningBankDocumentController::class, 'edit'])->name('doc.surat-permintaan-buka-blokir-rekening-bank-document.edit');
+    Route::post('/{id}/edit', [SuratPermintaanBukaBlokirRekeningBankDocumentController::class, 'update'])->name('doc.surat-permintaan-buka-blokir-rekening-bank-document.update');
+    Route::delete('/{id}/delete', [SuratPermintaanBukaBlokirRekeningBankDocumentController::class, 'delete'])->name('doc.surat-permintaan-buka-blokir-rekening-bank-document.delete');
+    Route::get('/{id}/download', [SuratPermintaanBukaBlokirRekeningBankDocumentController::class, 'download'])->name('doc.surat-permintaan-buka-blokir-rekening-bank-document.download');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dokumen Daftar Pencarian Barang (DPB) — DCT-0705
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/daftar-pencarian-barang-document')->middleware(['document-access'])->group(function () {
+    Route::get('/', [DaftarPencarianBarangDocumentController::class, 'index'])->name('doc.daftar-pencarian-barang-document.index');
+    Route::get('/{id}/show', [DaftarPencarianBarangDocumentController::class, 'show'])->name('doc.daftar-pencarian-barang-document.show');
+    Route::get('/create', [DaftarPencarianBarangDocumentController::class, 'create'])->name('doc.daftar-pencarian-barang-document.create');
+    Route::post('/create', [DaftarPencarianBarangDocumentController::class, 'store'])->name('doc.daftar-pencarian-barang-document.store');
+    Route::get('/{id}/edit', [DaftarPencarianBarangDocumentController::class, 'edit'])->name('doc.daftar-pencarian-barang-document.edit');
+    Route::post('/{id}/edit', [DaftarPencarianBarangDocumentController::class, 'update'])->name('doc.daftar-pencarian-barang-document.update');
+    Route::delete('/{id}/delete', [DaftarPencarianBarangDocumentController::class, 'delete'])->name('doc.daftar-pencarian-barang-document.delete');
+    Route::get('/{id}/download', [DaftarPencarianBarangDocumentController::class, 'download'])->name('doc.daftar-pencarian-barang-document.download');
+});
+
+
+
+

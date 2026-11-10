@@ -33,9 +33,11 @@ class UserActionObserver
         if (Auth::check()) {
             $model->created_by_user_id = $this->user;
 
-            $currentIpAddresses = $model->ip_addresses ?? [];
-            $currentIpAddresses['created_ip'] = request()->ip();
-            $model->ip_addresses = $currentIpAddresses;
+            if (array_key_exists('ip_addresses', $model->getCasts())) {
+                $currentIpAddresses = $model->ip_addresses ?? [];
+                $currentIpAddresses['created_ip'] = request()->ip();
+                $model->ip_addresses = $currentIpAddresses;
+            }
         }
     }
 
@@ -44,22 +46,32 @@ class UserActionObserver
         if (Auth::check()) {
             $model->updated_by_user_id = $this->user;
 
-            $currentIpAddresses = $model->ip_addresses ?? [];
-            $currentIpAddresses['updated_ip'] = request()->ip();
-            $model->ip_addresses = $currentIpAddresses;
+            if (array_key_exists('ip_addresses', $model->getCasts())) {
+                $currentIpAddresses = $model->ip_addresses ?? [];
+                $currentIpAddresses['updated_ip'] = request()->ip();
+                $model->ip_addresses = $currentIpAddresses;
+            }
         }
     }
 
     public function deleting($model)
     {
         if (Auth::check()) {
-            $model->deleted_by_user_id = $this->user;
+            try {
+                if (Schema::hasColumn($model->getTable(), 'deleted_by_user_id')) {
+                    $model->deleted_by_user_id = $this->user;
 
-            $currentIpAddresses = $model->ip_addresses ?? [];
-            $currentIpAddresses['deleted_ip'] = request()->ip();
-            $model->ip_addresses = $currentIpAddresses;
-            
-            $model->save(); // Menyimpan perubahan sebelum penghapusan
+                    if (array_key_exists('ip_addresses', $model->getCasts())) {
+                        $currentIpAddresses = $model->ip_addresses ?? [];
+                        $currentIpAddresses['deleted_ip'] = request()->ip();
+                        $model->ip_addresses = $currentIpAddresses;
+                    }
+
+                    $model->save(); // Menyimpan perubahan sebelum penghapusan
+                }
+            } catch (\Throwable $e) {
+                // Abaikan jika kolom deleted_by_user_id tidak tersedia
+            }
         }
     }
 }

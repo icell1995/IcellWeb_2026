@@ -66,6 +66,39 @@
                 @endif
             </div>
 
+            <div class="item-list">
+                <span>Dokumen Daftar Pencarian Barang (DPB); (jika ada)</span>
+                @php
+                    $daftarPencarianBarangDoc = (isset($accidentDocumentCollection) ? $accidentDocumentCollection->where('document_category_id', '0705')->first() : null)
+                        ?? \App\Models\Doc\DaftarPencarianBarangDocument\DaftarPencarianBarangDocument::where('accident_id', $id)->first();
+                @endphp
+                @if ($daftarPencarianBarangDoc == null)
+                    <a href="{{ route('doc.daftar-pencarian-barang-document.create', ['accident_id' => $id]) }}" title="Buat Dokumen Daftar Pencarian Barang (DPB)">
+                        <i class="bi bi-pencil-square" id="daftar_pencarian_barang" name="daftar_pencarian_barang" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex align-items-center">
+                        <a href="{{ route('doc.daftar-pencarian-barang-document.download', ['id' => $daftarPencarianBarangDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0d6efd; font-size: 1.15rem; text-decoration: none;" title="Unduh File Word">
+                            <i class="bi bi-download"></i>
+                        </a>
+                        <a target="_blank" href="{{ route('doc.daftar-pencarian-barang-document.show', ['id' => $daftarPencarianBarangDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0dcaf0; font-size: 1.15rem; text-decoration: none;" title="Lihat Dokumen">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ route('doc.daftar-pencarian-barang-document.edit', ['id' => $daftarPencarianBarangDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #ffc107; font-size: 1.15rem; text-decoration: none;" title="Edit Data">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="{{ route('doc.daftar-pencarian-barang-document.delete', ['id' => $daftarPencarianBarangDoc->id, 'accident_id' => $id]) }}" method="POST" style="display:inline; margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit" style="color: #dc3545; border: none; background: none; font-size: 1.15rem; padding: 0 4px; cursor: pointer;" title="Hapus Dokumen">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+            
+
             {{-- <div class="row">
                     <div class="col-lg-10">
                         <a class="item-action">Surat permintaan cegah dan tangkal (cekal); (jika ada)</a>

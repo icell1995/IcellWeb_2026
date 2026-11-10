@@ -238,6 +238,99 @@
                     </div>
                 @endif
             </div>
+            <div class="item-list">
+                <span>Undangan Gelar Perkara</span>
+                @php
+                    $undanganGelarPerkaraDoc = (isset($accidentDocumentCollection) ? $accidentDocumentCollection->where('document_category_id', '0701')->first() : null)
+                        ?? (isset($UGelarPerkara) ? $UGelarPerkara : \App\Models\Doc\UndanganGelarPerkaraDocument\UndanganGelarPerkaraDocument::where('accident_id', $id)->first());
+                @endphp
+                @if ($undanganGelarPerkaraDoc == null)
+                    <a href="{{ route('doc.undangan-gelar-perkara-document.create', ['accident_id' => $id]) }}" title="Buat Undangan Gelar Perkara">
+                        <i class="bi bi-pencil-square" id="undangan_gelar_perkara" name="undangan_gelar_perkara" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex align-items-center">
+                        <a href="{{ route('doc.undangan-gelar-perkara-document.download', ['id' => $undanganGelarPerkaraDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0d6efd; font-size: 1.15rem; text-decoration: none;" title="Unduh File Word">
+                            <i class="bi bi-download"></i>
+                        </a>
+                        <a target="_blank" href="{{ route('doc.undangan-gelar-perkara-document.show', ['id' => $undanganGelarPerkaraDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0dcaf0; font-size: 1.15rem; text-decoration: none;" title="Lihat Dokumen">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ route('doc.undangan-gelar-perkara-document.edit', ['id' => $undanganGelarPerkaraDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #ffc107; font-size: 1.15rem; text-decoration: none;" title="Edit Data">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="{{ route('doc.undangan-gelar-perkara-document.delete', ['id' => $undanganGelarPerkaraDoc->id, 'accident_id' => $id]) }}" method="POST" style="display:inline; margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit" style="color: #dc3545; border: none; background: none; font-size: 1.15rem; padding: 0 4px; cursor: pointer;" title="Hapus Dokumen">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+            <div class="item-list">
+                <span>Surat Kuasa Penasehat Hukum</span>
+                @php
+                    $suratKuasaDoc = (isset($accidentDocumentCollection) ? $accidentDocumentCollection->where('document_category_id', '0703')->first() : null)
+                        ?? (isset($suratKuasa) ? $suratKuasa : \App\Models\Doc\SuratKuasaDocument\SuratKuasaDocument::where('accident_id', $id)->first());
+                @endphp
+                @if ($suratKuasaDoc == null)
+                    <a href="{{ route('doc.surat-kuasa-document.create', ['accident_id' => $id]) }}" title="Buat Surat Kuasa Penasehat Hukum">
+                        <i class="bi bi-pencil-square" id="surat_kuasa" name="surat_kuasa" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex align-items-center">
+                        <a href="{{ route('doc.surat-kuasa-document.download', ['id' => $suratKuasaDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0d6efd; font-size: 1.15rem; text-decoration: none;" title="Unduh File Word">
+                            <i class="bi bi-download"></i>
+                        </a>
+                        <a target="_blank" href="{{ route('doc.surat-kuasa-document.show', ['id' => $suratKuasaDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0dcaf0; font-size: 1.15rem; text-decoration: none;" title="Lihat Dokumen">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ route('doc.surat-kuasa-document.edit', ['id' => $suratKuasaDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #ffc107; font-size: 1.15rem; text-decoration: none;" title="Edit Data">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="{{ route('doc.surat-kuasa-document.delete', ['id' => $suratKuasaDoc->id, 'accident_id' => $id]) }}" method="POST" style="display:inline; margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit" style="color: #dc3545; border: none; background: none; font-size: 1.15rem; padding: 0 4px; cursor: pointer;" title="Hapus Dokumen">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+            <div class="item-list">
+                <span>Surat Penunjukan Penasihat Hukum</span>
+                @php
+                    $suratPenunjukanDoc = (isset($accidentDocumentCollection) ? $accidentDocumentCollection->where('document_category_id', '0704')->first() : null)
+                        ?? (isset($suratPenunjukanPenasihatHukum) ? $suratPenunjukanPenasihatHukum : \App\Models\Doc\SuratPenunjukanPenasihatHukumDocument\SuratPenunjukanPenasihatHukumDocument::where('accident_id', $id)->first());
+                @endphp
+                @if ($suratPenunjukanDoc == null)
+                    <a href="{{ route('doc.surat-penunjukan-penasihat-hukum-document.create', ['accident_id' => $id]) }}" title="Buat Surat Penunjukan Penasihat Hukum">
+                        <i class="bi bi-pencil-square" id="surat_penunjukan_penasehat_hukum" name="surat_penunjukan_penasehat_hukum" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex align-items-center">
+                        <a href="{{ route('doc.surat-penunjukan-penasihat-hukum-document.download', ['id' => $suratPenunjukanDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0d6efd; font-size: 1.15rem; text-decoration: none;" title="Unduh File Word">
+                            <i class="bi bi-download"></i>
+                        </a>
+                        <a target="_blank" href="{{ route('doc.surat-penunjukan-penasihat-hukum-document.show', ['id' => $suratPenunjukanDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #0dcaf0; font-size: 1.15rem; text-decoration: none;" title="Lihat Dokumen">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{{ route('doc.surat-penunjukan-penasihat-hukum-document.edit', ['id' => $suratPenunjukanDoc->id, 'accident_id' => $id]) }}" class="me-2" style="color: #ffc107; font-size: 1.15rem; text-decoration: none;" title="Edit Data">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="{{ route('doc.surat-penunjukan-penasihat-hukum-document.delete', ['id' => $suratPenunjukanDoc->id, 'accident_id' => $id]) }}" method="POST" style="display:inline; margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?');">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit" style="color: #dc3545; border: none; background: none; font-size: 1.15rem; padding: 0 4px; cursor: pointer;" title="Hapus Dokumen">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>

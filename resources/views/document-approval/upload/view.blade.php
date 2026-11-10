@@ -16,7 +16,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h5 class="fw-bold text-blue-dark">
-                            Unduh/Lihat Preview
+                            Unduh/Lihat PreviewW
                         </h5>
                     </div>
                      <div class="card-body">

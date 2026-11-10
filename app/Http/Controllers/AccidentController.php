@@ -1013,6 +1013,9 @@ class AccidentController extends Controller
         $BAPengambilanDarah = DB::select("select * from ba_pengambilan_darah where accident_id = '$get_accident'");
         $laporan_hasil_penyelidikan = DB::select("select * from laporan_hasil_penyelidikan where accident_id = '$get_accident'");
         $BAIntrogasi = DB::select("select * from ba_introgasi where accident_id = '$get_accident'");
+        $UGelarPerkara = DB::table('doc.undangan_gelar_perkara_documents')->where('accident_id', $get_accident)->whereNull('deleted_at')->first();
+        $suratKuasa = DB::table('doc.surat_kuasa_documents')->where('accident_id', $get_accident)->whereNull('deleted_at')->first();
+        $suratPenunjukanPenasihatHukum = DB::table('doc.surat_penunjukan_penasihat_hukum_documents')->where('accident_id', $get_accident)->whereNull('deleted_at')->first();
         $SpdpUpload = DB::select("select * from spdp_upload where accident_id = '$get_accident'");
         $Sddl = DB::select("select * from suspect_determination_decision_letters where accident_id = '$get_accident'");
         //total surat ketegori 1
@@ -1509,6 +1512,9 @@ class AccidentController extends Controller
         $data['BAPengambilanDarah'] = $BAPengambilanDarah;
         $data['laporan_hasil_penyelidikan'] = $laporan_hasil_penyelidikan;
         $data['BAIntrogasi'] = $BAIntrogasi;
+        $data['UGelarPerkara'] = $UGelarPerkara;
+        $data['suratKuasa'] = $suratKuasa;
+        $data['suratPenunjukanPenasihatHukum'] = $suratPenunjukanPenasihatHukum;
         $data['SpdpUpload'] = $SpdpUpload;
         $data['Sddl'] = $Sddl;
         $data['pejabat'] = $pejabat;
@@ -1548,6 +1554,7 @@ class AccidentController extends Controller
         $data['surat_perintah_penahanan'] = $surat_perintah_penahanan;
         $data['berita_acara_penahanan'] = $berita_acara_penahanan;
         $data['permintaan_perpanjangan_penahanan'] = $permintaan_perpanjangan_penahanan;
+        $data['baSerahTerimaDoc'] = \App\Models\Doc\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument::where('accident_id', $get_accident)->first();
         $data['TotalKategori4'] = $TotalKategori4;
 
         //kategori 5
