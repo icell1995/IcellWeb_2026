@@ -75,16 +75,30 @@
                 </div>
 
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="suratPerintahPenyidikanDocument">No Sprindik<span class="text-danger fs-5">*</span>
+                    <label class="fw-bold col-sm-2 col-form-label" for="suratPerintahPenyidikanDocument">No Sprinlidik / Sprindik<span class="text-danger fs-5">*</span>
                     </label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <select class="form-control select2" name="suratPerintahPenyidikanDocument"
                             id="suratPerintahPenyidikanDocument">
-                            <option value="">--Pilih No Surat Perintah Penyidikan--</option>
-                            @foreach ($suratPerintahPenyidikanDocuments as $suratPerintahPenyidikanDocument)
-                                <option value="{{ $suratPerintahPenyidikanDocument->id }}">
-                                    {{ $suratPerintahPenyidikanDocument->document_number }}</option>
-                            @endforeach
+                            <option value="">--Pilih No Surat Perintah Penyelidikan / Penyidikan--</option>
+                            @if(isset($suratPerintahPenyelidikanDocuments) && $suratPerintahPenyelidikanDocuments->count() > 0)
+                                <optgroup label="Surat Perintah Penyelidikan (Sprinlidik)">
+                                    @foreach ($suratPerintahPenyelidikanDocuments as $suratPerintahPenyelidikanDocument)
+                                        <option value="{{ $suratPerintahPenyelidikanDocument->id }}" {{ old('suratPerintahPenyidikanDocument') == $suratPerintahPenyelidikanDocument->id ? 'selected' : '' }}>
+                                            {{ $suratPerintahPenyelidikanDocument->document_number }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+                            @if(isset($suratPerintahPenyidikanDocuments) && $suratPerintahPenyidikanDocuments->count() > 0)
+                                <optgroup label="Surat Perintah Penyidikan (Sprindik)">
+                                    @foreach ($suratPerintahPenyidikanDocuments as $suratPerintahPenyidikanDocument)
+                                        <option value="{{ $suratPerintahPenyidikanDocument->id }}" {{ old('suratPerintahPenyidikanDocument') == $suratPerintahPenyidikanDocument->id ? 'selected' : '' }}>
+                                            {{ $suratPerintahPenyidikanDocument->document_number }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
 
                         @error('suratPerintahPenyidikanDocument')
@@ -254,13 +268,62 @@
                     <label class="fw-bold col-sm-2 col-form-label">Jumlah Peserta<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-10 col-md-10 col-sm-12 col-12">
                         <input class="form-control onlyIntegerInput" id="attendees" name="attendees"
-                            placeholder="Contoh : 5" autocomplete="off" value="{{ old('attendees') }}">
+                            placeholder="Contoh : 5" autocomplete="off" value="{{ old('attendees', 1) }}">
 
                         @error('attendees')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
+                    </div>
+                </div>
+
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-2 col-form-label">Daftar Peserta Gelar</label>
+                    <div class="col-lg-10 col-md-10 col-sm-12 col-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm align-middle" id="tableAttendances">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 50px;" class="text-center">No</th>
+                                        <th>Nama & Jabatan / Satuan Peserta Gelar</th>
+                                        <th style="width: 70px;" class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendancesContainer">
+                                    @php
+                                        $oldAttendances = old('attendances', []);
+                                    @endphp
+                                    @if(!empty($oldAttendances))
+                                        @foreach($oldAttendances as $idx => $attVal)
+                                            <tr>
+                                                <td class="text-center row-number">{{ chr(97 + $idx) }}.</td>
+                                                <td>
+                                                    <input type="text" class="form-control form-control-sm" name="attendances[]" value="{{ $attVal }}" placeholder="Contoh: Aipda Ahmad (Penyidik Pembantu)">
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-sm btn-danger btn-remove-attendance" title="Hapus"><i class="bi bi-trash" style="pointer-events: none;"></i></button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td class="text-center row-number">a.</td>
+                                            <td>
+                                                <input type="text" class="form-control form-control-sm" name="attendances[]" value="" placeholder="Contoh: Aipda Ahmad (Penyidik Pembantu)">
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-danger btn-remove-attendance" title="Hapus"><i class="bi bi-trash" style="pointer-events: none;"></i></button>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="btnAddAttendance">
+                            <i class="bi bi-plus-circle me-1"></i> Tambah Peserta Gelar
+                        </button>
+                        <small class="d-block text-muted mt-1">(*Tambahkan nama dan jabatan/satuan setiap peserta gelar yang hadir)</small>
                     </div>
                 </div>
 
@@ -572,6 +635,30 @@
                                 </span>
                             @enderror
                         </div>
+                    </div>
+                </div>
+
+                <div class="input-group row mb-3 ms-0">
+                    <label class="fw-bold col-sm-3 col-form-label">Notulen<span class="text-danger fs-5">*</span></label>
+                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                        <select class="form-control select2" name="notulen" id="notulen">
+                            <option value="">--Pilih Notulen--</option>
+                            @foreach ($availableOfficers as $officer)
+                                @php
+                                    $positionName = $officer->position->name ?? '';
+                                @endphp
+                                <option value="{{ $officer->id }}" {{ old('notulen') == $officer->id ? 'selected' : '' }}>
+                                    {{ $officer->register_number . ' - ' . $officer->full_name . ' | ' . $positionName }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">(*Pilih personel yang bertugas sebagai Notulen Gelar Perkara)</small>
+
+                        @error('notulen')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
                     </div>
                 </div>
 
@@ -2719,8 +2806,8 @@
                     }
                 }
 
-                // 1. No Sprindik
-                checkSelect('#suratPerintahPenyidikanDocument', 'No Surat Perintah Penyidikan');
+                // 1. No Sprinlidik / Sprindik
+                checkSelect('#suratPerintahPenyidikanDocument', 'No Surat Perintah (Sprinlidik / Sprindik)');
 
                 // 2. Jenis LHGP
                 if (!$('input[name="documentType"]:checked').val()) {
@@ -2810,6 +2897,9 @@
                     checkSelect('#signatory', 'Yang Menandatangani');
                 }
 
+                // 18. Notulen
+                checkSelect('#notulen', 'Notulen Gelar Perkara');
+
                 // Jika ada error, scroll ke field pertama yang error
                 if (errors.length > 0) {
                     var $firstError = $('.is-invalid, .border-danger').first();
@@ -2885,6 +2975,38 @@
                         }
                     }
                 });
+            });
+            // Attendances repeater logic
+            function renumberAttendances() {
+                $('#attendancesContainer tr').each(function(index) {
+                    $(this).find('.row-number').text(String.fromCharCode(97 + index) + '.');
+                });
+                var count = $('#attendancesContainer tr').length;
+                $('#attendees').val(count > 0 ? count : 1);
+            }
+
+            $('#btnAddAttendance').on('click', function() {
+                var rowCount = $('#attendancesContainer tr').length;
+                var letter = String.fromCharCode(97 + rowCount);
+                var newRow = `
+                    <tr>
+                        <td class="text-center row-number">${letter}.</td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" name="attendances[]" placeholder="Contoh: Aipda Ahmad (Penyidik Pembantu)">
+                        </td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-danger btn-remove-attendance" title="Hapus"><i class="bi bi-trash" style="pointer-events: none;"></i></button>
+                        </td>
+                    </tr>
+                `;
+                $('#attendancesContainer').append(newRow);
+                renumberAttendances();
+            });
+
+            $(document).on('click', '.btn-remove-attendance', function(e) {
+                e.preventDefault();
+                $(this).closest('tr').remove();
+                renumberAttendances();
             });
         });
     </script>

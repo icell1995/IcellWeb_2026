@@ -34,6 +34,7 @@ class LaporanHasilGelarPerkaraDocumentOfficer extends Model
                 'MEMBER' => 'MEMBER',
                 'LEADER' => 'LEADER',
                 'SIGNATORY' => 'SIGNATORY',
+                'NOTULEN' => 'NOTULEN',
             ],
             'flag' => [
                 'INTERNAL' => 'INTERNAL',
