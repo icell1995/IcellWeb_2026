@@ -16,7 +16,7 @@ class DocumentController extends Controller
                             ->where('is_active', true)
                             ->first();
 
-        if(!empty($typeDocument) && $typeDocument->route == null){
+        if(empty($typeDocument) || $typeDocument->route == null){
             return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia');
         }
 
@@ -24,6 +24,13 @@ class DocumentController extends Controller
             $hasPermintaan = \App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument::where('accident_id', $accidentId)->exists();
             if (!$hasPermintaan) {
                 return redirect()->back()->with('error', 'Dokumen Permintaan Penggeledahan belum dibuat, mohon untuk buat Surat Permintaan Penggeledahan terlebih dahulu.');
+            }
+        }
+
+        if ($typeDocumentId == '0112') {
+            $hasSprintHentiLidik = \App\Models\Doc\SuratPerintahPenghentianPenyelidikanDocument\SuratPerintahPenghentianPenyelidikanDocument::where('accident_id', $accidentId)->exists();
+            if (!$hasSprintHentiLidik) {
+                return redirect()->back()->with('error', 'Dokumen Surat Perintah Penghentian Penyelidikan belum dibuat, mohon untuk buat Surat Perintah Penghentian Penyelidikan terlebih dahulu.');
             }
         }
 

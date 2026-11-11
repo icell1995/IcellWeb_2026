@@ -289,6 +289,20 @@ class Accident extends Model
         return $this->hasMany(Suspect::class, 'accident_id', 'id');
     }
 
+    public function suratPerintahPenghentianPenyelidikanDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratPerintahPenghentianPenyelidikanDocument\SuratPerintahPenghentianPenyelidikanDocument::class, 'accident_id', 'id')
+            ->where('is_active', true)
+            ->with(['documentCategory', 'attachment']);
+    }
+
+    public function suratKetetapanPenghentianPenyelidikanDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument::class, 'accident_id', 'id')
+            ->where('is_active', true)
+            ->with(['documentCategory', 'attachment']);
+    }
+
     public function suratPerintahPenghentianPenyidikanDocuments()
     {
         return $this->hasMany(\App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument::class, 'accident_id', 'id')->where('is_active', true);
