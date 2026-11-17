@@ -34,16 +34,22 @@ class EnsureDocumentTypeIsActive
      */
     public function handle(Request $request, Closure $next, ?string $documentIdParam = null): Response
     {
+        $route = $request->route();
+        $routeName = $route?->getName() ?? '';
         $activeMap = DocumentCategory::getActiveMap();
-        $routeName = $request->route()?->getName() ?? '';
 
         $documentCategoryActive = true;
 
         // 1. Check if document category ID is explicitly passed as parameter or query
-        $catId = $documentIdParam 
-            ?: $request->route('document_category_id') 
-            ?: $request->query('document_category_id') 
-            ?: $request->input('document_category_id');
+        $catId = $documentIdParam;
+        if (empty($catId) && $route instanceof \Illuminate\Routing\Route) {
+            try {
+                $catId = $route->parameter('document_category_id');
+            } catch (\Throwable) {
+                $catId = null;
+            }
+        }
+        $catId = $catId ?: $request->query('document_category_id') ?: $request->input('document_category_id');
 
         if (!empty($catId) && isset($activeMap['id:' . $catId])) {
             $documentCategoryActive = (bool) $activeMap['id:' . $catId];

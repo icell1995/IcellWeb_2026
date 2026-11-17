@@ -4,6 +4,8 @@ namespace App\Models\Lib;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
 use App\Models\User;
 
@@ -21,11 +23,11 @@ class DocumentCategory extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'id' => 'string',
-        'is_active' => 'boolean',
-        'is_required' => 'boolean',
+        'id'                   => 'string',
+        'is_active'            => 'boolean',
+        'is_required'          => 'boolean',
         'is_digital_signature' => 'boolean',
-        'is_case_finish' => 'boolean',
+        'is_case_finish'       => 'boolean',
     ];
 
     public function scopeActive($query)
@@ -33,41 +35,59 @@ class DocumentCategory extends Model
         return $query->where('is_active', true);
     }
 
-    public function parent()
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(DocumentCategory::class, 'parent_id')->with('parent');
     }
 
-    public function children()
+    public function children(): HasMany
     {
         return $this->hasMany(DocumentCategory::class, 'parent_id')->with('children');
     }
 
-    public function updatedByUser()
+    public function updatedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
 
-    public function statusLogs()
+    public function statusLogs(): HasMany
     {
         return $this->hasMany(DocumentCategoryStatusLog::class, 'document_category_id')->orderBy('created_at', 'desc');
     }
 
     /**
-     * Get associative map of document status for lightning-fast route checking.
-     * Maps:
-     * - id => is_active (e.g. '0101' => true)
-     * - base_route => is_active (e.g. 'doc.surat-perintah-penyelidikan-document' => true)
-     * - custom alias => is_active (e.g. 'doc.sp2hp-document' => is_active of 0709)
+     * Get associative map of document status for fast route checking.
+     * Incorporates both Stage (category = STAGE) and Type (category = TYPE).
+     * If a parent Stage is inactive, all its child documents are automatically inactive.
+     *
+     * @return array<string, bool>
      */
     public static function getActiveMap(): array
     {
         return Cache::rememberForever(self::CACHE_KEY, function () {
-            $categories = self::where('category', 'TYPE')->get();
+            // 1. Fetch Stage statuses
+            $stages = self::where('category', 'STAGE')
+                ->select(['id', 'is_active'])
+                ->get();
+
+            $stageMap = [];
             $map = [];
 
+            foreach ($stages as $stage) {
+                $isStageActive = (bool) $stage->is_active;
+                $stageMap[$stage->id] = $isStageActive;
+                $map['stage:' . $stage->id] = $isStageActive;
+            }
+
+            // 2. Fetch Document Types
+            $categories = self::where('category', 'TYPE')
+                ->select(['id', 'parent_id', 'is_active', 'base_route'])
+                ->get();
+
             foreach ($categories as $cat) {
-                $status = (bool) $cat->is_active;
+                $isParentActive = $stageMap[$cat->parent_id] ?? true;
+                $status = (bool) $cat->is_active && $isParentActive;
+
                 $map['id:' . $cat->id] = $status;
 
                 if (!empty($cat->base_route)) {

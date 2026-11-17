@@ -878,7 +878,7 @@ class AccidentController extends Controller
         $documentStages = DocumentCategory::with([
             'children' => fn($query) => $query->where('is_active', true)->orderBy('sort'),
         ])->whereHas('children', function ($query) {
-            $query->whereNotNull('route');
+            $query->whereNotNull('route')->where('is_active', true);
         })->where('category', 'STAGE')->where('is_active', true)->orderBy('id', 'ASC')->get();
 
         $accident = DB::select('select id,

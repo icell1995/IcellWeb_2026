@@ -4,6 +4,7 @@ namespace App\Models\Lib;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\User;
 
 class DocumentCategoryStatusLog extends Model
@@ -22,15 +23,15 @@ class DocumentCategoryStatusLog extends Model
 
     protected $casts = [
         'previous_status' => 'boolean',
-        'new_status' => 'boolean',
+        'new_status'      => 'boolean',
     ];
 
-    public function documentCategory()
+    public function documentCategory(): BelongsTo
     {
         return $this->belongsTo(DocumentCategory::class, 'document_category_id');
     }
 
-    public function changedByUser()
+    public function changedByUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'changed_by');
     }

@@ -12,6 +12,13 @@ class DocumentController extends Controller
         $typeDocumentId = $request->typeDocument;
         $accidentId = $request->accidentId;
 
+        if (!empty($classDocumentId)) {
+            $stage = DocumentCategory::where('id', $classDocumentId)->where('category', 'STAGE')->first();
+            if ($stage && !$stage->is_active) {
+                return redirect()->back()->with('error', 'Tahapan dokumen "' . $stage->name . '" saat ini sedang dinonaktifkan.');
+            }
+        }
+
         if (empty($typeDocumentId)) {
             return redirect()->back()->with('error', 'Jenis dokumen harus dipilih.');
         }
@@ -63,6 +70,11 @@ class DocumentController extends Controller
     }
 
     public function getTypeDocument($id){
+        $stage = DocumentCategory::where('id', $id)->where('category', 'STAGE')->first();
+        if ($stage && !$stage->is_active) {
+            return response()->json([]);
+        }
+
         $documentCategory = DocumentCategory::where('parent_id', $id)
                                 ->where('category', 'TYPE')
                                 ->where('route', '!=', NULL)
