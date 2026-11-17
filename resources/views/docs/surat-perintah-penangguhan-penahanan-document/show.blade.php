@@ -121,11 +121,11 @@
                                 <td><span class="badge bg-primary">s18</span></td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">Nomor S-18 (nomor)</td>
+                                <td class="fw-bold">Nomor Dokumen (nomor)</td>
                                 <td class="fw-bold text-primary">{{ $document->nomor ?? $document->document_number ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">Tanggal S-18 (tanggal)</td>
+                                <td class="fw-bold">Tanggal Ditandatangani Dokumen (tanggal)</td>
                                 <td>{{ $document->tanggal ? \Carbon\Carbon::parse($document->tanggal)->isoFormat('D MMMM Y') : '-' }}</td>
                             </tr>
                             <tr>
@@ -255,6 +255,10 @@
                                     <td>{{ $document->alamat_penjamin ?? '-' }}</td>
                                 </tr>
                             @endif
+                            <tr>
+                                <td class="fw-bold">Hari Wajib Lapor</td>
+                                <td><span class="badge bg-primary">{{ $document->messages['hari_wajib_lapor'] ?? '-' }}</span></td>
+                            </tr>
                         </tbody>
                     </table>
 
