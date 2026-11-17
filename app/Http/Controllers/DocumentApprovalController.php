@@ -31,15 +31,31 @@ use App\Models\Doc\Tahap1Document\Tahap1Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument;
 use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenghentianPenyelidikanDocument\SuratPerintahPenghentianPenyelidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument;
 use App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument;
 use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument;
 use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument;
 
 use App\Traits\DocsOfficersTraits;
+use App\Services\Kafka\KafkaService;
+use App\Services\IcellServices\PusiknasDocDataService;
+use Illuminate\Support\Facades\Log;
 
 class DocumentApprovalController extends Controller
 {
     use DocsOfficersTraits;
+
+    protected $kafkaService;
+    protected $pusiknasDocDataService;
+
+    public function __construct(
+        KafkaService $kafkaService,
+        PusiknasDocDataService $pusiknasDocDataService
+    ) {
+        $this->kafkaService = $kafkaService;
+        $this->pusiknasDocDataService = $pusiknasDocDataService;
+    }
 
     public function index()
     {
@@ -173,7 +189,7 @@ class DocumentApprovalController extends Controller
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
                     if(in_array($documentCategoryId, [
-                        '0101', '0201', '0211', '0212', '0213', '0215',
+                        '0101', '0112', '0113', '0201', '0211', '0212', '0213', '0215',
                         '0205', '0206', '0216', // Penghentian Penyidikan (Sprint, Sket, Pemberitahuan)
                         '0404', '0405',
                         '0601', '0603', '0604', '0605', '0606', '0607', '0608', '0609',
@@ -208,6 +224,33 @@ class DocumentApprovalController extends Controller
                 $document->save();
 
                 DB::commit();
+
+                // Kirim data ke Kafka jika dokumen disetujui (Approved)
+                if (filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true) {
+                    try {
+                        $noLp = $document->accident->no_lp ?? null;
+
+                        if (!empty($noLp)) {
+                            // Ambil responseData dari controller API terkait
+                            $responseData = $this->pusiknasDocDataService->getResponseData(
+                                $documentCategoryId,
+                                $noLp,
+                                $accidentId,
+                                $documentId
+                            );
+
+                            if (!empty($responseData)) {
+                                $this->kafkaService->sendSppti($responseData);
+                            } else {
+                                Log::warning("Kafka: responseData kosong untuk documentCategoryId [{$documentCategoryId}] dan no_lp [{$noLp}]");
+                            }
+                        } else {
+                            Log::warning("Kafka: no_lp tidak ditemukan pada dokumen id [{$documentId}]");
+                        }
+                    } catch (\Exception $kafkaEx) {
+                        Log::error("Gagal mengirim pesan ke Kafka saat approval: " . $kafkaEx->getMessage());
+                    }
+                }
             }
         }catch(\Exception $e){
             DB::rollback();
@@ -235,6 +278,8 @@ class DocumentApprovalController extends Controller
             SuratPerintahPenahananDocument::class,
             SuratPerintahPenangguhanPenahananDocument::class,
             SuratPerintahPencabutanPenangguhanPenahananDocument::class,
+            SuratPerintahPenghentianPenyelidikanDocument::class,
+            SuratKetetapanPenghentianPenyelidikanDocument::class,
             SuratPerintahPenghentianPenyidikanDocument::class,
             SuratKetetapanPenghentianPenyidikanDocument::class,
             SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
@@ -272,6 +317,8 @@ class DocumentApprovalController extends Controller
     {
         $documentModels = [
             '0101' => SuratPerintahPenyelidikanDocument::class,
+            '0112' => SuratKetetapanPenghentianPenyelidikanDocument::class,
+            '0113' => SuratPerintahPenghentianPenyelidikanDocument::class,
             '0201' => SuratPerintahPenyidikanDocument::class,
             '0204' => [
                 SuratPemberitahuanDimulainyaPenyidikanDocument::class,
