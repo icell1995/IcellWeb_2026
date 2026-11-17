@@ -58,13 +58,21 @@
                         <div class="card">
                             <div class="card-body">
                                 1. Laporan Polisi Nomor : {{$accident->no_lp}} <br/>
-                                2. Nomor Surat Perintah Penyidikan : {{$laporanHasilGelarPerkaraDocument->suratPerintahPenyidikanDocument->document_number}} <br/>
+                                @php
+                                    $spDoc = $laporanHasilGelarPerkaraDocument->suratPerintahPenyidikanDocument ?? $laporanHasilGelarPerkaraDocument->suratPerintahPenyelidikanDocument;
+                                    $spLabel = $laporanHasilGelarPerkaraDocument->suratPerintahPenyelidikanDocument ? 'Nomor Surat Perintah Penyelidikan' : 'Nomor Surat Perintah Penyidikan';
+                                @endphp
+                                2. {{$spLabel}} : {{ $spDoc->document_number ?? '-' }} <br/>
                                 3. Surat {{$laporanHasilGelarPerkaraDocument->case_degree_invite_reference}} Tentang Undangan gelar perkara. <br/>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                @php
+                    $notulenOfficer = $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers->where('class', 'NOTULEN')->first();
+                    $signatoryOfficer = $laporanHasilGelarPerkaraDocument->laporanHasilGelarPerkaraDocumentOfficers->where('class', 'SIGNATORY')->first();
+                @endphp
                 <div class="row col-lg-12 col-md-12 col-sm-12 col-12 mb-3">
                     <div class="col-lg-3 col-md-3 col-sm-3 col-3">
                         <div class="row">
@@ -77,12 +85,22 @@
                             <div class="card-body">
                                 a.	Permasalahan :	<br/>
 	                            b.	Hari dan tanggal : {{Carbon\Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('l') . ', ' . Carbon\Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('d F Y')}} <br/>
-	                            c.	Jam	: {{Carbon\Carbon::parse($laporanHasilGelarPerkaraDocument->time)->translatedFormat('H:i')}} {{$laporanHasilGelarPerkaraDocument->timezone->name}} <br/>
+	                            c.	Jam	: {{Carbon\Carbon::parse($laporanHasilGelarPerkaraDocument->time)->translatedFormat('H:i')}} {{$laporanHasilGelarPerkaraDocument->timezone->name ?? ''}} <br/>
 	                            d.	Tempat : {{$laporanHasilGelarPerkaraDocument->place}} <br/>
-	                            e.	Peserta gelar :	<ul>
-                                        <li>a.	Pimpinan Gelar : {{$laporanHasilGelarPerkaraDocument->case_degree_leader}}</li>
-                                        <li>b.	Jumlah Peserta : {{$laporanHasilGelarPerkaraDocument->attendees}} </li>
-                                </ul>
+	                            e.	Pimpinan Gelar : {{$laporanHasilGelarPerkaraDocument->case_degree_leader}} <br/>
+	                            f.	Peserta Gelar :
+                                    @if(!empty($laporanHasilGelarPerkaraDocument->attendances) && is_array($laporanHasilGelarPerkaraDocument->attendances))
+                                        <ol type="a" class="pl-4 mb-1">
+                                            @foreach($laporanHasilGelarPerkaraDocument->attendances as $attendance)
+                                                <li>{{ $attendance }}</li>
+                                            @endforeach
+                                        </ol>
+                                    @else
+                                        <span>{{$laporanHasilGelarPerkaraDocument->attendees}} Orang</span><br/>
+                                    @endif
+                                @if($notulenOfficer)
+                                g.  Notulen : {{ \App\Helpers\PeopleNameHelper::getFullName($notulenOfficer->first_title, $notulenOfficer->first_name, $notulenOfficer->last_name, $notulenOfficer->last_title) }} ({{ $notulenOfficer->rank->name ?? '-' }} NRP {{ $notulenOfficer->register_number ?? '-' }})<br/>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -133,6 +151,23 @@
                                 {{$laporanHasilGelarPerkaraDocument->closing}}
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div class="row col-lg-12 col-md-12 col-sm-12 col-12 mb-4 mt-3">
+                    <div class="col-6 text-center">
+                        <span>Mengetahui:</span><br/>
+                        <span>Pimpinan Gelar Perkara</span>
+                        <div style="height: 60px;"></div>
+                        <span class="font-weight-bold" style="text-decoration: underline;">{{ $signatoryOfficer ? \App\Helpers\PeopleNameHelper::getFullName($signatoryOfficer->first_title, $signatoryOfficer->first_name, $signatoryOfficer->last_name, $signatoryOfficer->last_title) : $laporanHasilGelarPerkaraDocument->case_degree_leader }}</span><br/>
+                        <span>{{ strtoupper($signatoryOfficer->rank->name ?? '') }} NRP. {{ $signatoryOfficer->register_number ?? '-' }}</span>
+                    </div>
+                    <div class="col-6 text-center">
+                        <span>{{ ucwords($accident->polres->polres_district ?? 'Kota') }}, {{ Carbon\Carbon::parse($laporanHasilGelarPerkaraDocument->document_date)->locale('id')->translatedFormat('d F Y') }}</span><br/>
+                        <span>Notulen,</span>
+                        <div style="height: 60px;"></div>
+                        <span class="font-weight-bold" style="text-decoration: underline;">{{ $notulenOfficer ? \App\Helpers\PeopleNameHelper::getFullName($notulenOfficer->first_title, $notulenOfficer->first_name, $notulenOfficer->last_name, $notulenOfficer->last_title) : '-' }}</span><br/>
+                        <span>{{ strtoupper($notulenOfficer->rank->name ?? '') }} NRP. {{ $notulenOfficer->register_number ?? '-' }}</span>
                     </div>
                 </div>
             

@@ -23,6 +23,7 @@ class LaporanHasilGelarPerkaraDocument extends Model
      // cast
     protected $casts = [
         'id' => 'string',
+        'attendances' => 'json',
         'messages' => 'json',
         'timestamps' => 'json',
         'ip_addresses' => 'json',
@@ -75,6 +76,7 @@ class LaporanHasilGelarPerkaraDocument extends Model
             'caseDegreeType',
             'timezone',
             'suratPerintahPenyidikanDocument',
+            'suratPerintahPenyelidikanDocument',
             'laporanHasilGelarPerkaraDocumentAttachment',
             'createdByUser',
             'updatedByUser',
@@ -116,6 +118,10 @@ class LaporanHasilGelarPerkaraDocument extends Model
 
     public function suratPerintahPenyidikanDocument(){
         return $this->belongsTo('App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument', 'surat_perintah_penyidikan_document_id', 'id');
+    }
+
+    public function suratPerintahPenyelidikanDocument(){
+        return $this->belongsTo('App\Models\Doc\SuratPerintahPenyelidikanDocument\SuratPerintahPenyelidikanDocument', 'surat_perintah_penyelidikan_document_id', 'id');
     }
 
     public function suspects(){

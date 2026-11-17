@@ -1427,6 +1427,8 @@ class AccidentController extends Controller
             'suratPerintahPencabutanPenangguhanPenahananDocuments',
             'suratPermohonanPerpanjanganPenahananKejaksaanDocuments',
             'suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments',
+            'suratPerintahPenghentianPenyelidikanDocuments',
+            'suratKetetapanPenghentianPenyelidikanDocuments',
             'suratPerintahPenghentianPenyidikanDocuments',
             'suratKetetapanPenghentianPenyidikanDocuments',
             'suratPemberitahuanPenghentianPenyidikanDocuments',
@@ -1556,6 +1558,7 @@ class AccidentController extends Controller
         $data['pejabat'] = $pejabat;
         $data['suspectsName'] = ($suspects) ? $suspects->name : '';
         $data['TotalKategori1'] = $TotalKategori1;
+        $data['rencana_penyidikan_doc'] = \App\Models\Doc\RencanaPenyidikanDocument\RencanaPenyidikanDocument::where('accident_id', $get_accident)->first();
 
         //kategori 2
         $data['daftar_saksi'] = $daftar_saksi;
