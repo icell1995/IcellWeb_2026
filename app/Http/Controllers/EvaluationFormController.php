@@ -19,7 +19,7 @@ class EvaluationFormController extends Controller
     {
         $userId = Auth::id();
 
-        $user = User::with(['officer'])
+        $user = User::with(['officer.rank', 'officer.position', 'police'])
             ->selectFullNameExpression()
             ->find($userId);
 

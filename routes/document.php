@@ -65,7 +65,7 @@ Route::prefix('/berita-acara-penahanan-document')->middleware(['document-access'
     Route::post('/api/validate-request-form', [BeritaAcaraPenahananDocumentController::class, 'validateRequestForm'])->name('doc.berita-acara-penahanan-document.api.validate-request-form');
 });
 
-Route::prefix('/surat-perintah-penyelidikan-document')->group(function () {
+Route::prefix('/surat-perintah-penyelidikan-document')->middleware(['document-access'])->group(function () {
     Route::get('/', [SuratPerintahPenyelidikanDocumentController::class, 'index'])->name('doc.surat-perintah-penyelidikan-document.index');
     Route::get('/{id}/show', [SuratPerintahPenyelidikanDocumentController::class, 'show'])->name('doc.surat-perintah-penyelidikan-document.show');
     Route::get('/create', [SuratPerintahPenyelidikanDocumentController::class, 'create'])->name('doc.surat-perintah-penyelidikan-document.create');
@@ -82,7 +82,7 @@ Route::prefix('/surat-perintah-penyelidikan-document')->group(function () {
     Route::post('/api/validate-request-form', [SuratPerintahPenyelidikanDocumentController::class, 'validateRequestForm'])->name('doc.surat-perintah-penyelidikan-document.api.validate-request-form');
 });
 
-Route::prefix('/surat-perintah-penyidikan-document')->group(function () {
+Route::prefix('/surat-perintah-penyidikan-document')->middleware(['document-access'])->group(function () {
     Route::get('/', [SuratPerintahPenyidikanDocumentController::class, 'index'])->name('doc.surat-perintah-penyidikan-document.index');
     Route::get('/{id}/show', [SuratPerintahPenyidikanDocumentController::class, 'show'])->name('doc.surat-perintah-penyidikan-document.show');
     Route::get('/create', [SuratPerintahPenyidikanDocumentController::class, 'create'])->name('doc.surat-perintah-penyidikan-document.create');
@@ -100,7 +100,7 @@ Route::prefix('/surat-perintah-penyidikan-document')->group(function () {
     Route::post('/api/validate-request-form', [SuratPerintahPenyidikanDocumentController::class, 'validateRequestForm'])->name('doc.surat-perintah-penyidikan-document.api.validate-request-form');
 });
 
-Route::prefix('/surat-perintah-tugas-document')->group(function () {
+Route::prefix('/surat-perintah-tugas-document')->middleware(['document-access'])->group(function () {
     Route::get('/', [SuratPerintahTugasDocumentController::class, 'index'])->name('doc.surat-perintah-tugas-document.index');
     Route::get('/{id}/show', [SuratPerintahTugasDocumentController::class, 'show'])->name('doc.surat-perintah-tugas-document.show');
     Route::get('/create', [SuratPerintahTugasDocumentController::class, 'create'])->name('doc.surat-perintah-tugas-document.create');
@@ -201,7 +201,7 @@ Route::prefix('/tahap-2-document')->middleware(['document-access'])->group(funct
 });
 
 // SP2HP Document Routes (SP2HP Regulation)
-Route::prefix('/sp2hp-document')->group(function () {
+Route::prefix('/sp2hp-document')->middleware(['document-access'])->group(function () {
     Route::get('/list', [Sp2hpDocumentController::class, 'getList'])->name('doc.sp2hp-document.list');
     Route::get('/show/{id}', [Sp2hpDocumentController::class, 'show'])->name('doc.sp2hp-document.show');
     Route::get('/edit/{id}', [Sp2hpDocumentController::class, 'edit'])->name('doc.sp2hp-document.edit');
@@ -214,7 +214,7 @@ Route::prefix('/sp2hp-document')->group(function () {
 });
 
 // Surat Pemberitahuan Perkembangan Hasil Penyidikan Document Routes (for document modal)
-Route::prefix('/surat-pemberitahuan-perkembangan-hasil-penyidikan-document')->group(function () {
+Route::prefix('/surat-pemberitahuan-perkembangan-hasil-penyidikan-document')->middleware(['document-access'])->group(function () {
     Route::get('/create', [Sp2hpDocumentController::class, 'create'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.create');
     Route::get('/{id}/edit', [Sp2hpDocumentController::class, 'edit'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.edit');
     Route::get('/{id}/show', [Sp2hpDocumentController::class, 'downloadShow'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.download');
@@ -367,7 +367,7 @@ Route::prefix('/surat-pemberitahuan-penghentian-penyidikan-document')->middlewar
 });
 
 
-Route::prefix('/surat-permintaan-izin-penyitaan-document')->group(function(){
+Route::prefix('/surat-permintaan-izin-penyitaan-document')->middleware(['document-access'])->group(function(){
     Route::get('/{id}/show', [SuratPermintaanIzinPenyitaanController::class, 'show'])->name('doc.surat-permintaan-izin-penyitaan-document.show');
     Route::get('/create', [SuratPermintaanIzinPenyitaanController::class, 'create'])->name('doc.surat-permintaan-izin-penyitaan-document.create');
     Route::post('/create', [SuratPermintaanIzinPenyitaanController::class, 'store'])->name('doc.surat-permintaan-izin-penyitaan-document.store');
@@ -377,7 +377,7 @@ Route::prefix('/surat-permintaan-izin-penyitaan-document')->group(function(){
     Route::get('/{id}/download', [SuratPermintaanIzinPenyitaanController::class, 'download'])->name('doc.surat-permintaan-izin-penyitaan-document.download');
 });
 
-Route::prefix('/surat-laporan-persetujuan-penyitaan-document')->group(function(){
+Route::prefix('/surat-laporan-persetujuan-penyitaan-document')->middleware(['document-access'])->group(function(){
     Route::get('/{id}/show', [SuratLaporanPersetujuanPenyitaanController::class, 'show'])->name('doc.surat-laporan-persetujuan-penyitaan-document.show');
     Route::get('/create', [SuratLaporanPersetujuanPenyitaanController::class, 'create'])->name('doc.surat-laporan-persetujuan-penyitaan-document.create');
     Route::post('/create', [SuratLaporanPersetujuanPenyitaanController::class, 'store'])->name('doc.surat-laporan-persetujuan-penyitaan-document.store');

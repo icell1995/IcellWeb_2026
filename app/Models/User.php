@@ -23,7 +23,33 @@ class User extends Authenticatable
     protected $table = "public.users";
     protected $primaryKey = "id";
 
-    protected $guarded = [];
+    protected $fillable = [
+        'id',
+        'username',
+        'first_name',
+        'last_name',
+        'first_title',
+        'last_title',
+        'email',
+        'phone',
+        'password',
+        'avatar',
+        'rank_id',
+        'position_id',
+        'register_number',
+        'police_id',
+        'polda_id',
+        'polres_id',
+        'pangkat',
+        'officer_id',
+        'role_id',
+        'state',
+        'is_active',
+        'is_password_changed',
+        'properties',
+        'timestamps',
+        'ip_addresses',
+    ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -33,6 +59,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'otp_code',
+        'otp_expires_at',
     ];
 
     /**
@@ -59,6 +87,9 @@ class User extends Authenticatable
     public function scopeWithRelated(Builder $query): Builder {
         return $query->with([
             'officer',
+            'officer.rank',
+            'officer.position',
+            'police',
             'createdByUser',
             'updatedByUser',
             'role',

@@ -57,7 +57,7 @@ class LaporanHasilGelarPerkaraDocumentValidationController extends Controller
         $police = Police::with('parent')->where('id', $accident->polres_id)->first();
   
         $laporanHasilGelarPerkaraDocumentId = $id;
-        $laporanHasilGelarPerkaraDocument = LaporanHasilGelarPerkaraDocument::with(['suspects', 'laporanHasilGelarPerkaraDocumentOfficers', 'laporanHasilGelarPerkaraDocumentFiles', 'laporanHasilGelarPerkaraDocumentAttachment'])->where('id', $laporanHasilGelarPerkaraDocumentId)->first();
+        $laporanHasilGelarPerkaraDocument = LaporanHasilGelarPerkaraDocument::with(['accident', 'status', 'documentCategory', 'suspects', 'laporanHasilGelarPerkaraDocumentOfficers', 'laporanHasilGelarPerkaraDocumentFiles', 'laporanHasilGelarPerkaraDocumentAttachment'])->where('id', $laporanHasilGelarPerkaraDocumentId)->first();
         // dd($laporanHasilGelarPerkaraDocument->suspects);
         $positions = Position::where('is_active', true)->orderBy('sort')->get();
 

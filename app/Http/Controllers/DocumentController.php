@@ -12,12 +12,22 @@ class DocumentController extends Controller
         $typeDocumentId = $request->typeDocument;
         $accidentId = $request->accidentId;
 
-        $typeDocument = DocumentCategory::where('id', $typeDocumentId)
-                            ->where('is_active', true)
-                            ->first();
+        if (empty($typeDocumentId)) {
+            return redirect()->back()->with('error', 'Jenis dokumen harus dipilih.');
+        }
 
-        if(!empty($typeDocument) && $typeDocument->route == null){
-            return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia');
+        $typeDocument = DocumentCategory::where('id', $typeDocumentId)->first();
+
+        if (!$typeDocument) {
+            return redirect()->back()->with('error', 'Jenis dokumen tidak ditemukan.');
+        }
+
+        if (!$typeDocument->is_active) {
+            return redirect()->back()->with('error', 'Jenis dokumen "' . $typeDocument->name . '" saat ini sedang dinonaktifkan.');
+        }
+
+        if (empty($typeDocument->route)) {
+            return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia.');
         }
 
         if ($typeDocumentId == '0405') {

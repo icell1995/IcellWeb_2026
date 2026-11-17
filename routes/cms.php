@@ -307,3 +307,12 @@ Route::prefix('/integration-monitor')
                 Route::get('/data', [IntegrationMonitorController::class, 'getMonthlyData'])->name('data');
             });
     });
+
+// Document / Letter Feature Toggle Management
+Route::prefix('/document-management')
+    ->name('cms.document-management.')
+    ->group(function () {
+        Route::get('/', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'index'])->name('index');
+        Route::post('/{id}/toggle', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'toggle'])->name('toggle');
+        Route::get('/{id}/history', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'history'])->name('history');
+    });

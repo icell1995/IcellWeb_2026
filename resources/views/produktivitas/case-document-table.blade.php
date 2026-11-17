@@ -91,7 +91,7 @@
                     <td class="text-center align-middle">-</td>
                     <td class="text-center align-middle">
                         @php
-                            $lpCreator = !empty($lpItem->created_by) ? \App\Models\User::where('username', $lpItem->created_by)->orWhere('register_number', $lpItem->created_by)->first() : null;
+                            $lpCreator = !empty($lpItem->created_by) ? \App\Models\User::with('rank')->where('username', $lpItem->created_by)->orWhere('register_number', $lpItem->created_by)->first() : null;
                         @endphp
                         <div class="d-flex flex-column">
                             @if($lpCreator)

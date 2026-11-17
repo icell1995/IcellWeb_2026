@@ -529,7 +529,7 @@ class DocumentSignatureController extends Controller
         ];
 
         if (array_key_exists($documentCategoryId, $documentModels)) {
-            $document = $documentModels[$documentCategoryId]::with(['accident','documentCategory'])
+            $document = $documentModels[$documentCategoryId]::with(['accident', 'documentCategory', 'status', 'attachment'])
                 ->where('id', $documentId)
                 ->first();
         } else {
@@ -547,7 +547,7 @@ class DocumentSignatureController extends Controller
         $documentsCollection = Collection::make();
     
         foreach ($documentTypes as $documentType) {
-            $documents = $documentType::with(['accident', 'documentCategory'])
+            $documents = $documentType::with(['accident', 'documentCategory', 'status'])
                 ->whereHas('accident', function ($query) use ($user) {
                     // $query->where('polres_id', $user->polres_id);
                     $query->whereIn('polres_id', $this->getOldNewPolresIds($user->polres_id));

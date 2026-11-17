@@ -34,8 +34,11 @@ class LoginController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors()->toArray());       
         }
 
-        $input = $request->all();
+        $input = $request->only(['username', 'email', 'password', 'first_name', 'last_name', 'phone']);
         $input['password'] = bcrypt($input['password']);
+        $input['role_id'] = 4;
+        $input['state'] = 0;
+        $input['is_active'] = false;
 
         /** @var mixed $user */
         $user = User::create($input);

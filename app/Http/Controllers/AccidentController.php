@@ -81,7 +81,7 @@ class AccidentController extends Controller
 
     public function index(Request $request)
     {
-        $no_lp = $request->input('no_lp') ?: '';
+        $no_lp = $request->input('no_lp') ?? '-';
         $user = Auth::user();
         $tipe_laka = 0;
 
@@ -172,7 +172,7 @@ class AccidentController extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_HTTPHEADER => array(
-                'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
+                'Key: ' . config('services.irsms.view_key'),
                 'Content-Type: application/json',
             ),
         ));
@@ -182,7 +182,7 @@ class AccidentController extends Controller
 
         $get_data = $response ? json_decode($response) : null;
 
-        // dd($apiPolda);
+        dd($tipe_laka);
 
         if ($err || !$get_data || !isset($get_data->status) || $get_data->status == "failed") {
             $status = $get_data->status ?? 'failed';
@@ -275,11 +275,11 @@ class AccidentController extends Controller
                 CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
-                CURLOPT_TIMEOUT => 10000,
+                CURLOPT_TIMEOUT => 15,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => "POST",
                 CURLOPT_HTTPHEADER => array(
-                    'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
+                    'Key: ' . config('services.irsms.view_key'),
                     'Content-Type: application/json',
                 ),
                 CURLOPT_POSTFIELDS => json_encode([
@@ -311,7 +311,7 @@ class AccidentController extends Controller
 
     public function paginate($items, $perPage = 10, $page = null, $options = [])
     {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 5);
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof Collection ? $items : Collection::make($items);
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
@@ -322,14 +322,14 @@ class AccidentController extends Controller
         if (\App\Helpers\AppModeHelper::isApiEnabled()) {
             $curl = curl_init();
             curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/view?accident_id=" . $accident_id,
+                CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/view?accident_id=" . urlencode((string) $accident_id),
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
-                CURLOPT_TIMEOUT => 10000,
+                CURLOPT_TIMEOUT => 15,
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => "GET",
                 CURLOPT_HTTPHEADER => array(
-                    'Key: 09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
+                    'Key: ' . config('services.irsms.view_key'),
                     'Content-Type: application/json',
                 ),
             ));
@@ -371,9 +371,9 @@ class AccidentController extends Controller
         try {
             //call data from API https://irsms.korlantas.polri.go.id/irsmsapi/api/view using HTTP facade with header
             $response = Http::withHeaders([
-                'Key' => '09s08e23TBJ1hEXwAMSIH00eBI1F5BODfeLVlHMHnIZrNsDmtS=getdataviewICELL',
+                'Key' => config('services.irsms.view_key'),
                 'Content-Type' => 'application/json',
-            ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/view?accident_id=' . $accident_id);
+            ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/view?accident_id=' . urlencode((string) $accident_id));
 
             $accidentResponse = $response->json();
             $accidentResult = $accidentResponse['result'][0];
@@ -460,7 +460,7 @@ class AccidentController extends Controller
             if (env('APP_MODE') == 'PRODUCTION') {
                 $headers = [
                     'Content-Type' => 'application/json',
-                    'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell'
+                    'Key' => config('services.irsms.selra_key')
                 ];
 
                 $response = Http::withHeaders($headers)->post('https://irsms.korlantas.polri.go.id/irsmsapi/api/icellSelra', [
@@ -481,8 +481,6 @@ class AccidentController extends Controller
         $user = Auth::user();
         $officerId = $user->register_number;
 
-        // $lockExpr = DB::raw("(CASE WHEN NULLIF(a.state_irsms::text,'')::int IN (0,1,2) THEN 1 ELSE 0 END) AS is_locked_by_irsms");  // FIX
-
         $lockExpr = DB::raw("
         CASE
         WHEN a.state_irsms IS NOT NULL
@@ -501,12 +499,11 @@ class AccidentController extends Controller
                 $accident = $this->getAccidentQuery()
                     ->addSelect(['a.state_irsms', $lockExpr])
                     ->orderByDesc('a.created_at')
-                    ->limit(200000)
-                    ->get();
+                    ->paginate(10)
+                    ->withQueryString();
 
                 $poldas = Polda::all();
                 $polress = Polres::where('polda_id', '=', '01')->get();
-                // dd($accident);
                 break;
             case 3:
                 $polda = $user->polda_id;
@@ -521,22 +518,21 @@ class AccidentController extends Controller
                         ->where('polres_id', 'ilike', $police . '%')
                         ->addSelect(['a.state_irsms', $lockExpr])
                         ->orderBy('a.created_at', 'desc')
-                        ->get();
+                        ->paginate(10)
+                        ->withQueryString();
                     $polress = Polres::where('id', 'ILIKE', $police . '%')
                         ->where('state', '=', '1')->get();
                 } else {
-                    // $polres = implode(',',$allPolresIds);
-
                     $accident = $this->getAccidentQuery()
                         ->whereIn('polres_id', $allPolresIds)
                         ->addSelect(['a.state_irsms', $lockExpr])
                         ->orderBy('a.created_at', 'desc')
-                        ->get();
+                        ->paginate(10)
+                        ->withQueryString();
                     $polress = Polres::whereIN('id', $allPolresIds)
                         ->where('state', '=', '1')->get();
                 }
 
-                // $poldas = Polda::where('id', '=', $polda)->get();
                 $poldas = Polda::where('id', '=', $allPoldaIds)->get();
                 break;
             case 4:
@@ -550,20 +546,16 @@ class AccidentController extends Controller
                     $accident instanceof \Illuminate\Database\Query\Builder
                     || $accident instanceof \Illuminate\Database\Eloquent\Builder
                 ) {
-
-                    // CATATAN: pastikan alias tabel accidents di getStatusAcc() = 'a'.
-                    // Jika beda (mis. 'acc'), ganti 'a.' di bawah & pada $lockExpr.
                     $accident = $accident
                         ->addSelect(['a.state_irsms', $lockExpr])
-                        ->orderByDesc('a.created_at')   // aman ditambahkan untuk konsistensi urutan
-                        ->get();
+                        ->orderByDesc('a.created_at')
+                        ->paginate(10)
+                        ->withQueryString();
                 } else {
                     // Fallback jika getStatusAcc() mengembalikan array/koleksi/stdClass
                     $accident = collect($accident)->map(function ($row) {
-                        // Normalisasi ke array agar mudah dimodifikasi
                         $arr = (array) $row;
 
-                        // Baca state_irsms secara defensif
                         $raw = isset($arr['state_irsms']) ? $arr['state_irsms'] : null;
                         $locked = 0;
                         if ($raw !== null && $raw !== '') {
@@ -574,19 +566,15 @@ class AccidentController extends Controller
                             }
                         }
 
-                        // Set kolom turunan agar blade bisa selalu akses properti
                         $arr['is_locked_by_irsms'] = $locked;
 
-                        // Kembalikan sebagai stdClass
                         return (object) $arr;
                     })
-                        // Jika ada kolom created_at, urutkan desc agar konsisten
                         ->sortByDesc(function ($o) {
                             return $o->created_at ?? null;
                         })
                         ->values();
                 }
-                // dd($accident);
 
                 $poldas  = Polda::where('id', '=', $polda)->get();
                 $polress = Polres::where('id', '=', $polres)->get();
@@ -599,13 +587,13 @@ class AccidentController extends Controller
                     ->where('polres_id', '=', $polres)
                     ->addSelect(['a.state_irsms', $lockExpr])
                     ->orderBy('a.created_at', 'desc')
-                    ->get();
+                    ->paginate(10)
+                    ->withQueryString();
 
                 $poldas = Polda::where('id', '=', $polda)->get();
                 $polress = Polres::where('id', '=', $polres)->get();
                 break;
         }
-        // dd($accident);
 
         // --- REJECT MODAL: scope polres berdasarkan role ---
         $polresFilterIds = null;
@@ -621,36 +609,30 @@ class AccidentController extends Controller
         $rejectedToShow = collect();
 
         if (!empty($polresFilterIds)) {
-            // subquery: id reject terakhir per accident
-            $logTable = (new LogSelra)->getTable(); // aman jika pakai schema
+            $logTable = (new LogSelra)->getTable();
             $lastRejectSub = DB::table($logTable)
                 ->select(DB::raw('MAX(id) AS last_id'), 'accident_id')
-                ->where('updated_status_name', 'rejected') // simpan 'rejected' huruf kecil
+                ->where('updated_status_name', 'rejected')
                 ->groupBy('accident_id');
 
-            // join ke row log terakhir + filter polres + filter "belum ada SELRA baru"
             $rejectedToShow = DB::table($logTable . ' as l')
                 ->joinSub($lastRejectSub, 'lr', function ($j) {
                     $j->on('l.id', '=', 'lr.last_id');
                 })
                 ->join('accidents as a', 'a.id', '=', 'l.accident_id')
                 ->leftJoin('accident_resolutions as ar', function ($j) {
-                    // ada SELRA baru setelah waktu reject? Jika ya, nanti ar.id ≠ null → tidak ditampilkan
                     $j->on('ar.accident_id', '=', 'l.accident_id')
                         ->whereRaw('ar.created_at > COALESCE(l.rejected_at, l.created_at)');
                 })
                 ->whereIn('a.polres_id', $polresFilterIds)
-                // opsional: batasi 7 hari terakhir biar tidak bejibun
                 ->where(function ($q) {
                     $q->whereNotNull('l.rejected_at')
                         ->where('l.rejected_at', '>=', Carbon::now()->subDays(7))
                         ->orWhere(function ($q2) {
-                            // kalau rejected_at null, fallback created_at
                             $q2->whereNull('l.rejected_at')
                                 ->where('l.created_at', '>=', Carbon::now()->subDays(7));
                         });
                 })
-                // hanya yang BELUM ada selra baru (ar.id null)
                 ->whereNull('ar.id')
                 ->orderByDesc(DB::raw('COALESCE(l.rejected_at, l.created_at)'))
                 ->get([
@@ -666,17 +648,10 @@ class AccidentController extends Controller
                 ]);
         }
 
-        // $state_irsms = Accident::where('state_irsms', '<>', '9')->get();
-
-        $data['accident'] = $this->paginate_produktivitas($accident);
+        $data['accident'] = $accident instanceof LengthAwarePaginator ? $accident : $this->paginate_produktivitas($accident);
         $data['poldas'] = $poldas;
         $data['polress'] = $polress;
         $data['rejectedToShow'] = $rejectedToShow;
-
-        // dd($data);
-        // $data['state_irsms'] = $state_irsms;
-
-        // dd($data);
 
         return view('produktivitas.produktivitas-index', $data);
     }
@@ -694,7 +669,6 @@ class AccidentController extends Controller
 
         $user = Auth::user();
         $officerId = $user->register_number;
-        // $lockExpr = DB::raw("(CASE WHEN NULLIF(a.state_irsms::text,'')::int IN (0,1,2) THEN 1 ELSE 0 END) AS is_locked_by_irsms");
         $lockExpr = DB::raw("
             CASE
             WHEN a.state_irsms IS NOT NULL
@@ -712,8 +686,6 @@ class AccidentController extends Controller
                 if ($filters['polres'] == null) {
                     $filters['polres'] = '-';
                 }
-                // $polda = $polda ?? '-';
-                // $polres = $polres ?? '-';
 
                 $query = $this->getAccidentQuery();
                 $filtered = $this->applyFilters($query, $filters);
@@ -721,8 +693,8 @@ class AccidentController extends Controller
                 $accident = $filtered
                     ->addSelect(['a.state_irsms', $lockExpr])
                     ->orderBy('a.created_at', 'desc')
-                    ->limit(200000)
-                    ->get();
+                    ->paginate(10)
+                    ->withQueryString();
 
                 $poldas = Polda::all();
                 $polress = Polres::where('polda_id', '=', '01')->get();
@@ -730,17 +702,11 @@ class AccidentController extends Controller
             case 3:
                 if ($filters['polda'] == '-' || $filters['polda'] == $user->polda_id) {
                     $relatedPoldaIds = $this->getEffectivePoldaId($user->polda_id);
-
-                    // $filters['polda_array'] = $relatedPoldaIds;
-
                     $filters['polda'] = $relatedPoldaIds;
                 }
 
                 if ($filters['polres'] == '-' || $filters['polres'] == $user->polres_id || $filters['polres'] == $user->police_id) {
                     $relatedPolresIds = $this->getEffectivePolresId($user->polres_id);
-
-                    // $filters['polres_array'] = $relatedPolresIds;
-
                     $filters['polres'] = $relatedPolresIds;
                 }
 
@@ -748,10 +714,10 @@ class AccidentController extends Controller
                 $filtered = $this->applyFilters($query, $filters);
 
                 $accident = $filtered
-                    // ->addSelect(['a.state_irsms', $lockExpr])
+                    ->addSelect(['a.state_irsms', $lockExpr])
                     ->orderBy('a.created_at', 'desc')
-                    ->limit(200000)
-                    ->get();
+                    ->paginate(10)
+                    ->withQueryString();
 
                 $poldas = Polda::where('id', '=', $user->polda_id)->get();
                 $polress = Polres::where('id', '=', $user->polres_id)->get();
@@ -762,16 +728,14 @@ class AccidentController extends Controller
                 $polda  = $user->polda_id;
                 $polres = $user->polres_id;
 
-                // Ambil input yang diperlukan (tanpa override polda/polres)
                 $no_lp        = $request->input('no_lp');
                 $checkTanggal = $request->filled('tgl_kejadian') ? 1 : 0;
-                $checkstatus  = $request->input('status');      // boleh '-' / null
-                $level        = $request->input('level');       // boleh '-' / null
+                $checkstatus  = $request->input('status');
+                $level        = $request->input('level');
                 $tanggal      = $request->filled('tgl_kejadian')
                     ? Carbon::parse($request->tgl_kejadian)->format('Y-m-d')
                     : null;
 
-                // Panggil builder/koleksi dari service
                 $accident = $this->searchGetAccident(
                     $officerId,
                     $polda,
@@ -787,22 +751,17 @@ class AccidentController extends Controller
                     $accident instanceof \Illuminate\Database\Query\Builder
                     || $accident instanceof \Illuminate\Database\Eloquent\Builder
                 ) {
-
-                    // PASTIKAN alias tabel accidents di searchGetAccident() = 'a'
-                    // Kalau bukan 'a', ganti prefiks 'a.' di dua baris bawah
                     $accident = $accident
                         ->addSelect([
                             DB::raw('a.state_irsms AS state_irsms'),
                             $lockExpr,
                         ])
                         ->orderByDesc('a.created_at')
-                        ->limit(200000)
-                        ->get();
+                        ->paginate(10)
+                        ->withQueryString();
                 } else {
-                    // === Fallback untuk koleksi/stdClass ===
                     $accCol = collect($accident);
 
-                    // petakan id -> state_irsms dari tabel accidents (hindari N+1)
                     $ids = $accCol->pluck('id')->filter()->unique()->values();
                     $irsmsMap = $ids->isNotEmpty()
                         ? DB::table('accidents')->whereIn('id', $ids)->pluck('state_irsms', 'id')
@@ -811,12 +770,10 @@ class AccidentController extends Controller
                     $accident = $accCol->map(function ($row) use ($irsmsMap) {
                         $arr = (array) $row;
 
-                        // sematkan state_irsms bila belum ada
                         if (!array_key_exists('state_irsms', $arr)) {
                             $arr['state_irsms'] = $irsmsMap[$arr['id'] ?? null] ?? null;
                         }
 
-                        // hitung is_locked_by_irsms aman numerik
                         $raw    = $arr['state_irsms'] ?? null;
                         $locked = 0;
                         if ($raw !== null && $raw !== '') {
@@ -834,7 +791,6 @@ class AccidentController extends Controller
                         ->values();
                 }
 
-                // dropdown tetap dikunci ke satker user
                 $poldas  = Polda::where('id', '=', $polda)->get();
                 $polress = Polres::where('id', '=', $polres)->get();
                 break;
@@ -853,16 +809,15 @@ class AccidentController extends Controller
                 $accident = $filtered
                     ->addSelect(['a.state_irsms', $lockExpr])
                     ->orderBy('a.created_at', 'desc')
-                    ->limit(200000)
-                    ->get();
+                    ->paginate(10)
+                    ->withQueryString();
 
                 $poldas = Polda::where('id', '=', $user->polda_id)->get();
                 $polress = Polres::where('id', '=', $user->polres_id)->get();
                 break;
         }
-        // dd($poldas);
 
-        $data['accident'] = $this->paginate_produktivitas($accident);
+        $data['accident'] = $accident instanceof LengthAwarePaginator ? $accident : $this->paginate_produktivitas($accident);
         $data['poldas'] = $poldas;
         $data['polress'] = $polress;
 
@@ -873,7 +828,7 @@ class AccidentController extends Controller
 
     public function paginate_produktivitas($items, $perPage = 10, $page = null, $options = [])
     {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 5);
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof Collection ? $items : Collection::make($items);
         return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
@@ -920,12 +875,14 @@ class AccidentController extends Controller
         $data['shouldShowRejectModal'] = $lastSelraReject && ! $hasNewSelraAfterReject;
 
         $date_now = Carbon::now();
-        $documentStages = DocumentCategory::whereHas('children', function ($query) {
+        $documentStages = DocumentCategory::with([
+            'children' => fn($query) => $query->where('is_active', true)->orderBy('sort'),
+        ])->whereHas('children', function ($query) {
             $query->whereNotNull('route');
         })->where('category', 'STAGE')->where('is_active', true)->orderBy('id', 'ASC')->get();
 
         $accident = DB::select('select id,
-            no_lp, selra_flag, md,
+            no_lp, selra_flag, state_selra_flag, md,
             accidents.accident_type_id,
             CASE
                 WHEN LEFT(accidents.accident_type_id, 4) IN (\'A072\', \'A073\') THEN \'Tunggal\'
@@ -936,61 +893,34 @@ class AccidentController extends Controller
             to_char(accidents.created_at,  \'DD-MM-YYYY\') as accident_tindak_lanjut ,
             polres_id,
             CASE
-                WHEN selra_flag <> \'S0107\' THEN AGE(accidents.updated_at,accidents.created_at) ELSE AGE(\'' . $date_now . '\',accidents.created_at)
+                WHEN selra_flag <> \'S0107\' THEN AGE(accidents.updated_at,accidents.created_at) ELSE AGE(?::timestamp,accidents.created_at)
             END AS accident_proses ,
             to_char(accidents.last_update, \'DD-MM-YYYY HH24:MI:SS\') as accident_last_update,
             tipe_update,
             (select ref.name from ref where id = accidents.category) AS tipe_berkas
-        from accidents where id = \'' . $get_accident . '\'');
-        $selra_flag = DB::select('select selra_flag from accidents where id = \'' . $get_accident . '\'');
-        $state_selra_flag = DB::select('select state_selra_flag from accidents where id = \'' . $get_accident . '\'');
-        $p21Tahap2Status = DB::table('accidents')->where('id', $get_accident)->first();
-        $selra = DB::select('select * from ref where grp_id = \'S01\'');
-        $gender = DB::select('select * from ref where grp_id = \'G01\'');
-        $education = DB::select('select * from ref where grp_id = \'E01\'');
-        $identity_type = DB::select('select * from ref where grp_id = \'G02\'');
-        $religion = DB::select('select * from ref where grp_id = \'R01\'');
+        from accidents where id = ?', [$date_now->toDateTimeString(), $get_accident]);
+
+        $selra_flag = [(object) ['selra_flag' => $accident[0]->selra_flag ?? null]];
+        $state_selra_flag = [(object) ['state_selra_flag' => $accident[0]->state_selra_flag ?? null]];
+        $p21Tahap2Status = $accident[0] ?? null;
+
+        $refsByGroup = DB::table('ref')
+            ->whereIn('grp_id', ['S01', 'G01', 'E01', 'G02', 'R01'])
+            ->get()
+            ->groupBy('grp_id');
+        $selra = $refsByGroup->get('S01', collect())->values()->all();
+        $gender = $refsByGroup->get('G01', collect())->values()->all();
+        $education = $refsByGroup->get('E01', collect())->values()->all();
+        $identity_type = $refsByGroup->get('G02', collect())->values()->all();
+        $religion = $refsByGroup->get('R01', collect())->values()->all();
 
         $polres = $accident[0]->polres_id;
 
-        $user = Auth::user();
-        switch ($user->role_id) {
-            case 2:
-                /*$polres = TranslateIdHelper::getTranslatePoliceResorId(
-                    regionalId: Auth::user()->police_id,
-                    resorId: $polres
-                );*/
+        $officer = DB::table('officers')
+            ->where('polres_id', '=', $polres)
+            ->get();
 
-                $officer = DB::table('officers')
-                    ->where('polres_id', '=', $polres)
-                    ->get();
-                break;
-            case 3:
-                /*$polres = TranslateIdHelper::getTranslatePoliceResorId(
-                    regionalId: Auth::user()->police_id,
-                    resorId: $polres
-                );*/
-
-                $officer = DB::table('officers')
-                    ->where('polres_id', '=', $polres)
-                    ->get();
-                break;
-            case 4:
-                /*$polres = TranslateIdHelper::getTranslatePoliceResorId(
-                    regionalId: Auth::user()->police_id,
-                    resorId: $polres
-                );*/
-
-                $officer = DB::table('officers')
-                    ->where('polres_id', '=', $polres)
-                    ->get();
-                break;
-            default:
-                $officer = DB::table('officers')
-                    ->where('polres_id', '=', $polres)
-                    ->get();
-        }
-        $springas_officer = DB::select('select * from legacy.officer_springas left join legacy.springas on legacy.officer_springas.sprint_gas_id = legacy.springas.id left join officers on legacy.officer_springas.officer_id = officers.id where legacy.springas.accident_id = \'' . $get_accident . '\' ');
+        $springas_officer = DB::select('select * from legacy.officer_springas left join legacy.springas on legacy.officer_springas.sprint_gas_id = legacy.springas.id left join officers on legacy.officer_springas.officer_id = officers.id where legacy.springas.accident_id = ?', [$get_accident]);
 
         //kategori 1
         $penandatangan = AuthorizedSignatory::select('*', DB::raw("CONCAT(first_title, ' ', first_name, ' ', last_name, ', ', last_title) AS full_name"))
@@ -999,159 +929,89 @@ class AccidentController extends Controller
             ->get();
 
         //kategori 1
-        $surat_perintah_tugas = DB::select('select * from surat_tugas left join officers on surat_tugas.officer_id = officers.id where accident_id = \'' . $get_accident . '\' ');
-        $springas = DB::select('select * from legacy.springas where accident_id = \'' . $get_accident . '\' ');
-        $surat_perintah_penyelidikan = DB::select('select * from surat_penyelidikan left join officers on surat_penyelidikan.officer_id = officers.id where accident_id = \'' . $get_accident . '\' ');
-        // $surat_perintah_penyidikan = DB::select('select * from accident_dtl where accident_id = \''.$get_accident.'\' and category_id = \'SP0102\' and state = \'1\'');
-        $surat_perintah_penyidikan = DB::select('select * from surat_penyidikan left join officers on surat_penyidikan.officer_id = officers.id where accident_id = \'' . $get_accident . '\' ');
+        $surat_perintah_tugas = DB::select('select * from surat_tugas left join officers on surat_tugas.officer_id = officers.id where accident_id = ?', [$get_accident]);
+        $springas = DB::select('select * from legacy.springas where accident_id = ?', [$get_accident]);
+        $surat_perintah_penyelidikan = DB::select('select * from surat_penyelidikan left join officers on surat_penyelidikan.officer_id = officers.id where accident_id = ?', [$get_accident]);
+        $surat_perintah_penyidikan = DB::select('select * from surat_penyidikan left join officers on surat_penyidikan.officer_id = officers.id where accident_id = ?', [$get_accident]);
         $sprindik = Sprindik::where('accident_id', $get_accident)->first();
         $sprinlidik = Sprinlidik::where('accident_id', $get_accident)->first();
-        //$surat_spdp =DB::select('select * from surat_spdp left join accidents on surat_spdp.accident_id = accidents.id where accidents.id = \''.$get_accident.'\' ');
-        $spdp = DB::select('select * from spdpp left join accidents on spdpp.accident_id = accidents.id where accidents.id = \'' . $get_accident . '\' ');
-        $spdp_upload = DB::select('select * from spdp_upload left join accidents on spdp_upload.accident_id = accidents.id where accidents.id = \'' . $get_accident . '\' ');
+        $spdp = DB::select('select * from spdpp left join accidents on spdpp.accident_id = accidents.id where accidents.id = ?', [$get_accident]);
+        $spdp_upload = DB::select('select * from spdp_upload left join accidents on spdp_upload.accident_id = accidents.id where accidents.id = ?', [$get_accident]);
         $spdik = DB::table('doc.surat_perintah_penyidikan_documents')->select('id', 'document_number', 'document_date')->where('accident_id', $get_accident)->first();
-        $spgas = DB::table('legacy.springas')->select('id')->where('accident_id', $get_accident)->first();
-        $lhgp = DB::select('select * from lhgp where accident_id = \'' . $get_accident . '\' ');
-        // $pengadilan =DB::table('courts')->select('id', 'name')->get();
-        // $kejaksaan =DB::table('prosecutors')->select('id', 'name')->get();
+        $spgas = !empty($springas) ? (object) ['id' => $springas[0]->id] : null;
+        $lhgp = DB::select('select * from lhgp where accident_id = ?', [$get_accident]);
         $polresjaksa = Polres::where('id', $polres)->first();
-        $jaksa = Prosecutor::where('polda_id', $polresjaksa->polda_id)->get();
-        $pengadilan = Court::where('polda_id', $polresjaksa->polda_id)->get();
+        $jaksa = $polresjaksa ? Prosecutor::where('polda_id', $polresjaksa->polda_id)->get() : collect();
+        $pengadilan = $polresjaksa ? Court::where('polda_id', $polresjaksa->polda_id)->get() : collect();
 
-        $pejabat = DB::table('authorized_signatories')->where('polres_id', $polres)->get();
+        $pejabat = $penandatangan;
         $suspects = DB::table('suspects')->select('id', 'name')->where('accident_id', $get_accident)->first();
-        // $officer = DB::table('officers')->where('polres_id', $accident[0]->polres_id)->where('sebagai_kepala', '!=', '-')->get();
-        $surat_berkas = DB::select('select * from accident_dtl where accident_id = \'' . $get_accident . '\' and category_id =  \'SP0103\' and state = \'1\'');
-        $LaporanPolisi = DB::select("select * from laporan_polisi where accident_id = '$get_accident'");
-        $BAPenangkapanTKP = DB::select("select * from ba_pengangkapan_tkp where accident_id = '$get_accident'");
-        $BAPemotretan = DB::select("select * from ba_pemotretan where accident_id = '$get_accident'");
-        $BAPengambilanDarah = DB::select("select * from ba_pengambilan_darah where accident_id = '$get_accident'");
-        $laporan_hasil_penyelidikan = DB::select("select * from laporan_hasil_penyelidikan where accident_id = '$get_accident'");
-        $BAIntrogasi = DB::select("select * from ba_introgasi where accident_id = '$get_accident'");
-        $SpdpUpload = DB::select("select * from spdp_upload where accident_id = '$get_accident'");
-        $Sddl = DB::select("select * from suspect_determination_decision_letters where accident_id = '$get_accident'");
+        $surat_berkas = DB::select('select * from accident_dtl where accident_id = ? and category_id = \'SP0103\' and state = \'1\'', [$get_accident]);
+        $LaporanPolisi = DB::select('select * from laporan_polisi where accident_id = ?', [$get_accident]);
+        $BAPenangkapanTKP = DB::select('select * from ba_pengangkapan_tkp where accident_id = ?', [$get_accident]);
+        $BAPemotretan = DB::select('select * from ba_pemotretan where accident_id = ?', [$get_accident]);
+        $BAPengambilanDarah = DB::select('select * from ba_pengambilan_darah where accident_id = ?', [$get_accident]);
+        $laporan_hasil_penyelidikan = DB::select('select * from laporan_hasil_penyelidikan where accident_id = ?', [$get_accident]);
+        $BAIntrogasi = DB::select('select * from ba_introgasi where accident_id = ?', [$get_accident]);
+        $SpdpUpload = DB::select('select * from spdp_upload where accident_id = ?', [$get_accident]);
+        $Sddl = DB::select('select * from suspect_determination_decision_letters where accident_id = ?', [$get_accident]);
         //total surat ketegori 1
-        $DocLaporanPolisi = DB::table("laporan_polisi")->where("accident_id", "=", "$get_accident")->count();
-        $DocBAPenangkapanTKP = DB::table("ba_pengangkapan_tkp")->where("accident_id", "=", $get_accident)->count();
-        $DocPemotretan = DB::table("ba_pemotretan")->where("accident_id", "=", $get_accident)->count();
-        $DocBAPengambilanDarah = DB::table("ba_pengambilan_darah")->where("accident_id", "=", $get_accident)->count();
-        $Doclaporan_hasil_penyelidikan = DB::table("laporan_hasil_penyelidikan")->where("accident_id", "=", $get_accident)->count();
-        $DocBAIntrogasi = DB::table("ba_introgasi")->where("accident_id", "=", $get_accident)->count();
+        $DocLaporanPolisi = count($LaporanPolisi);
+        $DocBAPenangkapanTKP = count($BAPenangkapanTKP);
+        $DocPemotretan = count($BAPemotretan);
+        $DocBAPengambilanDarah = count($BAPengambilanDarah);
+        $Doclaporan_hasil_penyelidikan = count($laporan_hasil_penyelidikan);
+        $DocBAIntrogasi = count($BAIntrogasi);
 
-        $DocSuratTugas1 = DB::select(
-            "select
-        (case when accident_id='$get_accident' then 1 end) as total
-        from legacy.springas
-        group by accident_id = '$get_accident'"
-        );
-        $DocSuratTugas2 = DB::select(
-            "select
-        (case when accident_id='$get_accident' then 1 end) as total
-        from legacy.investigation_warrants
-        group by accident_id = '$get_accident'"
-        );
-        $DocSuratTugas3 = DB::select(
-            "select
-        (case when accident_id='$get_accident' then 1 end) as total
-        from legacy.investigation_order_letters
-        group by accident_id = '$get_accident'"
-        );
-        // $DocSuratTugas4 = DB::table("surat_spdp")->where("accident_id","=","$get_accident")->count();
-        $DocSuratTugas4 = DB::table("spdpp")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratTugas5 = DB::table("lhgp")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratTugas6 = DB::table("suspect_determination_decision_letters")->where("accident_id", "=", "$get_accident")->count();
+        $TotalSuratTugas1 = !empty($springas) ? '1' : '0';
+        $TotalSuratTugas2 = DB::table('legacy.investigation_warrants')->where('accident_id', $get_accident)->exists() ? '1' : '0';
+        $TotalSuratTugas3 = DB::table('legacy.investigation_order_letters')->where('accident_id', $get_accident)->exists() ? '1' : '0';
+        $DocSuratTugas4 = count($spdp);
+        $DocSuratTugas5 = count($lhgp);
+        $DocSuratTugas6 = count($Sddl);
+        $TotalSp2hp = DB::table('sp2hp')->where('accident_id', $get_accident)->exists() ? '1' : '0';
 
-        $DocSp2hp = DB::select("
-        select
-        (case when accident_id='$get_accident' then 1 end) as total
-        from sp2hp
-        group by accident_id = '$get_accident'");
-        if ($DocSuratTugas1 == []) {
-            $TotalSuratTugas1 = "0";
-        } else {
-            $TotalSuratTugas1 = json_encode(end($DocSuratTugas1)->total);
-        }
-
-        if ($DocSuratTugas2 == []) {
-            $TotalSuratTugas2 = "0";
-        } else {
-            $TotalSuratTugas2 = json_encode(end($DocSuratTugas2)->total);
-        }
-
-        if ($DocSuratTugas3 == []) {
-            $TotalSuratTugas3 = "0";
-        } else {
-            $TotalSuratTugas3 = json_encode(end($DocSuratTugas3)->total);
-        }
-
-        if ($DocSp2hp == []) {
-            $TotalSp2hp = "0";
-        } else {
-            $TotalSp2hp = json_encode(end($DocSp2hp)->total);
-        }
         $TotalKategori1 = round((((int)$TotalSuratTugas1 + (int)$TotalSuratTugas2 + (int)$TotalSuratTugas3 + $DocSuratTugas4 + (int)$TotalSp2hp + (int)$DocLaporanPolisi + (int)$DocBAPenangkapanTKP + (int)$DocPemotretan + (int)$DocSuratTugas5 + (int)$DocSuratTugas6 + $DocBAPengambilanDarah + $Doclaporan_hasil_penyelidikan + $DocBAIntrogasi) / 13) * 100);
 
         //kategori 2
-        $daftar_saksi = DB::select('select * from daftar_saksi where accident_id = \'' . $get_accident . '\'');
-        $surat_perintah_membawa_saksi = DB::select('select * from surat_perintah_membawa_saksi where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_membawa_saksi = DB::select('select * from berita_acara_membawa_saksi where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_penyumpahan_saksi = DB::select('select * from berita_acara_penyumpahan_saksi where accident_id = \'' . $get_accident . '\'');
-        $berita_pemeriksaan_saksi = DB::select('select * from berita_pemeriksaan_saksi where accident_id = \'' . $get_accident . '\'');
-        $berita_pemeriksaan_ahli = DB::select('select * from berita_pemeriksaan_ahli where accident_id = \'' . $get_accident . '\'');
+        $daftar_saksi = DB::select('select * from daftar_saksi where accident_id = ?', [$get_accident]);
+        $surat_perintah_membawa_saksi = DB::select('select * from surat_perintah_membawa_saksi where accident_id = ?', [$get_accident]);
+        $berita_acara_membawa_saksi = DB::select('select * from berita_acara_membawa_saksi where accident_id = ?', [$get_accident]);
+        $berita_acara_penyumpahan_saksi = DB::select('select * from berita_acara_penyumpahan_saksi where accident_id = ?', [$get_accident]);
+        $berita_pemeriksaan_saksi = DB::select('select * from berita_pemeriksaan_saksi where accident_id = ?', [$get_accident]);
+        $berita_pemeriksaan_ahli = DB::select('select * from berita_pemeriksaan_ahli where accident_id = ?', [$get_accident]);
 
         //total kategori 2
-        $DocSuratSaksi1 = DB::table("surat_perintah_membawa_saksi")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratSaksi2 = DB::table("berita_acara_membawa_saksi")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratSaksi3 = DB::table("berita_acara_penyumpahan_saksi")->where("accident_id", "=", "$get_accident")->count();
-        $DocSaksi = DB::select("
-        select
-            ( case when accident_id='$get_accident' then 1 else 0 end) as total
-        from daftar_saksi
-        group by accident_id = '$get_accident'");
-        if ($DocSaksi == []) {
-            $ArrayDocSaksi = "0";
-        } else {
-            $ArrayDocSaksi = json_encode(end($DocSaksi)->total);
-        }
-        $DocSuratSaksi5 = DB::table("berita_pemeriksaan_saksi")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratSaksi6 = DB::table("berita_pemeriksaan_ahli")->where("accident_id", "=", "$get_accident")->count();
+        $DocSuratSaksi1 = count($surat_perintah_membawa_saksi);
+        $DocSuratSaksi2 = count($berita_acara_membawa_saksi);
+        $DocSuratSaksi3 = count($berita_acara_penyumpahan_saksi);
+        $ArrayDocSaksi = !empty($daftar_saksi) ? '1' : '0';
+        $DocSuratSaksi5 = count($berita_pemeriksaan_saksi);
+        $DocSuratSaksi6 = count($berita_pemeriksaan_ahli);
 
         $TotalKategori2 = ($DocSuratSaksi1 + $DocSuratSaksi2 + $DocSuratSaksi3 + (int)$ArrayDocSaksi + $DocSuratSaksi5 + $DocSuratSaksi6) / 6 * 100;
 
 
         //kategori 3
-        $daftar_tersangka = DB::select('select * from daftar_tersangka where accident_id = \'' . $get_accident . '\'');
-        $surat_panggilan_tersangka = DB::select('select * from surat_panggilan_tersangka where accident_id = \'' . $get_accident . '\'');
-        // $surat_perintah_penangkapan = DB::select('select * from surat_perintah_penangkapan where accident_id = \''.$get_accident.'\'');
-        $berita_acara_pemeriksaan_tersangka = DB::select('select * from berita_acara_pemeriksaan_tersangka where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_konfrontasi = DB::select('select * from berita_acara_konfrontasi where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_rekonstruksi = DB::select('select * from berita_acara_rekonstruksi where accident_id = \'' . $get_accident . '\'');
-        $sket_tkp = DB::select('select * from sket_tkp where accident_id = \'' . $get_accident . '\'');
-        $surat_bantuan_penangkapan = DB::select('select * from surat_bantuan_penangkapan where accident_id = \'' . $get_accident . '\'');
-        $berita_penyerahan_tersangka = DB::select('select * from berita_penyerahan_tersangka where accident_id = \'' . $get_accident . '\'');
-        // $berita_pelepasan_tersangka = DB::select('select * from berita_pelepasan_tersangka where accident_id = \''.$get_accident.'\'');
+        $daftar_tersangka = DB::select('select * from daftar_tersangka where accident_id = ?', [$get_accident]);
+        $surat_panggilan_tersangka = DB::select('select * from surat_panggilan_tersangka where accident_id = ?', [$get_accident]);
+        $berita_acara_pemeriksaan_tersangka = DB::select('select * from berita_acara_pemeriksaan_tersangka where accident_id = ?', [$get_accident]);
+        $berita_acara_konfrontasi = DB::select('select * from berita_acara_konfrontasi where accident_id = ?', [$get_accident]);
+        $berita_acara_rekonstruksi = DB::select('select * from berita_acara_rekonstruksi where accident_id = ?', [$get_accident]);
+        $sket_tkp = DB::select('select * from sket_tkp where accident_id = ?', [$get_accident]);
+        $surat_bantuan_penangkapan = DB::select('select * from surat_bantuan_penangkapan where accident_id = ?', [$get_accident]);
+        $berita_penyerahan_tersangka = DB::select('select * from berita_penyerahan_tersangka where accident_id = ?', [$get_accident]);
 
         //total kategori 3
-        $DocTersangka1 = DB::select("
-        select
-        ( (case when accident_id = '$get_accident' then 1 else 0 end) ) as total
-        from daftar_tersangka
-        group by accident_id='$get_accident'");
-        $DocSuratTersangka2 = DB::table("surat_panggilan_tersangka")->where("accident_id", "=", "$get_accident")->count();
-        // $DocSuratTersangka3 = DB::table("surat_perintah_penangkapan")->where("accident_id","=","$get_accident")->count();
-        $DocSuratTersangka4 = DB::table("berita_acara_pemeriksaan_tersangka")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratTersangka5 = DB::table("berita_acara_konfrontasi")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratTersangka6 = DB::table("berita_acara_rekonstruksi")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratTersangka7 = DB::table("sket_tkp")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratTersangka8 = DB::table("surat_bantuan_penangkapan")->where("accident_id", "=", "$get_accident")->count();
-        $DocSuratTersangka9 = DB::table("berita_penyerahan_tersangka")->where("accident_id", "=", "$get_accident")->count();
-        // $DocSuratTersangka10 = DB::table("berita_pelepasan_tersangka")->where("accident_id","=","$get_accident")->count();
+        $ArrayDocTersangka1 = !empty($daftar_tersangka) ? '1' : '0';
+        $DocSuratTersangka2 = count($surat_panggilan_tersangka);
+        $DocSuratTersangka4 = count($berita_acara_pemeriksaan_tersangka);
+        $DocSuratTersangka5 = count($berita_acara_konfrontasi);
+        $DocSuratTersangka6 = count($berita_acara_rekonstruksi);
+        $DocSuratTersangka7 = count($sket_tkp);
+        $DocSuratTersangka8 = count($surat_bantuan_penangkapan);
+        $DocSuratTersangka9 = count($berita_penyerahan_tersangka);
 
-        if ($DocTersangka1 == []) {
-            $ArrayDocTersangka1 = "0";
-        } else {
-            $ArrayDocTersangka1 = json_encode(end($DocTersangka1)->total);
-        }
         $TotalKategori3 = (
             (int)$ArrayDocTersangka1 + $DocSuratTersangka2 +
             $DocSuratTersangka4 + $DocSuratTersangka5 + $DocSuratTersangka6 + $DocSuratTersangka7 +
@@ -1160,32 +1020,32 @@ class AccidentController extends Controller
 
 
         //kategori 4
-        $surat_perintah_penahanan = DB::select('select * from surat_perintah_penahanan where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_penahanan = DB::select('select * from berita_acara_penahanan where accident_id = \'' . $get_accident . '\'');
-        $permintaan_perpanjangan_penahanan = DB::select('select * from permintaan_perpanjangan_penahanan where accident_id = \'' . $get_accident . '\'');
-        $berita_penahanan_lanjutan = DB::select('select * from berita_penahanan_lanjutan where accident_id = \'' . $get_accident . '\'');
-        $berita_pencabutan_pembatalan_penahanan = DB::select('select * from berita_pencabutan_pembatalan_penahanan where accident_id = \'' . $get_accident . '\'');
-        $berita_pengeluaran_penahanan = DB::select('select * from berita_pengeluaran_penahanan where accident_id = \'' . $get_accident . '\'');
-        $surat_pembatalan_penahanan = DB::select('select * from surat_pembatalan_penahanan where accident_id = \'' . $get_accident . '\'');
-        $surat_penahanan_lanjutan = DB::select('select * from surat_penahanan_lanjutan where accident_id = \'' . $get_accident . '\'');
-        $surat_pencabutan_pembatalan_penahanan = DB::select('select * from surat_pencabutan_pembatalan_penahanan where accident_id = \'' . $get_accident . '\'');
-        $surat_perpanjangan_penahanan = DB::select('select * from surat_perpanjangan_penahanan where accident_id = \'' . $get_accident . '\'');
-        $surat_pengiriman_berkas_perkara = DB::select('select * from surat_pengiriman_berkas_perkara where accident_id = \'' . $get_accident . '\'');
-        $tanda_terima_berkas_perkara = DB::select('select * from tanda_terima_berkas_perkara where accident_id = \'' . $get_accident . '\'');
+        $surat_perintah_penahanan = DB::select('select * from surat_perintah_penahanan where accident_id = ?', [$get_accident]);
+        $berita_acara_penahanan = DB::select('select * from berita_acara_penahanan where accident_id = ?', [$get_accident]);
+        $permintaan_perpanjangan_penahanan = DB::select('select * from permintaan_perpanjangan_penahanan where accident_id = ?', [$get_accident]);
+        $berita_penahanan_lanjutan = DB::select('select * from berita_penahanan_lanjutan where accident_id = ?', [$get_accident]);
+        $berita_pencabutan_pembatalan_penahanan = DB::select('select * from berita_pencabutan_pembatalan_penahanan where accident_id = ?', [$get_accident]);
+        $berita_pengeluaran_penahanan = DB::select('select * from berita_pengeluaran_penahanan where accident_id = ?', [$get_accident]);
+        $surat_pembatalan_penahanan = DB::select('select * from surat_pembatalan_penahanan where accident_id = ?', [$get_accident]);
+        $surat_penahanan_lanjutan = DB::select('select * from surat_penahanan_lanjutan where accident_id = ?', [$get_accident]);
+        $surat_pencabutan_pembatalan_penahanan = DB::select('select * from surat_pencabutan_pembatalan_penahanan where accident_id = ?', [$get_accident]);
+        $surat_perpanjangan_penahanan = DB::select('select * from surat_perpanjangan_penahanan where accident_id = ?', [$get_accident]);
+        $surat_pengiriman_berkas_perkara = DB::select('select * from surat_pengiriman_berkas_perkara where accident_id = ?', [$get_accident]);
+        $tanda_terima_berkas_perkara = DB::select('select * from tanda_terima_berkas_perkara where accident_id = ?', [$get_accident]);
 
         // total kategori 4
-        $DocPenahanan1 = DB::table("surat_perintah_penahanan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan2 = DB::table("berita_acara_penahanan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan3 = DB::table("permintaan_perpanjangan_penahanan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan4 = DB::table("berita_penahanan_lanjutan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan5 = DB::table("berita_pencabutan_pembatalan_penahanan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan6 = DB::table("berita_pengeluaran_penahanan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan7 = DB::table("surat_pembatalan_penahanan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan8 = DB::table("surat_penahanan_lanjutan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan9 = DB::table("surat_pencabutan_pembatalan_penahanan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan10 = DB::table("surat_perpanjangan_penahanan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan11 = DB::table("surat_pengiriman_berkas_perkara")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenahanan12 = DB::table("tanda_terima_berkas_perkara")->where("accident_id", "=", "$get_accident")->count();
+        $DocPenahanan1 = count($surat_perintah_penahanan);
+        $DocPenahanan2 = count($berita_acara_penahanan);
+        $DocPenahanan3 = count($permintaan_perpanjangan_penahanan);
+        $DocPenahanan4 = count($berita_penahanan_lanjutan);
+        $DocPenahanan5 = count($berita_pencabutan_pembatalan_penahanan);
+        $DocPenahanan6 = count($berita_pengeluaran_penahanan);
+        $DocPenahanan7 = count($surat_pembatalan_penahanan);
+        $DocPenahanan8 = count($surat_penahanan_lanjutan);
+        $DocPenahanan9 = count($surat_pencabutan_pembatalan_penahanan);
+        $DocPenahanan10 = count($surat_perpanjangan_penahanan);
+        $DocPenahanan11 = count($surat_pengiriman_berkas_perkara);
+        $DocPenahanan12 = count($tanda_terima_berkas_perkara);
 
         $TotalKategori4 = round((
             ($DocPenahanan1 + $DocPenahanan2 + $DocPenahanan3 + $DocPenahanan4 + $DocPenahanan5 +
@@ -1193,71 +1053,51 @@ class AccidentController extends Controller
                 $DocPenahanan11 + $DocPenahanan12) / 12) * 100);
 
         //kategori 5
-        $surat_izin_penggeledahan = DB::select('select * from surat_izin_penggeledahan where accident_id = \'' . $get_accident . '\'');
-        $surat_perintah_penggeledahan = DB::select('select * from surat_perintah_penggeledahan where accident_id = \'' . $get_accident . '\'');
-        $surat_persetujuan_penggeledahan = DB::select('select * from surat_persetujuan_penggeledahan where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_penggeledahan = DB::select('select * from berita_acara_penggeledahan where accident_id = \'' . $get_accident . '\'');
+        $surat_izin_penggeledahan = DB::select('select * from surat_izin_penggeledahan where accident_id = ?', [$get_accident]);
+        $surat_perintah_penggeledahan = DB::select('select * from surat_perintah_penggeledahan where accident_id = ?', [$get_accident]);
+        $surat_persetujuan_penggeledahan = DB::select('select * from surat_persetujuan_penggeledahan where accident_id = ?', [$get_accident]);
+        $berita_acara_penggeledahan = DB::select('select * from berita_acara_penggeledahan where accident_id = ?', [$get_accident]);
 
         //total ketegori 5
-        $DocPenggeledahan1 = DB::table("surat_izin_penggeledahan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenggeledahan2 = DB::table("surat_perintah_penggeledahan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenggeledahan3 = DB::table("surat_persetujuan_penggeledahan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenggeledahan4 = DB::table("berita_acara_penggeledahan")->where("accident_id", "=", "$get_accident")->count();
+        $DocPenggeledahan1 = count($surat_izin_penggeledahan);
+        $DocPenggeledahan2 = count($surat_perintah_penggeledahan);
+        $DocPenggeledahan3 = count($surat_persetujuan_penggeledahan);
+        $DocPenggeledahan4 = count($berita_acara_penggeledahan);
         $TotalKategori5 = ((($DocPenggeledahan1 + $DocPenggeledahan2 + $DocPenggeledahan3 + $DocPenggeledahan4) / 4) * 100);
 
         //kategori 6
         $surat_permintaan_izin_penyitaan_document = \App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument::where('accident_id', $get_accident)->first();
-        $surat_izin_penyitaan = DB::select('select * from surat_izin_penyitaan where accident_id = \'' . $get_accident . '\'');
-        $surat_persetujuan_penyitaan = DB::select('select * from surat_persetujuan_penyitaan where accident_id = \'' . $get_accident . '\'');
-        $daftar_barang_bukti = DB::select('select * from daftar_barang_bukti where accident_id = \'' . $get_accident . '\'');
-        $surat_penyitaan = DB::select('select * from surat_penyitaan left join officers on surat_penyitaan.officer_id = officers.id where accident_id = \'' . $get_accident . '\' ');
-        $berita_acara_penyitaan = DB::select('select * from berita_acara_penyitaan where accident_id = \'' . $get_accident . '\'');
-        $surat_pengiriman_berkas_perkara = DB::select('select * from surat_pengiriman_berkas_perkara where accident_id = \'' . $get_accident . '\'');
-        $tanda_terima_berkas_perkara = DB::select('select * from tanda_terima_berkas_perkara where accident_id = \'' . $get_accident . '\'');
-        $surat_pengiriman_tersangka_barang_bukti = DB::select('select * from surat_pengiriman_tersangka_barang_bukti where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_serah_terima_tersangka = DB::select('select * from berita_acara_serah_terima_tersangka where accident_id = \'' . $get_accident . '\'');
-        $surat_bantuan_penyelidikan = DB::select('select * from surat_bantuan_penyelidikan where accident_id = \'' . $get_accident . '\'');
-        $surat_pentitipan_barang = DB::select('select * from surat_pentitipan_barang where accident_id = \'' . $get_accident . '\'');
-        $surat_pengembalian_sitaan = DB::select('select * from surat_pengembalian_sitaan where accident_id = \'' . $get_accident . '\'');
-        $berita_penitipan_barang = DB::select('select * from berita_penitipan_barang where accident_id = \'' . $get_accident . '\'');
-        $berita_pengembalian_sitaan = DB::select('select * from berita_pengembalian_sitaan where accident_id = \'' . $get_accident . '\'');
-        $ketetapan_ijin_penyitaan = DB::select('select * from ketetapan_ijin_penyitaan where accident_id = \'' . $get_accident . '\'');
-        $ketetapan_persetujuan_penyitaan = DB::select('select * from ketetapan_persetujuan_penyitaan where accident_id = \'' . $get_accident . '\'');
-        $surat_tanda_penerimaan = DB::select('select * from surat_tanda_penerimaan where accident_id = \'' . $get_accident . '\'');
-        $surat_pengantar = DB::select('select * from surat_pengantar where accident_id = \'' . $get_accident . '\'');
-        $berita_penyerahan_berkas = DB::select('select * from berita_penyerahan_berkas where accident_id = \'' . $get_accident . '\'');
-        $laporan_gelar_perkara = DB::select('select * from laporan_gelar_perkara where accident_id = \'' . $get_accident . '\'');
-        $laporan_perkara_khusus = DB::select('select * from laporan_perkara_khusus where accident_id = \'' . $get_accident . '\'');
+        $surat_izin_penyitaan = DB::select('select * from surat_izin_penyitaan where accident_id = ?', [$get_accident]);
+        $surat_persetujuan_penyitaan = DB::select('select * from surat_persetujuan_penyitaan where accident_id = ?', [$get_accident]);
+        $daftar_barang_bukti = DB::select('select * from daftar_barang_bukti where accident_id = ?', [$get_accident]);
+        $surat_penyitaan = DB::select('select * from surat_penyitaan left join officers on surat_penyitaan.officer_id = officers.id where accident_id = ?', [$get_accident]);
+        $berita_acara_penyitaan = DB::select('select * from berita_acara_penyitaan where accident_id = ?', [$get_accident]);
+        $surat_pengiriman_tersangka_barang_bukti = DB::select('select * from surat_pengiriman_tersangka_barang_bukti where accident_id = ?', [$get_accident]);
+        $berita_acara_serah_terima_tersangka = DB::select('select * from berita_acara_serah_terima_tersangka where accident_id = ?', [$get_accident]);
+        $surat_bantuan_penyelidikan = DB::select('select * from surat_bantuan_penyelidikan where accident_id = ?', [$get_accident]);
+        $surat_pentitipan_barang = DB::select('select * from surat_pentitipan_barang where accident_id = ?', [$get_accident]);
+        $surat_pengembalian_sitaan = DB::select('select * from surat_pengembalian_sitaan where accident_id = ?', [$get_accident]);
+        $berita_penitipan_barang = DB::select('select * from berita_penitipan_barang where accident_id = ?', [$get_accident]);
+        $berita_pengembalian_sitaan = DB::select('select * from berita_pengembalian_sitaan where accident_id = ?', [$get_accident]);
+        $ketetapan_ijin_penyitaan = DB::select('select * from ketetapan_ijin_penyitaan where accident_id = ?', [$get_accident]);
+        $ketetapan_persetujuan_penyitaan = DB::select('select * from ketetapan_persetujuan_penyitaan where accident_id = ?', [$get_accident]);
+        $surat_tanda_penerimaan = DB::select('select * from surat_tanda_penerimaan where accident_id = ?', [$get_accident]);
+        $surat_pengantar = DB::select('select * from surat_pengantar where accident_id = ?', [$get_accident]);
+        $berita_penyerahan_berkas = DB::select('select * from berita_penyerahan_berkas where accident_id = ?', [$get_accident]);
+        $laporan_gelar_perkara = DB::select('select * from laporan_gelar_perkara where accident_id = ?', [$get_accident]);
+        $laporan_perkara_khusus = DB::select('select * from laporan_perkara_khusus where accident_id = ?', [$get_accident]);
 
         //total ketegori 6
-        $DocPenyitaan1 = DB::table("surat_izin_penyitaan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenyitaan2 = DB::table("surat_persetujuan_penyitaan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenyitaan3 = DB::select("
-                        select
-                        ( (case when accident_id = '$get_accident' then 1 else 0 end) ) as total
-                        from daftar_barang_bukti
-                        group by accident_id='$get_accident'");
-        if ($DocPenyitaan3 == []) {
-            $ArrayDocPenyitaan3 = "0";
-        } else {
-            $ArrayDocPenyitaan3 = json_encode(end($DocPenyitaan3)->total);
-        }
-        $DocPenyitaan4 = DB::select("
-                        select
-                        ( (case when accident_id = '$get_accident' then 1 else 0 end) ) as total
-                        from surat_penyitaan
-                        group by accident_id='$get_accident'");
-        if ($DocPenyitaan4 == []) {
-            $ArrayDocPenyitaan4 = "0";
-        } else {
-            $ArrayDocPenyitaan4 = json_encode(end($DocPenyitaan4)->total);
-        }
-        $DocPenyitaan5 = DB::table("berita_acara_penyitaan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenyitaan6 = DB::table("surat_pengiriman_berkas_perkara")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenyitaan7 = DB::table("tanda_terima_berkas_perkara")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenyitaan8 = DB::table("surat_pengiriman_tersangka_barang_bukti")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenyitaan9 = DB::table("berita_acara_serah_terima_tersangka")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenyitaan10 = DB::table("surat_bantuan_penyelidikan")->where("accident_id", "=", "$get_accident")->count();
+        $DocPenyitaan1 = count($surat_izin_penyitaan);
+        $DocPenyitaan2 = count($surat_persetujuan_penyitaan);
+        $ArrayDocPenyitaan3 = !empty($daftar_barang_bukti) ? '1' : '0';
+        $ArrayDocPenyitaan4 = !empty($surat_penyitaan) ? '1' : '0';
+        $DocPenyitaan5 = count($berita_acara_penyitaan);
+        $DocPenyitaan6 = count($surat_pengiriman_berkas_perkara);
+        $DocPenyitaan7 = count($tanda_terima_berkas_perkara);
+        $DocPenyitaan8 = count($surat_pengiriman_tersangka_barang_bukti);
+        $DocPenyitaan9 = count($berita_acara_serah_terima_tersangka);
+        $DocPenyitaan10 = count($surat_bantuan_penyelidikan);
         $TotalKategori6 = (
             (
                 $DocPenyitaan1 + $DocPenyitaan2 + (int)$ArrayDocPenyitaan3 + (int)$ArrayDocPenyitaan4 + $DocPenyitaan5 +
@@ -1266,125 +1106,98 @@ class AccidentController extends Controller
 
 
         //kategori 7
-        $surat_persetujuan_penyegelan = DB::select('select * from surat_persetujuan_penyegelan where accident_id = \'' . $get_accident . '\'');
-        $surat_penyegelan = DB::select('select * from surat_penyegelan left join officers on surat_penyegelan.officer_id = officers.id where accident_id = \'' . $get_accident . '\' ');
-        $berita_acara_penyegelan = DB::select('select * from berita_acara_penyegelan where accident_id = \'' . $get_accident . '\'');
+        $surat_persetujuan_penyegelan = DB::select('select * from surat_persetujuan_penyegelan where accident_id = ?', [$get_accident]);
+        $surat_penyegelan = DB::select('select * from surat_penyegelan left join officers on surat_penyegelan.officer_id = officers.id where accident_id = ?', [$get_accident]);
+        $berita_acara_penyegelan = DB::select('select * from berita_acara_penyegelan where accident_id = ?', [$get_accident]);
 
         //total ketegori 7
-        $DocPenyegelan1 = DB::table("surat_persetujuan_penyegelan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenyegelan2 = DB::select("
-            select
-            ( (case when accident_id = '$get_accident' then 1 else 0 end) ) as total
-            from surat_penyegelan
-            group by accident_id='$get_accident'");
-        if ($DocPenyegelan2 == []) {
-            $ArrayDocPenyegelan2 = "0";
-        } else {
-            $ArrayDocPenyegelan2 = json_encode(end($DocPenyegelan2)->total);
-        }
-        $DocPenyegelan3 = DB::table("berita_acara_penyegelan")->where("accident_id", "=", "$get_accident")->count();
+        $DocPenyegelan1 = count($surat_persetujuan_penyegelan);
+        $ArrayDocPenyegelan2 = !empty($surat_penyegelan) ? '1' : '0';
+        $DocPenyegelan3 = count($berita_acara_penyegelan);
         $TotalKategori7 = round(($DocPenyegelan1 + (int)$ArrayDocPenyegelan2 + $DocPenyegelan3) / 3 * 100);
         //kategori 8
 
-        $surat_permintaan_bantuan_labfor = DB::select('select * from surat_permintaan_bantuan_labfor where accident_id = \'' . $get_accident . '\'');
-        $surat_hasil_pemeriksaan_labfor = DB::select('select * from surat_hasil_pemeriksaan_labfor where accident_id = \'' . $get_accident . '\'');
-        $surat_permintaan_bantuan_identifikasi = DB::select('select * from surat_permintaan_bantuan_identifikasi where accident_id = \'' . $get_accident . '\'');
-        $surat_hasil_pemeriksaan_identifikasi = DB::select('select * from surat_hasil_pemeriksaan_identifikasi where accident_id = \'' . $get_accident . '\'');
-        $ketetapan_khusus_surat = DB::select('select * from ketetapan_khusus_surat where accident_id = \'' . $get_accident . '\'');
-        $perintah_pemeriksaan_surat = DB::select('select * from perintah_pemeriksaan_surat where accident_id = \'' . $get_accident . '\'');
-        $berita_pemeriksaan_surat = DB::select('select * from berita_pemeriksaan_surat where accident_id = \'' . $get_accident . '\'');
+        $surat_permintaan_bantuan_labfor = DB::select('select * from surat_permintaan_bantuan_labfor where accident_id = ?', [$get_accident]);
+        $surat_hasil_pemeriksaan_labfor = DB::select('select * from surat_hasil_pemeriksaan_labfor where accident_id = ?', [$get_accident]);
+        $surat_permintaan_bantuan_identifikasi = DB::select('select * from surat_permintaan_bantuan_identifikasi where accident_id = ?', [$get_accident]);
+        $surat_hasil_pemeriksaan_identifikasi = DB::select('select * from surat_hasil_pemeriksaan_identifikasi where accident_id = ?', [$get_accident]);
+        $ketetapan_khusus_surat = DB::select('select * from ketetapan_khusus_surat where accident_id = ?', [$get_accident]);
+        $perintah_pemeriksaan_surat = DB::select('select * from perintah_pemeriksaan_surat where accident_id = ?', [$get_accident]);
+        $berita_pemeriksaan_surat = DB::select('select * from berita_pemeriksaan_surat where accident_id = ?', [$get_accident]);
 
         //total kategori 8
-        $DocPemeriksaan1 = DB::table("surat_permintaan_bantuan_labfor")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemeriksaan2 = DB::table("surat_hasil_pemeriksaan_labfor")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemeriksaan3 = DB::table("surat_permintaan_bantuan_identifikasi")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemeriksaan4 = DB::table("surat_hasil_pemeriksaan_identifikasi")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemeriksaan5 = DB::table("ketetapan_khusus_surat")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemeriksaan6 = DB::table("perintah_pemeriksaan_surat")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemeriksaan7 = DB::table("berita_pemeriksaan_surat")->where("accident_id", "=", "$get_accident")->count();
+        $DocPemeriksaan1 = count($surat_permintaan_bantuan_labfor);
+        $DocPemeriksaan2 = count($surat_hasil_pemeriksaan_labfor);
+        $DocPemeriksaan3 = count($surat_permintaan_bantuan_identifikasi);
+        $DocPemeriksaan4 = count($surat_hasil_pemeriksaan_identifikasi);
+        $DocPemeriksaan5 = count($ketetapan_khusus_surat);
+        $DocPemeriksaan6 = count($perintah_pemeriksaan_surat);
+        $DocPemeriksaan7 = count($berita_pemeriksaan_surat);
         $TotalKategori8 = round(($DocPemeriksaan1 + $DocPemeriksaan2 + $DocPemeriksaan3 + $DocPemeriksaan4 +
             $DocPemeriksaan5 + $DocPemeriksaan6 + $DocPemeriksaan7) / 7 * 100);
 
 
         //kategori 9
-        $surat_blokir_rekening_bank = DB::select('select * from surat_blokir_rekening_bank where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_blokir_rekening_bank = DB::select('select * from berita_acara_blokir_rekening_bank where accident_id = \'' . $get_accident . '\'');
-        $surat_pembukaan_blokir_rekening_bank = DB::select('select * from surat_pembukaan_blokir_rekening_bank where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_pembukaan_blokir_rekening_bank = DB::select('select * from berita_acara_pembukaan_blokir_rekening_bank where accident_id = \'' . $get_accident . '\'');
+        $surat_blokir_rekening_bank = DB::select('select * from surat_blokir_rekening_bank where accident_id = ?', [$get_accident]);
+        $berita_acara_blokir_rekening_bank = DB::select('select * from berita_acara_blokir_rekening_bank where accident_id = ?', [$get_accident]);
+        $surat_pembukaan_blokir_rekening_bank = DB::select('select * from surat_pembukaan_blokir_rekening_bank where accident_id = ?', [$get_accident]);
+        $berita_acara_pembukaan_blokir_rekening_bank = DB::select('select * from berita_acara_pembukaan_blokir_rekening_bank where accident_id = ?', [$get_accident]);
 
         //total document kategori 9
-        $DocPemblokiran1 = DB::table("surat_blokir_rekening_bank")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemblokiran2 = DB::table("berita_acara_blokir_rekening_bank")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemblokiran3 = DB::table("surat_pembukaan_blokir_rekening_bank")->where("accident_id", "=", "$get_accident")->count();
-        $DocPemblokiran4 = DB::table("berita_acara_pembukaan_blokir_rekening_bank")->where("accident_id", "=", "$get_accident")->count();
+        $DocPemblokiran1 = count($surat_blokir_rekening_bank);
+        $DocPemblokiran2 = count($berita_acara_blokir_rekening_bank);
+        $DocPemblokiran3 = count($surat_pembukaan_blokir_rekening_bank);
+        $DocPemblokiran4 = count($berita_acara_pembukaan_blokir_rekening_bank);
         $TotalKategori9  = round(($DocPemblokiran1 + $DocPemblokiran2 + $DocPemblokiran3 + $DocPemblokiran4) / 4 * 100);
 
         //kategori 10
-        $dpo = DB::select('select * from dpo where accident_id = \'' . $get_accident . '\'');
-        $surat_pencabutan_tersangka = DB::select('select * from surat_pencabutan_tersangka where accident_id = \'' . $get_accident . '\'');
-        $surat_pencabutan_barang = DB::select('select * from surat_pencabutan_barang where accident_id = \'' . $get_accident . '\'');
+        $dpo = DB::select('select * from dpo where accident_id = ?', [$get_accident]);
+        $surat_pencabutan_tersangka = DB::select('select * from surat_pencabutan_tersangka where accident_id = ?', [$get_accident]);
+        $surat_pencabutan_barang = DB::select('select * from surat_pencabutan_barang where accident_id = ?', [$get_accident]);
 
         //total document kategori 10
-        $DocDpo1 = DB::select("
-            select
-            ( (case when accident_id = '$get_accident' then 1 else 0 end) ) as total
-            from dpo
-            group by accident_id='$get_accident'");
-        if ($DocDpo1 == []) {
-            $ArrayDocDpo1 = "0";
-        } else {
-            $ArrayDocDpo1 = json_encode(end($DocDpo1)->total);
-        }
-        $DocDpo2 = DB::table("surat_pencabutan_tersangka")->where("accident_id", "=", "$get_accident")->count();
-        $DocDpo3 = DB::select("
-            select
-            ( (case when accident_id = '$get_accident' then 1 else 0 end) ) as total
-            from surat_pencabutan_barang
-            group by accident_id='$get_accident'");
-        if ($DocDpo3 == []) {
-            $ArrayDocDpo3 = "0";
-        } else {
-            $ArrayDocDpo3 = json_encode(end($DocDpo3)->total);
-        }
-        $DocDpo4 = DB::table("surat_pencabutan_barang")->where("accident_id", "=", "$get_accident")->count();
+        $ArrayDocDpo1 = !empty($dpo) ? '1' : '0';
+        $DocDpo2 = count($surat_pencabutan_tersangka);
+        $ArrayDocDpo3 = !empty($surat_pencabutan_barang) ? '1' : '0';
+        $DocDpo4 = count($surat_pencabutan_barang);
         $TotalKategori10 = round((
             (int)$ArrayDocDpo1 + $DocDpo2 + (int)$ArrayDocDpo3) / 3 * 100);
 
         $showImage = uploadImage::where('accident_id', '=', $get_accident)->get();
 
         //kategori 11
-        $surat_penghentian_penyelidikan = DB::select('select * from surat_perintah_penyelidikan where accident_id = \'' . $get_accident . '\'');
-        $surat_ketetapan_penyelidikan = DB::select('select * from surat_ketetapan_penyelidikan where accident_id = \'' . $get_accident . '\'');
-        $surat_pencabutan_penyelidikan = DB::select('select * from surat_pencabutan_penyelidikan where accident_id = \'' . $get_accident . '\'');
-        $surat_penyelidikan_lanjutan = DB::select('select * from surat_penyelidikan_lanjutan where accident_id = \'' . $get_accident . '\'');
-        $berita_penghentian_penyelidikan = DB::select('select * from berita_penghentian_penyelidikan where accident_id = \'' . $get_accident . '\'');
-        $persetujuan_pejabat_berwenang = DB::select('select * from persetujuan_pejabat_berwenang where accident_id = \'' . $get_accident . '\'');
-        $surat_penghentian_penyidikan = DB::select('select * from sp3 where accident_id = \'' . $get_accident . '\'');
-        $surat_ketetapan_penyidikan = DB::select('select * from surat_ketetapan_penyidikan where accident_id = \'' . $get_accident . '\'');
-        $putusan_pra_peradilan = DB::select('select * from putusan_pra_peradilan where accident_id = \'' . $get_accident . '\'');
-        $surat_pencabutan_penyidikan = DB::select('select * from surat_pencabutan_penyidikan where accident_id = \'' . $get_accident . '\'');
-        $surat_penyidikan_lanjutan = DB::select('select * from surat_penyidikan_lanjutan where accident_id = \'' . $get_accident . '\'');
-        $berita_penghentian_penyidikan = DB::select('select * from berita_penghentian_penyidikan where accident_id = \'' . $get_accident . '\'');
-        $surat_pernyataan = DB::select('select * from surat_pernyataan where accident_id = \'' . $get_accident . '\'');
-        $surat_kesepakatan_perdamaian = DB::select('select * from surat_kesepakatan_perdamaian where accident_id = \'' . $get_accident . '\'');
-        $upload_surat_ketetapan = DB::select('select * from upload_surat_ketetapan where accident_id = \'' . $get_accident . '\'');
-        $no_spdp = DB::select('select document_number from doc.surat_pemberitahuan_dimulainya_penyidikan_documents where accident_id = \'' . $get_accident . '\'');
+        $surat_penghentian_penyelidikan = DB::select('select * from surat_perintah_penyelidikan where accident_id = ?', [$get_accident]);
+        $surat_ketetapan_penyelidikan = DB::select('select * from surat_ketetapan_penyelidikan where accident_id = ?', [$get_accident]);
+        $surat_pencabutan_penyelidikan = DB::select('select * from surat_pencabutan_penyelidikan where accident_id = ?', [$get_accident]);
+        $surat_penyelidikan_lanjutan = DB::select('select * from surat_penyelidikan_lanjutan where accident_id = ?', [$get_accident]);
+        $berita_penghentian_penyelidikan = DB::select('select * from berita_penghentian_penyelidikan where accident_id = ?', [$get_accident]);
+        $persetujuan_pejabat_berwenang = DB::select('select * from persetujuan_pejabat_berwenang where accident_id = ?', [$get_accident]);
+        $surat_penghentian_penyidikan = DB::select('select * from sp3 where accident_id = ?', [$get_accident]);
+        $surat_ketetapan_penyidikan = DB::select('select * from surat_ketetapan_penyidikan where accident_id = ?', [$get_accident]);
+        $putusan_pra_peradilan = DB::select('select * from putusan_pra_peradilan where accident_id = ?', [$get_accident]);
+        $surat_pencabutan_penyidikan = DB::select('select * from surat_pencabutan_penyidikan where accident_id = ?', [$get_accident]);
+        $surat_penyidikan_lanjutan = DB::select('select * from surat_penyidikan_lanjutan where accident_id = ?', [$get_accident]);
+        $berita_penghentian_penyidikan = DB::select('select * from berita_penghentian_penyidikan where accident_id = ?', [$get_accident]);
+        $surat_pernyataan = DB::select('select * from surat_pernyataan where accident_id = ?', [$get_accident]);
+        $surat_kesepakatan_perdamaian = DB::select('select * from surat_kesepakatan_perdamaian where accident_id = ?', [$get_accident]);
+        $upload_surat_ketetapan = DB::select('select * from upload_surat_ketetapan where accident_id = ?', [$get_accident]);
+        $no_spdp = DB::select('select document_number from doc.surat_pemberitahuan_dimulainya_penyidikan_documents where accident_id = ?', [$get_accident]);
         $value_spdp = isset($no_spdp[0]->document_number) ? $no_spdp[0]->document_number : '';
 
         //kategori 12
-        $surat_penetapan_tersangka = DB::select('select * from surat_penetapan_tersangka where accident_id = \'' . $get_accident . '\'');
-        $surat_perintah_penangkapan = DB::select('select * from surat_perintah_penangkapan where accident_id = \'' . $get_accident . '\'');
-        $surat_membawa_menghadapkan = DB::select('select * from surat_membawa_menghadapkan where accident_id = \'' . $get_accident . '\'');
-        $surat_pelepasan_tersangka = DB::select('select * from surat_pelepasan_tersangka where accident_id = \'' . $get_accident . '\'');
-        $berita_acara_penangkapan = DB::select('select * from berita_acara_penangkapan where accident_id = \'' . $get_accident . '\'');
-        $berita_pelepasan_tersangka = DB::select('select * from berita_pelepasan_tersangka where accident_id = \'' . $get_accident . '\'');
+        $surat_penetapan_tersangka = DB::select('select * from surat_penetapan_tersangka where accident_id = ?', [$get_accident]);
+        $surat_perintah_penangkapan = DB::select('select * from surat_perintah_penangkapan where accident_id = ?', [$get_accident]);
+        $surat_membawa_menghadapkan = DB::select('select * from surat_membawa_menghadapkan where accident_id = ?', [$get_accident]);
+        $surat_pelepasan_tersangka = DB::select('select * from surat_pelepasan_tersangka where accident_id = ?', [$get_accident]);
+        $berita_acara_penangkapan = DB::select('select * from berita_acara_penangkapan where accident_id = ?', [$get_accident]);
+        $berita_pelepasan_tersangka = DB::select('select * from berita_pelepasan_tersangka where accident_id = ?', [$get_accident]);
         //total-kategori 12
-        $DocPenangkapan1 = DB::table("surat_penetapan_tersangka")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenangkapan2 = DB::table("surat_perintah_penangkapan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenangkapan3 = DB::table("surat_membawa_menghadapkan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenangkapan4 = DB::table("surat_pelepasan_tersangka")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenangkapan5 = DB::table("berita_acara_penangkapan")->where("accident_id", "=", "$get_accident")->count();
-        $DocPenangkapan6 = DB::table("berita_pelepasan_tersangka")->where("accident_id", "=", "$get_accident")->count();
+        $DocPenangkapan1 = count($surat_penetapan_tersangka);
+        $DocPenangkapan2 = count($surat_perintah_penangkapan);
+        $DocPenangkapan3 = count($surat_membawa_menghadapkan);
+        $DocPenangkapan4 = count($surat_pelepasan_tersangka);
+        $DocPenangkapan5 = count($berita_acara_penangkapan);
+        $DocPenangkapan6 = count($berita_pelepasan_tersangka);
         $TotalKategori12 = round(($DocPenangkapan1 + $DocPenangkapan2 + $DocPenangkapan3 + $DocPenangkapan4 + $DocPenangkapan5 + $DocPenangkapan6) / 6 * 100);
 
         //kategori 13
@@ -1392,8 +1205,8 @@ class AccidentController extends Controller
         $suratP21Tahap2 = DB::table('surat_p21_tahap_2')->where('accident_id', $get_accident)->first();
 
         //total-kategori 13
-        $DocP21Tahap1 = DB::table("surat_p21_tahap_1")->where("accident_id", "=", "$get_accident")->count();
-        $DocP21Tahap2 = DB::table("surat_p21_tahap_2")->where("accident_id", "=", "$get_accident")->count();
+        $DocP21Tahap1 = $suratP21Tahap1 ? 1 : 0;
+        $DocP21Tahap2 = $suratP21Tahap2 ? 1 : 0;
         $TotalKategori13  = round(($DocP21Tahap1 + $DocP21Tahap2) / 2 * 100);
 
         $documentTypes = [
@@ -1673,7 +1486,7 @@ class AccidentController extends Controller
         $data['surat_p21_tahap_2'] = $suratP21Tahap2;
 
         $p21Spdp = DB::table('spdp')->where('accident_id', $get_accident)->first();
-        $findPolres = Polres::where('id', ($accident[0]->polres_id) ? $accident[0]->polres_id : 0)->first();
+        $findPolres = $polresjaksa;
         $data['surat_p21_province'] = ($findPolres) ? $findPolres->polres_province : '-';
         $data['surat_p21_polres'] = ($findPolres) ? $findPolres->name : '-';
         $data['surat_p21_polres_address'] = ($findPolres) ? $findPolres->address . ', ' . $findPolres->polres_district : '-';
@@ -1684,20 +1497,18 @@ class AccidentController extends Controller
         $data['surat_p21_letter_recepient_place'] = ($findPolres) ? $findPolres->kejaksaan_district : '-';
         $data['surat_p21_no_spdp'] = ($p21Spdp) ? $p21Spdp->no_spdp : '';
         $data['surat_p21_spdp_date'] = ($p21Spdp) ? $p21Spdp->spdp_date : '';
-        $data['surat_p21_suspects'] = DB::table('daftar_tersangka')->where('accident_id', $get_accident)->get();
-        $data['surat_p21_no_lp'] = (Accident::where('id', $get_accident)->first()) ? Accident::where('id', $get_accident)->first()->no_lp : '-';
-        $data['surat_p21_accident_date'] = (Accident::where('id', $get_accident)->first()) ? Carbon::parse(Accident::where('id', $get_accident)->first()->lp_date)->format('Y-m-d') : '';
-        $data['surat_p21_description'] = (Accident::where('id', $get_accident)->first()) ? Accident::where('id', $get_accident)->first()->damage_lose_desc : '-';
+        $data['surat_p21_suspects'] = collect($daftar_tersangka);
+        $data['surat_p21_no_lp'] = $accidentDocument ? $accidentDocument->no_lp : '-';
+        $data['surat_p21_accident_date'] = $accidentDocument ? Carbon::parse($accidentDocument->lp_date)->format('Y-m-d') : '';
+        $data['surat_p21_description'] = $accidentDocument ? $accidentDocument->damage_lose_desc : '-';
         $data['surat_p21_penyidik_name'] = "-";
         $data['surat_p21_penyidik_position'] = "-";
         $data['surat_p21_penyidik_nrp'] = "-";
         $data['surat_p21_no'] = ($suratP21Tahap1) ? $suratP21Tahap1->no_p21 : '-';
-        $data['surat_p21_evidences'] = DB::table('daftar_barang_bukti')->where('accident_id', $get_accident)->get();
+        $data['surat_p21_evidences'] = collect($daftar_barang_bukti);
         $data['TotalKategori13'] = $TotalKategori13;
         $data['documentStages'] = $documentStages;
         $data['showImage'] = $showImage;
-
-        // dd($data);
 
         return view('produktivitas.produktivitas-view', $data);
     }
@@ -1812,7 +1623,7 @@ class AccidentController extends Controller
             if (env('APP_MODE') == 'PRODUCTION') {
                 $headers = [
                     'Content-Type' => 'application/json',
-                    'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell'
+                    'Key' => config('services.irsms.selra_key')
                 ];
 
                 $response = Http::withHeaders($headers)->post('https://irsms.korlantas.polri.go.id/irsmsapi/api/icellSelra', [
@@ -1824,7 +1635,6 @@ class AccidentController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollback();
-            // dd($e);
             return redirect()->back()->with('error', 'Terjadi kesalahan saat menyimpan data');
         }
 
@@ -1849,7 +1659,7 @@ class AccidentController extends Controller
             if (env('APP_MODE') == 'PRODUCTION') {
                 $headers = [
                     'Content-Type' => 'application/json',
-                    'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell'
+                    'Key' => config('services.irsms.selra_key')
                 ];
 
                 $response = Http::withHeaders($headers)->post('https://irsms.korlantas.polri.go.id/irsmsapi/api/icellSelra', [
@@ -1881,17 +1691,14 @@ class AccidentController extends Controller
     public function get_saksi(Request $request)
     {
         $accident = $request->accident_id;
-        // $accident = 'eff6a3c4-660a-4e8e-950d-0e7a68cf863b';
         if ($request->ajax()) {
-            // $data = DB::select('select * from daftar_saksi where accident_id = \''.$accident.'\' order by created_at')->get();
             $get_data = DB::select('select saksi.id as id,saksi.name as name,
                                     ref.name as gender,saksi.city as city,
                                     to_char(birth_date, \'DD-MM-YYYY\') as birth_date,
                                     saksi.citizen as citizen
                                     from daftar_saksi as saksi left join ref on ref.id = saksi.gender
-                                    where accident_id = \'' . $accident . '\' order by saksi.created_at ');
+                                    where accident_id = ? order by saksi.created_at', [$accident]);
             $data['saksi'] = $get_data;
-            // $data = DaftarSaksi::where('accident_id',''.$accident.'')->get();
             return Datatables::of($data['saksi'])
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -1917,7 +1724,7 @@ class AccidentController extends Controller
     public function edit_saksi(Request $request)
     {
         $id = $request->id;
-        $get_saksi = DB::select('select id,name as name_saksi,gender,city,to_char(birth_date, \'DD-MM-YYYY\') as birth_date,religion,job,education,phone,citizen,address from daftar_saksi where id = \'' . $id . '\' ');
+        $get_saksi = DB::select('select id,name as name_saksi,gender,city,to_char(birth_date, \'DD-MM-YYYY\') as birth_date,religion,job,education,phone,citizen,address from daftar_saksi where id = ?', [$id]);
         $saksi = $get_saksi[0];
         return response()->json($saksi);
     }
@@ -1953,16 +1760,15 @@ class AccidentController extends Controller
         $offenseArticlesJSON = json_encode($offenseArticles);
         $ccJSON = json_encode($cc);
 
-        // get all suspect from id
-        $suspectList = [];
-        $noSuspect = 0;
-
-        foreach ($suspects as $suspect) {
-            $get_suspect = DB::table('daftar_tersangka')->where('id', $suspect)->first();
-
-            $suspectList[$noSuspect] = $get_suspect->id;
-            $noSuspect++;
-        }
+        // get all suspect from id scoped to accident_id in a single query
+        $suspectList = !empty($suspects)
+            ? DB::table('daftar_tersangka')
+            ->where('accident_id', $accident_id)
+            ->whereIn('id', (array) $suspects)
+            ->pluck('id')
+            ->values()
+            ->all()
+            : [];
         $suspectsJSON = json_encode($suspectList);
         SuratP21Tahap1::create([
             'accident_id' => $accident_id,
@@ -2040,16 +1846,15 @@ class AccidentController extends Controller
         $offenseArticlesJSON = json_encode($offenseArticles);
         $ccJSON = json_encode($cc);
 
-        // get all suspect from id
-        $suspectList = [];
-        $noSuspect = 0;
-
-        foreach ($suspects as $suspect) {
-            $get_suspect = DB::table('daftar_tersangka')->where('id', $suspect)->first();
-
-            $suspectList[$noSuspect] = $get_suspect->id;
-            $noSuspect++;
-        }
+        // get all suspect from id scoped to accident_id in a single query
+        $suspectList = !empty($suspects)
+            ? DB::table('daftar_tersangka')
+            ->where('accident_id', $accident_id)
+            ->whereIn('id', (array) $suspects)
+            ->pluck('id')
+            ->values()
+            ->all()
+            : [];
         $suspectsJSON = json_encode($suspectList);
 
         SuratP21Tahap1::where('accident_id', $accident_id)
@@ -2395,13 +2200,13 @@ class AccidentController extends Controller
     public function view_surat_tugas(Request $request)
     {
         $accident_id = $request->input('accident_id');
-        $accident = DB::select('select * from accidents where id= \'' . $accident_id . '\' ');
-        $springas = DB::select('select * from legacy.springas where accident_id= \'' . $accident_id . '\' ');
-        $sprindik = DB::select('select * from legacy.investigation_order_letters where accident_id= \'' . $accident_id . '\' ');
-        $officer_springas = DB::select('select * from legacy.officer_springas left join legacy.springas on legacy.officer_springas.sprint_gas_id = legacy.springas.id left join officers on legacy.officer_springas.officer_id = officers.id where legacy.springas.accident_id = \'' . $accident_id . '\' ');
+        $accident = DB::select('select * from accidents where id = ?', [$accident_id]);
+        $springas = DB::select('select * from legacy.springas where accident_id = ?', [$accident_id]);
+        $sprindik = DB::select('select * from legacy.investigation_order_letters where accident_id = ?', [$accident_id]);
+        $officer_springas = DB::select('select * from legacy.officer_springas left join legacy.springas on legacy.officer_springas.sprint_gas_id = legacy.springas.id left join officers on legacy.officer_springas.officer_id = officers.id where legacy.springas.accident_id = ?', [$accident_id]);
         $leader = DB::select('select * from legacy.springas
         left join officers on legacy.springas.ketua_tim = officers.id
-        where legacy.springas.accident_id = \'' . $accident_id . '\'');
+        where legacy.springas.accident_id = ?', [$accident_id]);
         $accident_date = Carbon::parse($accident[0]->accident_date)->format('d F Y');
         $tanggal_dimulai = Carbon::parse($springas[0]->tanggal_dimulai)->format('d F Y');
 
@@ -2420,7 +2225,7 @@ class AccidentController extends Controller
     public function add_surat_penyelidikan(Request $request)
     {
         $officer    = $request->officer_id_penyelidikan == null ? [] : $request->officer_id_penyelidikan;
-        $get_accident = DB::select('select id from accidents where id = \'' . $request->accident_id_surat_penyelidikan . '\'');
+        $get_accident = DB::select('select id from accidents where id = ?', [$request->accident_id_surat_penyelidikan]);
         $get = $get_accident[0]->id;
         $accident = Accident::find($get);
 
@@ -2437,7 +2242,7 @@ class AccidentController extends Controller
     public function edit_surat_penyelidikan(Request $request)
     {
         $officer    = $request->edit_officer_surat_penyelidikan == null ? [] : $request->edit_officer_surat_penyelidikan;
-        $get_accident = DB::select('select id from accidents where id = \'' . $request->accident_id_edit_surat_penyelidikan . '\'');
+        $get_accident = DB::select('select id from accidents where id = ?', [$request->accident_id_edit_surat_penyelidikan]);
 
         $get = $get_accident[0]->id;
 
@@ -2456,8 +2261,8 @@ class AccidentController extends Controller
     public function view_surat_penyelidikan(Request $request)
     {
         $accident_id = $request->input('accident_id');
-        $surat_perintah_penyelidikan = DB::select('select * from surat_penyelidikan left join officers on surat_penyelidikan.officer_id = officers.id where accident_id = \'' . $accident_id . '\' ');
-        $accident = DB::select('select * from accidents where id= \'' . $accident_id . '\' ');
+        $surat_perintah_penyelidikan = DB::select('select * from surat_penyelidikan left join officers on surat_penyelidikan.officer_id = officers.id where accident_id = ?', [$accident_id]);
+        $accident = DB::select('select * from accidents where id = ?', [$accident_id]);
         $accident_date = Carbon::parse($accident[0]->accident_date)->format('d F Y');
 
 
@@ -2471,7 +2276,7 @@ class AccidentController extends Controller
     {
 
         $officer    = $request->officer_id_penyidikan == null ? [] : $request->officer_id_penyidikan;
-        $get_accident = DB::select('select id from accidents where id = \'' . $request->accident_id_surat_penyidikan . '\'');
+        $get_accident = DB::select('select id from accidents where id = ?', [$request->accident_id_surat_penyidikan]);
         $get = $get_accident[0]->id;
         $accident = Accident::find($get);
 
@@ -2489,7 +2294,7 @@ class AccidentController extends Controller
     public function edit_surat_penyidikan(Request $request)
     {
         $officer    = $request->edit_officer_surat_penyidikan == null ? [] : $request->edit_officer_surat_penyidikan;
-        $get_accident = DB::select('select id from accidents where id = \'' . $request->accident_id_edit_surat_penyidikan . '\'');
+        $get_accident = DB::select('select id from accidents where id = ?', [$request->accident_id_edit_surat_penyidikan]);
 
         $get = $get_accident[0]->id;
 
@@ -2508,8 +2313,8 @@ class AccidentController extends Controller
     public function view_surat_penyidikan(Request $request)
     {
         $accident_id = $request->input('accident_id');
-        $surat_perintah_penyidikan = DB::select('select * from surat_penyidikan left join officers on surat_penyidikan.officer_id = officers.id where accident_id = \'' . $accident_id . '\' ');
-        $accident = DB::select('select * from accidents where id= \'' . $accident_id . '\' ');
+        $surat_perintah_penyidikan = DB::select('select * from surat_penyidikan left join officers on surat_penyidikan.officer_id = officers.id where accident_id = ?', [$accident_id]);
+        $accident = DB::select('select * from accidents where id = ?', [$accident_id]);
         $accident_date = Carbon::parse($accident[0]->accident_date)->format('d F Y');
 
         $data['surat_perintah_penyidikan'] = $surat_perintah_penyidikan;
@@ -2638,7 +2443,7 @@ class AccidentController extends Controller
         left join jobs on suspects.occupation = jobs.id
         left join religions on suspects.religion = religions.id
         left join country on suspects.country = country.id
-    where accidents.id = \'' . $accidentId . '\' ');
+    where accidents.id = ?', [$accidentId]);
 
         $accident = Accident::where('id', $accidentId)->first();
         $accidentDate = Carbon::parse($accident->accident_date)->translatedFormat('d F Y');
@@ -2723,15 +2528,13 @@ class AccidentController extends Controller
     public function view_sp3(Request $request)
     {
         $accident_id = $request->input('accident_id');
-        $sp3 = DB::select('select * from sp3 where accident_id = \'' . $accident_id . '\' ');
-        $accident = DB::select('select * from accidents where id= \'' . $accident_id . '\' ');
-        // $surat_tugas = DB::select('select * from surat_tugas left join officers on surat_tugas.officer_id = officers.id where accident_id = \''.$accident_id.'\' ');
+        $sp3 = DB::select('select * from sp3 where accident_id = ?', [$accident_id]);
+        $accident = DB::select('select * from accidents where id = ?', [$accident_id]);
         $accident_date = Carbon::parse($accident[0]->accident_date)->format('d F Y');
         $accident_time = Carbon::parse($accident[0]->accident_time)->format('H:m');
         $tanggal_sp_dik = Carbon::parse($sp3[0]->tanggal_sp_dik)->format('d F Y');
-        $officer_springas = DB::select('select * from legacy.officer_springas left join legacy.springas on legacy.officer_springas.sprint_gas_id = legacy.springas.id left join officers on legacy.officer_springas.officer_id = officers.id where legacy.springas.accident_id = \'' . $accident_id . '\' ');
+        $officer_springas = DB::select('select * from legacy.officer_springas left join legacy.springas on legacy.officer_springas.sprint_gas_id = legacy.springas.id left join officers on legacy.officer_springas.officer_id = officers.id where legacy.springas.accident_id = ?', [$accident_id]);
 
-        // $data['surat_tugas']=$surat_tugas;
         $data['officer_springas'] = $officer_springas;
         $data['no_sp3'] = $sp3[0]->no_sp3;
         $data['no_lp'] = $sp3[0]->no_lp;
@@ -2741,7 +2544,6 @@ class AccidentController extends Controller
         $data['accident'] = $accident[0];
         $data['accident_date'] = $accident_date;
         $data['accident_time'] = $accident_time;
-        // $data['description']=$accident[0]->damage_lose_desc;
 
         return view('produktivitas.surat-penghentian.cetak-surat-sp3', $data);
     }
@@ -2892,12 +2694,6 @@ class AccidentController extends Controller
         switch ($user->role_id) {
             case 2:
                 $polda = $user->polda_id;
-                $polres = '-';
-
-                /*$polres = TranslateIdHelper::getTranslatePoliceResorId(
-                    regionalId: $polda,
-                    resorId: $polres
-                );*/
 
                 $accident = DB::select(
                     'select accidents.id as id,
@@ -2905,54 +2701,29 @@ class AccidentController extends Controller
                     accidents.no_lp,md,lb,lr,road_name,accident_date
                     from accidents join polres on accidents.polres_id = polres.id
                     join polda on polda.id = polres.polda_id
-                    where polda.id = \'' . $polda . '\'
+                    where polda.id = ?
                     order by accidents.created_at desc
-                    '
+                    ',
+                    [$polda]
                 );
 
                 break;
             case 3:
-                $polda = $user->polda_id;
-                $polres = $user->polres_id;
-
-                /*$polres = TranslateIdHelper::getTranslatePoliceResorId(
-                    regionalId: $polda,
-                    resorId: $polres
-                );*/
-
-                $accident = DB::select(
-                    'select accidents.id as id,
-                    polres.name as name,
-                    accidents.no_lp,md,lb,lr,road_name ,accident_date
-                    from accidents join polres on accidents.polres_id = polres.id
-                    where polres.id = \'' . $polres . '\'
-                    order by accidents.created_at desc
-                    '
-                );
-                break;
             case 4:
-                $polda = $user->polda_id;
                 $polres = $user->polres_id;
-
-                /*$polres = TranslateIdHelper::getTranslatePoliceResorId(
-                    regionalId: $polda,
-                    resorId: $polres
-                );*/
 
                 $accident = DB::select(
                     'select accidents.id as id,
                     polres.name as name,
                     accidents.no_lp,md,lb,lr,road_name ,accident_date
                     from accidents join polres on accidents.polres_id = polres.id
-                    where polres.id = \'' . $polres . '\'
+                    where polres.id = ?
                     order by accidents.created_at desc
-                    '
+                    ',
+                    [$polres]
                 );
                 break;
             default:
-                $polda = '-';
-                $polres = '-';
-
                 $accident = DB::select(
                     'select accidents.id as id,
                 polres.name as name,
@@ -2968,15 +2739,7 @@ class AccidentController extends Controller
     public function get_tersangka(Request $request)
     {
         $accident = $request->accident_id;
-        // $accident = 'eff6a3c4-660a-4e8e-950d-0e7a68cf863b';
         if ($request->ajax()) {
-            // $data = DB::select('select * from daftar_saksi where accident_id = \''.$accident.'\' order by created_at')->get();
-            // select saksi.id as id,saksi.name as name,
-            //                         ref.name as gender,saksi.city as city,
-            //                         to_char(birth_date, \'DD-MM-YYYY\') as birth_date,
-            //                         saksi.citizen as citizen
-            //                         from daftar_saksi as saksi left join ref on ref.id = saksi.gender
-            //                         where accident_id = \''.$accident.'\' order by saksi.created_at
             $get_data = DB::select('select
                                     tersangka.id as id,
                                     ref.name as gender,
@@ -2984,12 +2747,13 @@ class AccidentController extends Controller
                                     tersangka.city as city,
                                     to_char(birth_date, \'DD-MM-YYYY\') as birth_date,
                                     tersangka.citizen as citizen,
-                                    (select ref.name from ref where ref.id=tersangka.identity_type) as identity_type,
+                                    ref_identity.name as identity_type,
                                     tersangka.identity_no as identity_no
-                                    from daftar_tersangka as tersangka left join ref on ref.id = tersangka.gender
-                                    where accident_id = \'' . $accident . '\' order by tersangka.created_at');
+                                    from daftar_tersangka as tersangka
+                                    left join ref on ref.id = tersangka.gender
+                                    left join ref as ref_identity on ref_identity.id = tersangka.identity_type
+                                    where accident_id = ? order by tersangka.created_at', [$accident]);
             $data['tersangka'] = $get_data;
-            // $data = DaftarSaksi::where('accident_id',''.$accident.'')->get();
             return Datatables::of($data['tersangka'])
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -3008,7 +2772,7 @@ class AccidentController extends Controller
     public function edit_tersangka(Request $request)
     {
         $id = $request->id;
-        $get_tersangka = DB::select('select * from daftar_tersangka where id = \'' . $id . '\' ');
+        $get_tersangka = DB::select('select * from daftar_tersangka where id = ?', [$id]);
         $tersangka = $get_tersangka[0];
         return response()->json($tersangka);
     }
@@ -3033,12 +2797,7 @@ class AccidentController extends Controller
                 'identity_no' => $request->identity_no,
             ]
         );
-        // return response()->json(['success'=>'Added new records.']);
         return response()->json($tersangka);
-        // }
-
-        // return response()->json(['error'=>$validator->errors()]);
-
     }
 
     public function delete_tersangka(Request $request)
@@ -3051,12 +2810,9 @@ class AccidentController extends Controller
     public function get_barang_bukti(Request $request)
     {
         $accident = $request->accident_id;
-        // $accident = 'eff6a3c4-660a-4e8e-950d-0e7a68cf863b';
         if ($request->ajax()) {
-            // $data = DB::select('select * from daftar_saksi where accident_id = \''.$accident.'\' order by created_at')->get();
-            $get_data = DB::select('select * from daftar_barang_bukti where accident_id = \'' . $accident . '\' order by created_at ');
+            $get_data = DB::select('select * from daftar_barang_bukti where accident_id = ? order by created_at', [$accident]);
             $data['barang_bukti'] = $get_data;
-            // $data = DaftarSaksi::where('accident_id',''.$accident.'')->get();
             return Datatables::of($data['barang_bukti'])
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
@@ -3072,30 +2828,6 @@ class AccidentController extends Controller
         }
     }
 
-    // public function get_barang_bukti(Request $request)
-    // {
-    //      $accident = $request->accident_id;
-    //     // $accident = 'eff6a3c4-660a-4e8e-950d-0e7a68cf863b';
-    //         if ($request->ajax()) {
-    //         // $data = DB::select('select * from daftar_saksi where accident_id = \''.$accident.'\' order by created_at')->get();
-    //         $get_data = DB::select('select * from daftar_barang_bukti where accident_id = \''.$accident.'\' order by created_at ');
-    //         $data['barang_bukti']=$get_data;
-    //         // $data = DaftarSaksi::where('accident_id',''.$accident.'')->get();
-    //         return Datatables::of($data['barang_bukti'])
-    //                 ->addIndexColumn()
-    //                 ->addColumn('action', function($row){
-
-    //                        $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editBarangBukti">Edit</a>';
-
-    //                        $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteBarangBukti">Delete</a>';
-
-    //                         return $btn;
-    //                 })
-    //                 ->rawColumns(['action'])
-    //                 ->make(true);
-    //     }
-    // }
-
     public function add_barang_bukti(Request $request)
     {
         $barangbukti = DaftarBarangBukti::updateOrCreate(
@@ -3106,19 +2838,14 @@ class AccidentController extends Controller
                 'jumlah_barang' =>  $request->jumlah_barang,
             ]
         );
-        // return response()->json(['success'=>'Added new records.']);
         return response()->json($barangbukti);
-        // }
-
-        // return response()->json(['error'=>$validator->errors()]);
-
     }
 
 
     public function add_surat_penyitaan(Request $request)
     {
         $officer    = $request->officer_id_penyitaan == null ? [] : $request->officer_id_penyitaan;
-        $get_accident = DB::select('select id from accidents where id = \'' . $request->accident_id_surat_penyitaan . '\'');
+        $get_accident = DB::select('select id from accidents where id = ?', [$request->accident_id_surat_penyitaan]);
         $get = $get_accident[0]->id;
         $accident = Accident::find($get);
 
@@ -3126,30 +2853,11 @@ class AccidentController extends Controller
         return back();
     }
 
-    // public function view_surat_tugas(Request $request)
-    // {   $accident_id=$request->input('accident_id');
-    //     $surat_perintah_tugas = DB::select('select * from surat_tugas left join officers on surat_tugas.officer_id = officers.id where accident_id = \''.$accident_id.'\' ');
-    //     $accident =DB::select('select * from accidents where id= \''.$accident_id.'\' ');
-    //     $accident_date = Carbon::parse($accident[0]->accident_date)->format('d F Y');
-
-
-    //     $data['surat_perintah_tugas']=$surat_perintah_tugas;
-    //     $data['accident']=$accident[0];
-    //     $data['accident_date']=$accident_date ;
-    //     return view('produktivitas.surat-tugas.cetak-surat-tugas',$data);
-    // }
-
     public function view_surat_penyitaan(Request $request)
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
-        $surat_penyitaan = DB::select('select * from surat_penyitaan left join officers on surat_penyitaan.officer_id = officers.id where accident_id = \'' . $accidentId . '\' ');
-        // $accident =DB::select('select * from accidents where id= \''.$accident_id.'\' ');
+        $surat_penyitaan = DB::select('select * from surat_penyitaan left join officers on surat_penyitaan.officer_id = officers.id where accident_id = ?', [$accidentId]);
         $accident = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
-        // $accident_date = Carbon::parse($accident[0]->accident_date)->format('d F Y');
-
-        // $data['surat_penyitaan']=$surat_penyitaan;
-        // $data['accident']=$accident[0];
-        // $data['accident_date']=$accident_date ;
         $viewData = [
             'accidentId' => $accidentId,
             'accident' => $accident,
@@ -3162,7 +2870,7 @@ class AccidentController extends Controller
     public function edit_surat_penyitaan(Request $request)
     {
         $officer    = $request->edit_officer_surat_penyitaan == null ? [] : $request->edit_officer_surat_penyitaan;
-        $get_accident = DB::select('select id from accidents where id = \'' . $request->accident_id_edit_surat_penyitaan . '\'');
+        $get_accident = DB::select('select id from accidents where id = ?', [$request->accident_id_edit_surat_penyitaan]);
 
         $get = $get_accident[0]->id;
 
@@ -3175,7 +2883,7 @@ class AccidentController extends Controller
     public function add_surat_perintah_penyegelan(Request $request)
     {
         $officer    = $request->officer_id_penyegelan == null ? [] : $request->officer_id_penyegelan;
-        $get_accident = DB::select('select id from accidents where id = \'' . $request->accident_id_surat_penyegelan . '\'');
+        $get_accident = DB::select('select id from accidents where id = ?', [$request->accident_id_surat_penyegelan]);
         $get = $get_accident[0]->id;
         $accident = Accident::find($get);
 
@@ -3186,7 +2894,7 @@ class AccidentController extends Controller
     public function edit_surat_penyegelan(Request $request)
     {
         $officer    = $request->edit_officer_surat_penyegelan == null ? [] : $request->edit_officer_surat_penyegelan;
-        $get_accident = DB::select('select id from accidents where id = \'' . $request->accident_id_edit_surat_penyegelan . '\'');
+        $get_accident = DB::select('select id from accidents where id = ?', [$request->accident_id_edit_surat_penyegelan]);
 
         $get = $get_accident[0]->id;
 
@@ -3200,7 +2908,7 @@ class AccidentController extends Controller
     {
         $accident = $request->accident_id;
         if ($request->ajax()) {
-            $get_data = DB::select('select dpo.id as id,dpo.name as name,ref.name as gender,deskripsi_dpo from dpo left join ref on dpo.gender = ref.id where accident_id = \'' . $accident . '\' order by dpo.created_at ');
+            $get_data = DB::select('select dpo.id as id,dpo.name as name,ref.name as gender,deskripsi_dpo from dpo left join ref on dpo.gender = ref.id where accident_id = ? order by dpo.created_at', [$accident]);
             $data['dpo'] = $get_data;
             return Datatables::of($data['dpo'])
                 ->addIndexColumn()
@@ -3230,17 +2938,13 @@ class AccidentController extends Controller
                 'state' => $request->dpo_tangkaps
             ]
         );
-        // return response()->json(['success'=>'Added new records.']);
         return response()->json($dpo);
-        // }
-
-        // return response()->json(['error'=>$validator->errors()]);
     }
 
     public function edit_dpo(Request $request)
     {
         $id = $request->id;
-        $get_dpo = DB::select('select * from dpo where id = \'' . $id . '\' ');
+        $get_dpo = DB::select('select * from dpo where id = ?', [$id]);
         $dpo = $get_dpo[0];
         return response()->json($dpo);
     }
@@ -3256,7 +2960,7 @@ class AccidentController extends Controller
     {
         $accident = $request->accident_id;
         if ($request->ajax()) {
-            $get_data = DB::select('select * from dpb where accident_id = \'' . $accident . '\' order by created_at ');
+            $get_data = DB::select('select * from dpb where accident_id = ? order by created_at', [$accident]);
             $data['dpb'] = $get_data;
             return Datatables::of($data['dpb'])
                 ->addIndexColumn()
@@ -3286,17 +2990,13 @@ class AccidentController extends Controller
                 'state' => '0'
             ]
         );
-        // return response()->json(['success'=>'Added new records.']);
         return response()->json($dpb);
-        // }
-
-        // return response()->json(['error'=>$validator->errors()]);
     }
 
     public function edit_dpb(Request $request)
     {
         $id = $request->id;
-        $get_dpb = DB::select('select * from dpb where id = \'' . $id . '\' ');
+        $get_dpb = DB::select('select * from dpb where id = ?', [$id]);
         $dpb = $get_dpb[0];
         return response()->json($dpb);
     }
@@ -3312,13 +3012,6 @@ class AccidentController extends Controller
     {
         $accident = $request->accident_id;
         if ($request->ajax()) {
-            // $get_data = DB::select('select saksi.id as id,saksi.name as name,
-            //                         ref.name as gender,saksi.city as city,
-            //                         to_char(birth_date, \'DD-MM-YYYY\') as birth_date,
-            //                         saksi.citizen as citizen
-            //                         from daftar_saksi as saksi left join ref on ref.id = saksi.gender
-            //                         where accident_id = \''.$accident.'\' order by saksi.created_at ');
-
             $get_data = DB::select('select sp2hp.id as id,
              kota,
              tanggal_terbit,
@@ -3327,7 +3020,7 @@ class AccidentController extends Controller
              name,address,
              deskripsi
              from sp2hp
-             where accident_id = \'' . $accident . '\' order by sp2hp.created_at');
+             where accident_id = ? order by sp2hp.created_at', [$accident]);
             $data['sp2hp'] = $get_data;
             return Datatables::of($data['sp2hp'])
                 ->addIndexColumn()
@@ -3393,8 +3086,8 @@ class AccidentController extends Controller
         address,
         deskripsi,
         created_by
-        from sp2hp where id = \'' . $id . '\'
-        ');
+        from sp2hp where id = ?
+        ', [$id]);
         $sp2hp = $get_sp2hp[0];
         return response()->json($sp2hp);
     }
@@ -3402,11 +3095,14 @@ class AccidentController extends Controller
     public function deleteImage(Request $request)
     {
         $id = $request->id;
-        $name = $request->name_image;
         $deleteImageStorage = uploadImage::find($id);
-        $path = public_path() . '/imageUpload/' . $deleteImageStorage->name;
-        unlink($path);
-        $delete = uploadImage::where('id', '=', $id)->delete();
+        if ($deleteImageStorage) {
+            $path = public_path('imageUpload/' . basename($deleteImageStorage->name));
+            if (is_file($path)) {
+                unlink($path);
+            }
+            uploadImage::where('id', '=', $id)->delete();
+        }
 
         return back()->with('succes', 'image has been delete');
     }
@@ -3419,43 +3115,50 @@ class AccidentController extends Controller
 
     public function downloadall(Request $req)
     {
-        $id  = $req->accident_id;
+        $id = preg_replace('/[^A-Za-z0-9_-]/', '', (string) $req->accident_id);
+        if (empty($id)) {
+            abort(400, 'Invalid accident_id');
+        }
         $zip = new ZipArchive;
-        $checkdata = DB::select("select name from ba_pemotretan where accident_id='$id'");
+        $checkdata = DB::select("select name from ba_pemotretan where accident_id = ?", [$id]);
         $checkdata2 = DB::table("ba_pemotretan")->select("name")->where("accident_id", "=", $id)->first();
-        $pathname = "$id.zip";
+        $pathname = storage_path('app/temp_zip_' . $id . '_' . uniqid() . '.zip');
         $doc = [
-            "/tugas/surat_tugas" => DB::select("select name from surat_tugas where accident_id='$id'"),
-            "/tugas/surat_perintah_penyelidikan" => DB::select("select name from surat_perintah_penyelidikan where accident_id='$id'"),
-            "/tugas/surat_perintah_penyidikan" => DB::select("select name from surat_perintah_penyidikan where accident_id='$id'"),
-            "/tugas/surat_spdp" => DB::select("select name from surat_spdp where accident_id='$id'"),
-            "/tugas/laporan_polisi" => DB::select("select name from laporan_polisi where accident_id='$id'"),
-            "/tugas/BA_Pemotretan" => DB::select("select name from ba_pemotretan where accident_id='$id'"),
-            "/tugas/BA_Penangkapan_TKP" => DB::select("select name from ba_Pengangkapan_tkp where accident_id='$id'"),
+            "/tugas/surat_tugas" => DB::select("select name from surat_tugas where accident_id = ?", [$id]),
+            "/tugas/surat_perintah_penyelidikan" => DB::select("select name from surat_perintah_penyelidikan where accident_id = ?", [$id]),
+            "/tugas/surat_perintah_penyidikan" => DB::select("select name from surat_perintah_penyidikan where accident_id = ?", [$id]),
+            "/tugas/surat_spdp" => DB::select("select name from surat_spdp where accident_id = ?", [$id]),
+            "/tugas/laporan_polisi" => DB::select("select name from laporan_polisi where accident_id = ?", [$id]),
+            "/tugas/BA_Pemotretan" => DB::select("select name from ba_pemotretan where accident_id = ?", [$id]),
+            "/tugas/BA_Penangkapan_TKP" => DB::select("select name from ba_Pengangkapan_tkp where accident_id = ?", [$id]),
 
-            "/saksi/berita-acara-membawa-saksi" => DB::select("select name from berita_acara_membawa_saksi where accident_id='$id'"),
-            "/saksi/berita-acara-penyumpahan-saksi" => DB::select("select name from berita_acara_penyumpahan_saksi where accident_id='$id'"),
-            "/saksi/surat-perintah-membawa-saksi" => DB::select("select name from surat_perintah_membawa_saksi where accident_id='$id'"),
-            "/tersangka/surat-perintah-penangkapan" => DB::select("select name from surat_perintah_penangkapan where accident_id='$id'"),
-            "/penahanan/berita-acara-penahanan" => DB::select("select name from berita_acara_penahanan where accident_id='$id'"),
-            "/penahanan/pencabutan-pembatalan-penahanan" => DB::select("select name from surat_pencabutan_penyelidikan where accident_id='$id'"),
-            "/penahanan/surat-perintah-penahanan" => DB::select("select name from surat_perintah_penahanan where accident_id='$id'"),
-            "/penahanan/surat-perpanjangan-penahanan" => DB::select("select name from surat_perpanjangan_penahanan where accident_id='$id'"),
-            "/penggeledahan/berita-acara-penggeledahan" => DB::select("select name from berita_acara_penggeledahan where accident_id='$id'"),
-            "/penggeledahan/perintah-penggeledahan" => DB::select("select name from surat_perintah_penggeledahan where accident_id='$id'"),
-            "/penggeledahan/surat-persetujuan-penggeledahan" => DB::select("select name from surat_persetujuan_penggeledahan where accident_id='$id'"),
-            "/penyitaan/surat-izin-penyitaan" => DB::select("select name from surat_izin_penyitaan where accident_id='$id'"),
-            "/penyitaan/surat-persetujuan-penyitaan" => DB::select("select name from surat_persetujuan_penyitaan where accident_id='$id'"),
-            "/labfor/surat-hasil-pemeriksaan-identifikasi" => DB::select("select name from surat_hasil_pemeriksaan_identifikasi where accident_id='$id'"),
-            "/labfor/surat-hasil-pemeriksaan-labfor" => DB::select("select name from surat_hasil_pemeriksaan_labfor where accident_id='$id'"),
-            "/labfor/surat-permintaan-bantuan-identifikasi" => DB::select("select name from surat_permintaan_bantuan_identifikasi where accident_id='$id'"),
-            "/labfor/surat-permintaan-bantuan-labfor" => DB::select("select name from surat_permintaan_bantuan_labfor where accident_id='$id'"),
-            "/dpo-dpb/surat-pencabutan-tersangka" => DB::select("select name from surat_pencabutan_tersangka where accident_id='$id'"),
+            "/saksi/berita-acara-membawa-saksi" => DB::select("select name from berita_acara_membawa_saksi where accident_id = ?", [$id]),
+            "/saksi/berita-acara-penyumpahan-saksi" => DB::select("select name from berita_acara_penyumpahan_saksi where accident_id = ?", [$id]),
+            "/saksi/surat-perintah-membawa-saksi" => DB::select("select name from surat_perintah_membawa_saksi where accident_id = ?", [$id]),
+            "/tersangka/surat-perintah-penangkapan" => DB::select("select name from surat_perintah_penangkapan where accident_id = ?", [$id]),
+            "/penahanan/berita-acara-penahanan" => DB::select("select name from berita_acara_penahanan where accident_id = ?", [$id]),
+            "/penahanan/pencabutan-pembatalan-penahanan" => DB::select("select name from surat_pencabutan_penyelidikan where accident_id = ?", [$id]),
+            "/penahanan/surat-perintah-penahanan" => DB::select("select name from surat_perintah_penahanan where accident_id = ?", [$id]),
+            "/penahanan/surat-perpanjangan-penahanan" => DB::select("select name from surat_perpanjangan_penahanan where accident_id = ?", [$id]),
+            "/penggeledahan/berita-acara-penggeledahan" => DB::select("select name from berita_acara_penggeledahan where accident_id = ?", [$id]),
+            "/penggeledahan/perintah-penggeledahan" => DB::select("select name from surat_perintah_penggeledahan where accident_id = ?", [$id]),
+            "/penggeledahan/surat-persetujuan-penggeledahan" => DB::select("select name from surat_persetujuan_penggeledahan where accident_id = ?", [$id]),
+            "/penyitaan/surat-izin-penyitaan" => DB::select("select name from surat_izin_penyitaan where accident_id = ?", [$id]),
+            "/penyitaan/surat-persetujuan-penyitaan" => DB::select("select name from surat_persetujuan_penyitaan where accident_id = ?", [$id]),
+            "/labfor/surat-hasil-pemeriksaan-identifikasi" => DB::select("select name from surat_hasil_pemeriksaan_identifikasi where accident_id = ?", [$id]),
+            "/labfor/surat-hasil-pemeriksaan-labfor" => DB::select("select name from surat_hasil_pemeriksaan_labfor where accident_id = ?", [$id]),
+            "/labfor/surat-permintaan-bantuan-identifikasi" => DB::select("select name from surat_permintaan_bantuan_identifikasi where accident_id = ?", [$id]),
+            "/labfor/surat-permintaan-bantuan-labfor" => DB::select("select name from surat_permintaan_bantuan_labfor where accident_id = ?", [$id]),
+            "/dpo-dpb/surat-pencabutan-tersangka" => DB::select("select name from surat_pencabutan_tersangka where accident_id = ?", [$id]),
         ];
 
-        if ($zip->open(public_path($pathname), ZipArchive::CREATE) === TRUE) {
+        if ($zip->open($pathname, ZipArchive::CREATE) === TRUE) {
             foreach ($doc as $publicpath => $filesname) {
-                $files = File::files(public_path() . "/file" . $publicpath);
+                $dir = public_path() . "/file" . $publicpath;
+                if (!is_dir($dir)) {
+                    continue;
+                }
+                $files = File::files($dir);
                 foreach ($files as $key => $value) {
                     if ($filesname == []) {
                         break;
@@ -3466,11 +3169,10 @@ class AccidentController extends Controller
                 }
             }
 
-
             $zip->close();
         }
 
         // Download the generated zip
-        return response()->download(public_path($pathname));
+        return response()->download($pathname, $id . '.zip')->deleteFileAfterSend(true);
     }
 }

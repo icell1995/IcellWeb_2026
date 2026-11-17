@@ -62,7 +62,7 @@ class DivtikOTPService
             Log::error('Email Polri Error', [
                 'status_code' => $statusCode,
                 'error' => $e->getMessage(),
-                'request' => request()->all() // Opsional: log data request
+                'request' => request()->except(['password', 'password_confirmation', 'otp'])
             ]);
 
 

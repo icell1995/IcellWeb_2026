@@ -181,7 +181,7 @@ class SPDPController extends Controller
         left join jobs on suspects.occupation = jobs.id
         left join religions on suspects.religion = religions.id
         left join country on suspects.country = country.id
-    where accidents.id = \''.$accidentId.'\' ');
+    where accidents.id = ? ', [$accidentId]);
 
         $accident = Accident::where('id', $accidentId)->first();
         $accidentDate = Carbon::parse($accident->accident_date)->translatedFormat('d F Y');

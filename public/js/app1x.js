@@ -25,4 +25,12 @@ $(document).ready(function () {
             $(this).find(".dropdown-arrow").addClass("rotate");
         }
     });
+
+    // Cegah accessibility warning di browser modern:
+    // "Blocked aria-hidden on an element because its descendant retained focus"
+    $(document).on("hide.bs.modal", ".modal", function () {
+        if (document.activeElement && $(this).has(document.activeElement).length) {
+            document.activeElement.blur();
+        }
+    });
 });

@@ -69,6 +69,7 @@ class Kernel extends HttpKernel
         'api-auth' => \App\Http\Middleware\ApiAuthMiddleware::class,
 	'is-administrator' => \App\Http\Middleware\IsAdministratorMiddleware::class,
 	'is-evaluation-form-filled' => \App\Http\Middleware\IsEvaluationFormFilledMiddleware::class,
-	'is-signatory' => \App\Http\Middleware\IsSignatoryMiddleware::class, 
+        'is-signatory' => \App\Http\Middleware\IsSignatoryMiddleware::class,
+        'document-active' => \App\Http\Middleware\EnsureDocumentTypeIsActive::class,
     ];
 }

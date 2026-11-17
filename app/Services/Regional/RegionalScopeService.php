@@ -126,4 +126,96 @@ class RegionalScopeService
             ->where('polda_id', (string) $poldaId)
             ->exists();
     }
+
+    /**
+     * Validasi apakah pengguna yang sedang login ($actor) berhak mengakses/memodifikasi target user/officer ($target).
+     *
+     * @param mixed $actor Model User atau object pengguna/petugas yang sedang login
+     * @param mixed $target Model User/Officer atau object pengguna/petugas yang dituju
+     */
+    public static function authorizeTargetUser(mixed $actor, mixed $target): bool
+    {
+        if (!$actor || !$target) {
+            return false;
+        }
+
+        if ((int) $actor->role_id === 1) {
+            return true;
+        }
+
+        // Non-Super-Admin tidak pernah boleh memodifikasi akun Super Admin (role_id = 1)
+        if (isset($target->role_id) && (int) $target->role_id === 1) {
+            return false;
+        }
+
+        $actorPolda = (string) ($actor->polda_id ?? '');
+        $actorPolres = (string) ($actor->polres_id ?? '');
+        $actorPolice = (string) ($actor->police_id ?? '');
+
+        $targetPolda = (string) ($target->polda_id ?? '');
+        $targetPolres = (string) ($target->polres_id ?? '');
+        $targetPolice = (string) ($target->police_id ?? '');
+
+        if ((int) $actor->role_id === 2) {
+            if ($actorPolda !== '' && $targetPolda === $actorPolda) {
+                return true;
+            }
+            if ($actorPolice !== '' && $targetPolice === $actorPolice) {
+                return true;
+            }
+            return false;
+        }
+
+        if (in_array((int) $actor->role_id, [3, 5], true)) {
+            if ($actorPolres !== '' && $actorPolres !== '0' && $targetPolres === $actorPolres) {
+                return true;
+            }
+            if ($actorPolice !== '' && $targetPolice === $actorPolice) {
+                return true;
+            }
+            if (($actorPolres === '' || $actorPolres === '0') && $actorPolda !== '' && $targetPolda === $actorPolda) {
+                return true;
+            }
+            // Cek juga apakah target berada di satker anak dari satker actor
+            if ($actorPolice !== '' && $targetPolice !== '') {
+                try {
+                    return DB::table('lib.polices')
+                        ->where('id', $targetPolice)
+                        ->where('parent_id', $actorPolice)
+                        ->exists();
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        return isset($actor->id, $target->id) && (string) $actor->id === (string) $target->id;
+    }
+
+    /**
+     * Validasi apakah $actor diizinkan menetapkan $newRoleId kepada pengguna lain.
+     *
+     * @param mixed $actor Model User atau object pengguna yang sedang login
+     * @param int $newRoleId Role ID baru yang akan ditetapkan
+     */
+    public static function canAssignRole(mixed $actor, int $newRoleId): bool
+    {
+        if (!$actor) {
+            return false;
+        }
+
+        $actorRole = (int) $actor->role_id;
+        if ($actorRole === 1) {
+            return true;
+        }
+        if ($actorRole === 2) {
+            return $newRoleId >= 3;
+        }
+        if ($actorRole === 3) {
+            return in_array($newRoleId, [3, 4, 5], true);
+        }
+
+        return false;
+    }
 }

@@ -14,24 +14,38 @@ class OTPMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $otp;
-    public $expiryMinutes;
-    public $subjectLine;
+    /**
+     * @var string
+     */
+    protected string $otp;
+
+    /**
+     * @var int
+     */
+    public int $expiryMinutes;
+
+    /**
+     * @var string
+     */
+    public string $subjectLine;
 
     /**
      * Create a new message instance.
+     *
+     * @param string|int $otp
+     * @param int $expiryMinute
+     * @param string $subject
      */
-    public function __construct($otp, $expiryMinute = 3, $subject = 'Kode OTP Anda')
+    public function __construct(string|int $otp, int $expiryMinute = 3, string $subject = 'Kode OTP Anda')
     {
-        //
-        $this->otp = $otp;
+        $this->otp = (string) $otp;
         $this->expiryMinutes = $expiryMinute;
         $this->subjectLine = $subject;
     }
 
     public function build()
     {
-        Log::info("Membangun email dengan OTP: {$this->otp}");
+        Log::info("Membangun email OTP");
 
         return $this->subject($this->subjectLine)
             ->view('email.otp')

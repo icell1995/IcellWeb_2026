@@ -21,38 +21,41 @@ class DashboardicellController extends Controller
         $data = DB::select("
             select
             polda.name,
-            count(case when selra_flag='S0101' and date_part('month',accidents.accident_date)=$now and date_part('year',accidents.accident_date)=$year then 1 else null end) as p21,
-            count(case when selra_flag='S0102' and date_part('month',accidents.accident_date)=$now and date_part('year',accidents.accident_date)=$year then 1 else null end) as sp3,
-            count(case when selra_flag='S0103' and date_part('month',accidents.accident_date)=$now and date_part('year',accidents.accident_date)=$year then 1 else null end) as diversi,
-            count(case when selra_flag='S0104' and date_part('month',accidents.accident_date)=$now and date_part('year',accidents.accident_date)=$year then 1 else null end) as pomtni,
-            count(case when selra_flag='S0106' and date_part('month',accidents.accident_date)=$now and date_part('year',accidents.accident_date)=$year then 1 else null end) as adrrj,
-            count(case when selra_flag='S0107' and date_part('month',accidents.accident_date)=$now and date_part('year',accidents.accident_date)=$year then 1 else null end) as dalamproses,
-            count(case when selra_flag='S0108' and date_part('month',accidents.accident_date)=$now and date_part('year',accidents.accident_date)=$year then 1 else null end) as sp2lid,
-            count(case when date_part('month',accidents.accident_date)=$now and date_part('year',accidents.accident_date)=$year then 1 else null end) as total
+            count(case when selra_flag='S0101' and date_part('month',accidents.accident_date)=? and date_part('year',accidents.accident_date)=? then 1 else null end) as p21,
+            count(case when selra_flag='S0102' and date_part('month',accidents.accident_date)=? and date_part('year',accidents.accident_date)=? then 1 else null end) as sp3,
+            count(case when selra_flag='S0103' and date_part('month',accidents.accident_date)=? and date_part('year',accidents.accident_date)=? then 1 else null end) as diversi,
+            count(case when selra_flag='S0104' and date_part('month',accidents.accident_date)=? and date_part('year',accidents.accident_date)=? then 1 else null end) as pomtni,
+            count(case when selra_flag='S0106' and date_part('month',accidents.accident_date)=? and date_part('year',accidents.accident_date)=? then 1 else null end) as adrrj,
+            count(case when selra_flag='S0107' and date_part('month',accidents.accident_date)=? and date_part('year',accidents.accident_date)=? then 1 else null end) as dalamproses,
+            count(case when selra_flag='S0108' and date_part('month',accidents.accident_date)=? and date_part('year',accidents.accident_date)=? then 1 else null end) as sp2lid,
+            count(case when date_part('month',accidents.accident_date)=? and date_part('year',accidents.accident_date)=? then 1 else null end) as total
             from accidents
             right join polres on polres.id = accidents.polres_id
             right join polda on polda.id = polres.polda_id
             where polda.id not in ('90','99')
             group by polda.name order by polda.name asc
-        ");
+        ", [
+            $now, $year, $now, $year, $now, $year, $now, $year,
+            $now, $year, $now, $year, $now, $year, $now, $year,
+        ]);
         $total = DB::select("
             select
-            count(case when selra_flag='S0101' and DATE(created_at)='$dateNow'  then 1 else null end) as p21,
-            count(case when selra_flag='S0102' and DATE(created_at)='$dateNow'  then 1 else null end) as sp3,
-            count(case when selra_flag='S0103' and DATE(created_at)='$dateNow'  then 1 else null end) as diversi,
-            count(case when selra_flag='S0104' and DATE(created_at)='$dateNow'  then 1 else null end) as pomtni,
-            count(case when selra_flag='S0106' and DATE(created_at)='$dateNow'  then 1 else null end) as adrrj,
-            count(case when selra_flag='S0107' and DATE(created_at)='$dateNow'  then 1 else null end) as dalamproses,
-            count(case when selra_flag='S0108' and DATE(created_at)='$dateNow'  then 1 else null end) as sp2lid,
-            count(case when DATE(created_at)='$dateNow'  then 1 else null end) as totalall
+            count(case when selra_flag='S0101' and DATE(created_at)=? then 1 else null end) as p21,
+            count(case when selra_flag='S0102' and DATE(created_at)=? then 1 else null end) as sp3,
+            count(case when selra_flag='S0103' and DATE(created_at)=? then 1 else null end) as diversi,
+            count(case when selra_flag='S0104' and DATE(created_at)=? then 1 else null end) as pomtni,
+            count(case when selra_flag='S0106' and DATE(created_at)=? then 1 else null end) as adrrj,
+            count(case when selra_flag='S0107' and DATE(created_at)=? then 1 else null end) as dalamproses,
+            count(case when selra_flag='S0108' and DATE(created_at)=? then 1 else null end) as sp2lid,
+            count(case when DATE(created_at)=? then 1 else null end) as totalall
             from accidents
-        ");
+        ", array_fill(0, 8, $dateNow));
 
-        $get_dpo = DB::select("select coalesce(count(*),0) as total_dpo from dpo join accidents ON accidents.id = dpo.accident_id where dpo.state = '0' and date_part('month',dpo.created_at)=$now");
-        $get_dpb = DB::select("select coalesce(count(*),0) as total_dpb from dpb join accidents ON accidents.id = dpb.accident_id where dpb.state = '0' and date_part('month',dpb.created_at)=$now");
+        $get_dpo = DB::select("select coalesce(count(*),0) as total_dpo from dpo join accidents ON accidents.id = dpo.accident_id where dpo.state = '0' and date_part('month',dpo.created_at)=?", [$now]);
+        $get_dpb = DB::select("select coalesce(count(*),0) as total_dpb from dpb join accidents ON accidents.id = dpb.accident_id where dpb.state = '0' and date_part('month',dpb.created_at)=?", [$now]);
 
         $get_selra = DB::select(
-            '
+            "
             SELECT
             SUM(total_selra) AS overall_total_selra
             FROM (
@@ -74,106 +77,57 @@ class DashboardicellController extends Controller
                     WHERE
                     polres.state = 1
                     AND polda.state = 1
-                    and date_part(\'year\',  accidents.created_at) = \'' . $year . '\'
-                    and ref.grp_id = \'S01\'
+                    and date_part('year', accidents.created_at) = ?
+                    and ref.grp_id = 'S01'
                     GROUP BY REF.ID, ref.name, ref.sort
                     ORDER BY ref.sort
                 ) AS ACCIDENT ON REF.ID = ACCIDENT.ID
                 WHERE
-                    ref.grp_id = \'S01\'
-                    AND ref.id NOT IN (\'S0107\', \'S0106\')
+                    ref.grp_id = 'S01'
+                    AND ref.id NOT IN ('S0107', 'S0106')
                 GROUP BY ref.name, ref.sort
             ) AS overall_totals;
-            '
+            ",
+            [$year]
         );
 
         $selra = DB::select(
             "
             SELECT
                 polda.name,
-                total_p21.total AS p21,
-                total_sp3.total AS sp3,
-                total_diversi.total AS diversi,
-                total_pom_tni.total AS pom_tni,
-                total_sp2lid.total AS sp2lid
+                res.p21,
+                res.sp3,
+                res.diversi,
+                res.pom_tni,
+                res.sp2lid
             FROM polda
             JOIN polres ON polda.id = polres.polda_id
-            LEFT JOIN(
-                SELECT polda.id as id,
-                count(accidents.id) AS total
+            LEFT JOIN (
+                SELECT
+                    polda.id AS id,
+                    NULLIF(COUNT(CASE WHEN selra_flag = 'S0101' THEN accidents.id END), 0) AS p21,
+                    NULLIF(COUNT(CASE WHEN selra_flag = 'S0102' THEN accidents.id END), 0) AS sp3,
+                    NULLIF(COUNT(CASE WHEN selra_flag = 'S0103' THEN accidents.id END), 0) AS diversi,
+                    NULLIF(COUNT(CASE WHEN selra_flag = 'S0104' THEN accidents.id END), 0) AS pom_tni,
+                    NULLIF(COUNT(CASE WHEN selra_flag = 'S0108' THEN accidents.id END), 0) AS sp2lid
                 FROM polda
                 JOIN polres ON polda.id = polres.polda_id
                 JOIN accidents ON polres.id = accidents.polres_id
                 JOIN accident_resolutions ON accidents.id = accident_resolutions.accident_id
-                WHERE EXTRACT(YEAR FROM accident_resolutions.created_at) = $year
-                AND selra_flag = 'S0101'
+                WHERE EXTRACT(YEAR FROM accident_resolutions.created_at) = ?
+                AND selra_flag IN ('S0101', 'S0102', 'S0103', 'S0104', 'S0108')
                 AND polda.state <> 0
                 AND polres.state <> 0
                 AND accidents.state <> 0
-                GROUP BY 1
-            )total_p21 on polda.id = total_p21.id or polres.id = total_p21.id
-            LEFT JOIN(
-                SELECT polda.id as id,
-                count(accidents.id) AS total
-                FROM polda
-                JOIN polres ON polda.id = polres.polda_id
-                JOIN accidents ON polres.id = accidents.polres_id
-                JOIN accident_resolutions ON accidents.id = accident_resolutions.accident_id
-                WHERE EXTRACT(YEAR FROM accident_resolutions.created_at) = $year
-                AND selra_flag = 'S0102'
-                AND polda.state <> 0
-                AND polres.state <> 0
-                AND accidents.state <> 0
-                GROUP BY 1
-            )total_sp3 on polda.id = total_sp3.id or polres.id = total_sp3.id
-            LEFT JOIN(
-                SELECT polda.id as id,
-                count(accidents.id) AS total
-                FROM polda
-                JOIN polres ON polda.id = polres.polda_id
-                JOIN accidents ON polres.id = accidents.polres_id
-                JOIN accident_resolutions ON accidents.id = accident_resolutions.accident_id
-                WHERE EXTRACT(YEAR FROM accident_resolutions.created_at) = $year
-                AND selra_flag = 'S0103'
-                AND polda.state <> 0
-                AND polres.state <> 0
-                AND accidents.state <> 0
-                GROUP BY 1
-            )total_diversi on polda.id = total_diversi.id or polres.id = total_diversi.id
-            LEFT JOIN(
-                SELECT polda.id as id,
-                count(accidents.id) AS total
-                FROM polda
-                JOIN polres ON polda.id = polres.polda_id
-                JOIN accidents ON polres.id = accidents.polres_id
-                JOIN accident_resolutions ON accidents.id = accident_resolutions.accident_id
-                WHERE EXTRACT(YEAR FROM accident_resolutions.created_at) = $year
-                AND selra_flag = 'S0104'
-                AND polda.state <> 0
-                AND polres.state <> 0
-                AND accidents.state <> 0
-                GROUP BY 1
-            )total_pom_tni on polda.id = total_pom_tni.id or polres.id = total_pom_tni.id
-            LEFT JOIN(
-                SELECT polda.id as id,
-                count(accidents.id) AS total
-                FROM polda
-                JOIN polres ON polda.id = polres.polda_id
-                JOIN accidents ON polres.id = accidents.polres_id
-                JOIN accident_resolutions ON accidents.id = accident_resolutions.accident_id
-                WHERE EXTRACT(YEAR FROM accident_resolutions.created_at) = $year
-                AND selra_flag = 'S0108'
-                AND polda.state <> 0
-                AND polres.state <> 0
-                AND accidents.state <> 0
-                GROUP BY 1
-            )total_sp2lid on polda.id = total_sp2lid.id or polres.id = total_sp2lid.id
+                GROUP BY polda.id
+            ) res ON polda.id = res.id OR polres.id = res.id
             WHERE
             polda.state <> 0
             AND polres.state <> 0
             AND polda.id NOT IN ('90','99')
             GROUP BY 1,2,3,4,5,6
-            "
+            ",
+            [$year]
         );
 
         $countDORS = DB::table('stg_dors_accidents')->whereDate('waktu_kejadian', $dateNow)->count();
@@ -246,7 +200,11 @@ class DashboardicellController extends Controller
         $year = Carbon::now()->year;
 
         // Get total polres count
-        $totalPolres = $this->getActivePolres()->count();
+        $totalPolres = DB::table('lib.polices')
+            ->where('class', 'RESOR')
+            ->where('is_active', true)
+            ->whereNotIn('parent_id', ['77', '80', '99'])
+            ->count();
 
         // Get unique police_id with active TTE
         $activeTTEUnits = $this->getActiveTTEOfficials()->total_unique_police;
@@ -260,8 +218,8 @@ class DashboardicellController extends Controller
             JOIN officers ON officers.user_id = users.id
             JOIN lib.polices ON users.police_id = lib.polices.id
             WHERE lib.polices.is_active = true
-            AND EXTRACT(YEAR FROM users.created_at) = $year
-        ");
+            AND EXTRACT(YEAR FROM users.created_at) = ?
+        ", [$year]);
 
         // Add additional information to result
         $data = $result[0];
@@ -272,8 +230,6 @@ class DashboardicellController extends Controller
     }
     public function updateContent()
     {
-        $dashBar = $this->getDashBar();
-        $dashPie = $this->getDashPie();
         $day = Carbon::now()->day;
         $now = Carbon::now()->month;
         $year = Carbon::now()->year;
@@ -283,22 +239,22 @@ class DashboardicellController extends Controller
 
         $total = DB::select("
             select
-            count(case when selra_flag='S0101' and DATE(created_at)='$dateNow' then 1 else null end) as p21,
-            count(case when selra_flag='S0102' and DATE(created_at)='$dateNow' then 1 else null end) as sp3,
-            count(case when selra_flag='S0103' and DATE(created_at)='$dateNow' then 1 else null end) as diversi,
-            count(case when selra_flag='S0104' and DATE(created_at)='$dateNow' then 1 else null end) as pomtni,
-            count(case when selra_flag='S0106' and DATE(created_at)='$dateNow' then 1 else null end) as adrrj,
-            count(case when selra_flag='S0107' and DATE(created_at)='$dateNow' then 1 else null end) as dalamproses,
-            count(case when selra_flag='S0108' and DATE(created_at)='$dateNow' then 1 else null end) as sp2lid,
-            (select count(selra_flag) from accidents where DATE(created_at)='$dateNow') as totalall
+            count(case when selra_flag='S0101' and DATE(created_at)=? then 1 else null end) as p21,
+            count(case when selra_flag='S0102' and DATE(created_at)=? then 1 else null end) as sp3,
+            count(case when selra_flag='S0103' and DATE(created_at)=? then 1 else null end) as diversi,
+            count(case when selra_flag='S0104' and DATE(created_at)=? then 1 else null end) as pomtni,
+            count(case when selra_flag='S0106' and DATE(created_at)=? then 1 else null end) as adrrj,
+            count(case when selra_flag='S0107' and DATE(created_at)=? then 1 else null end) as dalamproses,
+            count(case when selra_flag='S0108' and DATE(created_at)=? then 1 else null end) as sp2lid,
+            count(case when DATE(created_at)=? then 1 else null end) as totalall
             from accidents
-        ");
+        ", array_fill(0, 8, $dateNow));
 
-        $get_dpo = DB::select("select coalesce(count(*),0) as total_dpo from dpo join accidents ON accidents.id = dpo.accident_id where dpo.state = '0' and date_part('month',dpo.created_at)=$now");
-        $get_dpb = DB::select("select coalesce(count(*),0) as total_dpb from dpb join accidents ON accidents.id = dpb.accident_id where dpb.state = '0' and date_part('month',dpb.created_at)=$now");
+        $get_dpo = DB::select("select coalesce(count(*),0) as total_dpo from dpo join accidents ON accidents.id = dpo.accident_id where dpo.state = '0' and date_part('month',dpo.created_at)=?", [$now]);
+        $get_dpb = DB::select("select coalesce(count(*),0) as total_dpb from dpb join accidents ON accidents.id = dpb.accident_id where dpb.state = '0' and date_part('month',dpb.created_at)=?", [$now]);
 
         $get_selra = DB::select(
-            '
+            "
             SELECT
             SUM(total_selra) AS overall_total_selra
             FROM (
@@ -319,16 +275,17 @@ class DashboardicellController extends Controller
                     WHERE
                         polres.state = 1
                         AND polda.state = 1
-                        and date_part(\'year\',  accidents.created_at) = \'' . $year . '\'
-                        and ref.grp_id = \'S01\'
+                        and date_part('year', accidents.created_at) = ?
+                        and ref.grp_id = 'S01'
                         GROUP BY REF.ID, ref.name, ref.sort
                     ORDER BY ref.sort
                 ) AS ACCIDENT ON REF.ID = ACCIDENT.ID
-                WHERE ref.grp_id = \'S01\'
-                AND ref.id NOT IN (\'S0107\', \'S0106\')
+                WHERE ref.grp_id = 'S01'
+                AND ref.id NOT IN ('S0107', 'S0106')
                 GROUP BY ref.name, ref.sort
             ) AS overall_totals;
-            '
+            ",
+            [$year]
         );
 
         // $response = Http::withHeaders([
@@ -368,32 +325,19 @@ class DashboardicellController extends Controller
         $range = 11;
         $outputs = collect();
 
-        // for ($x = 0; $x <= $range; $x++) {
-        //     $current_month = Carbon::now()->subMonth($range - $x);
-        //     $date = $current_month->month;
-        //     $date_year = $current_month->year;
+        $firstMonthStart = Carbon::now()->startOfMonth()->subMonth($range)->startOfMonth()->toDateString();
+        $lastMonthEnd = Carbon::now()->startOfMonth()->endOfMonth()->toDateString();
 
-        //     // $counts = DB::table('accidents')->whereMonth('created_at', '=', $date)->get(['accidents.id'])->count();
-        //     $counts = DB::table('accidents')
-        //         ->whereMonth('accidents.created_at', '=', $date)->get(['accidents.id'])->count();
-        //     // dd($counts);
-        //     $count = intval($counts);
-        //     // setlocale(LC_TIME, 'id');
-        //     // $date = $current_month->formatLocalized('%B') . " " . $current_month->year;
-        //     $date = $current_month->translatedFormat('F') . " " . $current_month->year;
-        //     $output = collect(['date' => $date, 'count' => $count]);
-        //     $outputs->push($output);
-        // }
+        $countsByMonth = DB::table('accidents')
+            ->selectRaw("TO_CHAR(accidents.created_at, 'YYYY-MM') as ym, COUNT(accidents.id) as total")
+            ->whereBetween('accidents.created_at', [$firstMonthStart, $lastMonthEnd])
+            ->groupByRaw("TO_CHAR(accidents.created_at, 'YYYY-MM')")
+            ->pluck('total', 'ym');
 
         for ($x = 0; $x <= $range; $x++) {
             $current_month = Carbon::now()->startOfMonth()->subMonth($range - $x);
-            $start_date = $current_month->startOfMonth()->toDateString();
-            $end_date = $current_month->endOfMonth()->toDateString();
-
-            $counts = DB::table('accidents')
-                ->whereBetween('accidents.created_at', [$start_date, $end_date])->get(['accidents.id'])->count();
-            // dd($counts);
-            $count = intval($counts);
+            $ym = $current_month->format('Y-m');
+            $count = intval($countsByMonth[$ym] ?? 0);
             $date = $current_month->translatedFormat('F Y');
             $output = collect(['date' => $date, 'count' => $count]);
             $outputs->push($output);
@@ -411,7 +355,7 @@ class DashboardicellController extends Controller
         // $current_year = Carbon::now()->subYear();
         $lastYear = Carbon::now()->subYear()->year;
         // dd($lastYear);
-        $month = $current_month->formatLocalized('%B');
+        $month = $current_month->translatedFormat('F');
         $date_month = $month;
         $date_year = $current_month->year;
         // dd($date_year);
@@ -423,7 +367,6 @@ class DashboardicellController extends Controller
             ->where('polda.state', '=', 1)
             ->whereNotIn('accidents.selra_flag', ['S0107'])
             ->whereYear('accidents.created_at', '=', $date_year)
-            ->get(['accidents.id'])
             ->count();
 
         $jumlah_laka_lastYear = DB::table('accidents')
@@ -433,14 +376,13 @@ class DashboardicellController extends Controller
             ->where('polda.state', '=', 1)
             ->whereNotIn('accidents.selra_flag', ['S0107'])
             ->whereYear('accidents.created_at', '=', $lastYear)
-            ->get(['accidents.id'])
             ->count();
 
         $selra_id = DB::table('ref')
             ->where('ref.grp_id', '=', 'S01')->orderBy('sort')->get();
 
         $jumlah_selra = DB::select(
-            '
+            "
             select
                 ref.name,
                 coalesce(accident.jumlah_selra,0) as percentage
@@ -458,20 +400,21 @@ class DashboardicellController extends Controller
                     where
                     polres.state = 1
                     and polda.state = 1
-                    and date_part(\'year\',  accidents.created_at) = \'' . $date_year . '\'
-                    and ref.grp_id = \'S01\'
+                    and date_part('year', accidents.created_at) = ?
+                    and ref.grp_id = 'S01'
                     group by REF.ID,ref.name,ref.sort
                     order by ref.sort
-                ) AS ACCIDENT ON  REF.ID = ACCIDENT.ID
+                ) AS ACCIDENT ON REF.ID = ACCIDENT.ID
                 where
-                    ref.grp_id = \'S01\'
+                    ref.grp_id = 'S01'
                 AND
-                    ref.id NOT IN (\'S0107\', \'S0106\')
-            '
+                    ref.id NOT IN ('S0107', 'S0106')
+            ",
+            [$date_year]
         );
 
         $jumlah_selra_lastYear = DB::select(
-            '
+            "
             select
                 ref.name,
                 coalesce(accident.jumlah_selra_lastYear,0) as percentage_lastYear
@@ -489,16 +432,17 @@ class DashboardicellController extends Controller
                     where
                     polres.state = 1
                     and polda.state = 1
-                    and date_part(\'year\',  accidents.created_at) = \'' . $lastYear . '\'
-                    and ref.grp_id = \'S01\'
+                    and date_part('year', accidents.created_at) = ?
+                    and ref.grp_id = 'S01'
                     group by REF.ID,ref.name,ref.sort
                     order by ref.sort
-                ) AS ACCIDENT ON  REF.ID = ACCIDENT.ID
+                ) AS ACCIDENT ON REF.ID = ACCIDENT.ID
                 where
-                    ref.grp_id = \'S01\'
+                    ref.grp_id = 'S01'
                 AND
-                    ref.id NOT IN (\'S0107\', \'S0106\')
-            '
+                    ref.id NOT IN ('S0107', 'S0106')
+            ",
+            [$lastYear]
         );
 
         // dd($jumlah_selra_lastYear);

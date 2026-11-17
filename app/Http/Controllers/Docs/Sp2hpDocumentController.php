@@ -116,7 +116,7 @@ class Sp2hpDocumentController extends Controller
                         $badgeClass = 'badge-info';
                     }
                     
-                    return '<span class="badge ' . $badgeClass . '">' . ucfirst($row->status) . '</span>';
+                    return '<span class="badge ' . $badgeClass . '">' . e(ucfirst((string) $row->status)) . '</span>';
                 })
                 ->rawColumns(['action', 'status_badge'])
                 ->make(true);

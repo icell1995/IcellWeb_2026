@@ -112,21 +112,24 @@ class AnevController extends Controller
             // 2) Ambil data API IRSMS (Hanya jika APP_MODE=PRODUCTION)
             // -------------------------------
             if (AppModeHelper::isApiEnabled('AnevController@get_report_anev')) {
+                $totalLakaUrl = rtrim((string) config('services.irsms.base_url'), '/') . '/getTotalLaka';
+                $totalLakaKey = (string) config('services.irsms.total_laka_key');
+
                 $apiLalu = Http::withHeaders([
-                    'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell',
+                    'Key' => $totalLakaKey,
                     'Content-Type' => 'application/json'
                 ])->timeout(10)->withQueryParameters([
                     'start_date' => $start_date_then,
                     'end_date'   => $end_date_then
-                ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getTotalLaka')->json();
+                ])->get($totalLakaUrl)->json();
 
                 $apiIni = Http::withHeaders([
-                    'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell',
+                    'Key' => $totalLakaKey,
                     'Content-Type' => 'application/json'
                 ])->timeout(10)->withQueryParameters([
                     'start_date' => $start_date_now,
                     'end_date'   => $end_date_now
-                ])->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getTotalLaka')->json();
+                ])->get($totalLakaUrl)->json();
             } else {
                 $apiLalu = ['result' => []];
                 $apiIni  = ['result' => []];
@@ -184,86 +187,73 @@ class AnevController extends Controller
             }
 
             // -------------------------------
-            // 3) Query DB ICELL
+            // 3) Query DB ICELL (Parameterized & Consolidated)
             // -------------------------------
-            $flags = [
-                'p21'          => 'S0101',
-                'sp3'          => 'S0102',
-                'diversi'      => 'S0103',
-                'pom_tni'      => 'S0104',
-                'dalam_proses' => 'S0107',
-                'sp2lid'       => 'S0108',
-            ];
-
-            $makeJoin = function ($alias, $flag, $start, $end) use ($poldaId, $polresId, $fieldTanggal) {
-                $selraCondition = $flag ? "AND selra_flag = '$flag'" : '';
-                return "
-                    LEFT JOIN (
-                        SELECT CASE WHEN '$poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                            COUNT(accidents.id) AS total
-                        FROM polda
-                        JOIN polres    ON polda.id = polres.polda_id
-                        JOIN accidents ON polres.id = accidents.polres_id
-                        WHERE
-                            (CASE WHEN '$poldaId' <> '-' THEN polda.id = '$poldaId' ELSE TRUE END) AND
-                            (CASE WHEN '$poldaId' <> '-' AND '$polresId' <> '-' THEN polres.id = '$polresId' ELSE TRUE END) AND
-                            $fieldTanggal BETWEEN '$start' AND '$end'
-                            $selraCondition
-                            AND polda.state    <> 0
-                            AND polres.state   <> 0
-                            AND accidents.state <> 0
-                        GROUP BY 1
-                    ) $alias ON polda.id = $alias.id OR polres.id = $alias.id
-                ";
-            };
-
-            $buildSelect = function ($start, $end) use ($makeJoin, $flags, $poldaId, $polresId) {
-                $joins = $makeJoin("total_sidik_laka", null, $start, $end);
-                foreach ($flags as $alias => $flag) {
-                    $joins .= $makeJoin("total_$alias", $flag, $start, $end);
-                }
-
-                return "
+            $safeFieldTanggal = $fieldTanggal === 'report_date' ? 'report_date' : 'accident_date';
+            $periodSql = "
+                SELECT
+                    CASE WHEN ? = '-' THEN polda.id   ELSE polres.id   END AS kode,
+                    CASE WHEN ? = '-' THEN polda.name ELSE polres.name END AS polda_polres,
+                    agg.total_sidik_laka,
+                    agg.p21,
+                    agg.sp3,
+                    agg.diversi,
+                    agg.pom_tni,
+                    agg.dalam_proses,
+                    agg.sp2lid
+                FROM polda
+                JOIN polres ON polda.id = polres.polda_id
+                LEFT JOIN (
                     SELECT
-                        CASE WHEN '$poldaId' = '-' THEN polda.id   ELSE polres.id   END AS kode,
-                        CASE WHEN '$poldaId' = '-' THEN polda.name ELSE polres.name END AS polda_polres,
-                        total_sidik_laka.total AS total_sidik_laka,
-                        total_p21.total        AS p21,
-                        total_sp3.total        AS sp3,
-                        total_diversi.total    AS diversi,
-                        total_pom_tni.total    AS pom_tni,
-                        total_dalam_proses.total AS dalam_proses,
-                        total_sp2lid.total     AS sp2lid
+                        CASE WHEN ? = '-' THEN polda.id ELSE polres.id END AS id,
+                        COUNT(accidents.id) AS total_sidik_laka,
+                        COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0101') AS p21,
+                        COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0102') AS sp3,
+                        COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0103') AS diversi,
+                        COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0104') AS pom_tni,
+                        COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0107') AS dalam_proses,
+                        COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0108') AS sp2lid
                     FROM polda
-                    JOIN polres ON polda.id = polres.polda_id
-                    $joins
+                    JOIN polres    ON polda.id = polres.polda_id
+                    JOIN accidents ON polres.id = accidents.polres_id
                     WHERE
-                        (CASE WHEN '$poldaId' <> '-' THEN polda.id = '$poldaId' ELSE TRUE END) AND
-                        (CASE WHEN '$poldaId' <> '-' AND '$polresId' <> '-' THEN polres.id = '$polresId' ELSE TRUE END) AND
-                        polda.state <> 0
-                        AND polda.id NOT IN ('90','99')
-                        AND polres.state <> 0
-                    GROUP BY 1,2,3,4,5,6,7,8,9
-                    ORDER BY polda_polres
-                ";
-            };
+                        (CASE WHEN ? <> '-' THEN polda.id = ? ELSE TRUE END) AND
+                        (CASE WHEN ? <> '-' AND ? <> '-' THEN polres.id = ? ELSE TRUE END) AND
+                        {$safeFieldTanggal} BETWEEN ? AND ?
+                        AND polda.state    <> 0
+                        AND polres.state   <> 0
+                        AND accidents.state <> 0
+                    GROUP BY 1
+                ) agg ON polda.id = agg.id OR polres.id = agg.id
+                WHERE
+                    (CASE WHEN ? <> '-' THEN polda.id = ? ELSE TRUE END) AND
+                    (CASE WHEN ? <> '-' AND ? <> '-' THEN polres.id = ? ELSE TRUE END) AND
+                    polda.state <> 0
+                    AND polda.id NOT IN ('90','99')
+                    AND polres.state <> 0
+                GROUP BY 1,2,3,4,5,6,7,8,9
+                ORDER BY polda_polres
+            ";
 
-            $sql = "SELECT (
-                SELECT row_to_json(t)
-                FROM (
-                    SELECT
-                        (SELECT COALESCE(array_to_json(array_agg(row_to_json(w))), '[]'::json)
-                        FROM (" . $buildSelect($start_date_then, $end_date_then) . ") w) AS tahun_lalu,
-                        (SELECT COALESCE(array_to_json(array_agg(row_to_json(w))), '[]'::json)
-                        FROM (" . $buildSelect($start_date_now, $end_date_now) . ") w) AS tahun_ini
-                ) t
-            ) AS data";
+            $tahun_lalu_rows = DB::select($periodSql, [
+                $poldaId, $poldaId,
+                $poldaId,
+                $poldaId, $poldaId,
+                $poldaId, $polresId, $polresId,
+                $start_date_then, $end_date_then,
+                $poldaId, $poldaId,
+                $poldaId, $polresId, $polresId,
+            ]);
 
-            $query = DB::select($sql);
-            $dataObj = !empty($query) ? json_decode($query[0]->data ?? '{}') : (object) [];
-
-            $tahun_lalu_rows = is_array($dataObj->tahun_lalu ?? null) ? $dataObj->tahun_lalu : [];
-            $tahun_ini_rows  = is_array($dataObj->tahun_ini  ?? null) ? $dataObj->tahun_ini  : [];
+            $tahun_ini_rows = DB::select($periodSql, [
+                $poldaId, $poldaId,
+                $poldaId,
+                $poldaId, $poldaId,
+                $poldaId, $polresId, $polresId,
+                $start_date_now, $end_date_now,
+                $poldaId, $poldaId,
+                $poldaId, $polresId, $polresId,
+            ]);
 
             // Buat map tahun_ini by kode utk akses cepat
             $tahun_ini_map = [];
@@ -410,79 +400,66 @@ class AnevController extends Controller
                 break;
         }
 
+        $userId = Auth::id();
         $data = DB::select("select
         officers.id,
         officers.first_name,
         officers.last_name,
         officers.rank_short_name,
         polres.name as polres_name,
-        coalesce(p21_lalu.jumlah_sidik,0) as total_p21_lalu,
-        coalesce(sp3_lalu.jumlah_sidik,0) as total_sp3_lalu,
-        coalesce(diversi_lalu.jumlah_sidik,0) as total_diversi_lalu,
-        coalesce(pom_tni_lalu.jumlah_sidik,0) as total_pom_tni_lalu,
-        coalesce(rj_lalu.jumlah_sidik,0) as total_rj_lalu,
-        coalesce(dalam_proses_lalu.jumlah_sidik,0) as total_dalam_proses_lalu,
-        coalesce(sp2lid_lalu.jumlah_sidik,0) as total_sp2lid_lalu,
+        coalesce(sidik_agg.total_p21, 0) as total_p21_lalu,
+        coalesce(sidik_agg.total_sp3, 0) as total_sp3_lalu,
+        coalesce(sidik_agg.total_diversi, 0) as total_diversi_lalu,
+        coalesce(sidik_agg.total_pom_tni, 0) as total_pom_tni_lalu,
+        coalesce(sidik_agg.total_rj, 0) as total_rj_lalu,
+        coalesce(sidik_agg.total_dalam_proses, 0) as total_dalam_proses_lalu,
+        coalesce(sidik_agg.total_sp2lid, 0) as total_sp2lid_lalu,
 
-        coalesce(p21_kini.jumlah_sidik,0) as total_p21_kini,
-        coalesce(sp3_kini.jumlah_sidik,0) as total_sp3_kini,
-        coalesce(diversi_kini.jumlah_sidik,0) as total_diversi_kini,
-        coalesce(pom_tni_kini.jumlah_sidik,0) as total_pom_tni_kini,
-        coalesce(rj_kini.jumlah_sidik,0) as total_rj_kini,
-        coalesce(dalam_proses_kini.jumlah_sidik,0) as total_dalam_proses_kini,
-        coalesce(sp2lid_kini.jumlah_sidik,0) as total_sp2lid_kini,
+        coalesce(sidik_agg.total_p21, 0) as total_p21_kini,
+        coalesce(sidik_agg.total_sp3, 0) as total_sp3_kini,
+        coalesce(sidik_agg.total_diversi, 0) as total_diversi_kini,
+        coalesce(sidik_agg.total_pom_tni, 0) as total_pom_tni_kini,
+        coalesce(sidik_agg.total_rj, 0) as total_rj_kini,
+        coalesce(sidik_agg.total_dalam_proses, 0) as total_dalam_proses_kini,
+        coalesce(sidik_agg.total_sp2lid, 0) as total_sp2lid_kini,
         foto.avatars from officers
 
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0101' group by surat_penyidikan.officer_id) as p21_lalu on officers.id = p21_lalu.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0102' group by surat_penyidikan.officer_id) as sp3_lalu on officers.id = sp3_lalu.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0103' group by surat_penyidikan.officer_id) as diversi_lalu on officers.id = diversi_lalu.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0104' group by surat_penyidikan.officer_id) as pom_tni_lalu on officers.id = pom_tni_lalu.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0106' group by surat_penyidikan.officer_id) as rj_lalu on officers.id = rj_lalu.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0107' group by surat_penyidikan.officer_id) as dalam_proses_lalu on officers.id = dalam_proses_lalu.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0108' group by surat_penyidikan.officer_id) as sp2lid_lalu on officers.id = sp2lid_lalu.sidik_id
-
-
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0101' group by surat_penyidikan.officer_id) as p21_kini on officers.id = p21_kini.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0102' group by surat_penyidikan.officer_id) as sp3_kini on officers.id = sp3_kini.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0103' group by surat_penyidikan.officer_id) as diversi_kini on officers.id = diversi_kini.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0104' group by surat_penyidikan.officer_id) as pom_tni_kini on officers.id = pom_tni_kini.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0106' group by surat_penyidikan.officer_id) as rj_kini on officers.id = rj_kini.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0107' group by surat_penyidikan.officer_id) as dalam_proses_kini on officers.id = dalam_proses_kini.sidik_id
-        LEFT JOIN
-        (select surat_penyidikan.officer_id as sidik_id,count(accident_id) as jumlah_sidik from surat_penyidikan join accidents on accidents.id = surat_penyidikan.accident_id where accidents.selra_flag = 'S0108' group by surat_penyidikan.officer_id) as sp2lid_kini on officers.id = sp2lid_kini.sidik_id
-
-
-
+        LEFT JOIN (
+            SELECT
+                surat_penyidikan.officer_id as sidik_id,
+                COUNT(accident_id) FILTER (WHERE accidents.selra_flag = 'S0101') as total_p21,
+                COUNT(accident_id) FILTER (WHERE accidents.selra_flag = 'S0102') as total_sp3,
+                COUNT(accident_id) FILTER (WHERE accidents.selra_flag = 'S0103') as total_diversi,
+                COUNT(accident_id) FILTER (WHERE accidents.selra_flag = 'S0104') as total_pom_tni,
+                COUNT(accident_id) FILTER (WHERE accidents.selra_flag = 'S0106') as total_rj,
+                COUNT(accident_id) FILTER (WHERE accidents.selra_flag = 'S0107') as total_dalam_proses,
+                COUNT(accident_id) FILTER (WHERE accidents.selra_flag = 'S0108') as total_sp2lid
+            FROM surat_penyidikan
+            JOIN accidents ON accidents.id = surat_penyidikan.accident_id
+            GROUP BY surat_penyidikan.officer_id
+        ) as sidik_agg on officers.id = sidik_agg.sidik_id
 
         LEFT JOIN
         (select users.avatar as avatars, users.officer_id as users_id from users
         where
-        CASE WHEN '$level' = '4' THEN users.officer_id = '$user' AND role_id = '4' ELSE TRUE END
+        CASE WHEN ? = '4' THEN users.officer_id = ? AND role_id = '4' ELSE TRUE END
         ) as foto on officers.id = foto.users_id
         LEFT JOIN polda on polda.id = officers.polda_id
         LEFT JOIN polres on polres.id = officers.polres_id
         where
-        CASE WHEN '$level' = '4' THEN officers.id = '$officer' ELSE TRUE END
+        CASE WHEN ? = '4' THEN officers.id = ? ELSE TRUE END
         AND
-        CASE WHEN '$poldas' <> '$null' THEN officers.polda_id = '$poldas' ELSE TRUE END
+        CASE WHEN ? <> ? THEN officers.polda_id = ? ELSE TRUE END
         AND
-        CASE WHEN '$polress' <> '$null' THEN officers.polres_id = '$polress' ELSE TRUE END
+        CASE WHEN ? <> ? THEN officers.polres_id = ? ELSE TRUE END
         AND
         foto.avatars <> 'user.png'
-        ");
+        ", [
+            (string) $level, (string) $userId,
+            (string) $level, (string) $officer,
+            (string) $poldas, $null, (string) $poldas,
+            (string) $polress, $null, (string) $polress,
+        ]);
 
         $format_start_date_then = null;
         $format_end_date_then = null;
@@ -532,396 +509,80 @@ class AnevController extends Controller
         $end_date_now       = date('Y-m-d', strtotime($request->input('date_to_now')));
         $format_end_date_now = Carbon::parse($request->date_to_now)->format('d-m-y');
         $null = '-';
+        $poldas = $poldas !== null && $poldas !== '' ? (string) $poldas : '-';
+        $polress = $polress !== null && $polress !== '' ? (string) $polress : '-';
+
+        $periodUnionSql = "
+            SELECT lidik_id,
+                   SUM(total_p21) AS total_p21,
+                   SUM(total_sp3) AS total_sp3,
+                   SUM(total_diversi) AS total_diversi,
+                   SUM(total_pom_tni) AS total_pom_tni,
+                   SUM(total_sp2lid) AS total_sp2lid
+            FROM (
+                SELECT petugas_lidik.officer_id AS lidik_id,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0101') AS total_p21,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0102') AS total_sp3,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0103') AS total_diversi,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0104') AS total_pom_tni,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0108') AS total_sp2lid
+                FROM legacy.investigation_warrants
+                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
+                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = legacy.investigation_warrants.id
+                WHERE accidents.accident_date BETWEEN ? AND ?
+                GROUP BY petugas_lidik.officer_id
+
+                UNION ALL
+
+                SELECT surat_penyelidikan.officer_id AS lidik_id,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0101') AS total_p21,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag IN ('S0102', 'S0106') AND accidents.md > 0) AS total_sp3,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0103') AS total_diversi,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0104') AS total_pom_tni,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0108') AS total_sp2lid
+                FROM surat_penyelidikan
+                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
+                WHERE accidents.accident_date BETWEEN ? AND ?
+                GROUP BY surat_penyelidikan.officer_id
+
+                UNION ALL
+
+                SELECT petugas_lidik.register_number AS lidik_id,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0101') AS total_p21,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0102') AS total_sp3,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0103') AS total_diversi,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0104') AS total_pom_tni,
+                    COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0108') AS total_sp2lid
+                FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
+                JOIN accidents ON accidents.id = surat_lidik.accident_id
+                JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
+                WHERE accidents.accident_date BETWEEN ? AND ?
+                GROUP BY petugas_lidik.register_number
+            ) AS combined_results
+            GROUP BY lidik_id
+        ";
+
         $data = DB::select("
         SELECT officers.id,
                officers.first_name,
                officers.last_name,
                officers.rank_short_name,
                polres.name AS polres_name,
-               COALESCE(p21_lalu.total_p21, 0) AS total_p21_lalu,
-               COALESCE(sp3_lalu.total_sp3, 0) AS total_sp3_lalu,
-               COALESCE(diversi_lalu.total_diversi, 0) AS total_diversi_lalu,
-               COALESCE(pom_tni_lalu.total_pom_tni, 0) AS total_pom_tni_lalu,
-               COALESCE(sp2lid_lalu.total_sp2lid, 0) AS total_sp2lid_lalu,
+               COALESCE(agg_lalu.total_p21, 0) AS total_p21_lalu,
+               COALESCE(agg_lalu.total_sp3, 0) AS total_sp3_lalu,
+               COALESCE(agg_lalu.total_diversi, 0) AS total_diversi_lalu,
+               COALESCE(agg_lalu.total_pom_tni, 0) AS total_pom_tni_lalu,
+               COALESCE(agg_lalu.total_sp2lid, 0) AS total_sp2lid_lalu,
 
-               COALESCE(p21_kini.total_p21, 0) AS total_p21_kini,
-               COALESCE(sp3_kini.total_sp3, 0) AS total_sp3_kini,
-               COALESCE(diversi_kini.total_diversi, 0) AS total_diversi_kini,
-               COALESCE(pom_tni_kini.total_pom_tni, 0) AS total_pom_tni_kini,
-               COALESCE(sp2lid_kini.total_sp2lid, 0) AS total_sp2lid_kini,
+               COALESCE(agg_kini.total_p21, 0) AS total_p21_kini,
+               COALESCE(agg_kini.total_sp3, 0) AS total_sp3_kini,
+               COALESCE(agg_kini.total_diversi, 0) AS total_diversi_kini,
+               COALESCE(agg_kini.total_pom_tni, 0) AS total_pom_tni_kini,
+               COALESCE(agg_kini.total_sp2lid, 0) AS total_sp2lid_kini,
                foto.avatars
         FROM officers
-        LEFT JOIN (
-            SELECT lidik_id, SUM(jumlah_lidik) AS total_p21
-            FROM (
-                SELECT petugas_lidik.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM legacy.investigation_warrants
-                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = 	legacy.investigation_warrants.id
-                WHERE accidents.selra_flag = 'S0101'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-                GROUP BY lidik_id
-
-                UNION ALL
-
-                SELECT surat_penyelidikan.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM surat_penyelidikan
-                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-                WHERE accidents.selra_flag = 'S0101'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-                GROUP BY lidik_id
-
-        		UNION ALL
-
-        		SELECT petugas_lidik.register_number AS lidik_id,
-        			COUNT (accidents.id) AS jumlah_lidik
-        		FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        		JOIN accidents ON accidents.id = surat_lidik.accident_id
-        		JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        		WHERE accidents.selra_flag = 'S0101'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-        		GROUP BY lidik_id
-
-            ) AS combined_results
-            GROUP BY lidik_id
-        ) AS p21_lalu ON officers.id = p21_lalu.lidik_id
-
-        LEFT JOIN (
-        	SELECT lidik_id, SUM(jumlah_lidik) AS total_sp3
-        	FROM (
-        		SELECT petugas_lidik.officer_id AS lidik_id,
-        	        COUNT(accidents.id) AS jumlah_lidik
-        	    FROM legacy.investigation_warrants
-        	    JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-        	    JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = legacy.investigation_warrants.id
-        	    WHERE accidents.selra_flag = 'S0102'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-        	    GROUP BY petugas_lidik.officer_id
-
-        	    UNION ALL
-
-        	    SELECT surat_penyelidikan.officer_id AS lidik_id,
-        	        COUNT(accidents.id) AS jumlah_lidik
-        	    FROM surat_penyelidikan
-        	    JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-        	    WHERE accidents.selra_flag IN ('S0102', 'S0106')
-        	    AND accidents.md > 0
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-        	    GROUP BY surat_penyelidikan.officer_id
-
-        	    UNION ALL
-
-        	    SELECT petugas_lidik.register_number AS lidik_id,
-        	        COUNT(accidents.id) AS jumlah_lidik
-        	    FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        	    JOIN accidents ON accidents.id = surat_lidik.accident_id
-        	    JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        	    WHERE accidents.selra_flag = 'S0102'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-        	    GROUP BY petugas_lidik.register_number
-        	) AS combined_results
-        	GROUP BY lidik_id
-        ) AS sp3_lalu ON officers.id = sp3_lalu.lidik_id
-
-        LEFT JOIN (
-        	SELECT lidik_id, SUM(jumlah_lidik) AS total_diversi
-            FROM (
-                SELECT petugas_lidik.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM legacy.investigation_warrants
-                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = 	legacy.investigation_warrants.id
-                WHERE accidents.selra_flag = 'S0103'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-                GROUP BY lidik_id
-
-                UNION ALL
-
-                SELECT surat_penyelidikan.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM surat_penyelidikan
-                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-                WHERE accidents.selra_flag = 'S0103'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-                GROUP BY lidik_id
-
-        		UNION ALL
-
-        		SELECT petugas_lidik.register_number AS lidik_id,
-        			COUNT (accidents.id) AS jumlah_lidik
-        		FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        		JOIN accidents ON accidents.id = surat_lidik.accident_id
-        		JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        		WHERE accidents.selra_flag = 'S0103'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-        		GROUP BY lidik_id
-
-            ) AS combined_results
-        	GROUP BY lidik_id
-        ) AS diversi_lalu ON officers.id = diversi_lalu.lidik_id
-
-        LEFT JOIN (
-        	SELECT lidik_id, SUM(jumlah_lidik) AS total_pom_tni
-            FROM (
-                SELECT petugas_lidik.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM legacy.investigation_warrants
-                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = 	legacy.investigation_warrants.id
-                WHERE accidents.selra_flag = 'S0104'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-                GROUP BY lidik_id
-
-                UNION ALL
-
-                SELECT surat_penyelidikan.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM surat_penyelidikan
-                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-                WHERE accidents.selra_flag = 'S0104'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-                GROUP BY lidik_id
-
-        		UNION ALL
-
-        		SELECT petugas_lidik.register_number AS lidik_id,
-        			COUNT (accidents.id) AS jumlah_lidik
-        		FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        		JOIN accidents ON accidents.id = surat_lidik.accident_id
-        		JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        		WHERE accidents.selra_flag = 'S0104'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-        		GROUP BY lidik_id
-
-            ) AS combined_results
-        	GROUP BY lidik_id
-        ) AS pom_tni_lalu ON officers.id = pom_tni_lalu.lidik_id
-
-        LEFT JOIN (
-        	SELECT lidik_id, SUM(jumlah_lidik) AS total_sp2lid
-            FROM (
-                SELECT petugas_lidik.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM legacy.investigation_warrants
-                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = 	legacy.investigation_warrants.id
-                WHERE accidents.selra_flag = 'S0108'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-                GROUP BY lidik_id
-
-                UNION ALL
-
-                SELECT surat_penyelidikan.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM surat_penyelidikan
-                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-                WHERE accidents.selra_flag = 'S0108'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-                GROUP BY lidik_id
-
-        		UNION ALL
-
-        		SELECT petugas_lidik.register_number AS lidik_id,
-        			COUNT (accidents.id) AS jumlah_lidik
-        		FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        		JOIN accidents ON accidents.id = surat_lidik.accident_id
-        		JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        		WHERE accidents.selra_flag = 'S0108'
-                AND accidents.accident_date between '$start_date_then' and '$end_date_then'
-        		GROUP BY lidik_id
-
-            ) AS combined_results
-        	GROUP BY lidik_id
-        ) AS sp2lid_lalu ON officers.id = sp2lid_lalu.lidik_id
-
-
-        LEFT JOIN (
-            SELECT lidik_id, SUM(jumlah_lidik) AS total_p21
-            FROM (
-                SELECT petugas_lidik.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM legacy.investigation_warrants
-                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = 	legacy.investigation_warrants.id
-                WHERE accidents.selra_flag = 'S0101'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-                GROUP BY lidik_id
-
-                UNION ALL
-
-                SELECT surat_penyelidikan.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM surat_penyelidikan
-                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-                WHERE accidents.selra_flag = 'S0101'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-                GROUP BY lidik_id
-
-        		UNION ALL
-
-        		SELECT petugas_lidik.register_number AS lidik_id,
-        			COUNT (accidents.id) AS jumlah_lidik
-        		FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        		JOIN accidents ON accidents.id = surat_lidik.accident_id
-        		JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        		WHERE accidents.selra_flag = 'S0101'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-        		GROUP BY lidik_id
-
-            ) AS combined_results
-            GROUP BY lidik_id
-        ) AS p21_kini ON officers.id = p21_kini.lidik_id
-
-        LEFT JOIN (
-        	SELECT lidik_id, SUM(jumlah_lidik) AS total_sp3
-        	FROM (
-        		SELECT petugas_lidik.officer_id AS lidik_id,
-        	        COUNT(accidents.id) AS jumlah_lidik
-        	    FROM legacy.investigation_warrants
-        	    JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-        	    JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = legacy.investigation_warrants.id
-        	    WHERE accidents.selra_flag = 'S0102'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-        	    GROUP BY petugas_lidik.officer_id
-
-        	    UNION ALL
-
-        	    SELECT surat_penyelidikan.officer_id AS lidik_id,
-        	        COUNT(accidents.id) AS jumlah_lidik
-        	    FROM surat_penyelidikan
-        	    JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-        	    WHERE accidents.selra_flag IN ('S0102', 'S0106')
-        	    AND accidents.md > 0
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-        	    GROUP BY surat_penyelidikan.officer_id
-
-        	    UNION ALL
-
-        	    SELECT petugas_lidik.register_number AS lidik_id,
-        	        COUNT(accidents.id) AS jumlah_lidik
-        	    FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        	    JOIN accidents ON accidents.id = surat_lidik.accident_id
-        	    JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        	    WHERE accidents.selra_flag = 'S0102'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-        	    GROUP BY petugas_lidik.register_number
-        	) AS combined_results
-        	GROUP BY lidik_id
-        ) AS sp3_kini ON officers.id = sp3_kini.lidik_id
-
-        LEFT JOIN (
-        	SELECT lidik_id, SUM(jumlah_lidik) AS total_diversi
-            FROM (
-                SELECT petugas_lidik.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM legacy.investigation_warrants
-                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = 	legacy.investigation_warrants.id
-                WHERE accidents.selra_flag = 'S0103'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-                GROUP BY lidik_id
-
-                UNION ALL
-
-                SELECT surat_penyelidikan.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM surat_penyelidikan
-                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-                WHERE accidents.selra_flag = 'S0103'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-                GROUP BY lidik_id
-
-        		UNION ALL
-
-        		SELECT petugas_lidik.register_number AS lidik_id,
-        			COUNT (accidents.id) AS jumlah_lidik
-        		FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        		JOIN accidents ON accidents.id = surat_lidik.accident_id
-        		JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        		WHERE accidents.selra_flag = 'S0103'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-        		GROUP BY lidik_id
-
-            ) AS combined_results
-        	GROUP BY lidik_id
-        ) AS diversi_kini ON officers.id = diversi_kini.lidik_id
-
-        LEFT JOIN (
-        	SELECT lidik_id, SUM(jumlah_lidik) AS total_pom_tni
-            FROM (
-                SELECT petugas_lidik.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM legacy.investigation_warrants
-                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = 	legacy.investigation_warrants.id
-                WHERE accidents.selra_flag = 'S0104'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-                GROUP BY lidik_id
-
-                UNION ALL
-
-                SELECT surat_penyelidikan.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM surat_penyelidikan
-                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-                WHERE accidents.selra_flag = 'S0104'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-                GROUP BY lidik_id
-
-        		UNION ALL
-
-        		SELECT petugas_lidik.register_number AS lidik_id,
-        			COUNT (accidents.id) AS jumlah_lidik
-        		FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        		JOIN accidents ON accidents.id = surat_lidik.accident_id
-        		JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        		WHERE accidents.selra_flag = 'S0104'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-        		GROUP BY lidik_id
-
-            ) AS combined_results
-        	GROUP BY lidik_id
-        ) AS pom_tni_kini ON officers.id = pom_tni_kini.lidik_id
-
-        LEFT JOIN (
-        	SELECT lidik_id, SUM(jumlah_lidik) AS total_sp2lid
-            FROM (
-                SELECT petugas_lidik.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM legacy.investigation_warrants
-                JOIN accidents ON accidents.id = legacy.investigation_warrants.accident_id
-                JOIN legacy.investigation_warrant_officer AS petugas_lidik ON petugas_lidik.investigation_warrant_id = 	legacy.investigation_warrants.id
-                WHERE accidents.selra_flag = 'S0108'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-                GROUP BY lidik_id
-
-                UNION ALL
-
-                SELECT surat_penyelidikan.officer_id AS lidik_id,
-                    COUNT(accidents.id) AS jumlah_lidik
-                FROM surat_penyelidikan
-                JOIN accidents ON accidents.id = surat_penyelidikan.accident_id
-                WHERE accidents.selra_flag = 'S0108'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-                GROUP BY lidik_id
-
-        		UNION ALL
-
-        		SELECT petugas_lidik.register_number AS lidik_id,
-        			COUNT (accidents.id) AS jumlah_lidik
-        		FROM doc.surat_perintah_penyelidikan_documents AS surat_lidik
-        		JOIN accidents ON accidents.id = surat_lidik.accident_id
-        		JOIN doc.surat_perintah_penyelidikan_document_officers AS petugas_lidik ON petugas_lidik.surat_perintah_penyelidikan_document_id = surat_lidik.id
-        		WHERE accidents.selra_flag = 'S0108'
-                AND accidents.accident_date between '$start_date_now' and '$end_date_now'
-        		GROUP BY lidik_id
-
-            ) AS combined_results
-        	GROUP BY lidik_id
-        ) AS sp2lid_kini ON officers.id = sp2lid_kini.lidik_id
-
+        LEFT JOIN ({$periodUnionSql}) AS agg_lalu ON officers.id = agg_lalu.lidik_id
+        LEFT JOIN ({$periodUnionSql}) AS agg_kini ON officers.id = agg_kini.lidik_id
         LEFT JOIN
         (SELECT users.avatar AS avatars, users.officer_id AS users_id FROM users
         ) as foto on officers.id = foto.users_id
@@ -929,14 +590,23 @@ class AnevController extends Controller
         LEFT JOIN polda on polda.id = officers.polda_id
         LEFT JOIN polres on polres.id = officers.polres_id
         WHERE
-        CASE WHEN '$poldas' <> '$null' THEN officers.polda_id = '$poldas' ELSE TRUE END
+        CASE WHEN ? <> ? THEN officers.polda_id = ? ELSE TRUE END
         AND
-        CASE WHEN '$polress' <> '$null' THEN officers.polres_id = '$polress' ELSE TRUE END
+        CASE WHEN ? <> ? THEN officers.polres_id = ? ELSE TRUE END
         AND officers.state <> '0'
         AND officers.is_active IS true
         AND users.is_active IS true
         GROUP BY 1,5,6,7,8,9,10,11,12,13,14,15,16
-        ");
+        ", [
+            $start_date_then, $end_date_then,
+            $start_date_then, $end_date_then,
+            $start_date_then, $end_date_then,
+            $start_date_now, $end_date_now,
+            $start_date_now, $end_date_now,
+            $start_date_now, $end_date_now,
+            $poldas, $null, $poldas,
+            $polress, $null, $polress,
+        ]);
         // dd($data);
         $accident = $this->paginate_individu($data);
         $accident->appends($request->all());

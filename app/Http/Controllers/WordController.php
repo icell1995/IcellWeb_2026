@@ -179,7 +179,6 @@ class WordController extends Controller
         $get_data = [];
         // $count_officer_springas = count($officer_springas);
         $i=2;
-        var_dump($i);
         foreach($officer_springas as $officers){
             $get_data[] = [
                 'nomor' => $i,
@@ -191,7 +190,6 @@ class WordController extends Controller
             ];
             $i++;
         }
-        var_dump($i);
         // dd($count_officer_springas);
 
         $data['springas']=$springas;
@@ -757,17 +755,25 @@ class WordController extends Controller
         // Loop $data['suspects']
         $get_data_suspects = [];
         $loop = 0;
-        foreach (json_decode($data['suspects'], true) as $suspectId) {
-          $suspectRow = DB::table('daftar_tersangka')->where('id', $suspectId)->first();
-          $suspectRow = (array) $suspectRow;
+        $suspectIds = json_decode($data['suspects'], true) ?? [];
+        $suspectsMap = !empty($suspectIds)
+          ? DB::table('daftar_tersangka')->whereIn('id', $suspectIds)->get()->keyBy('id')
+          : collect();
+        $refMap = DB::table('ref')->whereIn('grp_id', ['G01', 'R01'])->pluck('name', 'id');
+
+        foreach ($suspectIds as $suspectId) {
+          $suspectRow = (array) ($suspectsMap->get($suspectId) ?? []);
+          if (empty($suspectRow)) {
+            continue;
+          }
           $get_data_suspects[] = [
             'suspect_name' => ucwords(strtolower($suspectRow['name'])),
-            'suspect_gender' => ucwords(strtolower(DB::table('ref')->where('id', $suspectRow['gender'])->first()->name ?? '-')),
+            'suspect_gender' => ucwords(strtolower($refMap[$suspectRow['gender']] ?? '-')),
             'suspect_birthplace' => ucwords(strtolower($suspectRow['city'])),
             'suspect_birthday' => Carbon::parse($suspectRow['birth_date'])->format('d-m-Y'),
             'suspect_age' => Carbon::parse($suspectRow['birth_date'])->age,
             'suspect_citizen' => ucwords(strtolower($suspectRow['citizen'])),
-            'suspect_religion' => ucwords(strtolower(DB::table('ref')->where('id', $suspectRow['religion'])->first()->name ?? '-')),
+            'suspect_religion' => ucwords(strtolower($refMap[$suspectRow['religion']] ?? '-')),
             'suspect_job' => ucwords(strtolower($suspectRow['job'])),
             'suspect_address' => ucwords(strtolower($suspectRow['address'])),
           ];
@@ -877,17 +883,25 @@ class WordController extends Controller
         // Loop $data['suspects']
         $get_data_suspects = [];
         $loopSuspects = 0;
-        foreach (json_decode($data['suspects'], true) as $suspectId) {
-          $suspectRow = DB::table('daftar_tersangka')->where('id', $suspectId)->first();
-          $suspectRow = (array) $suspectRow;
+        $suspectIds = json_decode($data['suspects'], true) ?? [];
+        $suspectsMap = !empty($suspectIds)
+          ? DB::table('daftar_tersangka')->whereIn('id', $suspectIds)->get()->keyBy('id')
+          : collect();
+        $refMap = DB::table('ref')->whereIn('grp_id', ['G01', 'R01'])->pluck('name', 'id');
+
+        foreach ($suspectIds as $suspectId) {
+          $suspectRow = (array) ($suspectsMap->get($suspectId) ?? []);
+          if (empty($suspectRow)) {
+            continue;
+          }
           $get_data_suspects[] = [
             'suspect_name' => ucwords(strtolower($suspectRow['name'])),
-            'suspect_gender' => ucwords(strtolower(DB::table('ref')->where('id', $suspectRow['gender'])->first()->name ?? '-')),
+            'suspect_gender' => ucwords(strtolower($refMap[$suspectRow['gender']] ?? '-')),
             'suspect_birthplace' => ucwords(strtolower($suspectRow['city'])),
             'suspect_birthday' => Carbon::parse($suspectRow['birth_date'])->format('d-m-Y'),
             'suspect_age' => Carbon::parse($suspectRow['birth_date'])->age,
             'suspect_citizen' => ucwords(strtolower($suspectRow['citizen'])),
-            'suspect_religion' => ucwords(strtolower(DB::table('ref')->where('id', $suspectRow['religion'])->first()->name ?? '-')),
+            'suspect_religion' => ucwords(strtolower($refMap[$suspectRow['religion']] ?? '-')),
             'suspect_job' => ucwords(strtolower($suspectRow['job'])),
             'suspect_address' => ucwords(strtolower($suspectRow['address'])),
           ];
@@ -907,9 +921,16 @@ class WordController extends Controller
         // Loop $data['evidences']
         $get_data_evidences = [];
         $loopEvidences = 0;
-        foreach (json_decode($data['evidences'], true) as $evidenceRow) {
-          $evidenceRow = DB::table('daftar_barang_bukti')->where('id', $evidenceRow)->first();
-          $evidenceRow = (array) $evidenceRow;
+        $evidenceIds = json_decode($data['evidences'], true) ?? [];
+        $evidencesMap = !empty($evidenceIds)
+          ? DB::table('daftar_barang_bukti')->whereIn('id', $evidenceIds)->get()->keyBy('id')
+          : collect();
+
+        foreach ($evidenceIds as $evidenceId) {
+          $evidenceRow = (array) ($evidencesMap->get($evidenceId) ?? []);
+          if (empty($evidenceRow)) {
+            continue;
+          }
           $get_data_evidences[] = [
             'evidence_name' => ucwords(strtolower($evidenceRow['nama_barang'])),
             'evidence_amount' => $evidenceRow['jumlah_barang'],

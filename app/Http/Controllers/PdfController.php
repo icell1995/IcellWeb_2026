@@ -897,7 +897,16 @@ class PdfController extends Controller
             break;
         }
 
-        return response()->file($data);
+        if (empty($find_data) || empty($find_data->name)) {
+            abort(404);
+        }
+
+        $safeFilePath = $grp['path'] . '/' . basename($find_data->name);
+        if (!is_file($safeFilePath)) {
+            abort(404);
+        }
+
+        return response()->file($safeFilePath);
 
 
         // return response()->file(storage_path('public/file/tersangka/berita-acara-pemeriksaan/1621635896.pdf'));

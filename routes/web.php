@@ -23,25 +23,15 @@ use App\Http\Controllers\KPangkatController;
 */
 
 Auth::routes();
-Route::get('search', [App\Http\Controllers\OfficerController::class, 'search'])->name('searchOfficer');
-Route::get('search_user', [App\Http\Controllers\PenggunaController::class, 'search_user'])->name('searchUser');
+Route::get('authenticate', fn () => redirect()->route('login'));
 Route::post('authenticate', [App\Http\Controllers\LoginController::class, 'authenticate'])->name('authenticate')->middleware('throttle:3,1');
-Route::post('verifyOtp', [App\Http\Controllers\LoginController::class, 'verifyOtp'])->name('verifyOtp');
-Route::post('resend-otp', [App\Http\Controllers\LoginController::class, 'resendOtp'])->name('resendOtp');
+Route::post('verifyOtp', [App\Http\Controllers\LoginController::class, 'verifyOtp'])->name('verifyOtp')->middleware('throttle:5,1');
+Route::post('resend-otp', [App\Http\Controllers\LoginController::class, 'resendOtp'])->name('resendOtp')->middleware('throttle:5,1');
 Route::get('forget-password', [App\Http\Controllers\LoginController::class, 'forget_password'])->name('forget-password');
-Route::post('forget-password', [App\Http\Controllers\LoginController::class, 'post_forget_password'])->name('forget-password');
+Route::post('forget-password', [App\Http\Controllers\LoginController::class, 'post_forget_password'])->name('forget-password')->middleware('throttle:5,1');
 Route::get('refresh_captcha', [App\Http\Controllers\LoginController::class, 'refreshCaptcha'])->name('refresh_captcha');
 // Route::get('reset-password/{token}', [App\Http\Controllers\LoginController::class, 'reset_password'])->name('reset-password');
 // Route::post('reset-password', [App\Http\Controllers\LoginController::class, 'post_reset_password'])->name('reset-password');
-
-Route::get('/dashboardicell', [App\Http\Controllers\DashboardicellController::class, 'index'])->name('index');
-Route::get('/getDashBar', [App\Http\Controllers\DashboardicellController::class, 'getDashBar'])->name('getDashBar');
-Route::get('/getDashPie', [App\Http\Controllers\DashboardicellController::class, 'getDashPie'])->name('getDashPie');
-Route::get('/updateContent', [App\Http\Controllers\DashboardicellController::class, 'updateContent'])->name('updateContent');
-// Route::get('/dashChartLine', [App\Http\Controllers\DashboardicellController::class, 'dashChartBar'])->name('dashChartLine');
-
-// Route::get('/qr-codes', [App\Http\Controllers\QrCodeController::class, 'generateQRCode'])->name('generateQRCode');
-// Route::get('/qr-codes', [App\Http\Controllers\QrCodeController::class, 'index'])->name('index');
 
 // SSO IRSMS
 Route::get('/sso-login', [\App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\SsoLoginController::class, 'handleSSOLogin']);
@@ -53,16 +43,20 @@ Route::group(['middleware' => ['guest', 'prevent-back-history']], function () {
     Route::get('/login', [App\Http\Controllers\LoginController::class, 'get_login'])->name('get_login');
 });
 
-Route::prefix('anev')->group(function () {
-    Route::get('/', [App\Http\Controllers\AnevController::class, 'index_anev'])->name('index_anev');
-    Route::get('/get_report_anev',  [App\Http\Controllers\AnevController::class, 'get_report_anev'])->name('get_report_anev');
-    Route::get('/export_report_anev',  [App\Http\Controllers\AnevController::class, 'export_report_anev'])->name('export_report_anev');
-    Route::get('/report_individu', [App\Http\Controllers\AnevController::class, 'report_individu'])->name('report_individu');
-    Route::get('/get_report_individu',  [App\Http\Controllers\AnevController::class, 'get_report_individu'])->name('get_report_individu');
-    Route::get('/export_report_individu',  [App\Http\Controllers\AnevController::class, 'export_report_individu'])->name('export_report_individu');
-});
-
 Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
+    Route::get('/dashboardicell', [App\Http\Controllers\DashboardicellController::class, 'index'])->name('index');
+    Route::get('/getDashBar', [App\Http\Controllers\DashboardicellController::class, 'getDashBar'])->name('getDashBar');
+    Route::get('/getDashPie', [App\Http\Controllers\DashboardicellController::class, 'getDashPie'])->name('getDashPie');
+    Route::get('/updateContent', [App\Http\Controllers\DashboardicellController::class, 'updateContent'])->name('updateContent');
+
+    Route::prefix('anev')->group(function () {
+        Route::get('/', [App\Http\Controllers\AnevController::class, 'index_anev'])->name('index_anev');
+        Route::get('/get_report_anev',  [App\Http\Controllers\AnevController::class, 'get_report_anev'])->name('get_report_anev');
+        Route::get('/export_report_anev',  [App\Http\Controllers\AnevController::class, 'export_report_anev'])->name('export_report_anev');
+        Route::get('/report_individu', [App\Http\Controllers\AnevController::class, 'report_individu'])->name('report_individu');
+        Route::get('/get_report_individu',  [App\Http\Controllers\AnevController::class, 'get_report_individu'])->name('get_report_individu');
+        Route::get('/export_report_individu',  [App\Http\Controllers\AnevController::class, 'export_report_individu'])->name('export_report_individu');
+    });
     Route::prefix('/evaluation-form-fill')->group(function () {
         Route::get('/', [App\Http\Controllers\EvaluationFormController::class, 'index'])->name('evaluation-form-fill.index');
         Route::get('/redirect', [App\Http\Controllers\EvaluationFormController::class, 'redirect'])->name('evaluation-form-fill.redirect');
@@ -119,6 +113,8 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
         });
 
         Route::group(['middleware' => 'can:manage-users'], function () {
+            Route::get('search', [App\Http\Controllers\OfficerController::class, 'search'])->name('searchOfficer');
+            Route::get('search_user', [App\Http\Controllers\PenggunaController::class, 'search_user'])->name('searchUser');
 
             Route::prefix('pengguna')->group(function () {
                 Route::get('/', [App\Http\Controllers\PenggunaController::class, 'index'])->name('pengguna');

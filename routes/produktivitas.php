@@ -165,4 +165,9 @@ Route::group(['middleware' => ['is-evaluation-form-filled', 'is-signatory']], fu
     //image upload rekap
     Route::post('/deleteImage/{id}', [App\Http\Controllers\AccidentController::class, 'deleteImage'])->name('deleteImage');
     Route::post('imageUpload', [App\Http\Controllers\imageUploadController::class, 'imageUpload'])->name('upload.imageUpload');
+
+    // AJAX Wilayah endpoints
+    Route::get('/ajax/regencies/{provinceId}', [SuratTugasController::class, 'getRegenciesByProvince'])->name('produktivitas.ajax.regencies');
+    Route::get('/ajax/districts/{regencyId}', [SuratTugasController::class, 'getDistrictsByRegency'])->name('produktivitas.ajax.districts');
+    Route::get('/ajax/villages/{districtId}', [SuratTugasController::class, 'getVillagesByDistrict'])->name('produktivitas.ajax.villages');
 });

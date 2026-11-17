@@ -12,6 +12,7 @@ use App\Models\Polda;
 use App\Models\Polres;
 use App\Models\Ref;
 use App\Exports\OfficerExport;
+use App\Services\Regional\RegionalScopeService;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 
@@ -27,79 +28,60 @@ class OfficerController extends Controller
 
     public function index()
     {
-
         $user = Auth::getUser();
+        $baseQuery = DB::table('officers')
+            ->leftJoin('polres', 'polres.id', '=', 'officers.polres_id')
+            ->leftJoin('polda', 'polda.id', '=', 'polres.polda_id')
+            ->select([
+                'officers.id as id',
+                'officers.first_name',
+                'officers.last_name',
+                'officers.rank_short_name',
+                'polres.name as polres_name',
+                'polda.name as polda_name',
+                'officers.position',
+                'officers.sebagai_kepala',
+                'officers.state as officer_state',
+            ]);
+
         switch ($user->role_id) {
             case 2:
-                // $petugas = Officer::where('polda_id','=',$user->polda_id)
-                // ->orderBy('created_at', 'asc')->paginate(10);
-                $petugas = DB::select(
-                    'select officers.id as id, officers.first_name,officers.last_name,
-                        officers.rank_short_name,polres.name as polres_name,
-                        polda.name as polda_name, officers.position, officers.sebagai_kepala,
-                        officers.state as officer_state
-                        from officers left join polres on polres.id = officers.polres_id left join polda on polda.id = polres.polda_id
-                        where polda.id = \'' . $user->polda_id . '\'
-                        order by officers.created_at desc
-                        '
-                );
-                // dd($petugas);
-
-                $polda=Polda::where('id',$user->polda_id)->get();
-                // dd($polda);
-                $polres=DB::select("select * from polres where polda_id = '$user->polda_id'");
+                $petugas = (clone $baseQuery)
+                    ->where('polda.id', $user->polda_id)
+                    ->orderByDesc('officers.created_at')
+                    ->paginate(10);
+                $polda = Polda::where('id', $user->polda_id)->get();
+                $polres = Polres::where('polda_id', $user->polda_id)->get();
                 break;
 
             case 3:
-                // $petugas = Officer::where('id','<>',$user->officer_id)
-                // ->orderBy('created_at', 'asc')->paginate(10);
-                $petugas = DB::select(
-                    'select officers.id as id, officers.first_name,officers.last_name,
-                        officers.rank_short_name,polres.name as polres_name,
-                        polda.name as polda_name, officers.position, officers.sebagai_kepala,
-                        officers.state as officer_state
-                        from officers left join polres on polres.id = officers.polres_id left join polda on polda.id = polres.polda_id
-                        where polres.id = \'' . $user->polres_id . '\'
-                        order by officers.created_at desc
-                        '
-                );
-                $polda=Polda::where('id',$user->polda_id)->get();
-                // dd($polda);
-                $polres=Polres::where('id',$user->polres_id)->get();
-
+                $petugas = (clone $baseQuery)
+                    ->where('polres.id', $user->polres_id)
+                    ->orderByDesc('officers.created_at')
+                    ->paginate(10);
+                $polda = Polda::where('id', $user->polda_id)->get();
+                $polres = Polres::where('id', $user->polres_id)->get();
                 break;
+
             default:
-                // $petugas = Officer::where('id','<>',$user->officer_id)
-                // ->orderBy('polda_id')
-                // ->orderBy('polres_id')
-                // ->orderBy('id')
-                // ->paginate(10);
-                // dd($pengguna);
-                $petugas = DB::select(
-                    'select officers.id as id, officers.first_name,officers.last_name,
-                    officers.rank_short_name,polres.name as polres_name,
-                    polda.name as polda_name, officers.position, officers.sebagai_kepala,
-                    officers.state as officer_state
-                    from officers left join polres on polres.id = officers.polres_id left join polda on polda.id = polres.polda_id
-                    order by officers.created_at desc
-                    '
-                );
-                $polda=Polda::all();
-                $polres=DB::select("select * from polres");
+                $petugas = (clone $baseQuery)
+                    ->orderByDesc('officers.created_at')
+                    ->paginate(10);
+                $polda = Polda::all();
+                $polres = Polres::all();
                 break;
         }
-        // $petugas=Officer::all();
-        // $data = $this->paginate($petugas);
-        $rank=Ref::where('grp_id','=','RANK')->orderBy('sort')->get();
-        $data['petugas']=$this->paginate($petugas);
-        $data['polda']=$polda;
-        $data['status']='-';
-        $data['user']=$user;
-        $data['polda_input']='-';
-        $data['polres_input']='-';
-        $data['polres']=$polres;
-        $data['rank']=$rank;
-        return view('petugas.petugas-index',$data);
+
+        $rank = Ref::where('grp_id', '=', 'RANK')->orderBy('sort')->get();
+        $data['petugas'] = $petugas;
+        $data['polda'] = $polda;
+        $data['status'] = '-';
+        $data['user'] = $user;
+        $data['polda_input'] = '-';
+        $data['polres_input'] = '-';
+        $data['polres'] = $polres;
+        $data['rank'] = $rank;
+        return view('petugas.petugas-index', $data);
     }
 
     public function paginate($items, $perPage = 10, $page = null, $options = [])
@@ -168,48 +150,50 @@ class OfficerController extends Controller
     public function edit($id)
     {
         $user = Auth::user();
+        $targetOfficer = DB::table('officers')->where('id', $id)->first();
+        if (!$targetOfficer || !RegionalScopeService::authorizeTargetUser($user, $targetOfficer)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
         switch ($user->role_id) {
             case 2:
                 $polda = Polda::where('id', '=', $user->polda_id)->get();
                 $polres = Polres::where('polda_id', '=', $user->polda_id)->get();
                 break;
             default:
-                // $pengguna = User::with('role')->where('username','<>',$user)->orderBy('id')->get();
                 $polda = Polda::all();
                 $polres = Polres::all();
                 break;
         }
-        // mengambil data pegawai berdasarkan id yang dipilih
         $petugas = DB::table('officers')->where('id', $id)->get();
-        // // dd($petugas);
-        // $polda = Polda::all();
-        // $polres = Polres::all();
-        // dd($pengguna);
-        // passing data pegawai yang didapat ke view edit.blade.php
         return view('petugas.petugas-edit', compact('petugas', 'polda', 'polres'));
     }
 
     public function edit_modal_petugas(Request $request)
     {
-        $id=$request->id;
-        $get_officer= DB::select('select * from officers where id = \''.$id.'\' ');
-        $polda=Polda::all();
-        $polres=Polres::all();
-        $officer= $get_officer[0];
-        $data=[
-            'officer'=>$officer,
-            'polda'=>$polda,
-            'polres'=>$polres,
+        $id = $request->id;
+        $officer = DB::table('officers')->where('id', $id)->first();
+        if (!$officer || !RegionalScopeService::authorizeTargetUser(Auth::user(), $officer)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
+        $polda = Polda::all();
+        $polres = Polres::all();
+        $data = [
+            'officer' => $officer,
+            'polda' => $polda,
+            'polres' => $polres,
         ];
         return response()->json($data);
     }
 
     public function edit_petugas(Request $request)
     {
+        $targetOfficer = DB::table('officers')->where('id', $request->nrp_editt)->first();
+        if (!$targetOfficer || !RegionalScopeService::authorizeTargetUser(Auth::user(), $targetOfficer)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
 
         $this->validate($request, [
             'first_name_edit' => 'required|max:20',
-            // 'last_name' => 'required|max:20',
             'pangkat_edit' => 'required',
             'nrp_edit' => 'required|numeric',
             'polda_id_edit' => 'required',
@@ -229,84 +213,80 @@ class OfficerController extends Controller
                 'rank_short_name' =>  $request->pangkat_edit
             ]);
 
-        // $user= User::update([
-        // 'username' => $request->username,
-        // 'first_name' =>  $request->first_name,
-        // 'last_name' =>  $request->last_name,
-        // 'role_id' =>  $request->role_id,
-        // 'pangkat' =>  $request->pangkat,
-        // 'email' =>  $request->email,
-        // 'password' => Hash::make( $request->password),
-        // 'state' => '1',
-        // ]);
-        // Session::flash('sukses','Ini notifikasi SUKSES');
-        // return redirect('register')->withSucces('Sukses');
         return redirect('petugas')->with('message', 'Sukses Update Data Petugas!');
     }
 
     public function search(Request $request)
     {
-        $user = Auth::user()->role_id;
+        $authUser = Auth::user();
+        $user = $authUser->role_id;
         $search = $request->input('search');
         $polda_input = $request->input('polda');
         $polres_input = $request->input('polres');
         $status = $request->state;
-        if($polres_input == null){
+        if ($polres_input == null) {
             $polres_input = '-';
         }
+        if ($authUser->role_id == 2) {
+            $polda_input = $authUser->polda_id;
+        } elseif ($authUser->role_id == 3) {
+            $polda_input = $authUser->polda_id;
+            $polres_input = $authUser->polres_id;
+        }
 
-        // $petugas = DB::table('officers')->where('first_name', 'like', '%' . $search . '%')->paginate(2);
-        $petugas = DB::select(
-            "select officers.id as id, officers.first_name,officers.last_name,
-            officers.rank_short_name,polres.name as polres_name, position,
-            polda.name as polda_name, officers.sebagai_kepala,
-            officers.state as officer_state
-            from officers left join polres on polres.id = officers.polres_id left join polda on polda.id = polres.polda_id
-            where
-            case
-                when '$polda_input' <> '-' then officers.polda_id = '$polda_input' else true
-            end
-            and
-            case
-                when '$status' <>  '-' then officers.state = '$status' else true
-            end
-            and
-            case
-                when '$polres_input' <> '-' then officers.polres_id = '$polres_input' else true
-            end
-            and
-            case
-                when '$search' <> '-' then first_name ilike '%$search%' or last_name ilike '%$search%' or officers.id ilike '%$search%'  else true
-            end
-            order by officers.created_at desc
-            "
-        );
-        if(Auth::user()->role_id==2 || Auth::user()->role_id==3){
-        $polda = Polda::where('id','=',Auth::user()->polda_id)->get();
-        $polres=Polres::where('polda_id','=',Auth::user()->polda_id)->get();
-        }else{
+        $petugasQuery = DB::table('officers')
+            ->leftJoin('polres', 'polres.id', '=', 'officers.polres_id')
+            ->leftJoin('polda', 'polda.id', '=', 'polres.polda_id')
+            ->select([
+                'officers.id as id',
+                'officers.first_name',
+                'officers.last_name',
+                'officers.rank_short_name',
+                'polres.name as polres_name',
+                'officers.position',
+                'polda.name as polda_name',
+                'officers.sebagai_kepala',
+                'officers.state as officer_state',
+            ])
+            ->when(!empty($polda_input) && $polda_input !== '-', fn($q) => $q->where('officers.polda_id', $polda_input))
+            ->when(!empty($status) && $status !== '-', fn($q) => $q->where('officers.state', $status))
+            ->when(!empty($polres_input) && $polres_input !== '-', fn($q) => $q->where('officers.polres_id', $polres_input))
+            ->when(!empty($search) && $search !== '-', function ($q) use ($search) {
+                $term = '%' . $search . '%';
+                $q->where(function ($sub) use ($term) {
+                    $sub->where('officers.first_name', 'ilike', $term)
+                        ->orWhere('officers.last_name', 'ilike', $term)
+                        ->orWhere('officers.id', 'ilike', $term);
+                });
+            })
+            ->orderByDesc('officers.created_at');
+
+        if ($authUser->role_id == 2 || $authUser->role_id == 3) {
+            $polda = Polda::where('id', '=', $authUser->polda_id)->get();
+            $polres = Polres::where('polda_id', '=', $authUser->polda_id)->get();
+        } else {
             $polda = Polda::all();
             $polres = Polres::all();
         }
-        $rank=Ref::where('grp_id','=','RANK')->orderBy('sort')->get();
-        $data['petugas'] = $this->paginate($petugas);
+        $rank = Ref::where('grp_id', '=', 'RANK')->orderBy('sort')->get();
+        $data['petugas'] = $petugasQuery->paginate(10)->withQueryString();
         $data['polda'] = $polda;
-        $data['user']=$user;
+        $data['user'] = $user;
         $data['polres'] = $polres;
-        $data['rank']=$rank;
-        $data['status']=$status;
-        $data['polda_input']=$polda_input;
-        $data['polres_input']=$polres_input;
-        $data['petugas']->appends($request->all());
+        $data['rank'] = $rank;
+        $data['status'] = $status;
+        $data['polda_input'] = $polda_input;
+        $data['polres_input'] = $polres_input;
         return view('petugas.petugas-index', $data);
     }
 
     public function delete_petugas($id)
     {
+        $targetOfficer = DB::table('officers')->where('id', $id)->first();
+        if (!$targetOfficer || !RegionalScopeService::authorizeTargetUser(Auth::user(), $targetOfficer)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
         $petugas = DB::table('officers')->where('id', $id)->get();
-        // dd($pengguna);
-
-        // dd($pengguna);
         if ($petugas[0]->state == 1) {
             Officer::where('id', $petugas[0]->id)
                 ->update(['state' => 0]);

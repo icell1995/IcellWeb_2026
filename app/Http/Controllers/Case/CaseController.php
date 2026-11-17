@@ -12,6 +12,7 @@ use App\Models\UploadSuratKetetapan;
 use App\Models\LaporanPolisi;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class CaseController extends Controller
 {
@@ -43,10 +44,10 @@ class CaseController extends Controller
         $collection = null;
 
         $cases = Http::withHeaders([
-            'Key' => '9xEVPyQE26KTpo5h6DxwW34m2TkUGnqD243b1i4BNs3C7yg3dL4Ynql3ehRsfZbsQubzRR51BTudsPeMFRtkLBGiennZ0TojmmK9=getDataJatanlin',
+            'Key' => (string) config('services.irsms.jatanlin_list_key'),
             'Content-Type' => 'application/json',
         ])
-            ->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getDataJatanlin')
+            ->get((string) config('services.irsms.jatanlin_list_url'))
             ->json();
 
         if (isset($cases['result'])) {
@@ -105,11 +106,11 @@ class CaseController extends Controller
     public function show($id)
     {
         $case = Http::withHeaders([
-            'Key' => '3b1i4BNs3C7y1BTudsPeMFRtkLBGiennZ0Tojg3dL4Ynql3ehRsfZbsQubzRR5mmK99xEVPyQE26KTpo5h6DxwW34m2TkUGnqD24=getDetailJatanlin',
+            'Key' => (string) config('services.irsms.jatanlin_detail_key'),
             'Content-Type' => 'application/json',
         ])
             ->withBody(json_encode(['jatanlin_id' => $id]))
-            ->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getDetailJatanlin')->json();
+            ->get((string) config('services.irsms.jatanlin_detail_url'))->json();
 
         return view('case.show', compact('case'));
     }
@@ -126,11 +127,11 @@ class CaseController extends Controller
         ]);
 
         $case = Http::withHeaders([
-            'Key' => '3b1i4BNs3C7y1BTudsPeMFRtkLBGiennZ0Tojg3dL4Ynql3ehRsfZbsQubzRR5mmK99xEVPyQE26KTpo5h6DxwW34m2TkUGnqD24=getDetailJatanlin',
+            'Key' => (string) config('services.irsms.jatanlin_detail_key'),
             'Content-Type' => 'application/json',
         ])
             ->withBody(json_encode(['jatanlin_id' => $id]))
-            ->get('https://irsms.korlantas.polri.go.id/irsmsapi/api/getDetailJatanlin')->json();
+            ->get((string) config('services.irsms.jatanlin_detail_url'))->json();
 
         if(isset($case['result'][0])){
             $currentCase = Accident::where('id', $case['result'][0]['id'])->first();
@@ -141,7 +142,7 @@ class CaseController extends Controller
                     if (!file_exists($destinationPath)) {
                         mkdir($destinationPath, 0755, true);
                     }
-                    $fileName = uniqid($currentCase->id) . '_' . $request->file('lp_file')->getClientOriginalName();
+                    $fileName = uniqid($currentCase->id . '_') . '_' . Str::slug(pathinfo($request->file('lp_file')->getClientOriginalName(), PATHINFO_FILENAME)) . '.pdf';
                     $request->file('lp_file')->move($destinationPath, $fileName);
 
                     $existingLp = LaporanPolisi::where('accident_id', $currentCase->id)->first();
@@ -253,7 +254,7 @@ class CaseController extends Controller
                     if (!file_exists($destinationPath)) {
                         mkdir($destinationPath, 0755, true);
                     }
-                    $fileName = uniqid($case['result'][0]['id']) . '_' . $request->file('lp_file')->getClientOriginalName();
+                    $fileName = uniqid($case['result'][0]['id'] . '_') . '_' . Str::slug(pathinfo($request->file('lp_file')->getClientOriginalName(), PATHINFO_FILENAME)) . '.pdf';
                     $request->file('lp_file')->move($destinationPath, $fileName);
 
                     LaporanPolisi::create([
