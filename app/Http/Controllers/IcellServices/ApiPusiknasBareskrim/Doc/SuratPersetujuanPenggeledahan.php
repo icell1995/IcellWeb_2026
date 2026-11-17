@@ -175,19 +175,19 @@ class SuratPersetujuanPenggeledahan extends Controller
                     [
                         "kode_jenis_dokumen" => "sprindik",
                         "mime_type"          => $sprindikAttachment->mimetype ?? "application/pdf",
-                        "file"               => "U3dhZ2dlciByb2Nrcw==",
+                      //  "file"               => "U3dhZ2dlciByb2Nrcw==",
                         "url"                => $sprindikFileUrl ?? null
                     ],
                     [
                         "kode_jenis_dokumen" => "sprin-dah",
                         "mime_type"          => "application/pdf",
-                        "file"               => "U3dhZ2dlciByb2Nrcw==",
+                      //  "file"               => "U3dhZ2dlciByb2Nrcw==",
                         "url"                => null
                     ],
                     [
                         "kode_jenis_dokumen" => "resume",
                         "mime_type"          => "application/pdf",
-                        "file"               => "U3dhZ2dlciByb2Nrcw==",
+                     //   "file"               => "U3dhZ2dlciByb2Nrcw==",
                         "url"                => null
                     ]
                 ];
