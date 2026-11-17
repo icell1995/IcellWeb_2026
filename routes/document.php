@@ -512,3 +512,15 @@ Route::prefix('/surat-permohonan-penetapan-diversi-document')->middleware(['docu
     Route::delete('/{id}/delete', [SuratPermohonanPenetapanDiversiDocumentController::class, 'delete'])->name('doc.surat-permohonan-penetapan-diversi-document.delete');
     Route::get('/{id}/download', [SuratPermohonanPenetapanDiversiDocumentController::class, 'download'])->name('doc.surat-permohonan-penetapan-diversi-document.download');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Rencana Penyidikan Document (S-3.2)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/rencana-penyidikan-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'create'])->name('doc.rencana-penyidikan-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'store'])->name('doc.rencana-penyidikan-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'edit'])->name('doc.rencana-penyidikan-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'update'])->name('doc.rencana-penyidikan-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'destroy'])->name('doc.rencana-penyidikan-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'downloadWord'])->name('doc.rencana-penyidikan.download-word');
+});
