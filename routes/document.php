@@ -536,6 +536,19 @@ Route::prefix('/rencana-penyidikan-document')->group(function () {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Panggilan Tersangka Document
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-panggilan-tersangka-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'create'])->name('doc.surat-panggilan-tersangka-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'store'])->name('doc.surat-panggilan-tersangka-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'edit'])->name('doc.surat-panggilan-tersangka-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'update'])->name('doc.surat-panggilan-tersangka-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'destroy'])->name('doc.surat-panggilan-tersangka-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'downloadWord'])->name('doc.surat-panggilan-tersangka.download-word');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Surat Permintaan Keterangan Ahli Document
 // ─────────────────────────────────────────────────────────────────────────────
 Route::prefix('/surat-permintaan-keterangan-ahli-document')->group(function () {
