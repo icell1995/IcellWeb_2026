@@ -233,7 +233,7 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
             $document->nomor_identitas_penjamin = $request->nomor_identitas_penjamin;
             $document->nama_penjamin = $request->nama_penjamin;
             $document->alamat_penjamin = $request->alamat_penjamin;
-            $document->lokasi_penyimpanan_jaminan = $request->lokasi_penyimpanan_jaminan;
+            $document->lokasi_penyimpanan_jaminan = $request->lokasi_penyimpanan_jaminan ? ucwords(strtolower(trim($request->lokasi_penyimpanan_jaminan))) : null;
 
             $document->status_id = '2'; // Status DRAF
             $document->document_category_id = '0603';
@@ -250,6 +250,7 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
                 'tanggal_sket_uang_jaminan' => $request->tanggal_sket_uang_jaminan,
                 'nomor_sket_uang_tangguhan' => $request->nomor_sket_uang_tangguhan,
                 'tanggal_sket_uang_tangguhan' => $request->tanggal_sket_uang_tangguhan,
+                'hari_wajib_lapor' => $request->hari_wajib_lapor ? ucwords(strtolower(trim($request->hari_wajib_lapor))) : null,
             ];
 
             $document->save();
@@ -552,7 +553,7 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
             $document->nomor_identitas_penjamin = $request->nomor_identitas_penjamin;
             $document->nama_penjamin = $request->nama_penjamin;
             $document->alamat_penjamin = $request->alamat_penjamin;
-            $document->lokasi_penyimpanan_jaminan = $request->lokasi_penyimpanan_jaminan;
+            $document->lokasi_penyimpanan_jaminan = $request->lokasi_penyimpanan_jaminan ? ucwords(strtolower(trim($request->lokasi_penyimpanan_jaminan))) : null;
 
             $document->updated_by_user_id = Auth::id();
 
@@ -566,6 +567,7 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
             $messages['tanggal_sket_uang_jaminan'] = $request->tanggal_sket_uang_jaminan;
             $messages['nomor_sket_uang_tangguhan'] = $request->nomor_sket_uang_tangguhan;
             $messages['tanggal_sket_uang_tangguhan'] = $request->tanggal_sket_uang_tangguhan;
+            $messages['hari_wajib_lapor'] = $request->hari_wajib_lapor ? ucwords(strtolower(trim($request->hari_wajib_lapor))) : null;
             $document->messages = $messages;
 
             $document->save();
@@ -782,9 +784,17 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
         $templateProcessor->setValue('resorPoliceFullName', strtoupper($polresName));
         $templateProcessor->setValue('resorPoliceAddress', $polresAddress);
 
-        // Nomor Dokumen
+        // Nomor & Tanggal Dokumen
         $docNumber = $document->nomor ?? $document->document_number ?? '-';
+        $docDateRaw = $document->document_date ?? $document->tanggal;
+        $docDate = $docDateRaw ? Carbon::parse($docDateRaw)->locale('id')->translatedFormat('d F Y') : '-';
+
         $templateProcessor->setValue('documentNumber', $docNumber);
+        $templateProcessor->setValue('documentDate', $docDate);
+        $templateProcessor->setValue('tanggalDokumen', $docDate);
+        $templateProcessor->setValue('document_date', $docDate);
+        $templateProcessor->setValue('tanggal_dokumen', $docDate);
+        $templateProcessor->setValue('tanggal', $docDate);
 
         // Laporan Polisi & Tanggal Kejadian (Diperbaiki: menggunakan kolom no_lp dan accident_date dari model Accident)
         $accidentNumber = $accident->no_lp ?? '-';
@@ -877,14 +887,22 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
         $blockOfficers = [];
         $no = 1;
         foreach ($officers as $officer) {
+            $fullName = PeopleNameHelper::getFullName($officer->first_title, $officer->first_name, $officer->last_name, $officer->last_title);
+            $rankName = $officer->rank->name ?? '';
+            $regNumber = $officer->register_number ?? '';
+            $posName = $officer->position->name ?? '';
+
             $blockOfficers[] = [
                 'number' => $no,
                 'first_name' => ($officer->first_title ? $officer->first_title . ' ' : '') . $officer->first_name,
                 'last_name' => ($officer->last_title ? ', ' . $officer->last_title : ($officer->last_name ? ' ' . $officer->last_name : '')),
-                'rank_name' => $officer->rank->name ?? '',
-                'rank_id' => $officer->rank->name ?? '',
-                'officer_id' => $officer->register_number ?? '',
-                'position' => $officer->position->name ?? '',
+                'officer_full' => $fullName,
+                'officer_name' => $fullName,
+                'fullName' => $fullName,
+                'rank_name' => $rankName,
+                'rank_id' => $rankName,
+                'officer_id' => $regNumber,
+                'position' => $posName,
             ];
             $no++;
         }
@@ -979,6 +997,110 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
         $templateProcessor->setValue('signatoryRankName', $signatoryRankName);
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);
 
+        // Konten Jaminan Penangguhan Penahanan
+        $jenisJaminanText = self::$masterJenisJaminan[$document->jenis_jaminan] ?? '-';
+        $besaranFormatted = ($document->besaran_uang_jaminan !== null && $document->besaran_uang_jaminan !== '')
+            ? number_format((float)$document->besaran_uang_jaminan, 0, ',', '.')
+            : '-';
+        $besaranTerbilang = ($document->besaran_uang_jaminan !== null && $document->besaran_uang_jaminan > 0)
+            ? ucwords($this->terbilang((int)$document->besaran_uang_jaminan)) . ' Rupiah'
+            : '-';
+        $lokasiPenyimpanan = $document->lokasi_penyimpanan_jaminan
+            ? ucwords(strtolower(trim($document->lokasi_penyimpanan_jaminan)))
+            : '-';
+
+        $namaPenjamin = $document->nama_penjamin ?: '-';
+        $nikPenjamin = $document->nomor_identitas_penjamin ?: '-';
+        $alamatPenjamin = $document->alamat_penjamin ?: '-';
+        $identitasPenjaminParts = [];
+        if ($nikPenjamin !== '-') $identitasPenjaminParts[] = "NIK: {$nikPenjamin}";
+        if ($alamatPenjamin !== '-') $identitasPenjaminParts[] = "Alamat: {$alamatPenjamin}";
+        $identitasPenjaminExtra = !empty($identitasPenjaminParts) ? ' (' . implode(', ', $identitasPenjaminParts) . ')' : '';
+        $identitasLengkapPenjamin = ($namaPenjamin !== '-') ? ($namaPenjamin . $identitasPenjaminExtra) : '-';
+
+        // Teks Format Gambar 2 jika user menaruh 1 variabel di Word (${konten_jaminan})
+        if ($document->jenis_jaminan == 1) {
+            $nominalDisplay = ($besaranFormatted !== '-') ? "Rp. {$besaranFormatted};" : "Rp. ........;";
+            $lokasiDisplay = ($lokasiPenyimpanan !== '-') ? "{$lokasiPenyimpanan}; atau" : "Panitera Pengadilan Negeri ......; atau";
+            $kontenJaminanText = "untuk penangguhan penahanan diberikan jaminan dalam bentuk mata uang rupiah:\n" .
+                "jumlah\t\t: {$nominalDisplay}\n" .
+                "disimpan di\t: {$lokasiDisplay}";
+        } elseif ($document->jenis_jaminan == 2) {
+            $penjaminDisplay = ($identitasLengkapPenjamin !== '-') ? $identitasLengkapPenjamin : ".... (identitas lengkap penjamin)";
+            $nominalDisplay = ($besaranFormatted !== '-') ? "Rp. {$besaranFormatted};" : "Rp. ......;";
+            $lokasiDisplay = ($lokasiPenyimpanan !== '-') ? "{$lokasiPenyimpanan};" : "Panitera Pengadilan Negeri ..........;";
+            $kontenJaminanText = "untuk penangguhan penahanan dengan jaminan orang {$penjaminDisplay}, dengan uang tanggungan (Pasal 110 KUHAP) yang telah ditetapkan oleh Atasan Penyidik dalam bentuk mata uang rupiah:\n" .
+                "jumlah\t\t: {$nominalDisplay}\n" .
+                "disimpan di\t: {$lokasiDisplay}";
+        } else {
+            $kontenJaminanText = "-";
+        }
+
+        // Variabel gabungan (1 variabel praktis untuk Word)
+        $templateProcessor->setValue('konten_jaminan', $kontenJaminanText);
+        $templateProcessor->setValue('kontenJaminan', $kontenJaminanText);
+        $templateProcessor->setValue('rincian_jaminan', $kontenJaminanText);
+        $templateProcessor->setValue('rincianJaminan', $kontenJaminanText);
+
+        // Variabel satuan/terpisah (jika user ingin memisah per-kolom di Word)
+        $templateProcessor->setValue('jenis_jaminan', $jenisJaminanText);
+        $templateProcessor->setValue('jenisJaminan', $jenisJaminanText);
+
+        $templateProcessor->setValue('besaran_uang_jaminan', $besaranFormatted);
+        $templateProcessor->setValue('besaranUangJaminan', $besaranFormatted);
+        $templateProcessor->setValue('jumlah_uang_jaminan', $besaranFormatted);
+        $templateProcessor->setValue('jumlahUangJaminan', $besaranFormatted);
+        $templateProcessor->setValue('besaran_uang_tanggungan', $besaranFormatted);
+        $templateProcessor->setValue('besaranUangTanggungan', $besaranFormatted);
+        $templateProcessor->setValue('jumlah_uang_tanggungan', $besaranFormatted);
+        $templateProcessor->setValue('jumlahUangTanggungan', $besaranFormatted);
+
+        $templateProcessor->setValue('besaran_uang_jaminan_terbilang', $besaranTerbilang);
+        $templateProcessor->setValue('besaranUangJaminanTerbilang', $besaranTerbilang);
+        $templateProcessor->setValue('besaran_uang_tanggungan_terbilang', $besaranTerbilang);
+        $templateProcessor->setValue('besaranUangTanggunganTerbilang', $besaranTerbilang);
+
+        $templateProcessor->setValue('lokasi_penyimpanan_jaminan', $lokasiPenyimpanan);
+        $templateProcessor->setValue('lokasiPenyimpananJaminan', $lokasiPenyimpanan);
+        $templateProcessor->setValue('tempat_penyimpanan_jaminan', $lokasiPenyimpanan);
+        $templateProcessor->setValue('tempatPenyimpananJaminan', $lokasiPenyimpanan);
+        $templateProcessor->setValue('lokasi_penyimpanan', $lokasiPenyimpanan);
+        $templateProcessor->setValue('lokasiPenyimpanan', $lokasiPenyimpanan);
+
+        $templateProcessor->setValue('nama_penjamin', $namaPenjamin);
+        $templateProcessor->setValue('namaPenjamin', $namaPenjamin);
+        $templateProcessor->setValue('nomor_identitas_penjamin', $nikPenjamin);
+        $templateProcessor->setValue('nomorIdentitasPenjamin', $nikPenjamin);
+        $templateProcessor->setValue('nik_penjamin', $nikPenjamin);
+        $templateProcessor->setValue('nikPenjamin', $nikPenjamin);
+        $templateProcessor->setValue('alamat_penjamin', $alamatPenjamin);
+        $templateProcessor->setValue('alamatPenjamin', $alamatPenjamin);
+
+        $templateProcessor->setValue('identitas_lengkap_penjamin', $identitasLengkapPenjamin);
+        $templateProcessor->setValue('identitasLengkapPenjamin', $identitasLengkapPenjamin);
+        $templateProcessor->setValue('identitas_penjamin', $identitasLengkapPenjamin);
+        $templateProcessor->setValue('identitasPenjamin', $identitasLengkapPenjamin);
+
+        // Tanggal dan Hari saat unduh dokumen (untuk teks Berita Acara / Penyerahan)
+        $now = Carbon::now()->locale('id');
+        $downloadDay = $now->translatedFormat('l');
+        $downloadDate = $now->translatedFormat('d F Y');
+        $handoverIntro = 'Pada hari ini ' . $downloadDay . ', tanggal ' . $downloadDate;
+
+        $templateProcessor->setValue('downloadDay', $downloadDay);
+        $templateProcessor->setValue('downloadDate', $downloadDate);
+        $templateProcessor->setValue('downloadDayDate', $downloadDay . ', ' . $downloadDate);
+        $templateProcessor->setValue('handoverDay', $downloadDay);
+        $templateProcessor->setValue('handoverDate', $downloadDate);
+        $templateProcessor->setValue('handoverIntro', $handoverIntro);
+        $templateProcessor->setValue('currentDay', $downloadDay);
+        $templateProcessor->setValue('currentDate', $downloadDate);
+
+        // Hari Wajib Lapor (Syarat Penangguhan)
+        $hariWajibLapor = $document->messages['hari_wajib_lapor'] ?? '';
+        $templateProcessor->setValue('hari_wajib_lapor', !empty($hariWajibLapor) ? $hariWajibLapor : '.....');
+        $templateProcessor->setValue('hariWajibLapor', !empty($hariWajibLapor) ? $hariWajibLapor : '.....');
+
         $tempFileName = 'Surat_Perintah_Penangguhan_Penahanan_' . str_replace(['/', '\\', ' '], '_', $document->document_number ?? $document->id) . '.docx';
         $tempPath = storage_path('app/' . $tempFileName);
         $templateProcessor->saveAs($tempPath);
@@ -1046,6 +1168,15 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
             $cleanedXml = implode('Menyerahkan', $parts);
         }
 
+        // Normalisasi teks penyerahan & wajib lapor jika masih berupa titik-titik di template Word
+        $cleanedXml = preg_replace('/Pada hari ini\s*[\.\s_]+\s*tanggal\s*[\.\s_]+/u', 'Pada hari ini ${downloadDay} tanggal ${downloadDate}', $cleanedXml);
+        $cleanedXml = preg_replace('/wajib lapor setiap hari\s*[\.…\s]+\s*atau/u', 'wajib lapor setiap hari ${hari_wajib_lapor} atau', $cleanedXml);
+
+        // Otomatisasi fallback jika pada template Word masih berupa titik-titik bawaan pada klausul jaminan
+        $cleanedXml = preg_replace('/Rp\.\s*[\.…\-_]+/u', 'Rp. ${besaranUangJaminan}', $cleanedXml);
+        $cleanedXml = preg_replace('/Panitera\s+Pengadilan\s+Negr[ie]\s*[\.…\-_]+/u', '${lokasiPenyimpananJaminan}', $cleanedXml);
+        $cleanedXml = preg_replace('/jaminan\s+orang\s*[\.…\-_]+\s*\(\s*identitas\s+lengkap\s+penjamin\s*\)/iu', 'jaminan orang ${identitasLengkapPenjamin}', $cleanedXml);
+
         // 3. Modifikasi DOM untuk Poin Dasar 9, 10, 11, 12, 13
         $dom = new \DOMDocument();
         $dom->loadXML($cleanedXml);
@@ -1074,8 +1205,28 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
         $rows = $xpath->query('//w:tr');
         $rowsToRemove = [];
 
+        $section = 'normal';
+        $uangRows = [];
+        $orangRows = [];
+
         foreach ($rows as $tr) {
             $text = $tr->textContent;
+            $cleanText = trim(preg_replace('/\s+/', ' ', $text));
+
+            // Tracking posisi baris jaminan pada bagian Untuk
+            if (stripos($cleanText, 'diberikan jaminan dalam bentuk mata uang rupiah') !== false || (stripos($cleanText, 'mata uang rupiah') !== false && stripos($cleanText, 'jaminan orang') === false && stripos($cleanText, 'Atasan Penyidik') === false)) {
+                $section = 'jaminan_uang';
+            } elseif (stripos($cleanText, 'jaminan orang') !== false) {
+                $section = 'jaminan_orang';
+            } elseif (stripos($cleanText, 'mengawasi tersangka') !== false || stripos($cleanText, 'melaksanakan perintah ini') !== false) {
+                $section = 'normal';
+            }
+
+            if ($section === 'jaminan_uang') {
+                $uangRows[] = $tr;
+            } elseif ($section === 'jaminan_orang') {
+                $orangRows[] = $tr;
+            }
 
             // Baris 9: Surat Perpanjangan Penahanan (bila ada)
             if (strpos($text, 'Surat Perpanjangan Penahanan Nomor:') !== false) {
@@ -1131,9 +1282,19 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
                     $this->changeRowNumberCell($xpath, $tr, $numPoin13);
                 }
             }
+        }
 
-            // Bagian Jaminan di poin "Untuk:" (baris jaminan uang dan jaminan orang)
-            $this->processJaminanRows($dom, $xpath, $tr, $document);
+        // Hapus blok Poin 3 jaminan yang tidak sesuai jenis_jaminan yang dipilih
+        if ($document->jenis_jaminan == 1) {
+            // User memilih Jaminan Uang -> Hapus blok Poin 3 Jaminan Orang
+            foreach ($orangRows as $r) {
+                $rowsToRemove[] = $r;
+            }
+        } elseif ($document->jenis_jaminan == 2) {
+            // User memilih Jaminan Orang -> Hapus blok Poin 3 Jaminan Uang
+            foreach ($uangRows as $r) {
+                $rowsToRemove[] = $r;
+            }
         }
 
         // Hapus baris yang tidak digunakan
@@ -1244,60 +1405,69 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
     /**
      * Modifikasi teks jaminan pada poin Untuk (Rp. ... dan Panitera Pengadilan ...)
      */
-    private function processJaminanRows(\DOMDocument $dom, \DOMXPath $xpath, \DOMElement $row, SuratPerintahPenangguhanPenahananDocument $document)
+    private function processJaminanRows(\DOMDocument $dom, \DOMXPath $xpath, \DOMElement $row, SuratPerintahPenangguhanPenahananDocument $document, int $poinJaminan = 0)
     {
         $text = $row->textContent;
         $jenisJaminan = $document->jenis_jaminan;
-        $besaranFormatted = $document->besaran_uang_jaminan ? number_format($document->besaran_uang_jaminan, 0, ',', '.') : '-';
-        $lokasiPenyimpanan = $document->lokasi_penyimpanan_jaminan ?: 'Panitera Pengadilan Negeri ..........';
+        $besaranFormatted = ($document->besaran_uang_jaminan !== null && $document->besaran_uang_jaminan !== '')
+            ? number_format((float)$document->besaran_uang_jaminan, 0, ',', '.')
+            : '-';
+        $lokasiPenyimpanan = $document->lokasi_penyimpanan_jaminan
+            ? ucwords(strtolower(trim($document->lokasi_penyimpanan_jaminan)))
+            : 'Panitera Pengadilan Negeri ..........';
 
-        // Poin 3: jumlah jaminan uang
-        if (strpos($text, 'jumlah: Rp. ........;') !== false || (strpos($text, 'jumlah') !== false && strpos($text, 'Rp. ........;') !== false)) {
-            if ($document->besaran_uang_jaminan) {
-                $lastCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
-                if ($lastCell) {
-                    $this->setCellText($dom, $lastCell, "Rp. {$besaranFormatted};");
+        // Poin 3: Jaminan Uang (Hanya jika user memilih jenis_jaminan = 1)
+        if ($poinJaminan === 3 && $jenisJaminan == 1) {
+            if (stripos($text, 'jumlah') !== false && stripos($text, 'Rp.') !== false) {
+                if ($document->besaran_uang_jaminan) {
+                    $lastCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
+                    if ($lastCell) {
+                        $this->setCellText($dom, $lastCell, "Rp. {$besaranFormatted};");
+                    }
+                }
+            }
+
+            if (stripos($text, 'disimpan di') !== false && (stripos($text, 'Panitera Pengadilan Negri') !== false || stripos($text, 'Panitera Pengadilan Negeri') !== false)) {
+                if ($document->lokasi_penyimpanan_jaminan) {
+                    $lastCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
+                    if ($lastCell) {
+                        $this->setCellText($dom, $lastCell, "{$lokasiPenyimpanan}; atau");
+                    }
                 }
             }
         }
 
-        // Poin 3: disimpan di lokasi jaminan uang
-        if (strpos($text, 'disimpan di: Panitera Pengadilan Negri') !== false || (strpos($text, 'disimpan di') !== false && strpos($text, 'Panitera Pengadilan Negri') !== false)) {
-            if ($document->lokasi_penyimpanan_jaminan) {
-                $lastCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
-                if ($lastCell) {
-                    $this->setCellText($dom, $lastCell, "{$lokasiPenyimpanan}; atau");
+        // Poin 4: Jaminan Orang (Hanya jika user memilih jenis_jaminan = 2)
+        if ($poinJaminan === 4 && $jenisJaminan == 2) {
+            if (stripos($text, 'jaminan orang') !== false && (stripos($text, 'identitas lengkap penjamin') !== false || stripos($text, 'identitas') !== false)) {
+                if ($document->nama_penjamin) {
+                    $parts = [];
+                    if ($document->nomor_identitas_penjamin) $parts[] = "NIK: " . $document->nomor_identitas_penjamin;
+                    if ($document->alamat_penjamin) $parts[] = "Alamat: " . $document->alamat_penjamin;
+                    $extra = !empty($parts) ? ' (' . implode(', ', $parts) . ')' : '';
+                    $penjaminDesc = "untuk penangguhan penahanan dengan jaminan orang {$document->nama_penjamin}{$extra}, dengan uang tanggungan (Pasal 110 KUHAP) yang telah ditetapkan oleh Atasan Penyidik dalam bentuk mata uang rupiah:";
+                    $descCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
+                    if ($descCell) {
+                        $this->setCellText($dom, $descCell, $penjaminDesc);
+                    }
                 }
             }
-        }
 
-        // Poin 4: identitas penjamin orang
-        if (strpos($text, 'jaminan orang .... (identitas lengkap penjamin)') !== false) {
-            if ($jenisJaminan == 2 && $document->nama_penjamin) {
-                $penjaminDesc = "untuk penangguhan penahanan dengan jaminan orang {$document->nama_penjamin} (No. Identitas: " . ($document->nomor_identitas_penjamin ?: '-') . ", Alamat: " . ($document->alamat_penjamin ?: '-') . "), dengan uang tanggungan (Pasal 110 KUHAP) yang telah ditetapkan oleh Atasan Penyidik dalam bentuk mata uang rupiah:";
-                $descCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
-                if ($descCell) {
-                    $this->setCellText($dom, $descCell, $penjaminDesc);
+            if (stripos($text, 'jumlah') !== false && stripos($text, 'Rp.') !== false) {
+                if ($document->besaran_uang_jaminan) {
+                    $lastCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
+                    if ($lastCell) {
+                        $this->setCellText($dom, $lastCell, "Rp. {$besaranFormatted};");
+                    }
                 }
             }
-        }
 
-        // Poin 4: jumlah uang tanggungan
-        if (strpos($text, 'jumlah: Rp. ......;') !== false || (strpos($text, 'jumlah') !== false && strpos($text, 'Rp. ......;') !== false)) {
-            if ($document->besaran_uang_jaminan) {
-                $lastCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
-                if ($lastCell) {
-                    $this->setCellText($dom, $lastCell, "Rp. {$besaranFormatted};");
-                }
-            }
-        }
-
-        // Poin 4: disimpan di lokasi jaminan orang
-        if (strpos($text, 'disimpan di: Panitera Pengadilan Negeri ..........;') !== false || (strpos($text, 'disimpan di') !== false && strpos($text, 'Panitera Pengadilan Negeri ..........;') !== false)) {
-            if ($document->lokasi_penyimpanan_jaminan) {
-                $lastCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
-                if ($lastCell) {
-                    $this->setCellText($dom, $lastCell, "{$lokasiPenyimpanan};");
+            if (stripos($text, 'disimpan di') !== false && (stripos($text, 'Panitera Pengadilan Negri') !== false || stripos($text, 'Panitera Pengadilan Negeri') !== false)) {
+                if ($document->lokasi_penyimpanan_jaminan) {
+                    $lastCell = $xpath->query('.//w:tc[last()]', $row)->item(0);
+                    if ($lastCell) {
+                        $this->setCellText($dom, $lastCell, "{$lokasiPenyimpanan};");
+                    }
                 }
             }
         }
@@ -1575,9 +1745,10 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
             'tanggal_sket_uang_jaminan'      => 'nullable|date_format:Y-m-d',
             'nomor_sket_uang_tangguhan'      => 'nullable|string|max:255',
             'tanggal_sket_uang_tangguhan'    => 'nullable|date_format:Y-m-d',
+            'hari_wajib_lapor'               => 'nullable|string|max:255',
         ], [
-            'nomor.required'                          => 'Mohon mengisi Nomor Surat Perintah Penangguhan Penahanan (S-18).',
-            'tanggal.required'                        => 'Mohon mengisi Tanggal Surat Perintah Penangguhan Penahanan.',
+            'nomor.required'                          => 'Mohon mengisi Nomor Dokumen.',
+            'tanggal.required'                        => 'Mohon mengisi Tanggal Ditandatangani Dokumen.',
             'nomor_spdp.required'                     => 'Mohon mengisi Nomor SPDP.',
             'tanggal_spdp.required'                   => 'Mohon mengisi Tanggal SPDP.',
             'kode_satker_penerbit_spdp.required'      => 'Mohon mengisi Kode Satker Penerbit SPDP.',
@@ -1588,5 +1759,62 @@ class SuratPerintahPenangguhanPenahananDocumentController extends Controller
             'officerLeader.required'                  => 'Mohon memilih Ketua Tim.',
             'signatory.required'                      => 'Mohon memilih Pejabat Penandatangan.',
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            if ($request->officerLeader && $request->has('officers') && is_array($request->officers)) {
+                $leaderOfficer = Officer::where('id', $request->officerLeader)
+                    ->orWhere('register_number', $request->officerLeader)
+                    ->first();
+                $leaderNrp = $leaderOfficer ? $leaderOfficer->register_number : (string)$request->officerLeader;
+                $leaderId = $leaderOfficer ? (string)$leaderOfficer->id : (string)$request->officerLeader;
+
+                foreach ($request->officers as $memberVal) {
+                    $mOfficer = Officer::where('id', $memberVal)
+                        ->orWhere('register_number', $memberVal)
+                        ->first();
+                    $mNrp = $mOfficer ? $mOfficer->register_number : (string)$memberVal;
+                    $mId = $mOfficer ? (string)$mOfficer->id : (string)$memberVal;
+
+                    if ($mNrp === $leaderNrp || $mId === $leaderId) {
+                        $validator->errors()->add('officers', 'Ketua Tim tidak boleh dipilih kembali sebagai Anggota Petugas yang Diperintahkan.');
+                        break;
+                    }
+                }
+            }
+        });
+
+        return $validator;
+    }
+
+    /**
+     * Konversi bilangan integer ke teks terbilang dalam bahasa Indonesia
+     */
+    private function terbilang(int $angka): string
+    {
+        $angka = abs($angka);
+        $huruf = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan', 'sepuluh', 'sebelas'];
+        $temp = '';
+
+        if ($angka < 12) {
+            $temp = ' ' . $huruf[$angka];
+        } else if ($angka < 20) {
+            $temp = $this->terbilang($angka - 10) . ' belas';
+        } else if ($angka < 100) {
+            $temp = $this->terbilang((int)($angka / 10)) . ' puluh ' . $this->terbilang($angka % 10);
+        } else if ($angka < 200) {
+            $temp = ' seratus ' . $this->terbilang($angka - 100);
+        } else if ($angka < 1000) {
+            $temp = $this->terbilang((int)($angka / 100)) . ' ratus ' . $this->terbilang($angka % 100);
+        } else if ($angka < 2000) {
+            $temp = ' seribu ' . $this->terbilang($angka - 1000);
+        } else if ($angka < 1000000) {
+            $temp = $this->terbilang((int)($angka / 100)) . ' ribu ' . $this->terbilang($angka % 1000);
+        } else if ($angka < 1000000000) {
+            $temp = $this->terbilang((int)($angka / 1000000)) . ' juta ' . $this->terbilang($angka % 1000000);
+        } else if ($angka < 1000000000000) {
+            $temp = $this->terbilang((int)($angka / 1000000000)) . ' milyar ' . $this->terbilang(fmod($angka, 1000000000));
+        }
+
+        return preg_replace('/\s+/', ' ', trim($temp));
     }
 }
