@@ -325,63 +325,11 @@ class ResumeDocumentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'accident_id' => 'required',
-            'nomor_surat' => 'required|string|max:255',
-            'tanggal_surat' => 'required|date',
-            'dikeluarkan_di' => 'required|string|max:255',
-            'satker_penyidik' => 'required|string|max:255',
-            'nomor_lp' => 'required|string|max:255',
-            'tanggal_lp' => 'required|date',
-
-            // I. Dasar
-            'dasar.lp_nomor' => 'required|string',
-            'dasar.lp_tanggal' => 'required|date',
-            'dasar.sprindik_nomor' => 'required|string',
-            'dasar.sprindik_tanggal' => 'required|date',
-            'dasar.springas_nomor' => 'required|string',
-            'dasar.springas_tanggal' => 'required|date',
-            'dasar.spdp_nomor' => 'required|string',
-            'dasar.spdp_tanggal' => 'required|date',
-            'dasar.sp_tap_nomor' => 'required|string',
-            'dasar.sp_tap_tanggal' => 'required|date',
-            'dasar.sp_tap_tersangka' => 'required|string',
-            'dasar.surat_jaksa_nomor' => 'required|string',
-            'dasar.surat_jaksa_tanggal' => 'required|date',
-
-            // II. Perkara
-            'perkara.tindak_pidana' => 'required|string',
-            'perkara.pasal' => 'required|string',
-            'perkara.uu_nomor' => 'required|string',
-            'perkara.uu_tahun' => 'required|string',
-            'perkara.uu_tentang' => 'required|string',
-            'perkara.tkp' => 'required|string',
-            'perkara.hari' => 'required|string',
-            'perkara.tanggal' => 'required|date',
-            'perkara.kurun_waktu' => 'required|string',
-            'perkara.pihak' => 'required|string',
-            'perkara.nilai_taksir' => 'required|numeric',
-            'perkara.terbilang' => 'required|string',
-
-            // III. Fakta-Fakta Repeaters
-            'keterangan_saksi' => 'required|array|min:1',
-            'keterangan_saksi.*.nama' => 'required|string',
-            'keterangan_tersangka' => 'required|array|min:1',
-            'keterangan_tersangka.*.nama' => 'required|string',
-
-            // IV & V
-            'analisa_kasus' => 'required',
-            'analisa_yuridis' => 'required',
-            'kesimpulan' => 'required',
-
-            // Dual Signatory
-            'atasan_penyidik_nama' => 'required|string',
-            'atasan_penyidik_pangkat' => 'required|string',
-            'atasan_penyidik_nrp' => 'required|string',
-            'pembuat_nama' => 'required|string',
-            'pembuat_pangkat' => 'required|string',
-            'pembuat_nrp' => 'required|string',
-        ]);
+        $request->validate(
+            $this->getValidationRules(false),
+            $this->getValidationMessages(),
+            $this->getValidationAttributes()
+        );
 
         try {
             DB::beginTransaction();
@@ -570,36 +518,11 @@ class ResumeDocumentController extends Controller
         $document = ResumeDocument::findOrFail($id);
         $accidentId = $document->accident_id;
 
-        $request->validate([
-            'nomor_surat' => 'required|string|max:255',
-            'tanggal_surat' => 'required|date',
-            'dikeluarkan_di' => 'required|string|max:255',
-            'satker_penyidik' => 'required|string|max:255',
-            'nomor_lp' => 'required|string|max:255',
-            'tanggal_lp' => 'required|date',
-
-            'dasar.lp_nomor' => 'required|string',
-            'dasar.lp_tanggal' => 'required|date',
-            'perkara.tindak_pidana' => 'required|string',
-            'perkara.pasal' => 'required|string',
-            'perkara.tkp' => 'required|string',
-
-            'keterangan_saksi' => 'required|array|min:1',
-            'keterangan_saksi.*.nama' => 'required|string',
-            'keterangan_tersangka' => 'required|array|min:1',
-            'keterangan_tersangka.*.nama' => 'required|string',
-
-            'analisa_kasus' => 'required',
-            'analisa_yuridis' => 'required',
-            'kesimpulan' => 'required',
-
-            'atasan_penyidik_nama' => 'required|string',
-            'atasan_penyidik_pangkat' => 'required|string',
-            'atasan_penyidik_nrp' => 'required|string',
-            'pembuat_nama' => 'required|string',
-            'pembuat_pangkat' => 'required|string',
-            'pembuat_nrp' => 'required|string',
-        ]);
+        $request->validate(
+            $this->getValidationRules(true),
+            $this->getValidationMessages(),
+            $this->getValidationAttributes()
+        );
 
         try {
             DB::beginTransaction();
@@ -1454,6 +1377,193 @@ class ResumeDocumentController extends Controller
         $pattern = '/<w:p\b[^>]*>(?:(?!<\/w:p>).)*?\\$\\{'.preg_quote($searchKey, '/').'\\}(?:(?!<\/w:p>).)*?<\/w:p>/s';
         $newContent = preg_replace($pattern, $xmlReplacement, $content, 1);
         $prop->setValue($tp, $newContent);
+    }
+
+    /**
+     * Aturan validasi lengkap form Dokumen Resume
+     */
+    private function getValidationRules($isUpdate = false)
+    {
+        $rules = [
+            'nomor_surat' => 'required|string|max:255',
+            'tanggal_surat' => 'required|date',
+            'dikeluarkan_di' => 'required|string|max:255',
+            'satker_penyidik' => 'required|string|max:255',
+            'nomor_lp' => 'required|string|max:255',
+            'tanggal_lp' => 'required|date',
+
+            // I. Dasar
+            'dasar.lp_nomor' => 'required|string',
+            'dasar.lp_tanggal' => 'required|date',
+            'dasar.sprindik_nomor' => 'required|string',
+            'dasar.sprindik_tanggal' => 'required|date',
+            'dasar.springas_nomor' => 'required|string',
+            'dasar.springas_tanggal' => 'required|date',
+            'dasar.spdp_nomor' => 'required|string',
+            'dasar.spdp_tanggal' => 'required|date',
+            'dasar.sp_tap_nomor' => 'required|string',
+            'dasar.sp_tap_tanggal' => 'required|date',
+            'dasar.sp_tap_tersangka' => 'required|string',
+            'dasar.surat_jaksa_nomor' => 'required|string',
+            'dasar.surat_jaksa_tanggal' => 'required|date',
+
+            // II. Perkara
+            'perkara.tindak_pidana' => 'required|string',
+            'perkara.pasal' => 'required|string',
+            'perkara.uu_nomor' => 'required|string',
+            'perkara.uu_tahun' => 'required|string',
+            'perkara.uu_tentang' => 'required|string',
+            'perkara.tkp' => 'required|string',
+            'perkara.hari' => 'required|string',
+            'perkara.tanggal' => 'required|date',
+            'perkara.kurun_waktu' => 'required|string',
+            'perkara.pihak' => 'required|string',
+            'perkara.daftar_kerugian' => 'required|array|min:1',
+            'perkara.daftar_kerugian.*' => 'required|string',
+            'perkara.nilai_taksir' => 'required|numeric',
+            'perkara.terbilang' => 'required|string',
+
+            // III. Fakta-Fakta
+            'fakta_tkp' => 'required',
+            'fakta_korban' => 'required',
+            'fakta_pemanggilan.p1_nomor' => 'required|string',
+            'fakta_pemanggilan.p1_tanggal' => 'required|date',
+            'fakta_pemanggilan.p1_nama' => 'required|string',
+            'fakta_pemanggilan.p1_hadir' => 'required|date',
+            'fakta_pemanggilan.p2_keterangan' => 'required|string',
+            'fakta_perintah_membawa.sp_membawa' => 'required|string',
+            'fakta_perintah_membawa.ba_membawa' => 'required|string',
+            'fakta_perintah_membawa.surat_keluarga' => 'required|string',
+            'fakta_penangkapan' => 'required',
+            'fakta_penahanan' => 'required',
+            'fakta_penggeledahan' => 'required',
+            'fakta_penyitaan' => 'required',
+
+            'keterangan_saksi' => 'required|array|min:1',
+            'keterangan_saksi.*.nama' => 'required|string',
+            'keterangan_saksi.*.keterangan' => 'required',
+            'keterangan_ahli' => 'nullable|array',
+            'keterangan_tersangka' => 'required|array|min:1',
+            'keterangan_tersangka.*.nama' => 'required|string',
+            'keterangan_tersangka.*.keterangan' => 'required',
+
+            'fakta_konfrontasi' => 'required|string',
+            'fakta_rekonstruksi' => 'required|string',
+            'fakta_dpo' => 'required|string',
+            'fakta_dpb' => 'required|string',
+            'fakta_red_notice' => 'required|string',
+            'fakta_pencegahan' => 'required|string',
+            'fakta_penangkalan' => 'required|string',
+
+            // IV & V
+            'analisa_kasus' => 'required',
+            'analisa_yuridis' => 'required',
+            'analisa_yuridis.tersangka_nama' => 'required|string',
+            'analisa_yuridis.pasal' => 'required|string',
+            'kesimpulan' => 'required',
+
+            // Dual Signatory
+            'atasan_penyidik_nama' => 'required|string',
+            'atasan_penyidik_pangkat' => 'required|string',
+            'atasan_penyidik_nrp' => 'required|string',
+            'pembuat_nama' => 'required|string',
+            'pembuat_pangkat' => 'required|string',
+            'pembuat_nrp' => 'required|string',
+        ];
+
+        if (! $isUpdate) {
+            $rules['accident_id'] = 'required';
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Pesan error kustom dalam Bahasa Indonesia
+     */
+    private function getValidationMessages()
+    {
+        return [
+            'required' => ':attribute wajib diisi atau dipilih.',
+            'string' => ':attribute harus berupa teks.',
+            'date' => ':attribute harus berupa format tanggal yang valid.',
+            'numeric' => ':attribute harus berupa angka.',
+            'min' => ':attribute minimal berisi :min item.',
+            'array' => ':attribute harus berupa daftar data.',
+        ];
+    }
+
+    /**
+     * Label atribut validasi Bahasa Indonesia
+     */
+    private function getValidationAttributes()
+    {
+        return [
+            'accident_id' => 'Perkara Laka Lantas',
+            'nomor_surat' => 'Nomor Dokumen Resume',
+            'tanggal_surat' => 'Tanggal Surat Resume',
+            'dikeluarkan_di' => 'Dikeluarkan di (Kota)',
+            'satker_penyidik' => 'Kesatuan / Satker Penyidik',
+            'nomor_lp' => 'Nomor Laporan Polisi (LP)',
+            'tanggal_lp' => 'Tanggal LP',
+            'dasar.lp_nomor' => 'Nomor Dokumen LP',
+            'dasar.lp_tanggal' => 'Tanggal Dokumen LP',
+            'dasar.sprindik_nomor' => 'Nomor SP.Sidik',
+            'dasar.sprindik_tanggal' => 'Tanggal SP.Sidik',
+            'dasar.springas_nomor' => 'Nomor SP.Gas',
+            'dasar.springas_tanggal' => 'Tanggal SP.Gas',
+            'dasar.spdp_nomor' => 'Nomor SPDP',
+            'dasar.spdp_tanggal' => 'Tanggal SPDP',
+            'dasar.sp_tap_nomor' => 'Nomor S.Tap Tersangka',
+            'dasar.sp_tap_tanggal' => 'Tanggal S.Tap Tersangka',
+            'dasar.sp_tap_tersangka' => 'Atas Nama Tersangka pada S.Tap',
+            'dasar.surat_jaksa_nomor' => 'Nomor Surat ke Kejaksaan',
+            'dasar.surat_jaksa_tanggal' => 'Tanggal Surat ke Kejaksaan',
+            'perkara.tindak_pidana' => 'Dugaan Tindak Pidana',
+            'perkara.pasal' => 'Pasal',
+            'perkara.uu_nomor' => 'Nomor UU',
+            'perkara.uu_tahun' => 'Tahun UU',
+            'perkara.uu_tentang' => 'Tentang UU',
+            'perkara.tkp' => 'Tempat Kejadian Perkara (TKP)',
+            'perkara.hari' => 'Hari Kejadian',
+            'perkara.tanggal' => 'Tanggal Kejadian',
+            'perkara.kurun_waktu' => 'Kurun Waktu Kejadian',
+            'perkara.pihak' => 'Pihak / Tersangka',
+            'perkara.daftar_kerugian' => 'Daftar Kerugian Materil',
+            'perkara.daftar_kerugian.*' => 'Uraian Kerugian Materil',
+            'perkara.nilai_taksir' => 'Nilai Taksir Kerugian',
+            'perkara.terbilang' => 'Nilai Taksir Terbilang',
+            'fakta_tkp' => 'Penanganan TKP',
+            'fakta_korban' => 'Pemeriksaan Keadaan Korban',
+            'fakta_penangkapan' => 'Administrasi Penangkapan',
+            'fakta_penahanan' => 'Administrasi Penahanan',
+            'fakta_penggeledahan' => 'Administrasi Penggeledahan',
+            'fakta_penyitaan' => 'Administrasi Penyitaan',
+            'keterangan_saksi' => 'Daftar Saksi',
+            'keterangan_saksi.*.nama' => 'Nama Saksi',
+            'keterangan_saksi.*.keterangan' => 'Keterangan Saksi',
+            'keterangan_tersangka' => 'Daftar Tersangka',
+            'keterangan_tersangka.*.nama' => 'Nama Tersangka',
+            'keterangan_tersangka.*.keterangan' => 'Keterangan Tersangka',
+            'fakta_konfrontasi' => 'Keterangan Konfrontasi',
+            'fakta_rekonstruksi' => 'Keterangan Rekonstruksi',
+            'fakta_dpo' => 'Daftar Pencarian Orang (DPO)',
+            'fakta_dpb' => 'Daftar Pencarian Barang (DPB)',
+            'fakta_red_notice' => 'Red Notice',
+            'fakta_pencegahan' => 'Pencegahan ke Luar Negeri',
+            'fakta_penangkalan' => 'Penangkalan dari Luar Negeri',
+            'analisa_kasus' => 'Analisa Kasus',
+            'analisa_yuridis' => 'Analisa Yuridis',
+            'analisa_yuridis.tersangka_nama' => 'Nama Tersangka pada Analisa Yuridis',
+            'analisa_yuridis.pasal' => 'Pasal pada Analisa Yuridis',
+            'kesimpulan' => 'Kesimpulan',
+            'atasan_penyidik_nama' => 'Pejabat Atasan Penyidik',
+            'atasan_penyidik_pangkat' => 'Pangkat Atasan Penyidik',
+            'atasan_penyidik_nrp' => 'NRP Atasan Penyidik',
+            'pembuat_nama' => 'Pejabat Pembuat Resume',
+            'pembuat_pangkat' => 'Pangkat Pembuat Resume',
+            'pembuat_nrp' => 'NRP Pembuat Resume',
+        ];
     }
 }
 

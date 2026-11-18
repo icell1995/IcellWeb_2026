@@ -55,6 +55,19 @@
             line-height: 1.6;
             font-size: 0.925rem;
         }
+        .select2-container .select2-selection.is-invalid,
+        .select2-container--bootstrap4 .select2-selection.is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        .field-invalid-pulse {
+            animation: pulseErrorBorder 1.5s ease-in-out infinite;
+        }
+        @keyframes pulseErrorBorder {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); }
+            50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0.2); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
     </style>
 @endpush
 
@@ -78,13 +91,26 @@
             </div>
 
             @if (isset($errors) && $errors->any())
-                <div class="card-body p-0 mb-3">
-                    <div class="alert alert-danger">
-                        <ul class="mb-0">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                <div class="card-body p-0 mb-3" id="serverValidationAlert">
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                        <div class="d-flex align-items-start">
+                            <div class="me-3 fs-3">
+                                <i class="bi bi-exclamation-triangle-fill"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold mb-1">Perhatian: Terdapat isian form yang belum lengkap atau tidak valid</h6>
+                                <p class="mb-2 small">Sistem otomatis mengarahkan fokus ke field yang belum lengkap di bawah. Rincian:</p>
+                                <ul class="mb-2 ps-3 small">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                                <button type="button" class="btn btn-sm btn-outline-danger bg-white text-danger fw-bold" id="btnFocusFirstError">
+                                    <i class="bi bi-arrow-down-circle me-1"></i> Langsung ke Field yang Perlu Dilengkapi
+                                </button>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -99,7 +125,7 @@
         </div>
 
         <div class="box-body">
-            <form action="{{ route('doc.resume-document.store') }}" method="POST" id="formResumeDocument">
+            <form action="{{ route('doc.resume-document.store') }}" method="POST" id="formResumeDocument" novalidate>
                 @csrf
                 <input type="hidden" name="accident_id" id="accident_id" value="{{ $accidentId }}">
 
@@ -621,8 +647,8 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
                                         <input type="text" class="form-control form-control-sm fw-bold" name="keterangan_ahli[{{ $idx }}][nama]"
                                             value="{{ $a['nama'] }}" required placeholder="Nama Ahli dan Bidang Keahlian">
                                     </div>
-                                    <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):</label>
-                                    <textarea class="form-control" name="keterangan_ahli[{{ $idx }}][keterangan]" rows="4" placeholder="Tuliskan keterangan per baris">{{ is_array($a['keterangan']) ? implode("\n", $a['keterangan']) : $a['keterangan'] }}</textarea>
+                                    <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):<span class="text-danger">*</span></label>
+                                    <textarea class="form-control" name="keterangan_ahli[{{ $idx }}][keterangan]" rows="4" required placeholder="Tuliskan keterangan per baris">{{ is_array($a['keterangan']) ? implode("\n", $a['keterangan']) : $a['keterangan'] }}</textarea>
                                 </div>
                             @endforeach
                         </div>
@@ -645,7 +671,7 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
                                         <input type="text" class="form-control form-control-sm fw-bold" name="keterangan_tersangka[{{ $idx }}][nama]"
                                             value="{{ $t['nama'] }}" required placeholder="Nama lengkap Tersangka">
                                     </div>
-                                    <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):</label>
+                                    <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):<span class="text-danger">*</span></label>
                                     <textarea class="form-control" name="keterangan_tersangka[{{ $idx }}][keterangan]" rows="4" required placeholder="Tuliskan keterangan per baris">{{ is_array($t['keterangan']) ? implode("\n", $t['keterangan']) : $t['keterangan'] }}</textarea>
                                 </div>
                             @endforeach
@@ -653,7 +679,7 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
 
                         {{-- S. BARANG BUKTI --}}
                         <div class="section-subhead d-flex justify-content-between align-items-center mt-4">
-                            <span>S. Barang Bukti</span>
+                            <span>S. Barang Bukti<span class="text-danger">*</span></span>
                             <button type="button" class="btn btn-sm btn-dark-blue" id="btnAddBb">
                                 + Tambah Barang Bukti
                             </button>
@@ -666,11 +692,11 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
                                         <button type="button" class="btn btn-sm btn-outline-danger btn-remove-bb">Hapus</button>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="small fw-bold">Disita Dari:</label>
+                                        <label class="small fw-bold">Disita Dari:<span class="text-danger">*</span></label>
                                         <input type="text" class="form-control form-control-sm" name="barang_bukti[{{ $idx }}][disita_dari]"
                                             value="{{ $bb['disita_dari'] }}" required placeholder="Nama pemilik / pihak yang disita">
                                     </div>
-                                    <label class="small fw-bold">Rincian Barang Bukti (a, b, c...):</label>
+                                    <label class="small fw-bold">Rincian Barang Bukti (a, b, c...):<span class="text-danger">*</span></label>
                                     <textarea class="form-control" name="barang_bukti[{{ $idx }}][keterangan]" rows="4" required placeholder="Tuliskan rincian per baris">{{ is_array($bb['keterangan']) ? implode("\n", $bb['keterangan']) : $bb['keterangan'] }}</textarea>
                                 </div>
                             @endforeach
@@ -680,38 +706,42 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
                         <div class="section-subhead mt-4">Fakta-Fakta Tambahan (L s/d R, T, U):</div>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="fw-bold small">L. Konfrontasi:</label>
-                                <input type="text" class="form-control form-control-sm" name="fakta_konfrontasi" value="Tidak dilaksanakan konfrontasi;">
+                                <label class="fw-bold small">L. Konfrontasi:<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="fakta_konfrontasi" value="{{ old('fakta_konfrontasi', 'Tidak dilaksanakan konfrontasi;') }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="fw-bold small">M. Rekonstruksi:</label>
-                                <input type="text" class="form-control form-control-sm" name="fakta_rekonstruksi" value="Telah dilaksanakan rekonstruksi perkara pada TKP;">
+                                <label class="fw-bold small">M. Rekonstruksi:<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="fakta_rekonstruksi" value="{{ old('fakta_rekonstruksi', 'Telah dilaksanakan rekonstruksi perkara pada TKP;') }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="fw-bold small">N. Daftar Pencarian Orang (DPO):</label>
-                                <input type="text" class="form-control form-control-sm" name="fakta_dpo" value="Nihil;">
+                                <label class="fw-bold small">N. Daftar Pencarian Orang (DPO):<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="fakta_dpo" value="{{ old('fakta_dpo', 'Nihil;') }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="fw-bold small">O. Daftar Pencarian Barang (DPB):</label>
-                                <input type="text" class="form-control form-control-sm" name="fakta_dpb" value="Nihil;">
+                                <label class="fw-bold small">O. Daftar Pencarian Barang (DPB):<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="fakta_dpb" value="{{ old('fakta_dpb', 'Nihil;') }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="fw-bold small">P. Red Notice:</label>
-                                <input type="text" class="form-control form-control-sm" name="fakta_red_notice" value="Nihil;">
+                                <label class="fw-bold small">P. Red Notice:<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="fakta_red_notice" value="{{ old('fakta_red_notice', 'Nihil;') }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="fw-bold small">Q. Pencegahan ke Luar Negeri:</label>
-                                <input type="text" class="form-control form-control-sm" name="fakta_pencegahan" value="Nihil;">
+                                <label class="fw-bold small">Q. Pencegahan ke Luar Negeri:<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="fakta_pencegahan" value="{{ old('fakta_pencegahan', 'Nihil;') }}" required>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="fw-bold small">R. Penangkalan dari Luar Negeri:</label>
-                                <input type="text" class="form-control form-control-sm" name="fakta_penangkalan" value="Nihil;">
+                                <label class="fw-bold small">R. Penangkalan dari Luar Negeri:<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-sm" name="fakta_penangkalan" value="{{ old('fakta_penangkalan', 'Nihil;') }}" required>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="fw-bold form-label small">T. Penghentian Penyidikan:</label>
-                            <textarea class="form-control" name="fakta_penghentian_penyidikan[]" rows="4">1. Surat Perintah Penghentian Penyidikan;
+                            <label class="fw-bold form-label small">T. Penghentian Penyidikan:<span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="fakta_penghentian_penyidikan[]" rows="4" required>1. Surat Perintah Penghentian Penyidikan;
+2. Surat Ketetapan Penghentian Penyidikan;
+3. Surat Pemberitahuan Penghentian Penyidikan Kepada Kejaksaan Dengan Tembusan Pelapor/Korban, Terlapor/Tersangka;
+4. Surat Pemberitahuan Penghentian Penyidikan Kepada Pelapor (SP2HP).</textarea>
+                        </div>
 2. Surat Ketetapan Penghentian Penyidikan;
 3. Surat Pemberitahuan Penghentian Penyidikan Kepada Kejaksaan Dengan Tembusan Pelapor/Korban, Terlapor/Tersangka;
 4. Surat Pemberitahuan Penghentian Penyidikan Kepada Pelapor (SP2HP).</textarea>
@@ -791,7 +821,7 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
 
                                 <div class="mb-3">
                                     <label class="fw-bold form-label" for="select_atasan">Pilih Pejabat Atasan<span class="text-danger">*</span></label>
-                                    <select id="select_atasan" class="form-control select2bs4" style="width: 100%;">
+                                    <select id="select_atasan" class="form-control select2bs4" style="width: 100%;" required data-label="Pejabat Atasan Penyidik">
                                         <option value="">-- Pilih Atasan Penyidik --</option>
                                         @if ($authorizedSignatories->isNotEmpty())
                                             <optgroup label="Pejabat Berwenang (Kasat / Kanit)">
@@ -844,7 +874,7 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
 
                                 <div class="mb-3">
                                     <label class="fw-bold form-label" for="select_pembuat">Pilih Pejabat Pembuat<span class="text-danger">*</span></label>
-                                    <select id="select_pembuat" class="form-control select2bs4" style="width: 100%;">
+                                    <select id="select_pembuat" class="form-control select2bs4" style="width: 100%;" required data-label="Penyidik Pembuat Resume">
                                         <option value="">-- Pilih Penyidik Pembuat --</option>
                                         @if ($officers->isNotEmpty())
                                             <optgroup label="Daftar Penyidik / Penyidik Pembantu">
@@ -909,6 +939,7 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
 
 @push('script')
     <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         $(document).ready(function() {
             // Inisialisasi select2
@@ -921,8 +952,13 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
             // Auto-fill Atasan Penyidik
             $('#select_atasan').on('change select2:select', function() {
                 var sel = $(this).find('option:selected');
+                $(this).removeClass('is-invalid field-invalid-pulse');
+                $(this).next('.select2-container').find('.select2-selection').removeClass('is-invalid field-invalid-pulse');
+                $('#atasan_penyidik_nama, #atasan_penyidik_pangkat, #atasan_penyidik_nrp, #atasan_penyidik_jabatan').removeClass('is-invalid field-invalid-pulse');
+
                 if (!sel || !sel.val()) {
                     $('#atasan_penyidik_nama, #atasan_penyidik_pangkat, #atasan_penyidik_nrp, #atasan_penyidik_jabatan')
+                        .val('')
                         .prop('readonly', false).removeClass('bg-light');
                     return;
                 }
@@ -943,8 +979,13 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
             // Auto-fill Pembuat Resume
             $('#select_pembuat').on('change select2:select', function() {
                 var sel = $(this).find('option:selected');
+                $(this).removeClass('is-invalid field-invalid-pulse');
+                $(this).next('.select2-container').find('.select2-selection').removeClass('is-invalid field-invalid-pulse');
+                $('#pembuat_nama, #pembuat_pangkat, #pembuat_nrp, #pembuat_jabatan').removeClass('is-invalid field-invalid-pulse');
+
                 if (!sel || !sel.val()) {
                     $('#pembuat_nama, #pembuat_pangkat, #pembuat_nrp, #pembuat_jabatan')
+                        .val('')
                         .prop('readonly', false).removeClass('bg-light');
                     return;
                 }
@@ -965,8 +1006,202 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
             // Auto terbilang hitung kerugian jika diubah
             $('#nilai_taksir').on('input', function() {
                 var val = parseInt($(this).val()) || 0;
-                // Basic client-side helper jika user mengubah
             });
+
+            // Auto-remove is-invalid class on user input/change
+            $(document).on('input change', 'input, select, textarea', function() {
+                if ($.trim($(this).val()) !== '') {
+                    $(this).removeClass('is-invalid field-invalid-pulse');
+                    if ($(this).hasClass('select2-hidden-accessible')) {
+                        $(this).next('.select2-container').find('.select2-selection').removeClass('is-invalid field-invalid-pulse');
+                    }
+                }
+            });
+
+            // Helper untuk mengambil label deskriptif dari elemen form
+            function getFieldLabel($el) {
+                if ($el.attr('data-label')) {
+                    return $el.attr('data-label');
+                }
+                var id = $el.attr('id');
+                if (id) {
+                    var $lbl = $('label[for="' + id + '"]');
+                    if ($lbl.length) {
+                        return $lbl.text().replace(/\*/g, '').replace(/:/g, '').trim();
+                    }
+                }
+                var $parentLbl = $el.closest('.mb-2, .mb-3, .mb-4, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-8, .repeater-card').find('label').first();
+                if ($parentLbl.length) {
+                    return $parentLbl.text().replace(/\*/g, '').replace(/:/g, '').trim();
+                }
+                return $el.attr('placeholder') || $el.attr('name') || 'Field isian';
+            }
+
+            // Fungsi fokus dan scroll animasi ke elemen
+            function scrollToAndFocus(targetEl) {
+                if (!targetEl || !targetEl.length) return;
+                targetEl.addClass('is-invalid field-invalid-pulse');
+                var $scrollEl = targetEl;
+                if (targetEl.hasClass('select2-hidden-accessible')) {
+                    $scrollEl = targetEl.next('.select2-container');
+                    $scrollEl.find('.select2-selection').addClass('is-invalid field-invalid-pulse');
+                }
+                $('html, body').animate({
+                    scrollTop: $scrollEl.offset().top - 140
+                }, 450, function() {
+                    if (targetEl.hasClass('select2-hidden-accessible')) {
+                        targetEl.select2('open');
+                    } else {
+                        targetEl.focus();
+                    }
+                });
+            }
+
+            // Tombol klik dari server error alert jika ada
+            $('#btnFocusFirstError').on('click', function(e) {
+                e.preventDefault();
+                var $first = $('.is-invalid:first');
+                if (!$first.length) {
+                    $first = $('#select_atasan');
+                }
+                scrollToAndFocus($first);
+            });
+
+            // Intersepsi Form Submit: Validasi Lengkap di Sisi Klien
+            $('#formResumeDocument').on('submit', function(e) {
+                var form = this;
+                var firstInvalid = null;
+                var invalidLabel = '';
+                var invalidMsg = '';
+
+                // Reset status invalid sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.field-invalid-pulse').removeClass('field-invalid-pulse');
+                $('.select2-selection').removeClass('is-invalid field-invalid-pulse');
+
+                // 1. Periksa seluruh elemen input, select, textarea yang required secara urut dari atas ke bawah
+                $(form).find('input, select, textarea').each(function() {
+                    var $el = $(this);
+                    var type = $el.attr('type');
+                    if (type === 'hidden' || type === 'submit' || type === 'button') {
+                        return;
+                    }
+
+                    // Abaikan input readonly pejabat karena kita validasi via select2
+                    var id = $el.attr('id') || '';
+                    if (id.startsWith('atasan_penyidik_') || id.startsWith('pembuat_')) {
+                        return;
+                    }
+
+                    var isRequired = $el.prop('required') || $el.attr('required');
+                    var val = $.trim($el.val());
+
+                    if (isRequired && (!val || val === '')) {
+                        $el.addClass('is-invalid');
+                        if ($el.hasClass('select2-hidden-accessible')) {
+                            $el.next('.select2-container').find('.select2-selection').addClass('is-invalid');
+                        }
+                        if (!firstInvalid) {
+                            firstInvalid = $el;
+                            invalidLabel = getFieldLabel($el);
+                            invalidMsg = 'Field "' + invalidLabel + '" wajib diisi secara lengkap!';
+                        }
+                    }
+                });
+
+                // 2. Validasi Khusus Pejabat Penandatangan (Atasan Penyidik & Pembuat Resume)
+                var atasanVal = $.trim($('#select_atasan').val());
+                var atasanNama = $.trim($('#atasan_penyidik_nama').val());
+                if (!atasanVal || !atasanNama) {
+                    var $selAtasan = $('#select_atasan');
+                    $selAtasan.addClass('is-invalid');
+                    $selAtasan.next('.select2-container').find('.select2-selection').addClass('is-invalid');
+                    $('#atasan_penyidik_nama, #atasan_penyidik_pangkat, #atasan_penyidik_nrp').addClass('is-invalid');
+                    if (!firstInvalid) {
+                        firstInvalid = $selAtasan;
+                        invalidLabel = 'Pilih Pejabat Atasan';
+                        invalidMsg = 'Silakan pilih Pejabat Atasan Penyidik terlebih dahulu!';
+                    }
+                }
+
+                var pembuatVal = $.trim($('#select_pembuat').val());
+                var pembuatNama = $.trim($('#pembuat_nama').val());
+                if (!pembuatVal || !pembuatNama) {
+                    var $selPembuat = $('#select_pembuat');
+                    $selPembuat.addClass('is-invalid');
+                    $selPembuat.next('.select2-container').find('.select2-selection').addClass('is-invalid');
+                    $('#pembuat_nama, #pembuat_pangkat, #pembuat_nrp').addClass('is-invalid');
+                    if (!firstInvalid) {
+                        firstInvalid = $selPembuat;
+                        invalidLabel = 'Pilih Pejabat Pembuat';
+                        invalidMsg = 'Silakan pilih Penyidik Pembuat Resume terlebih dahulu!';
+                    }
+                }
+
+                // 3. Jika ada field yang belum diisi: batalkan submit, arahkan fokus & tampilkan SweetAlert
+                if (firstInvalid) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    scrollToAndFocus(firstInvalid);
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Form Belum Lengkap',
+                            text: invalidMsg,
+                            confirmButtonColor: '#000080',
+                            confirmButtonText: 'Lengkapi Sekarang'
+                        }).then(function() {
+                            setTimeout(function() {
+                                if (firstInvalid.hasClass('select2-hidden-accessible')) {
+                                    firstInvalid.select2('open');
+                                } else {
+                                    firstInvalid.focus();
+                                }
+                            }, 100);
+                        });
+                    } else {
+                        alert(invalidMsg);
+                    }
+                    return false;
+                }
+            });
+
+            // Penanganan Otomatis jika terdapat Error dari Server (Redirect Back)
+            @if (isset($errors) && $errors->any())
+                setTimeout(function() {
+                    var $errTarget = null;
+                    @php
+                        $firstErrKey = $errors->keys()[0] ?? '';
+                    @endphp
+                    var errKey = "{{ $firstErrKey }}";
+                    if (errKey.indexOf('atasan_penyidik') !== -1) {
+                        $errTarget = $('#select_atasan');
+                    } else if (errKey.indexOf('pembuat') !== -1) {
+                        $errTarget = $('#select_pembuat');
+                    } else if (errKey) {
+                        $errTarget = $('[name="' + errKey + '"]');
+                        if (!$errTarget.length) {
+                            $errTarget = $('[name^="' + errKey.replace('.', '[') + '"]');
+                        }
+                    }
+                    if (!$errTarget || !$errTarget.length) {
+                        $errTarget = $('#select_atasan');
+                    }
+                    scrollToAndFocus($errTarget);
+
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Form Belum Lengkap',
+                            text: "{{ $errors->first() }}",
+                            confirmButtonColor: '#000080',
+                            confirmButtonText: 'Lengkapi Sekarang'
+                        });
+                    }
+                }, 350);
+            @endif
 
             // Dynamic Kerugian Repeater
             var kerugianAlphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
@@ -984,7 +1219,11 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
 
             $(document).on('click', '.btn-remove-kerugian', function() {
                 if ($('#kerugianListContainer .row-kerugian').length <= 1) {
-                    alert('Minimal 1 rincian kerugian.');
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'info', text: 'Minimal harus ada 1 rincian kerugian.', confirmButtonColor: '#000080' });
+                    } else {
+                        alert('Minimal 1 rincian kerugian.');
+                    }
                     return;
                 }
                 $(this).closest('.row-kerugian').remove();
@@ -1007,7 +1246,7 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
                         <div class="mb-3">
                             <input type="text" class="form-control form-control-sm fw-bold" name="keterangan_saksi[${idx}][nama]" required placeholder="Nama Saksi beserta gelar">
                         </div>
-                        <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):</label>
+                        <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):<span class="text-danger">*</span></label>
                         <textarea class="form-control form-control-sm" name="keterangan_saksi[${idx}][keterangan]" rows="4" required placeholder="Tuliskan keterangan per baris"></textarea>
                     </div>`;
                 $('#saksiContainer').append(html);
@@ -1015,7 +1254,11 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
 
             $(document).on('click', '.btn-remove-saksi', function() {
                 if ($('#saksiContainer .row-saksi').length <= 1) {
-                    alert('Minimal harus ada 1 data saksi.');
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'info', text: 'Minimal harus ada 1 data saksi.', confirmButtonColor: '#000080' });
+                    } else {
+                        alert('Minimal harus ada 1 data saksi.');
+                    }
                     return;
                 }
                 $(this).closest('.row-saksi').remove();
@@ -1037,8 +1280,8 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
                         <div class="mb-3">
                             <input type="text" class="form-control form-control-sm fw-bold" name="keterangan_ahli[${idx}][nama]" required placeholder="Nama Ahli dan Bidang Keahlian">
                         </div>
-                        <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):</label>
-                        <textarea class="form-control form-control-sm" name="keterangan_ahli[${idx}][keterangan]" rows="4" placeholder="Tuliskan keterangan per baris"></textarea>
+                        <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):<span class="text-danger">*</span></label>
+                        <textarea class="form-control form-control-sm" name="keterangan_ahli[${idx}][keterangan]" rows="4" required placeholder="Tuliskan keterangan per baris"></textarea>
                     </div>`;
                 $('#ahliContainer').append(html);
             });
@@ -1063,7 +1306,7 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
                         <div class="mb-3">
                             <input type="text" class="form-control form-control-sm fw-bold" name="keterangan_tersangka[${idx}][nama]" required placeholder="Nama lengkap Tersangka">
                         </div>
-                        <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):</label>
+                        <label class="small fw-bold">Poin-poin Keterangan (a, b, c...):<span class="text-danger">*</span></label>
                         <textarea class="form-control form-control-sm" name="keterangan_tersangka[${idx}][keterangan]" rows="4" required placeholder="Tuliskan keterangan per baris"></textarea>
                     </div>`;
                 $('#tersangkaContainer').append(html);
@@ -1071,7 +1314,11 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
 
             $(document).on('click', '.btn-remove-tersangka', function() {
                 if ($('#tersangkaContainer .row-tersangka').length <= 1) {
-                    alert('Minimal harus ada 1 data tersangka.');
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({ icon: 'info', text: 'Minimal harus ada 1 data tersangka.', confirmButtonColor: '#000080' });
+                    } else {
+                        alert('Minimal harus ada 1 data tersangka.');
+                    }
                     return;
                 }
                 $(this).closest('.row-tersangka').remove();
@@ -1091,10 +1338,10 @@ Mengamankan status quo TKP dan barang bukti kecelakaan.</textarea>
                             <button type="button" class="btn btn-sm btn-outline-danger btn-remove-bb">Hapus</button>
                         </div>
                         <div class="mb-3">
-                            <label class="small fw-bold">Disita Dari:</label>
+                            <label class="small fw-bold">Disita Dari:<span class="text-danger">*</span></label>
                             <input type="text" class="form-control form-control-sm" name="barang_bukti[${idx}][disita_dari]" required placeholder="Nama pemilik / pihak yang disita">
                         </div>
-                        <label class="small fw-bold">Rincian Barang Bukti (a, b, c...):</label>
+                        <label class="small fw-bold">Rincian Barang Bukti (a, b, c...):<span class="text-danger">*</span></label>
                         <textarea class="form-control form-control-sm" name="barang_bukti[${idx}][keterangan]" rows="4" required placeholder="Tuliskan rincian per baris"></textarea>
                     </div>`;
                 $('#bbContainer').append(html);

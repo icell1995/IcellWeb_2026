@@ -4,17 +4,21 @@ namespace App\Http\Controllers\Docs;
 
 use App\Http\Controllers\Controller;
 use App\Models\Accident;
+use App\Models\DaftarSaksi;
 use App\Models\Doc\DaftarSaksiDocument\DaftarSaksiDocument;
 use App\Models\Officer;
 use App\Models\Peoples\AuthorizedSignatory;
-use App\Models\Witness;
 use App\Traits\DocsOfficersTraits;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use PhpOffice\PhpWord\TemplateProcessor;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class DaftarSaksiDocumentController extends Controller
 {
@@ -23,13 +27,12 @@ class DaftarSaksiDocumentController extends Controller
     /**
      * Tampilkan form pembuatan Daftar Saksi (S-38.1)
      *
-     * @param Request $request
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return View|RedirectResponse
      */
     public function create(Request $request)
     {
         $accidentId = $request->query('accident_id') ?: $request->input('accident_id');
-        if (!$accidentId) {
+        if (! $accidentId) {
             return redirect()->back()->with('error', 'Parameter accident_id tidak ditemukan.');
         }
 
@@ -93,7 +96,7 @@ class DaftarSaksiDocumentController extends Controller
         $libReligions = ['Islam', 'Kristen Protestan', 'Kristen Katolik', 'Hindu', 'Buddha', 'Konghucu', 'Lainnya'];
 
         $defaultLocation = $accident && in_array($accident->polres->id ?? '', ['1114']) ? 'Medan' : ($accident->polres->name ?? 'Tempat');
-        $defaultSatker = 'Satuan Lalu Lintas Resor ' . ucwords(strtolower($accident->polres->name ?? ''));
+        $defaultSatker = 'Satuan Lalu Lintas Resor '.ucwords(strtolower($accident->polres->name ?? ''));
 
         return view('docs.daftar-saksi-document.create', compact(
             'accident',
@@ -112,8 +115,7 @@ class DaftarSaksiDocumentController extends Controller
     /**
      * Simpan data Daftar Saksi ke Database
      *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
@@ -122,7 +124,7 @@ class DaftarSaksiDocumentController extends Controller
 
         $defaultNomorLp = $request->input('nomor_lp') ?: ($accident->no_lp ?? '-');
         $defaultLocation = $request->input('dikeluarkan_di') ?: ($accident && in_array($accident->polres->id ?? '', ['1114']) ? 'Medan' : ($accident->polres->name ?? 'Tempat'));
-        $defaultSatker = $request->input('satker_penyidik') ?: ($accident ? 'Satuan Lalu Lintas Resor ' . ucwords(strtolower($accident->polres->name ?? '')) : 'Satuan Lalu Lintas');
+        $defaultSatker = $request->input('satker_penyidik') ?: ($accident ? 'Satuan Lalu Lintas Resor '.ucwords(strtolower($accident->polres->name ?? '')) : 'Satuan Lalu Lintas');
         $defaultTanggalLp = $request->input('tanggal_lp') ?: ($accident && $accident->report_date ? Carbon::parse($accident->report_date)->format('Y-m-d') : Carbon::now()->format('Y-m-d'));
 
         $request->merge([
@@ -213,7 +215,7 @@ class DaftarSaksiDocumentController extends Controller
 
                 'nama_penandatangan' => $request->nama_penandatangan,
                 'pangkat_penandatangan' => $request->pangkat_penandatangan,
-                'nrp_penandatangan' => preg_replace('/[^0-9]/', '', (string)$request->nrp_penandatangan) ?: $request->nrp_penandatangan,
+                'nrp_penandatangan' => preg_replace('/[^0-9]/', '', (string) $request->nrp_penandatangan) ?: $request->nrp_penandatangan,
                 'jabatan_penandatangan' => $request->jabatan_penandatangan ?: 'Penyidik / Penyidik Pembantu',
 
                 'created_by_user_id' => Auth::id() ?: 1,
@@ -230,16 +232,16 @@ class DaftarSaksiDocumentController extends Controller
                 ->with('success', 'Dokumen Daftar Saksi (S-38.1) berhasil dibuat.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menyimpan Daftar Saksi: ' . $e->getMessage())->withInput();
+
+            return redirect()->back()->with('error', 'Gagal menyimpan Daftar Saksi: '.$e->getMessage())->withInput();
         }
     }
 
     /**
      * Tampilkan form pengubahan Daftar Saksi
      *
-     * @param string $id
-     * @param Request $request
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @param  string  $id
+     * @return View|RedirectResponse
      */
     public function edit($id, Request $request)
     {
@@ -313,9 +315,8 @@ class DaftarSaksiDocumentController extends Controller
     /**
      * Perbarui data Daftar Saksi
      *
-     * @param Request $request
-     * @param string $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  string  $id
+     * @return RedirectResponse
      */
     public function update(Request $request, $id)
     {
@@ -325,7 +326,7 @@ class DaftarSaksiDocumentController extends Controller
 
         $defaultNomorLp = $request->input('nomor_lp') ?: ($document->nomor_lp ?: ($accident->no_lp ?? '-'));
         $defaultLocation = $request->input('dikeluarkan_di') ?: ($document->dikeluarkan_di ?: ($accident && in_array($accident->polres->id ?? '', ['1114']) ? 'Medan' : ($accident->polres->name ?? 'Tempat')));
-        $defaultSatker = $request->input('satker_penyidik') ?: ($document->satker_penyidik ?: ($accident ? 'Satuan Lalu Lintas Resor ' . ucwords(strtolower($accident->polres->name ?? '')) : 'Satuan Lalu Lintas'));
+        $defaultSatker = $request->input('satker_penyidik') ?: ($document->satker_penyidik ?: ($accident ? 'Satuan Lalu Lintas Resor '.ucwords(strtolower($accident->polres->name ?? '')) : 'Satuan Lalu Lintas'));
         $defaultTanggalLp = $request->input('tanggal_lp') ?: ($document->tanggal_lp ?: ($accident && $accident->report_date ? Carbon::parse($accident->report_date)->format('Y-m-d') : Carbon::now()->format('Y-m-d')));
 
         $request->merge([
@@ -410,7 +411,7 @@ class DaftarSaksiDocumentController extends Controller
 
                 'nama_penandatangan' => $request->nama_penandatangan,
                 'pangkat_penandatangan' => $request->pangkat_penandatangan,
-                'nrp_penandatangan' => preg_replace('/[^0-9]/', '', (string)$request->nrp_penandatangan) ?: $request->nrp_penandatangan,
+                'nrp_penandatangan' => preg_replace('/[^0-9]/', '', (string) $request->nrp_penandatangan) ?: $request->nrp_penandatangan,
                 'jabatan_penandatangan' => $request->jabatan_penandatangan ?: $document->jabatan_penandatangan,
 
                 'updated_by_user_id' => Auth::id() ?: 1,
@@ -425,25 +426,25 @@ class DaftarSaksiDocumentController extends Controller
                 ->with('success', 'Dokumen Daftar Saksi (S-38.1) berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal memperbarui Daftar Saksi: ' . $e->getMessage())->withInput();
+
+            return redirect()->back()->with('error', 'Gagal memperbarui Daftar Saksi: '.$e->getMessage())->withInput();
         }
     }
 
     /**
      * Download dokumen Word (.docx) Daftar Saksi (S-38.1)
      *
-     * @param string $id
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
+     * @param  string  $id
+     * @return BinaryFileResponse|RedirectResponse
      */
-    public function download($id, Request $request = null)
+    public function download($id, ?Request $request = null)
     {
         try {
             $document = DaftarSaksiDocument::findOrFail($id);
             $accident = Accident::with(['polres.polda'])->findOrFail($document->accident_id);
 
             $templateFile = public_path('word-template/daftar_saksi.docx');
-            if (!file_exists($templateFile)) {
+            if (! file_exists($templateFile)) {
                 return redirect()->back()->with('error', 'Template Word daftar_saksi.docx tidak ditemukan.');
             }
 
@@ -453,8 +454,8 @@ class DaftarSaksiDocumentController extends Controller
             $poldaFullName = $accident->polres->polda->name ?? ($accident->polres->polda->full_name ?? '');
             $resorPoliceFullName = (in_array($accident->polres->id ?? '', ['1114']))
                 ? 'DIREKTORAT LALU LINTAS'
-                : 'RESOR ' . strtoupper($accident->polres->full_name ?? $accident->polres->name ?? '');
-            $resorPoliceAddress = ucwords(strtolower(($accident->polres->address ?? '') . ', ' . ($accident->polres->polres_district ?? '') . ', ' . ($accident->polres->polres_zipcode ?? '')));
+                : 'RESOR '.strtoupper($accident->polres->full_name ?? $accident->polres->name ?? '');
+            $resorPoliceAddress = ucwords(strtolower(($accident->polres->address ?? '').', '.($accident->polres->polres_district ?? '').', '.($accident->polres->polres_zipcode ?? '')));
 
             $documentLocation = $document->dikeluarkan_di ?: 'Tempat';
             $docDateFormatted = $document->tanggal_surat
@@ -513,28 +514,31 @@ class DaftarSaksiDocumentController extends Controller
             $templateProcessor->setValue('signatoryHeadText', $esc($sigHead));
             $templateProcessor->setValue('signatoryName', $esc($document->nama_penandatangan ?: '-'));
             $templateProcessor->setValue('signatoryRankName', $esc(strtoupper($document->pangkat_penandatangan ?: '-')));
-            
-            $cleanNrp = preg_replace('/[^0-9]/', '', (string)($document->nrp_penandatangan ?? ''));
+
+            $cleanNrp = preg_replace('/[^0-9]/', '', (string) ($document->nrp_penandatangan ?? ''));
             $templateProcessor->setValue('signatoryRegisterNumber', $esc($cleanNrp ?: '-'));
 
             // Simpan file temporary dan download
             $safeDocNo = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $document->nomor_surat ?: 'S_38_1');
-            $filename = 'generate/' . Str::uuid() . '_Daftar_Saksi_' . $safeDocNo . '.docx';
+            $generateDir = public_path('generate');
+            if (! file_exists($generateDir)) {
+                mkdir($generateDir, 0755, true);
+            }
+            $filename = 'generate/'.Str::uuid().'_Daftar_Saksi_'.$safeDocNo.'.docx';
             $fullPath = public_path($filename);
             $templateProcessor->saveAs($fullPath);
 
-            return response()->download($fullPath, 'Daftar_Saksi_S38_1_' . $safeDocNo . '.docx')->deleteFileAfterSend(true);
+            return response()->download($fullPath, 'Daftar_Saksi_S38_1_'.$safeDocNo.'.docx')->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengunduh Daftar Saksi: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengunduh Daftar Saksi: '.$e->getMessage());
         }
     }
 
     /**
      * Hapus (Soft Delete) Dokumen Daftar Saksi
      *
-     * @param string $id
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  string  $id
+     * @return RedirectResponse
      */
     public function delete($id, Request $request)
     {
@@ -546,14 +550,14 @@ class DaftarSaksiDocumentController extends Controller
             return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])
                 ->with('success', 'Dokumen Daftar Saksi (S-38.1) berhasil dihapus.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal menghapus Dokumen Daftar Saksi: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus Dokumen Daftar Saksi: '.$e->getMessage());
         }
     }
 
     /**
      * Konsolidasi daftar saksi unik pada perkara LP ini dari berbagai sumber (witnesses, daftar_saksi, involved_peoples)
      *
-     * @param string $accidentId
+     * @param  string  $accidentId
      * @return array
      */
     private function getConsolidatedWitnesses($accidentId)
@@ -576,8 +580,8 @@ class DaftarSaksiDocumentController extends Controller
                 ->where('witnesses.accident_id', $accidentId)
                 ->select(
                     'witnesses.*',
-                    DB::raw("COALESCE(lg.name, rg.name) as gender_name"),
-                    DB::raw("COALESCE(lr.name, rr.name) as religion_name"),
+                    DB::raw('COALESCE(lg.name, rg.name) as gender_name'),
+                    DB::raw('COALESCE(lr.name, rr.name) as religion_name'),
                     'lj.name as job_name'
                 )
                 ->get();
@@ -585,7 +589,7 @@ class DaftarSaksiDocumentController extends Controller
             foreach ($witnesses as $w) {
                 $nameClean = trim($w->name ?? '');
                 $nameKey = strtolower($nameClean);
-                if ($nameClean !== '' && !isset($seenNames[$nameKey])) {
+                if ($nameClean !== '' && ! isset($seenNames[$nameKey])) {
                     $seenNames[$nameKey] = true;
                     $gender = 'Laki-laki';
                     $rawGender = strtoupper($w->gender_name ?? '');
@@ -599,7 +603,7 @@ class DaftarSaksiDocumentController extends Controller
                         'source_label' => 'Saksi TKP (IRSMS)',
                         'nama' => $nameClean,
                         'no_identitas' => trim($w->identity_number ?? '') ?: '-',
-                        'kewarganegaraan' => !empty($w->nationality) ? trim($w->nationality) : 'WNI',
+                        'kewarganegaraan' => ! empty($w->nationality) ? trim($w->nationality) : 'WNI',
                         'jenis_kelamin' => $gender,
                         'pekerjaan' => ucwords(strtolower(trim($w->job_name ?? ''))) ?: '-',
                         'agama' => ucwords(strtolower(trim($w->religion_name ?? ''))) ?: 'Islam',
@@ -628,7 +632,7 @@ class DaftarSaksiDocumentController extends Controller
             foreach ($legacySaksi as $ls) {
                 $nameClean = trim($ls->name ?? '');
                 $nameKey = strtolower($nameClean);
-                if ($nameClean !== '' && !isset($seenNames[$nameKey])) {
+                if ($nameClean !== '' && ! isset($seenNames[$nameKey])) {
                     $seenNames[$nameKey] = true;
                     $gender = 'Laki-laki';
                     $rawGender = strtoupper($ls->gender_name ?? $ls->gender ?? '');
@@ -642,7 +646,7 @@ class DaftarSaksiDocumentController extends Controller
                         'source_label' => 'Saksi Penyidikan',
                         'nama' => $nameClean,
                         'no_identitas' => '-',
-                        'kewarganegaraan' => !empty($ls->citizen) ? trim($ls->citizen) : 'WNI',
+                        'kewarganegaraan' => ! empty($ls->citizen) ? trim($ls->citizen) : 'WNI',
                         'jenis_kelamin' => $gender,
                         'pekerjaan' => ucwords(strtolower(trim($ls->job ?? ''))) ?: '-',
                         'agama' => ucwords(strtolower(trim($ls->religion_name ?? $ls->religion ?? ''))) ?: 'Islam',
@@ -664,7 +668,7 @@ class DaftarSaksiDocumentController extends Controller
                 ->where('involved_peoples.accident_id', $accidentId)
                 ->where(function ($q) {
                     $q->whereNull('involved_peoples.class')
-                      ->orWhere('involved_peoples.class', '!=', 'SUSPECT');
+                        ->orWhere('involved_peoples.class', '!=', 'SUSPECT');
                 })
                 ->select(
                     'involved_peoples.*',
@@ -677,7 +681,7 @@ class DaftarSaksiDocumentController extends Controller
             foreach ($involved as $inv) {
                 $nameClean = trim($inv->name ?? '');
                 $nameKey = strtolower($nameClean);
-                if ($nameClean !== '' && $nameKey !== 'tidak diketahui' && !isset($seenNames[$nameKey])) {
+                if ($nameClean !== '' && $nameKey !== 'tidak diketahui' && ! isset($seenNames[$nameKey])) {
                     $seenNames[$nameKey] = true;
                     $gender = '';
                     $rawGender = strtoupper($inv->gender_name ?? '');
@@ -690,15 +694,15 @@ class DaftarSaksiDocumentController extends Controller
                     $consolidated[] = [
                         'source' => 'involved_peoples',
                         'source_id' => (string) ($inv->id ?? ''),
-                        'source_label' => 'Pihak Terlibat (' . ($inv->class ?: 'Saksi') . ')',
+                        'source_label' => 'Pihak Terlibat ('.($inv->class ?: 'Saksi').')',
                         'nama' => $nameClean,
                         'no_identitas' => trim($inv->identity_number ?? '') ?: '',
-                        'kewarganegaraan' => !empty($inv->nationality) ? trim($inv->nationality) : '',
+                        'kewarganegaraan' => ! empty($inv->nationality) ? trim($inv->nationality) : '',
                         'jenis_kelamin' => $gender,
                         'pekerjaan' => ucwords(strtolower(trim($inv->job_name ?? ''))) ?: '',
                         'agama' => ucwords(strtolower(trim($inv->religion_name ?? ''))) ?: '',
                         'alamat' => trim($inv->address ?? '') ?: '',
-                        'keterangan' => 'Saksi / ' . ucwords(strtolower($inv->class ?: 'Terlibat')),
+                        'keterangan' => 'Saksi / '.ucwords(strtolower($inv->class ?: 'Terlibat')),
                     ];
                 }
             }
@@ -731,7 +735,7 @@ class DaftarSaksiDocumentController extends Controller
                     ->whereRaw('LOWER(TRIM(name)) = ?', [strtolower($sName)])
                     ->exists();
 
-                if (!$exists) {
+                if (! $exists) {
                     $genderText = strtoupper(trim($saksiItem['jenis_kelamin'] ?? ''));
                     $genderCode = ($genderText === 'PEREMPUAN' || $genderText === 'WANITA') ? 'G0102' : 'G0101';
 
@@ -749,7 +753,7 @@ class DaftarSaksiDocumentController extends Controller
                         $relCode = 'R0101';
                     }
 
-                    \App\Models\DaftarSaksi::create([
+                    DaftarSaksi::create([
                         'accident_id' => $accidentId,
                         'name' => $sName,
                         'gender' => $genderCode,
@@ -764,7 +768,7 @@ class DaftarSaksiDocumentController extends Controller
                     ]);
                 }
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Gagal sync saksi ke public.daftar_saksi: ' . $e->getMessage());
+                Log::warning('Gagal sync saksi ke public.daftar_saksi: '.$e->getMessage());
             }
         }
     }
