@@ -521,6 +521,8 @@ Route::prefix('/surat-panggilan-saksi-document')->group(function () {
     Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'update'])->name('doc.surat-panggilan-saksi-document.update');
     Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'destroy'])->name('doc.surat-panggilan-saksi-document.destroy');
     Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPanggilanSaksiDocumentController::class, 'downloadWord'])->name('doc.surat-panggilan-saksi.download-word');
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Rencana Penyidikan Document (S-3.2)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -531,4 +533,16 @@ Route::prefix('/rencana-penyidikan-document')->group(function () {
     Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'update'])->name('doc.rencana-penyidikan-document.update');
     Route::delete('/destroy', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'destroy'])->name('doc.rencana-penyidikan-document.destroy');
     Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\RencanaPenyidikanDocumentController::class, 'downloadWord'])->name('doc.rencana-penyidikan.download-word');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Panggilan Tersangka Document
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-panggilan-tersangka-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'create'])->name('doc.surat-panggilan-tersangka-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'store'])->name('doc.surat-panggilan-tersangka-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'edit'])->name('doc.surat-panggilan-tersangka-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'update'])->name('doc.surat-panggilan-tersangka-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'destroy'])->name('doc.surat-panggilan-tersangka-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'downloadWord'])->name('doc.surat-panggilan-tersangka.download-word');
 });
