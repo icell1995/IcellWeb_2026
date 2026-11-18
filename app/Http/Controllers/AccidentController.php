@@ -1152,6 +1152,8 @@ class AccidentController extends Controller
         from daftar_tersangka
         group by accident_id='$get_accident'");
         $DocSuratTersangka2 = DB::table("surat_panggilan_tersangka")->where("accident_id", "=", "$get_accident")->count();
+        $DocSuratTersangkaDoc = \App\Models\Doc\SuratPanggilanTersangkaDocument\SuratPanggilanTersangkaDocument::where('accident_id', $get_accident)->count();
+        $hasPanggilanTersangka = ($DocSuratTersangka2 > 0 || $DocSuratTersangkaDoc > 0) ? 1 : 0;
         // $DocSuratTersangka3 = DB::table("surat_perintah_penangkapan")->where("accident_id","=","$get_accident")->count();
         $DocSuratTersangka4 = DB::table("berita_acara_pemeriksaan_tersangka")->where("accident_id", "=", "$get_accident")->count();
         $DocBapTersangka = \App\Models\Doc\BeritaAcaraPemeriksaanTersangkaDocument\BeritaAcaraPemeriksaanTersangkaDocument::where('accident_id', $get_accident)->count();
@@ -1169,7 +1171,7 @@ class AccidentController extends Controller
             $ArrayDocTersangka1 = json_encode(end($DocTersangka1)->total);
         }
         $TotalKategori3 = (
-            (int)$ArrayDocTersangka1 + $DocSuratTersangka2 +
+            (int)$ArrayDocTersangka1 + $hasPanggilanTersangka +
             $hasBapTersangka + $DocSuratTersangka5 + $DocSuratTersangka6 + $DocSuratTersangka7 +
             $DocSuratTersangka8 + $DocSuratTersangka9
         ) / 10 * 100;
@@ -1571,6 +1573,9 @@ class AccidentController extends Controller
         $data['berita_pemeriksaan_ahli'] = $berita_pemeriksaan_ahli;
         $data['TotalKategori2'] = $TotalKategori2;
         $data['surat_panggilan_saksi_doc'] = \App\Models\Doc\SuratPanggilanSaksiDocument\SuratPanggilanSaksiDocument::where('accident_id', $get_accident)->first();
+        $data['surat_permintaan_keterangan_ahli_doc'] = \App\Models\Doc\SuratPermintaanKeteranganAhliDocument\SuratPermintaanKeteranganAhliDocument::where('accident_id', $get_accident)->first();
+        $data['berita_acara_pemeriksaan_saksi_doc'] = \App\Models\Doc\BeritaAcaraPemeriksaanSaksiDocument\BeritaAcaraPemeriksaanSaksiDocument::where('accident_id', $get_accident)->first();
+        $data['berita_acara_pemeriksaan_ahli_doc'] = \App\Models\Doc\BeritaAcaraPemeriksaanAhliDocument\BeritaAcaraPemeriksaanAhliDocument::where('accident_id', $get_accident)->first();
 
         //kategori 3
         $data['daftar_tersangka'] = $daftar_tersangka;
@@ -1584,6 +1589,7 @@ class AccidentController extends Controller
         $data['berita_penyerahan_tersangka'] = $berita_penyerahan_tersangka;
         // $data['berita_pelepasan_tersangka']=$berita_pelepasan_tersangka;
         $data['TotalKategori3'] = $TotalKategori3;
+        $data['surat_panggilan_tersangka_doc'] = \App\Models\Doc\SuratPanggilanTersangkaDocument\SuratPanggilanTersangkaDocument::where('accident_id', $get_accident)->first();
         $data['berita_acara_pemeriksaan_tersangka_doc'] = \App\Models\Doc\BeritaAcaraPemeriksaanTersangkaDocument\BeritaAcaraPemeriksaanTersangkaDocument::where('accident_id', $get_accident)->first();
 
         //kategori 4
