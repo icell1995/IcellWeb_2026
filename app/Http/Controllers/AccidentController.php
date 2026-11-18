@@ -1152,8 +1152,12 @@ class AccidentController extends Controller
         from daftar_tersangka
         group by accident_id='$get_accident'");
         $DocSuratTersangka2 = DB::table("surat_panggilan_tersangka")->where("accident_id", "=", "$get_accident")->count();
+        $DocSuratTersangkaDoc = \App\Models\Doc\SuratPanggilanTersangkaDocument\SuratPanggilanTersangkaDocument::where('accident_id', $get_accident)->count();
+        $hasPanggilanTersangka = ($DocSuratTersangka2 > 0 || $DocSuratTersangkaDoc > 0) ? 1 : 0;
         // $DocSuratTersangka3 = DB::table("surat_perintah_penangkapan")->where("accident_id","=","$get_accident")->count();
         $DocSuratTersangka4 = DB::table("berita_acara_pemeriksaan_tersangka")->where("accident_id", "=", "$get_accident")->count();
+        $DocBapTersangka = \App\Models\Doc\BeritaAcaraPemeriksaanTersangkaDocument\BeritaAcaraPemeriksaanTersangkaDocument::where('accident_id', $get_accident)->count();
+        $hasBapTersangka = ($DocSuratTersangka4 > 0 || $DocBapTersangka > 0) ? 1 : 0;
         $DocSuratTersangka5 = DB::table("berita_acara_konfrontasi")->where("accident_id", "=", "$get_accident")->count();
         $DocSuratTersangka6 = DB::table("berita_acara_rekonstruksi")->where("accident_id", "=", "$get_accident")->count();
         $DocSuratTersangka7 = DB::table("sket_tkp")->where("accident_id", "=", "$get_accident")->count();
@@ -1167,8 +1171,8 @@ class AccidentController extends Controller
             $ArrayDocTersangka1 = json_encode(end($DocTersangka1)->total);
         }
         $TotalKategori3 = (
-            (int)$ArrayDocTersangka1 + $DocSuratTersangka2 +
-            $DocSuratTersangka4 + $DocSuratTersangka5 + $DocSuratTersangka6 + $DocSuratTersangka7 +
+            (int)$ArrayDocTersangka1 + $hasPanggilanTersangka +
+            $hasBapTersangka + $DocSuratTersangka5 + $DocSuratTersangka6 + $DocSuratTersangka7 +
             $DocSuratTersangka8 + $DocSuratTersangka9
         ) / 10 * 100;
 
@@ -1215,9 +1219,11 @@ class AccidentController extends Controller
         //total ketegori 5
         $DocPenggeledahan1 = DB::table("surat_izin_penggeledahan")->where("accident_id", "=", "$get_accident")->count();
         $DocPenggeledahan2 = DB::table("surat_perintah_penggeledahan")->where("accident_id", "=", "$get_accident")->count();
+        $DocSpDahBadan = \App\Models\Doc\SuratPerintahPenggeledahanBadanDocument\SuratPerintahPenggeledahanBadanDocument::where('accident_id', $get_accident)->count();
+        $DocSpDahAngkutan = \App\Models\Doc\SuratPerintahPenggeledahanAngkutanDocument\SuratPerintahPenggeledahanAngkutanDocument::where('accident_id', $get_accident)->count();
         $DocPenggeledahan3 = DB::table("surat_persetujuan_penggeledahan")->where("accident_id", "=", "$get_accident")->count();
         $DocPenggeledahan4 = DB::table("berita_acara_penggeledahan")->where("accident_id", "=", "$get_accident")->count();
-        $TotalKategori5 = ((($DocPenggeledahan1 + $DocPenggeledahan2 + $DocPenggeledahan3 + $DocPenggeledahan4) / 4) * 100);
+        $TotalKategori5 = round(((($DocPenggeledahan1 > 0 ? 1 : 0) + ($DocPenggeledahan2 > 0 ? 1 : 0) + ($DocSpDahAngkutan > 0 ? 1 : 0) + ($DocSpDahBadan > 0 ? 1 : 0) + ($DocPenggeledahan3 > 0 ? 1 : 0) + ($DocPenggeledahan4 > 0 ? 1 : 0)) / 6) * 100);
 
         //kategori 6
         $surat_permintaan_izin_penyitaan_document = \App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument::where('accident_id', $get_accident)->first();
@@ -1569,6 +1575,9 @@ class AccidentController extends Controller
         $data['berita_pemeriksaan_ahli'] = $berita_pemeriksaan_ahli;
         $data['TotalKategori2'] = $TotalKategori2;
         $data['surat_panggilan_saksi_doc'] = \App\Models\Doc\SuratPanggilanSaksiDocument\SuratPanggilanSaksiDocument::where('accident_id', $get_accident)->first();
+        $data['surat_permintaan_keterangan_ahli_doc'] = \App\Models\Doc\SuratPermintaanKeteranganAhliDocument\SuratPermintaanKeteranganAhliDocument::where('accident_id', $get_accident)->first();
+        $data['berita_acara_pemeriksaan_saksi_doc'] = \App\Models\Doc\BeritaAcaraPemeriksaanSaksiDocument\BeritaAcaraPemeriksaanSaksiDocument::where('accident_id', $get_accident)->first();
+        $data['berita_acara_pemeriksaan_ahli_doc'] = \App\Models\Doc\BeritaAcaraPemeriksaanAhliDocument\BeritaAcaraPemeriksaanAhliDocument::where('accident_id', $get_accident)->first();
 
         //kategori 3
         $data['daftar_tersangka'] = $daftar_tersangka;
@@ -1582,6 +1591,8 @@ class AccidentController extends Controller
         $data['berita_penyerahan_tersangka'] = $berita_penyerahan_tersangka;
         // $data['berita_pelepasan_tersangka']=$berita_pelepasan_tersangka;
         $data['TotalKategori3'] = $TotalKategori3;
+        $data['surat_panggilan_tersangka_doc'] = \App\Models\Doc\SuratPanggilanTersangkaDocument\SuratPanggilanTersangkaDocument::where('accident_id', $get_accident)->first();
+        $data['berita_acara_pemeriksaan_tersangka_doc'] = \App\Models\Doc\BeritaAcaraPemeriksaanTersangkaDocument\BeritaAcaraPemeriksaanTersangkaDocument::where('accident_id', $get_accident)->first();
 
         //kategori 4
         $data['berita_penahanan_lanjutan'] = $berita_penahanan_lanjutan;
@@ -1602,6 +1613,8 @@ class AccidentController extends Controller
         $data['surat_persetujuan_penggeledahan'] = $surat_persetujuan_penggeledahan;
         $data['berita_acara_penggeledahan'] = $berita_acara_penggeledahan;
         $data['TotalKategori5'] = $TotalKategori5;
+        $data['surat_perintah_penggeledahan_angkutan_doc'] = \App\Models\Doc\SuratPerintahPenggeledahanAngkutanDocument\SuratPerintahPenggeledahanAngkutanDocument::where('accident_id', $get_accident)->first();
+        $data['surat_perintah_penggeledahan_badan_doc'] = \App\Models\Doc\SuratPerintahPenggeledahanBadanDocument\SuratPerintahPenggeledahanBadanDocument::where('accident_id', $get_accident)->first();
 
         //kategori 6 
         $data['surat_permintaan_izin_penyitaan_document'] = $surat_permintaan_izin_penyitaan_document;
