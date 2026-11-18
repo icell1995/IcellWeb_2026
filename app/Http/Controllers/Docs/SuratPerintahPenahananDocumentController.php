@@ -269,7 +269,7 @@ class SuratPerintahPenahananDocumentController extends Controller
             $doc = SuratPerintahPenahananDocument::create([
                 'accident_id'                           => $accidentId,
                 'surat_perintah_penyidikan_document_id' => $sprindikId,
-                'surat_ketetapan_penetapan_tersangka_id'=> $penetapanTersangkaId,
+                'surat_ketetapan_penetapan_tersangka_id' => $penetapanTersangkaId,
 
                 // Identitas Dokumen (Gambar 1)
                 'nomor'                                 => $nomor ?: null,
@@ -609,7 +609,7 @@ class SuratPerintahPenahananDocumentController extends Controller
 
             $document->update([
                 'surat_perintah_penyidikan_document_id' => $sprindikId,
-                'surat_ketetapan_penetapan_tersangka_id'=> $penetapanTersangkaId,
+                'surat_ketetapan_penetapan_tersangka_id' => $penetapanTersangkaId,
                 'nomor'                                 => $nomor ?: $document->nomor,
                 'document_number'                       => $nomor ?: $document->document_number,
                 'tanggal'                               => $tanggal,
@@ -843,7 +843,10 @@ class SuratPerintahPenahananDocumentController extends Controller
         $templateProcessor->setValue('resorPoliceAddress', $resorPoliceAddress);
 
         // Dokumen & Perkara
+        $docDateRaw = $document->document_date ?? $document->tanggal;
+        $docDate = $docDateRaw ? Carbon::parse($docDateRaw)->locale('id')->translatedFormat('d F Y') : '-';
         $templateProcessor->setValue('documentNumber', $document->document_number ?? $document->nomor ?? '-');
+        $templateProcessor->setValue('documentDate', $docDate);
         $templateProcessor->setValue('accidentNumber', $accident->no_lp ?? '-');
         $templateProcessor->setValue('accidentDate', $accident->accident_date ? Carbon::parse($accident->accident_date)->locale('id')->translatedFormat('d F Y') : '-');
 
@@ -890,14 +893,28 @@ class SuratPerintahPenahananDocumentController extends Controller
         $blockOfficers = [];
         $no = 1;
         foreach ($officers as $officer) {
+            $fullName = PeopleNameHelper::getFullName(
+                $officer->first_title,
+                $officer->first_name,
+                $officer->last_name,
+                $officer->last_title
+            );
+            $rankName = $officer->rank->name ?? '';
+            $nrp = $officer->register_number ?? '';
+            $posName = $officer->position->name ?? '';
+            $officerFull = trim($rankName . ' ' . $fullName . ' ' . $nrp);
+
             $blockOfficers[] = [
                 'number' => $no,
-                'first_name' => ($officer->first_title ? $officer->first_title . ' ' : '') . $officer->first_name,
-                'last_name' => ($officer->last_title ? ', ' . $officer->last_title : ($officer->last_name ? ' ' . $officer->last_name : '')),
-                'rank_name' => $officer->rank->name ?? '',
-                'rank_id' => $officer->rank->name ?? '',
-                'officer_id' => $officer->register_number ?? '',
-                'position' => $officer->position->name ?? '',
+                'first_name' => $fullName,
+                'last_name' => '',
+                'name' => $fullName,
+                'rank_name' => $rankName,
+                'rank_id' => $rankName,
+                'officer_id' => $nrp,
+                'position' => $posName,
+                'officer_full' => $officerFull,
+                'officer_identity' => $officerFull,
             ];
             $no++;
         }
@@ -909,10 +926,13 @@ class SuratPerintahPenahananDocumentController extends Controller
                 'number' => 1,
                 'first_name' => '-',
                 'last_name' => '',
+                'name' => '-',
                 'rank_name' => '-',
                 'rank_id' => '-',
                 'officer_id' => '-',
                 'position' => '-',
+                'officer_full' => '-',
+                'officer_identity' => '-',
             ]]);
         }
 
@@ -1563,7 +1583,7 @@ class SuratPerintahPenahananDocumentController extends Controller
      */
     private function validateForm(Request $request)
     {
-        return Validator::make($request->all(), [
+        $rules = [
             'accident_id'                 => 'required',
             'documentDate'                => 'required_without:tanggal|nullable|date_format:Y-m-d',
             'tanggal'                     => 'required_without:documentDate|nullable|date_format:Y-m-d',
@@ -1572,19 +1592,29 @@ class SuratPerintahPenahananDocumentController extends Controller
             'kode_satker_penerbit_spdp'   => 'required|string|max:50',
             'nomor_surat_perintah_penangkapan' => 'nullable|string|max:255',
             'kode_jenis_penahanan'        => 'required|integer|in:1,2,3',
-            'kode_satker_tempat_penahanan'=> 'nullable|string|max:100',
+            'kode_satker_tempat_penahanan' => 'nullable|string|max:100',
             'tanggal_mulai'               => 'required|date_format:Y-m-d',
             'tanggal_akhir'               => 'required|date_format:Y-m-d|after_or_equal:tanggal_mulai',
             'suspects'                    => 'required|array|min:1',
             'officerLeader'               => 'required',
             'signatory'                   => 'required',
-        ], [
+        ];
+
+        if ($request->filled('tanggal_spdp')) {
+            $rules['documentDate'] .= '|after_or_equal:tanggal_spdp';
+            $rules['tanggal'] .= '|after_or_equal:tanggal_spdp';
+        }
+
+        $validator = Validator::make($request->all(), $rules, [
             'documentDate.required_without'      => 'Mohon mengisi Tanggal Ditandatangani Dokumen.',
             'documentDate.date_format'           => 'Format Tanggal Ditandatangani Dokumen tidak valid.',
+            'documentDate.after_or_equal'        => 'Tanggal Ditandatangani Dokumen tidak boleh kurang dari tanggal ditandatangani SPDP.',
             'tanggal.required_without'           => 'Mohon mengisi Tanggal Ditandatangani Dokumen.',
             'tanggal.date_format'                => 'Format Tanggal Ditandatangani Dokumen tidak valid.',
+            'tanggal.after_or_equal'             => 'Tanggal Ditandatangani Dokumen tidak boleh kurang dari tanggal ditandatangani SPDP.',
             'nomor_spdp.required'                => 'Mohon mengisi Nomor SPDP.',
             'tanggal_spdp.required'              => 'Mohon mengisi Tanggal SPDP.',
+            'tanggal_spdp.date_format'           => 'Format Tanggal SPDP tidak valid.',
             'kode_satker_penerbit_spdp.required' => 'Mohon mengisi Kode Satker Penerbit SPDP.',
             'kode_jenis_penahanan.required'      => 'Mohon memilih Jenis Penahanan.',
             'tanggal_mulai.required'             => 'Mohon mengisi Tanggal Mulai Penahanan.',
@@ -1595,5 +1625,17 @@ class SuratPerintahPenahananDocumentController extends Controller
             'officerLeader.required'             => 'Mohon memilih Ketua Tim.',
             'signatory.required'                 => 'Mohon memilih Pejabat Penandatangan.',
         ]);
+        $validator->after(function ($v) use ($request) {
+            if ($request->officerLeader && !empty($request->internalOfficers)) {
+                $leader = Officer::where('id', $request->officerLeader)
+                    ->orWhere('register_number', $request->officerLeader)
+                    ->first();
+                if ($leader && in_array($leader->register_number, (array) $request->internalOfficers)) {
+                    $v->errors()->add('internalOfficers', 'Ketua Tim (' . $leader->register_number . ') tidak dapat dipilih kembali sebagai Anggota Petugas.');
+                }
+            }
+        });
+
+        return $validator;
     }
 }
