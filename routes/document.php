@@ -536,6 +536,7 @@ Route::prefix('/rencana-penyidikan-document')->group(function () {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 // Surat Panggilan Tersangka Document
 // ─────────────────────────────────────────────────────────────────────────────
 Route::prefix('/surat-panggilan-tersangka-document')->group(function () {
@@ -545,4 +546,16 @@ Route::prefix('/surat-panggilan-tersangka-document')->group(function () {
     Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'update'])->name('doc.surat-panggilan-tersangka-document.update');
     Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'destroy'])->name('doc.surat-panggilan-tersangka-document.destroy');
     Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPanggilanTersangkaDocumentController::class, 'downloadWord'])->name('doc.surat-panggilan-tersangka.download-word');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Permintaan Keterangan Ahli Document
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-permintaan-keterangan-ahli-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\SuratPermintaanKeteranganAhliDocumentController::class, 'create'])->name('doc.surat-permintaan-keterangan-ahli-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\SuratPermintaanKeteranganAhliDocumentController::class, 'store'])->name('doc.surat-permintaan-keterangan-ahli-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\SuratPermintaanKeteranganAhliDocumentController::class, 'edit'])->name('doc.surat-permintaan-keterangan-ahli-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPermintaanKeteranganAhliDocumentController::class, 'update'])->name('doc.surat-permintaan-keterangan-ahli-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPermintaanKeteranganAhliDocumentController::class, 'destroy'])->name('doc.surat-permintaan-keterangan-ahli-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPermintaanKeteranganAhliDocumentController::class, 'downloadWord'])->name('doc.surat-permintaan-keterangan-ahli.download-word');
 });

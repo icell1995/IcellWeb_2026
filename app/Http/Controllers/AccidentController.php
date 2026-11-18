@@ -1571,6 +1571,7 @@ class AccidentController extends Controller
         $data['berita_pemeriksaan_ahli'] = $berita_pemeriksaan_ahli;
         $data['TotalKategori2'] = $TotalKategori2;
         $data['surat_panggilan_saksi_doc'] = \App\Models\Doc\SuratPanggilanSaksiDocument\SuratPanggilanSaksiDocument::where('accident_id', $get_accident)->first();
+        $data['surat_permintaan_keterangan_ahli_doc'] = \App\Models\Doc\SuratPermintaanKeteranganAhliDocument\SuratPermintaanKeteranganAhliDocument::where('accident_id', $get_accident)->first();
 
         //kategori 3
         $data['daftar_tersangka'] = $daftar_tersangka;
