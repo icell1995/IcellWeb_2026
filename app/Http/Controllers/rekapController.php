@@ -119,6 +119,9 @@ class rekapController extends Controller
             $q->where('pr.id', $userPolresId);
         } elseif (!empty($userPoldaId)) {
             $q->where('pd.id', $userPoldaId);
+            if ($polresId !== '') {
+                $q->where('pr.id', $polresId);
+            }
         } else {
             if ($polresId !== '')      $q->where('pr.id', $polresId);
             elseif ($poldaId !== '')   $q->where('pd.id', $poldaId);
