@@ -35,12 +35,21 @@ class DocumentController extends Controller
 
         if (empty($typeDocument->route)) {
             return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia.');
+        if(empty($typeDocument) || $typeDocument->route == null){
+            return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia');
         }
 
         if ($typeDocumentId == '0405') {
             $hasPermintaan = \App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument::where('accident_id', $accidentId)->exists();
             if (!$hasPermintaan) {
                 return redirect()->back()->with('error', 'Dokumen Permintaan Penggeledahan belum dibuat, mohon untuk buat Surat Permintaan Penggeledahan terlebih dahulu.');
+            }
+        }
+
+        if ($typeDocumentId == '0112') {
+            $hasSprintHentiLidik = \App\Models\Doc\SuratPerintahPenghentianPenyelidikanDocument\SuratPerintahPenghentianPenyelidikanDocument::where('accident_id', $accidentId)->exists();
+            if (!$hasSprintHentiLidik) {
+                return redirect()->back()->with('error', 'Dokumen Surat Perintah Penghentian Penyelidikan belum dibuat, mohon untuk buat Surat Perintah Penghentian Penyelidikan terlebih dahulu.');
             }
         }
 
@@ -61,7 +70,7 @@ class DocumentController extends Controller
                 return redirect()->back()->with('error', 'Dokumen Surat Ketetapan Penghentian Penyidikan belum dibuat, mohon untuk buat Surat Ketetapan Penghentian Penyidikan terlebih dahulu.');
             }
         }
-        
+
         if ($typeDocumentId == '0204') {
             return redirect()->route('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.create', ['accident_id' => $accidentId]);
         }
@@ -82,7 +91,7 @@ class DocumentController extends Controller
                                 ->orderBy('sort', 'asc')
                                 ->orderBy('id', 'asc')
                                 ->get();
-        
+
         // Filter SP2HP documents - only show for role_id 1
         if (auth()->check() && auth()->user()->role_id != 1) {
             $documentCategory = $documentCategory->filter(function($doc) {
@@ -90,7 +99,7 @@ class DocumentController extends Controller
                 return !in_array($doc->id, ['0709', '0710', '0711', '0712']);
             })->values();
         }
-            
+
         return response()->json($documentCategory);
     }
 }
