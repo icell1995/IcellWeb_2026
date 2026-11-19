@@ -351,32 +351,6 @@
                                 @include('produktivitas.surat-penangkapan.penangkapan')
                             </div>
                         </div>
-
-                        <form action="{{ route('upload.imageUpload') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div>
-                                <input id="form_id" name="form_id" type="text" value="imageUpload" hidden>
-                            </div>
-                            <div>
-                                <input id="accident_id" name="accident_id" type="text" value="{{ $id }}"
-                                    hidden>
-                            </div>
-                            <div>
-                                <input class="mar-bot-2 mt-2" type="file" name="files[]" multiple>
-                                <button id="btnImage" type="submit" class="btn btn-primary"> Upload </button>
-                            </div>
-                            @if ($message = Session::get('success'))
-                                <strong>{{ $message }}</strong>
-                            @endif
-                            @if (count($errors) > 0)
-                                <div class="alert alert-danger">
-                                    <strong>Whoops!</strong> There were some problems with your input image.</strong>
-                                </div>
-                            @endif
-                        </form>
-                        <div class="showImage">
-                            {{-- @include('produktivitas.image-show.imageShow') --}}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1676,6 +1650,11 @@
 
             $('#surat_penahanan_10').click(function() {
                 $('#myModalPenahanan10').modal('show');
+            });
+
+            $('#surat_penahanan_11').click(function(e) {
+                e.preventDefault();
+                window.location.href = "{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.create', ['accident_id' => $id]) }}";
             });
             //end kategori 4
 
