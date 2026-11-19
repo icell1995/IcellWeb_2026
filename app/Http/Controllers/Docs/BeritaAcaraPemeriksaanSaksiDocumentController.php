@@ -82,15 +82,26 @@ class BeritaAcaraPemeriksaanSaksiDocumentController extends Controller
     {
         $accident = Accident::with(['polres.polda'])->findOrFail($accidentId);
 
+        $polresIds = array_values(array_filter(array_unique([
+            $accident->polres_id ?? null,
+            $accident->police_id ?? null,
+            $accident->polres->new_id ?? null,
+            $accident->polres->old_id ?? null,
+        ])));
+
         $officers = collect();
         try {
             $officers = Officer::with(['rank', 'position'])
                 ->selectFullName()
+                ->when(!empty($polresIds), fn ($q) => $q->whereIn('police_id', $polresIds))
+                ->active()
                 ->orderBy('first_name', 'asc')
                 ->get();
         } catch (\Exception $e) {
             try {
-                $officers = Officer::with(['rank', 'position'])->get();
+                $officers = Officer::with(['rank', 'position'])
+                    ->when(!empty($polresIds), fn ($q) => $q->whereIn('police_id', $polresIds))
+                    ->get();
             } catch (\Exception $e2) {}
         }
 

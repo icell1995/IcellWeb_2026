@@ -56,6 +56,15 @@ class Officer extends Model
         ]);
     }
 
+    public function scopeWithDocumentRelations($query)
+    {
+        return $query->with([
+            'rank',
+            'position',
+            'user',
+        ]);
+    }
+
     public function scopeSelectFullName($query)
     {
         return $query->select('*', PeopleNameHelper::getFullNameQueryExpression());

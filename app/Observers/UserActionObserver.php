@@ -4,31 +4,24 @@ namespace App\Observers;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
-use Carbon\Carbon;
-use App\Helpers\PeopleNameHelper;
-
-use App\Models\Accident;
 
 class UserActionObserver
 {
     private $user;
 
+    /**
+     * In-memory cache untuk mencegah query Schema::hasColumn berulang pada setiap penghapusan data.
+     *
+     * @var array<string, bool>
+     */
+    private static array $tableHasDeletedByCache = [];
+
     public function __construct()
     {
-        $id = Auth::user()->id ?? null;
-        // $firstTitle = Auth::user()->first_title ?? null;
-        // $firstName = Auth::user()->first_name ?? '-';
-        // $lastName = Auth::user()->last_name ?? null;
-        // $lastTitle = Auth::user()->last_title ?? null;
-
-        // $fullName = PeopleNameHelper::getFullName($firstTitle, $firstName, $lastName, $lastTitle);
-        // $registerNumber = (isset(Auth::user()->register_number)) ? Auth::user()->register_number : ((isset(Auth::user()->officer_id)) ? Auth::user()->officer_id : '-');
-        // $rankName = (isset(Auth::user()->rank->name)) ? Auth::user()->rank->name : ((isset(Auth::user()->pangkat)) ? Auth::user()->pangkat : '-');
-
-        $this->user = $id;
+        $this->user = Auth::id();
     }
 
-    public function creating($model)
+    public function creating($model): void
     {
         if (Auth::check()) {
             $userId = Auth::id() ?? $this->user;
@@ -42,7 +35,7 @@ class UserActionObserver
         }
     }
 
-    public function updating($model)
+    public function updating($model): void
     {
         if (Auth::check()) {
             $userId = Auth::id() ?? $this->user;
@@ -56,14 +49,19 @@ class UserActionObserver
         }
     }
 
-    public function deleting($model)
+    public function deleting($model): void
     {
         if (Auth::check()) {
             $userId = Auth::id() ?? $this->user;
 
             try {
-                if (Schema::hasColumn($model->getTable(), 'deleted_by_user_id')) {
-                    $model->deleted_by_user_id = $this->user;
+                $table = $model->getTable();
+                if (!array_key_exists($table, self::$tableHasDeletedByCache)) {
+                    self::$tableHasDeletedByCache[$table] = Schema::hasColumn($table, 'deleted_by_user_id');
+                }
+
+                if (self::$tableHasDeletedByCache[$table]) {
+                    $model->deleted_by_user_id = $userId;
 
                     if (array_key_exists('ip_addresses', $model->getCasts())) {
                         $currentIpAddresses = $model->ip_addresses ?? [];
@@ -71,9 +69,9 @@ class UserActionObserver
                         $model->ip_addresses = $currentIpAddresses;
                     }
 
-                    $model->save(); // Menyimpan perubahan sebelum penghapusan
+                    $model->saveQuietly();
                 }
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 // Abaikan jika kolom deleted_by_user_id tidak tersedia
             }
         }

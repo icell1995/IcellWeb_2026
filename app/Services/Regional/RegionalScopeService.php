@@ -218,4 +218,77 @@ class RegionalScopeService
 
         return false;
     }
+
+    /**
+     * Validasi apakah pengguna ($actor) berhak mengakses data atau dokumen perkara kecelakaan ($accident).
+     *
+     * @param mixed $actor Model User atau object pengguna yang sedang login
+     * @param mixed $accident Model Accident atau object perkara kecelakaan
+     */
+    public static function authorizeAccident(mixed $actor, mixed $accident): bool
+    {
+        if (!$actor || !$accident) {
+            return false;
+        }
+
+        $actorRole = (int) ($actor->role_id ?? 0);
+        if ($actorRole === 1) {
+            return true;
+        }
+
+        $actorPolda  = (string) ($actor->polda_id ?? '');
+        $actorPolres = (string) ($actor->polres_id ?? '');
+        $actorPolice = (string) ($actor->police_id ?? '');
+
+        $targetPolres = (string) ($accident->polres_id ?? '');
+        $targetPolice = (string) ($accident->police_id ?? '');
+        $targetPolda  = (string) ($accident->polda_id ?? ($accident->polres->polda_id ?? ''));
+
+        if ($targetPolda === '' && $targetPolres !== '') {
+            try {
+                $targetPolda = (string) (DB::table('polres')->where('id', $targetPolres)->value('polda_id') ?? '');
+            } catch (\Throwable) {
+                $targetPolda = '';
+            }
+        }
+
+        // Level 2 (Polda): berhak mengakses seluruh perkara di bawah Poldanya
+        if ($actorRole === 2) {
+            if ($actorPolda !== '' && $targetPolda !== '' && $actorPolda === $targetPolda) {
+                return true;
+            }
+            if ($actorPolice !== '' && $targetPolice !== '' && $actorPolice === $targetPolice) {
+                return true;
+            }
+            return false;
+        }
+
+        // Level 3, 4, 5, 6 (Polres / Penyidik): berhak mengakses perkara di Polres/Satkernya
+        if ($actorPolres !== '' && $actorPolres !== '0' && $targetPolres !== '' && $actorPolres === $targetPolres) {
+            return true;
+        }
+        if ($actorPolice !== '' && $targetPolice !== '' && $actorPolice === $targetPolice) {
+            return true;
+        }
+        if ($actorPolice !== '' && $targetPolres !== '' && $actorPolice === $targetPolres) {
+            return true;
+        }
+        if (($actorPolres === '' || $actorPolres === '0') && $actorPolda !== '' && $targetPolda !== '' && $actorPolda === $targetPolda) {
+            return true;
+        }
+
+        if ($actorPolice !== '' && ($targetPolice !== '' || $targetPolres !== '')) {
+            $checkTarget = $targetPolice !== '' ? $targetPolice : $targetPolres;
+            try {
+                return DB::table('lib.polices')
+                    ->where('id', $checkTarget)
+                    ->where('parent_id', $actorPolice)
+                    ->exists();
+            } catch (\Throwable) {
+                return false;
+            }
+        }
+
+        return false;
+    }
 }

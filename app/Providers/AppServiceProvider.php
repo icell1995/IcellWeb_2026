@@ -51,5 +51,9 @@ class AppServiceProvider extends ServiceProvider
         if (!class_exists('Barryvdh\DomPDF\Facade') && class_exists('Barryvdh\DomPDF\Facade\Pdf')) {
             class_alias('Barryvdh\DomPDF\Facade\Pdf', 'Barryvdh\DomPDF\Facade');
         }
+
+        if (class_exists(\PhpOffice\PhpWord\Settings::class)) {
+            \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
+        }
     }
 }

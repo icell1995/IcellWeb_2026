@@ -1029,7 +1029,7 @@ class WordController extends Controller
                                 from daftar_saksi
                                 left join (select * from ref where grp_id =\'G01\') as daftar_saksi_gender on daftar_saksi.gender = daftar_saksi_gender.id
                                 left join (select * from ref where grp_id =\'R01\') as daftar_saksi_religion on daftar_saksi.religion = daftar_saksi_religion.id
-                                where accident_id = \''.$id. '\' ');
+                                where accident_id = ?', [$id]);
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/daftar_saksi.docx');
 
         $accident = \App\Models\Accident::with(['polres.polda'])->find($id);
@@ -1079,9 +1079,13 @@ class WordController extends Controller
         }
         $templateProcessor->cloneRowAndSetValues('saksi_no', $data);
 
-        $filename = 'Daftar Saksi';
-        $templateProcessor->saveAs($filename.'.docx');
-        return response()->download($filename.'.docx')->deleteFileAfterSend(true);
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $tempPath = $tempDir . '/Daftar_Saksi_' . \Illuminate\Support\Str::uuid() . '.docx';
+        $templateProcessor->saveAs($tempPath);
+        return response()->download($tempPath, 'Daftar Saksi.docx')->deleteFileAfterSend(true);
     }
     public function daftarTersangka($id){
         $doc = \App\Models\Doc\DaftarTersangkaDocument\DaftarTersangkaDocument::where('accident_id', $id)->first();
@@ -1143,8 +1147,12 @@ class WordController extends Controller
         }
         $templateProcessor->cloneRowAndSetValues('tersangka_no', $data);
 
-        $filename = 'Daftar Tersangka';
-        $templateProcessor->saveAs($filename.'.docx');
-        return response()->download($filename.'.docx')->deleteFileAfterSend(true);
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $tempPath = $tempDir . '/Daftar_Tersangka_' . \Illuminate\Support\Str::uuid() . '.docx';
+        $templateProcessor->saveAs($tempPath);
+        return response()->download($tempPath, 'Daftar Tersangka.docx')->deleteFileAfterSend(true);
       }
 }

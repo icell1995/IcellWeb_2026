@@ -75,7 +75,7 @@ class SuratPermintaanVisumDocumentController extends Controller
         // Query Pejabat Penandatangan Polres
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -87,7 +87,7 @@ class SuratPermintaanVisumDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -99,7 +99,7 @@ class SuratPermintaanVisumDocumentController extends Controller
         }
 
         // Query Anggota Penyidik Polres
-        $memberOfficers = Officer::withRelated()
+        $memberOfficers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -111,7 +111,7 @@ class SuratPermintaanVisumDocumentController extends Controller
             ->get();
 
         if ($memberOfficers->isEmpty()) {
-            $memberOfficers = Officer::withRelated()
+            $memberOfficers = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->member()
@@ -283,7 +283,7 @@ class SuratPermintaanVisumDocumentController extends Controller
         // Query Pejabat Penandatangan Polres
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -295,7 +295,7 @@ class SuratPermintaanVisumDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -307,7 +307,7 @@ class SuratPermintaanVisumDocumentController extends Controller
         }
 
         // Query Anggota Penyidik Polres
-        $memberOfficers = Officer::withRelated()
+        $memberOfficers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -319,7 +319,7 @@ class SuratPermintaanVisumDocumentController extends Controller
             ->get();
 
         if ($memberOfficers->isEmpty()) {
-            $memberOfficers = Officer::withRelated()
+            $memberOfficers = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->member()

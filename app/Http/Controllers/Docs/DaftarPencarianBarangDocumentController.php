@@ -97,7 +97,7 @@ class DaftarPencarianBarangDocumentController extends Controller
 
         // 6. Petugas Narahubung & Pejabat Penandatangan
         $getOldNewPolresIds = [$accident->polres_id];
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -106,7 +106,7 @@ class DaftarPencarianBarangDocumentController extends Controller
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -288,7 +288,7 @@ class DaftarPencarianBarangDocumentController extends Controller
         $accident = Accident::with(['polres', 'polres.polda', 'caseVehicle'])->where('id', $accidentId)->firstOrFail();
 
         $getOldNewPolresIds = [$accident->polres_id];
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -297,7 +297,7 @@ class DaftarPencarianBarangDocumentController extends Controller
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()

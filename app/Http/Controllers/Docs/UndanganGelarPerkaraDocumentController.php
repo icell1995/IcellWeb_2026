@@ -77,7 +77,7 @@ class UndanganGelarPerkaraDocumentController extends Controller
         // 4. Petugas internal
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -87,7 +87,7 @@ class UndanganGelarPerkaraDocumentController extends Controller
             ->get();
 
         // 5. Pejabat Penandatangan
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -307,7 +307,7 @@ class UndanganGelarPerkaraDocumentController extends Controller
 
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -316,7 +316,7 @@ class UndanganGelarPerkaraDocumentController extends Controller
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -903,12 +903,13 @@ class UndanganGelarPerkaraDocumentController extends Controller
         $templateProcessor->setValue('tglLp', $data['dasar_lp_tanggal']);
         $templateProcessor->setValue('satkerName', $accident->polres->full_name ?? ($accident->polres->name ?? 'Kepolisian'));
 
-        if (!file_exists(public_path('generate'))) {
-            mkdir(public_path('generate'), 0777, true);
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
         }
 
         $cleanNomor = preg_replace('/[^A-Za-z0-9_\-]/', '_', $document->nomor ?: ($document->document_number ?: 'DRAFT'));
-        $filename = public_path('generate/' . $document->id . ' - Undangan Gelar Perkara - ' . ($accident->polres->full_name ?? ($accident->polres->name ?? 'Polres')) . '.docx');
+        $filename = $tempDir . '/' . $document->id . ' - Undangan Gelar Perkara - ' . ($accident->polres->full_name ?? ($accident->polres->name ?? 'Polres')) . '.docx';
         $templateProcessor->saveAs($filename);
 
         return [

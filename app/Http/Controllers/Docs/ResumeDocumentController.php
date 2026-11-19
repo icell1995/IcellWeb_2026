@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Docs;
 
 use App\Http\Controllers\Controller;
 use App\Models\Accident;
-use App\Models\AuthorizedSignatory;
+use App\Models\Peoples\AuthorizedSignatory;
 use App\Models\Doc\DaftarAhliDocument\DaftarAhliDocument;
 use App\Models\Doc\DaftarSaksiDocument\DaftarSaksiDocument;
 use App\Models\Doc\DaftarTersangkaDocument\DaftarTersangkaDocument;
@@ -47,7 +47,7 @@ class ResumeDocumentController extends Controller
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
         // 1. Ambil Pejabat Penandatangan
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -59,7 +59,7 @@ class ResumeDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -73,7 +73,7 @@ class ResumeDocumentController extends Controller
                 ->get();
         }
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->orderBy('first_name', 'asc')
@@ -396,7 +396,7 @@ class ResumeDocumentController extends Controller
                 'pembuat_nrp' => preg_replace('/[^0-9]/', '', (string) $request->pembuat_nrp) ?: $request->pembuat_nrp,
                 'pembuat_jabatan' => $request->pembuat_jabatan ?: 'Penyidik / Penyidik Pembantu',
 
-                'created_by_user_id' => Auth::id() ?: 1,
+                'created_by_user_id' => Auth::id(),
             ]);
 
             DB::commit();
@@ -421,7 +421,7 @@ class ResumeDocumentController extends Controller
 
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -433,7 +433,7 @@ class ResumeDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -447,7 +447,7 @@ class ResumeDocumentController extends Controller
                 ->get();
         }
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->orderBy('first_name', 'asc')
@@ -582,7 +582,7 @@ class ResumeDocumentController extends Controller
                 'pembuat_nrp' => preg_replace('/[^0-9]/', '', (string) $request->pembuat_nrp) ?: $request->pembuat_nrp,
                 'pembuat_jabatan' => $request->pembuat_jabatan ?: $document->pembuat_jabatan,
 
-                'updated_by_user_id' => Auth::id() ?: 1,
+                'updated_by_user_id' => Auth::id(),
             ]);
 
             DB::commit();

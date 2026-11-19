@@ -91,7 +91,7 @@
                     <td class="text-center align-middle">-</td>
                     <td class="text-center align-middle">
                         @php
-                            $lpCreator = !empty($lpItem->created_by) ? \App\Models\User::with('rank')->where('username', $lpItem->created_by)->orWhere('register_number', $lpItem->created_by)->first() : null;
+                            $lpCreator = $lpCreatorUser ?? null;
                         @endphp
                         <div class="d-flex flex-column">
                             @if($lpCreator)
@@ -153,6 +153,7 @@
                                 || (($accidentDocument->documentCategory->id ?? null) == '0602');
                             if ($isBaSerahTerimaDocument) {
                                 continue;
+                            }
                             $baseRoute = $accidentDocument->base_route ?? ($accidentDocument->documentCategory->base_route ?? null);
                             if (empty($baseRoute)) {
                                 if ($accidentDocument instanceof \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument) {
