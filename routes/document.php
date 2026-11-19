@@ -631,3 +631,15 @@ Route::prefix('/surat-perintah-penyitaan-document')->group(function () {
     Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPerintahPenyitaanDocumentController::class, 'destroy'])->name('doc.surat-perintah-penyitaan-document.destroy');
     Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPerintahPenyitaanDocumentController::class, 'downloadWord'])->name('doc.surat-perintah-penyitaan.download-word');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Pengembalian Barang Bukti Document (S-26.1.5)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-pengembalian-barang-bukti-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\SuratPerintahPengembalianBarangBuktiDocumentController::class, 'create'])->name('doc.surat-perintah-pengembalian-barang-bukti-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\SuratPerintahPengembalianBarangBuktiDocumentController::class, 'store'])->name('doc.surat-perintah-pengembalian-barang-bukti-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\SuratPerintahPengembalianBarangBuktiDocumentController::class, 'edit'])->name('doc.surat-perintah-pengembalian-barang-bukti-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPerintahPengembalianBarangBuktiDocumentController::class, 'update'])->name('doc.surat-perintah-pengembalian-barang-bukti-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPerintahPengembalianBarangBuktiDocumentController::class, 'destroy'])->name('doc.surat-perintah-pengembalian-barang-bukti-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPerintahPengembalianBarangBuktiDocumentController::class, 'downloadWord'])->name('doc.surat-perintah-pengembalian-bb.download-word');
+});
