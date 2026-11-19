@@ -254,6 +254,12 @@ class Accident extends Model
             ]);
     }
 
+    public function beritaAcaraSerahTerimaTersangkaDanBarangBuktiDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
     public function suratPermintaanPerpanjanganPenahananLanjutanDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument', 'accident_id', 'id')
@@ -348,6 +354,24 @@ class Accident extends Model
         return $this->hasMany('App\Models\CaseVehicle', 'accident_id', 'id');
     }
 
+    public function suratKuasaDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratKuasaDocument\SuratKuasaDocument::class, 'accident_id', 'id');
+    }
+
+    public function suratPermintaanBlokirRekeningBankDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratPermintaanBlokirRekeningBankDocument\SuratPermintaanBlokirRekeningBankDocument::class, 'accident_id', 'id');
+    }
+
+    public function suratPermintaanBukaBlokirRekeningBankDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratPermintaanBukaBlokirRekeningBankDocument\SuratPermintaanBukaBlokirRekeningBankDocument::class, 'accident_id', 'id');
+    }
+
+    public function daftarPencarianBarangDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\DaftarPencarianBarangDocument\DaftarPencarianBarangDocument::class, 'accident_id', 'id');
     public function involvedPeoples()
     {
         return $this->hasMany(InvolvedPeople::class, 'accident_id', 'id');
