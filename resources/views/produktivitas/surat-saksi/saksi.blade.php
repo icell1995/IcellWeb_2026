@@ -83,18 +83,33 @@
 
             <div class="item-list">
                 <span class="item-action">Berita Acara Pemeriksaan Saksi</span>
-                @if ($berita_pemeriksaan_saksi == null)
-                    <i class="bi bi-pencil-square" id="surat_saksi_5" name="surat_saksi_5"></i>
+                @php
+                    $bapSaksiDoc = $berita_acara_pemeriksaan_saksi_doc ?? \App\Models\Doc\BeritaAcaraPemeriksaanSaksiDocument\BeritaAcaraPemeriksaanSaksiDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (empty($bapSaksiDoc))
+                    <div class="d-inline-flex align-items-center">
+                        <a href="{{ route('doc.berita-acara-pemeriksaan-saksi-document.create', ['accident_id' => $id]) }}" title="Tambah Berita Acara Pemeriksaan Saksi">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        @if ($berita_pemeriksaan_saksi != null)
+                            <a target="_blank" href="/berita-pemeriksaan-saksi/{{ $id }}" class="btn btn-sm btn-link text-primary fw-bold text-decoration-none ms-2">Lihat File Upload</a>
+                            <form action="/berita-pemeriksaan-saksi/{{ $id }}" method="post" class="d-inline m-0">
+                                @method('DELETE')
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-link text-danger fw-bold text-decoration-none border-0 bg-transparent p-0 ms-1">HAPUS</button>
+                            </form>
+                        @endif
+                    </div>
                 @else
-                    <a target="_blank" href="/berita-pemeriksaan-saksi/{{ $id }}"
-                        id="">Lihat</a></span>
-                    <form action="/berita-pemeriksaan-saksi/{{ $id }}" method="post">
-                        @method('DELETE')
-                        @csrf
-                        <button type="submit"
-                            style="color: #007bff; border: none; background: none;
-                        font-weight: bold; padding: 10px;">DELETE</button>
-                    </form>
+                    <div class="d-flex flex-column align-items-end" style="line-height: 1.15;">
+                        <a href="{{ route('doc.berita-acara-pemeriksaan-saksi.download-word', ['accident_id' => $id]) }}" style="color: #000080; font-weight: bold; text-decoration: none; line-height: 1.15;" target="_blank">UNDUH</a>
+                        <a href="{{ route('doc.berita-acara-pemeriksaan-saksi-document.edit', ['accident_id' => $id]) }}" style="color: #000080; font-weight: bold; text-decoration: none; line-height: 1.15;">UBAH</a>
+                        <form action="{{ route('doc.berita-acara-pemeriksaan-saksi-document.destroy', ['accident_id' => $id]) }}" method="post" class="m-0 p-0" style="line-height: 1.15;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit" style="color: #000080; border: none; background: none; font-weight: bold; text-decoration: none; padding: 0; margin: 0; line-height: 1.15;">HAPUS</button>
+                        </form>
+                    </div>
                 @endif
             </div>
 
