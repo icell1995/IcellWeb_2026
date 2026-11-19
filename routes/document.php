@@ -595,3 +595,15 @@ Route::prefix('/berita-acara-pemeriksaan-tersangka-document')->group(function ()
     Route::delete('/destroy', [\App\Http\Controllers\Docs\BeritaAcaraPemeriksaanTersangkaDocumentController::class, 'destroy'])->name('doc.berita-acara-pemeriksaan-tersangka-document.destroy');
     Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\BeritaAcaraPemeriksaanTersangkaDocumentController::class, 'downloadWord'])->name('doc.berita-acara-pemeriksaan-tersangka.download-word');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Surat Perintah Penggeledahan Alat Angkutan Document (S-23.1.4)
+// ─────────────────────────────────────────────────────────────────────────────
+Route::prefix('/surat-perintah-penggeledahan-angkutan-document')->group(function () {
+    Route::get('/create', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanAngkutanDocumentController::class, 'create'])->name('doc.surat-perintah-penggeledahan-angkutan-document.create');
+    Route::post('/store', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanAngkutanDocumentController::class, 'store'])->name('doc.surat-perintah-penggeledahan-angkutan-document.store');
+    Route::get('/edit', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanAngkutanDocumentController::class, 'edit'])->name('doc.surat-perintah-penggeledahan-angkutan-document.edit');
+    Route::match(['post', 'put'], '/update', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanAngkutanDocumentController::class, 'update'])->name('doc.surat-perintah-penggeledahan-angkutan-document.update');
+    Route::delete('/destroy', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanAngkutanDocumentController::class, 'destroy'])->name('doc.surat-perintah-penggeledahan-angkutan-document.destroy');
+    Route::match(['get', 'post'], '/download-word', [\App\Http\Controllers\Docs\SuratPerintahPenggeledahanAngkutanDocumentController::class, 'downloadWord'])->name('doc.surat-perintah-penggeledahan-angkutan.download-word');
+});
