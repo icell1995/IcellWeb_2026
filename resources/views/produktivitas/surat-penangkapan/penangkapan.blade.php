@@ -31,11 +31,29 @@
 
             <div class="item-list">
                 <span>Surat Perintah Penangkapan</span>
-                @if ($surat_perintah_penangkapan == null)
-                    <i class="bi bi-pencil-square" id="surat_penangkapan_2" name="surat_penangkapan_2"></i>
+                @php
+                    $docSpKap = $surat_sp_kap_doc ?? \App\Models\Doc\SuratPerintahPenangkapanDocument\SuratPerintahPenangkapanDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (!$docSpKap && ($surat_perintah_penangkapan == null || count($surat_perintah_penangkapan) == 0))
+                    <a href="{{ route('doc.surat-perintah-penangkapan-document.create', ['accident_id' => $id]) }}" style="text-decoration: none; color: inherit;">
+                        <i class="bi bi-pencil-square" style="cursor: pointer;"></i>
+                    </a>
+                @elseif ($docSpKap)
+                    <div class="d-flex flex-column align-items-end justify-content-center" style="gap: 2px;">
+                        <a href="{{ route('doc.surat-perintah-penangkapan-document.download', ['id' => $docSpKap->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UNDUH</a>
+                        <a href="{{ route('doc.surat-perintah-penangkapan-document.edit', ['id' => $docSpKap->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UBAH</a>
+                        <form action="{{ route('doc.surat-perintah-penangkapan-document.delete', ['id' => $docSpKap->id, 'accident_id' => $id]) }}"
+                            method="post" class="m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit"
+                                style="color: #000080; border: none; background: none; font-weight: bold; padding: 0; line-height: 1.2; cursor: pointer;">HAPUS</button>
+                        </form>
+                    </div>
                 @else
-                    <a target="_blank" href="/surat-perintah-penangkapan/{{ $id }}"
-                        id="">Lihat</a></span>
+                    <a target="_blank" href="/surat-perintah-penangkapan/{{ $id }}" id="">Lihat</a>
                     <form action="/surat-perintah-penangkapan/{{ $id }}" method="post">
                         @method('DELETE')
                         @csrf
@@ -43,6 +61,32 @@
                             style="color: #007bff; border: none; background: none;
                             font-weight: bold; padding: 10px;">DELETE</button>
                     </form>
+                @endif
+            </div>
+
+            <div class="item-list">
+                <span>Surat Perintah Tugas Penangkapan</span>
+                @php
+                    $docSpGasKap = $surat_sp_gas_penangkapan_doc ?? \App\Models\Doc\SuratPerintahTugasPenangkapanDocument\SuratPerintahTugasPenangkapanDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (!$docSpGasKap)
+                    <a href="{{ route('doc.surat-perintah-tugas-penangkapan-document.create', ['accident_id' => $id]) }}" style="text-decoration: none; color: inherit;">
+                        <i class="bi bi-pencil-square" style="cursor: pointer;"></i>
+                    </a>
+                @else
+                    <div class="d-flex flex-column align-items-end justify-content-center" style="gap: 2px;">
+                        <a href="{{ route('doc.surat-perintah-tugas-penangkapan-document.download', ['id' => $docSpGasKap->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UNDUH</a>
+                        <a href="{{ route('doc.surat-perintah-tugas-penangkapan-document.edit', ['id' => $docSpGasKap->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UBAH</a>
+                        <form action="{{ route('doc.surat-perintah-tugas-penangkapan-document.delete', ['id' => $docSpGasKap->id, 'accident_id' => $id]) }}"
+                            method="post" class="m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit"
+                                style="color: #000080; border: none; background: none; font-weight: bold; padding: 0; line-height: 1.2; cursor: pointer;">HAPUS</button>
+                        </form>
+                    </div>
                 @endif
             </div>
 

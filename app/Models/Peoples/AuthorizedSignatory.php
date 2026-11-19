@@ -45,4 +45,10 @@ class AuthorizedSignatory extends Model
         return $this->belongsTo('App\Models\Polres', 'polres_id', 'id');
     }
 
+    public function getNrpAttribute()
+    {
+        $val = $this->attributes['nrp'] ?? ($this->attributes['register_number'] ?? ($this->attributes['id'] ?? ''));
+        return (string) $val;
+    }
+
 }

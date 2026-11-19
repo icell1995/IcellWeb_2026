@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Docs;
 
-use App\Helpers\PeopleNameHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Accident;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
-use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument;
 use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument;
 use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocumentLaw;
 use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocumentOfficer;
 use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocumentSuspect;
+use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
+use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument;
 use App\Models\Lib\CrimeClass;
 use App\Models\Lib\CrimeConstitution;
 use App\Models\Lib\CrimeType;
@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use PhpOffice\PhpWord\TemplateProcessor;
 
 class SuratPerintahPembantaranPenahananDocumentController extends Controller
 {
@@ -127,7 +128,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
                         'crime_constitution_name' => $law->crimeConstitution->name ?? '',
                         'constitution_chapter' => $law->constitution_chapter ?? '',
                     ];
-                } elseif ($law->flag === 'ADDITIONAL' || !empty($law->constitution)) {
+                } elseif ($law->flag === 'ADDITIONAL' || ! empty($law->constitution)) {
                     $initialAdditionalLaws[] = [
                         'constitution' => $law->constitution ?? '',
                     ];
@@ -154,7 +155,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
         $satkerCode = $accident->police->satker_code ?? $accident->polres->satker_code ?? $accident->polres->code ?? '';
 
         // 4. Auto-resolusi Dokumen Surat Perintah Penahanan (S-17)
-        $s17Documents = \App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::with(['suspects'])
+        $s17Documents = SuratPerintahPenahananDocument::with(['suspects'])
             ->where('accident_id', $accidentId)
             ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->orderBy('created_at', 'desc')
@@ -221,7 +222,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
 
         DB::beginTransaction();
         try {
-            $document = new SuratPerintahPembantaranPenahananDocument();
+            $document = new SuratPerintahPembantaranPenahananDocument;
             $document->accident_id = $accidentId;
             $document->document_category_id = '0608';
             $document->status_id = '2'; // Dokumen Dibuat
@@ -375,7 +376,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
                 $mainLaws = $request->input('main_laws', []);
                 if (is_array($mainLaws)) {
                     foreach ($mainLaws as $lawData) {
-                        if (!empty($lawData['crime_type_id'])) {
+                        if (! empty($lawData['crime_type_id'])) {
                             SuratPerintahPembantaranPenahananDocumentLaw::create([
                                 'document_id' => $document->id,
                                 'crime_type_id' => $lawData['crime_type_id'],
@@ -404,7 +405,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
                 $additionalLaws = $request->input('additional_laws', []);
                 if (is_array($additionalLaws)) {
                     foreach ($additionalLaws as $lawData) {
-                        if (!empty($lawData['constitution'])) {
+                        if (! empty($lawData['constitution'])) {
                             SuratPerintahPembantaranPenahananDocumentLaw::create([
                                 'document_id' => $document->id,
                                 'constitution' => $lawData['constitution'],
@@ -488,7 +489,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
                         'crime_constitution_name' => $law->crimeConstitution->name ?? '',
                         'constitution_chapter' => $law->constitution_chapter ?? '',
                     ];
-                } elseif ($law->flag === 'ADDITIONAL' || !empty($law->constitution)) {
+                } elseif ($law->flag === 'ADDITIONAL' || ! empty($law->constitution)) {
                     $existingAdditionalLaws[] = [
                         'constitution' => $law->constitution ?? '',
                     ];
@@ -498,16 +499,19 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
 
         $signatoryOfficer = $document->officers->first(function ($o) {
             $class = is_array($o->class) ? $o->class : json_decode($o->class, true);
+
             return in_array('SIGNATORY', (array) $class) || $o->type === 'penandatangan';
         });
 
         $receiverOfficer = $document->officers->first(function ($o) {
             $class = is_array($o->class) ? $o->class : json_decode($o->class, true);
+
             return in_array('RECEIVER', (array) $class) || $o->type === 'penerima_perintah' || $o->type === 'penerima';
         });
 
         $delivererOfficer = $document->officers->first(function ($o) {
             $class = is_array($o->class) ? $o->class : json_decode($o->class, true);
+
             return in_array('DELIVERER', (array) $class) || $o->type === 'penyerah_surat' || $o->type === 'penyerah';
         });
 
@@ -519,7 +523,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             $selectedSuspectIds = $document->suspects->pluck('suspect_id')->filter()->values()->toArray();
         }
 
-        $s17Documents = \App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::with(['suspects'])
+        $s17Documents = SuratPerintahPenahananDocument::with(['suspects'])
             ->where('accident_id', $accidentId)
             ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
             ->orderBy('created_at', 'desc')
@@ -722,7 +726,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
                 $mainLaws = $request->input('main_laws', []);
                 if (is_array($mainLaws)) {
                     foreach ($mainLaws as $lawData) {
-                        if (!empty($lawData['crime_type_id'])) {
+                        if (! empty($lawData['crime_type_id'])) {
                             SuratPerintahPembantaranPenahananDocumentLaw::create([
                                 'document_id' => $document->id,
                                 'crime_type_id' => $lawData['crime_type_id'],
@@ -751,7 +755,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
                 $additionalLaws = $request->input('additional_laws', []);
                 if (is_array($additionalLaws)) {
                     foreach ($additionalLaws as $lawData) {
-                        if (!empty($lawData['constitution'])) {
+                        if (! empty($lawData['constitution'])) {
                             SuratPerintahPembantaranPenahananDocumentLaw::create([
                                 'document_id' => $document->id,
                                 'constitution' => $lawData['constitution'],
@@ -805,10 +809,10 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
 
     protected function validateForm(Request $request)
     {
-        if (!$request->has('signatory_officer_id') && $request->has('signatory')) {
+        if (! $request->has('signatory_officer_id') && $request->has('signatory')) {
             $request->merge(['signatory_officer_id' => $request->signatory]);
         }
-        if (!$request->has('suspect_id') && $request->has('suspects')) {
+        if (! $request->has('suspect_id') && $request->has('suspects')) {
             $request->merge(['suspect_id' => $request->suspects]);
         }
         $rules = [
@@ -891,7 +895,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
         }
 
         // Jika ada attachment fisik dan tidak minta template, deliver attachment
-        $isTemplateDownload = request()->has('template') || !request()->has('attachment');
+        $isTemplateDownload = request()->has('template') || ! request()->has('attachment');
         if (! $isTemplateDownload && $document->attachment && file_exists(public_path('documents/attachments/'.$document->attachment->name))) {
             return response()->download(public_path('documents/attachments/'.$document->attachment->name), $document->attachment->original_name ?? $document->attachment->name);
         }
@@ -912,7 +916,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
                 return redirect()->back()->with('error', 'File template dokumen word S-23 tidak ditemukan di server.');
             }
 
-            $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templateFile);
+            $templateProcessor = new TemplateProcessor($templateFile);
 
             // 1. Kop Surat & Identitas Dokumen
             $resorPoliceFullName = (in_array($accident->polres->id ?? '', ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR '.strtoupper($accident->polres->full_name ?? '');
@@ -941,12 +945,12 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
                 foreach ($document->laws as $law) {
                     if ($law->flag === 'MAIN' || empty($law->flag)) {
                         $constName = $law->crimeConstitution->name ?? '';
-                        if (!empty($constName) && !in_array($constName, $mainLawTitles)) {
+                        if (! empty($constName) && ! in_array($constName, $mainLawTitles)) {
                             $mainLawTitles[] = $constName;
                         }
-                    } elseif ($law->flag === 'ADDITIONAL' || !empty($law->constitution)) {
+                    } elseif ($law->flag === 'ADDITIONAL' || ! empty($law->constitution)) {
                         $addName = trim($law->constitution);
-                        if (!empty($addName) && !in_array($addName, $additionalLawTitles)) {
+                        if (! empty($addName) && ! in_array($addName, $additionalLawTitles)) {
                             $additionalLawTitles[] = $addName;
                         }
                     }
@@ -993,6 +997,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             // 6. Petugas Penandatangan (SIGNATORY)
             $signatoryDocOfficer = $document->officers->first(function ($o) {
                 $class = is_array($o->class) ? $o->class : json_decode($o->class, true);
+
                 return in_array('SIGNATORY', (array) $class) || $o->type === 'penandatangan';
             });
             $sigName = '-';
@@ -1046,6 +1051,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             // 7. Petugas Penerima Perintah (RECEIVER)
             $receiverDocOfficer = $document->officers->first(function ($o) {
                 $class = is_array($o->class) ? $o->class : json_decode($o->class, true);
+
                 return in_array('RECEIVER', (array) $class) || $o->type === 'penerima_perintah';
             });
             $recName = '-';
@@ -1073,6 +1079,7 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             // 8. Petugas Penyerah Surat (DELIVERER) & Tanda Terima
             $delivererDocOfficer = $document->officers->first(function ($o) {
                 $class = is_array($o->class) ? $o->class : json_decode($o->class, true);
+
                 return in_array('DELIVERER', (array) $class) || $o->type === 'penyerah';
             });
             $delName = '-';
@@ -1104,8 +1111,6 @@ class SuratPerintahPembantaranPenahananDocumentController extends Controller
             $templateProcessor->setValue('hariPenyerahan', $document->tanggal_surat ? Carbon::parse($document->tanggal_surat)->locale('id')->translatedFormat('l') : '.............');
             $templateProcessor->setValue('tanggalPenyerahan', $docDateFormatted);
             $templateProcessor->setValue('namaPenerimaKeluarga', $document->nama_penerima_keluarga ?: '..........................................');
-
-
 
             // 10. Lampiran (Hanya jika template masih menyediakan variabel officer_no)
             if (in_array('officer_no', $templateProcessor->getVariables())) {

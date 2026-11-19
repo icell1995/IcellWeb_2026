@@ -999,49 +999,128 @@ class WordController extends Controller
     }
 
     public function daftarSaksi($id){
+        $doc = \App\Models\Doc\DaftarSaksiDocument\DaftarSaksiDocument::where('accident_id', $id)->first();
+        if ($doc) {
+            return redirect()->route('doc.daftar-saksi-document.download', ['id' => $doc->id, 'accident_id' => $id]);
+        }
+
         $daftarSaksi = DB::select('select daftar_saksi_gender.name as gender, daftar_saksi_religion.name as religion, daftar_saksi.name as name_saksi, daftar_saksi.job as job_saksi, daftar_saksi.city as city, address as address
                                 from daftar_saksi
                                 left join (select * from ref where grp_id =\'G01\') as daftar_saksi_gender on daftar_saksi.gender = daftar_saksi_gender.id
                                 left join (select * from ref where grp_id =\'R01\') as daftar_saksi_religion on daftar_saksi.religion = daftar_saksi_religion.id
                                 where accident_id = \''.$id. '\' ');
-      $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/daftar_saksi.docx');
-      $data= [];
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/daftar_saksi.docx');
+        
+        $accident = \App\Models\Accident::with(['polres.polda'])->find($id);
+        $poldaFullName = $accident->polres->polda->name ?? ($accident->polres->polda->full_name ?? '');
+        $resorPoliceFullName = (in_array($accident->polres->id ?? '', ['1114']))
+            ? 'DIREKTORAT LALU LINTAS'
+            : 'RESOR ' . strtoupper($accident->polres->full_name ?? $accident->polres->name ?? '');
+        $resorPoliceAddress = ucwords(strtolower(($accident->polres->address ?? '') . ', ' . ($accident->polres->polres_district ?? '') . ', ' . ($accident->polres->polres_zipcode ?? '')));
+
+        $templateProcessor->setValue('daerahPoliceFullName', strtoupper($poldaFullName));
+        $templateProcessor->setValue('resorPoliceFullName', $resorPoliceFullName);
+        $templateProcessor->setValue('resorPoliceAddress', $resorPoliceAddress);
+        $templateProcessor->setValue('documentLocation', $accident->polres->name ?? 'Tempat');
+        $templateProcessor->setValue('documentDate', \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y'));
+        $templateProcessor->setValue('signatoryHeadText', 'Penyidik Pembantu');
+        $templateProcessor->setValue('signatoryName', '-');
+        $templateProcessor->setValue('signatoryRankName', '-');
+        $templateProcessor->setValue('signatoryRegisterNumber', '-');
+
+        $data = [];
+        $i = 1;
         foreach($daftarSaksi as $saksi){
             $data[]= [
-                'name_saksi'=> $saksi->name_saksi,
-                'gender'=> $saksi->gender,
-                'job_saksi'=> $saksi->job_saksi,
-                'city'=> $saksi->city,
-                'religion'=> $saksi->religion,
-                'address'=> $saksi->address,
+                'saksi_no' => (string)($i++),
+                'saksi_nama' => $saksi->name_saksi ?? '-',
+                'saksi_identitas' => '-',
+                'saksi_warga_negara' => 'WNI',
+                'saksi_gender' => $saksi->gender ?? '-',
+                'saksi_pekerjaan' => $saksi->job_saksi ?? '-',
+                'saksi_agama' => $saksi->religion ?? '-',
+                'saksi_alamat' => ($saksi->address ? $saksi->address . ' ' : '') . ($saksi->city ?? '-'),
+                'saksi_keterangan' => 'Saksi',
             ];
         }
-    $templateProcessor->cloneRowAndSetValues('name_saksi', $data);
+        if (empty($data)) {
+            $data[] = [
+                'saksi_no' => '1',
+                'saksi_nama' => '-',
+                'saksi_identitas' => '-',
+                'saksi_warga_negara' => '-',
+                'saksi_gender' => '-',
+                'saksi_pekerjaan' => '-',
+                'saksi_agama' => '-',
+                'saksi_alamat' => '-',
+                'saksi_keterangan' => '-',
+            ];
+        }
+        $templateProcessor->cloneRowAndSetValues('saksi_no', $data);
 
-    $filename = 'Daftar Saksi';
-    $templateProcessor->saveAs($filename.'.docx');
-    return response()->download($filename.'.docx')->deleteFileAfterSend(true);
+        $filename = 'Daftar Saksi';
+        $templateProcessor->saveAs($filename.'.docx');
+        return response()->download($filename.'.docx')->deleteFileAfterSend(true);
     }
     public function daftarTersangka($id){
+        $doc = \App\Models\Doc\DaftarTersangkaDocument\DaftarTersangkaDocument::where('accident_id', $id)->first();
+        if ($doc) {
+            return redirect()->route('doc.daftar-tersangka-document.download', ['id' => $doc->id, 'accident_id' => $id]);
+        }
+
         $daftarTersangka = DB::select('select daftar_tersangka_gender.name as gender, daftar_tersangka_religion.name as religion, daftar_tersangka.name as name_tersangka, daftar_tersangka.job as job_tersangka, daftar_tersangka.city as city, address as address
                                   from daftar_tersangka
                                   left join (select * from ref where grp_id =\'G01\') as daftar_tersangka_gender on daftar_tersangka.gender = daftar_tersangka_gender.id
                                   left join (select * from ref where grp_id =\'R01\') as daftar_tersangka_religion on daftar_tersangka.religion = daftar_tersangka_religion.id
                                   where accident_id = \''.$id. '\' ');
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/daftar_tersangka.docx');
-        $data= [];
+
+        $accident = \App\Models\Accident::with(['polres.polda'])->find($id);
+        $poldaFullName = $accident->polres->polda->name ?? ($accident->polres->polda->full_name ?? '');
+        $resorPoliceFullName = (in_array($accident->polres->id ?? '', ['1114']))
+            ? 'DIREKTORAT LALU LINTAS'
+            : 'RESOR ' . strtoupper($accident->polres->full_name ?? $accident->polres->name ?? '');
+        $resorPoliceAddress = ucwords(strtolower(($accident->polres->address ?? '') . ', ' . ($accident->polres->polres_district ?? '') . ', ' . ($accident->polres->polres_zipcode ?? '')));
+
+        $templateProcessor->setValue('daerahPoliceFullName', strtoupper($poldaFullName));
+        $templateProcessor->setValue('resorPoliceFullName', $resorPoliceFullName);
+        $templateProcessor->setValue('resorPoliceAddress', $resorPoliceAddress);
+        $templateProcessor->setValue('documentLocation', $accident->polres->name ?? 'Tempat');
+        $templateProcessor->setValue('documentDate', \Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y'));
+        $templateProcessor->setValue('signatoryHeadText', 'Penyidik Pembantu');
+        $templateProcessor->setValue('signatoryName', '-');
+        $templateProcessor->setValue('signatoryRankName', '-');
+        $templateProcessor->setValue('signatoryRegisterNumber', '-');
+
+        $data = [];
+        $i = 1;
         foreach($daftarTersangka as $tersangka){
           $data[]= [
-            'name_tersangka'=> $tersangka->name_tersangka,
-            'gender'=> $tersangka->gender,
-            'job_tersangka'=> $tersangka->job_tersangka,
-            'city'=> $tersangka->city,
-            'religion'=> $tersangka->religion,
-            'address'=> $tersangka->address,
+            'tersangka_no' => (string)($i++),
+            'tersangka_nama' => $tersangka->name_tersangka ?? '-',
+            'tersangka_identitas' => '-',
+            'tersangka_warga_negara' => 'WNI',
+            'tersangka_gender' => $tersangka->gender ?? '-',
+            'tersangka_pekerjaan' => $tersangka->job_tersangka ?? '-',
+            'tersangka_agama' => $tersangka->religion ?? '-',
+            'tersangka_alamat' => ($tersangka->address ? $tersangka->address . ' ' : '') . ($tersangka->city ?? '-'),
+            'tersangka_keterangan' => 'Tersangka',
           ];
-
         }
-        $templateProcessor->cloneRowAndSetValues('name_tersangka', $data);
+        if (empty($data)) {
+            $data[] = [
+                'tersangka_no' => '1',
+                'tersangka_nama' => '-',
+                'tersangka_identitas' => '-',
+                'tersangka_warga_negara' => '-',
+                'tersangka_gender' => '-',
+                'tersangka_pekerjaan' => '-',
+                'tersangka_agama' => '-',
+                'tersangka_alamat' => '-',
+                'tersangka_keterangan' => '-',
+            ];
+        }
+        $templateProcessor->cloneRowAndSetValues('tersangka_no', $data);
 
         $filename = 'Daftar Tersangka';
         $templateProcessor->saveAs($filename.'.docx');
