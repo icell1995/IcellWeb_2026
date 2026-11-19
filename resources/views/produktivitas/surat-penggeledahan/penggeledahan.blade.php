@@ -61,13 +61,32 @@
             </div>
 
             <div class="item-list">
-                <span>Surat Perintah Penggeledahan Rumah / Badan / Pakaian / Angkutan; (jika ada)</span>
-                @if ($surat_persetujuan_penggeledahan == null)
-                    <div class="d-flex">
-                        <i class="bi bi-pencil-square" id="surat_penggeledahan_3" name="surat_penggeledahan_3"></i>
+                <span>Surat Perintah Penggeledahan Rumah dan Tempat Tertutup Lainnya; (jika ada)</span>
+                @php
+                    $docSpDahRumah = $surat_sp_dah_rumah_doc ?? \App\Models\Doc\SuratPerintahPenggeledahanRumahDocument\SuratPerintahPenggeledahanRumahDocument::where('accident_id', $id)->first();
+                @endphp
+                @if (!$docSpDahRumah && ($surat_persetujuan_penggeledahan == null || (is_countable($surat_persetujuan_penggeledahan) && count($surat_persetujuan_penggeledahan) == 0)))
+                    <div class="d-flex align-items-center">
+                        <a href="{{ route('doc.surat-perintah-penggeledahan-rumah-document.create', ['accident_id' => $id]) }}" style="text-decoration: none; color: inherit;">
+                            <i class="bi bi-pencil-square" title="Buat Dokumen" style="cursor: pointer;"></i>
+                        </a>
                         <div class="form-check p-0 check" id="check_surat_persetujuan_penggeledahan">
                             <input class="form-check-input ms-2" type="checkbox" value="1">
                         </div>
+                    </div>
+                @elseif ($docSpDahRumah)
+                    <div class="d-flex flex-column align-items-end justify-content-center" style="gap: 2px;">
+                        <a href="{{ route('doc.surat-perintah-penggeledahan-rumah-document.download', ['id' => $docSpDahRumah->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UNDUH</a>
+                        <a href="{{ route('doc.surat-perintah-penggeledahan-rumah-document.edit', ['id' => $docSpDahRumah->id, 'accident_id' => $id]) }}"
+                            style="color: #000080; text-decoration: none; font-weight: bold; line-height: 1.2;">UBAH</a>
+                        <form action="{{ route('doc.surat-perintah-penggeledahan-rumah-document.delete', ['id' => $docSpDahRumah->id, 'accident_id' => $id]) }}"
+                            method="post" class="m-0 p-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                            @method('DELETE')
+                            @csrf
+                            <button type="submit"
+                                style="color: #000080; border: none; background: none; font-weight: bold; padding: 0; line-height: 1.2; cursor: pointer;">HAPUS</button>
+                        </form>
                     </div>
                 @else
                     {{-- <a href=# class="" id="surat_penggeledahan_3" name="surat_penggeledahan_3">Edit</a> --}}

@@ -19,8 +19,11 @@ class DocumentAccessMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-         // Get URL Parameter
-         $accidentId = htmlspecialchars(request()->query('accident_id'));
+         // Get URL Parameter or Request Input
+         $rawAccidentId = $request->query('accident_id') 
+             ?: ($request->input('accident_id') 
+             ?: ($request->route('accident_id') ?: null));
+         $accidentId = $rawAccidentId ? htmlspecialchars($rawAccidentId) : null;
 
          // Check if accident_id is exist
          if (!isset($accidentId) || empty($accidentId)) {

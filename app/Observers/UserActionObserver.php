@@ -34,9 +34,11 @@ class UserActionObserver
             $userId = Auth::id() ?? $this->user;
             $model->created_by_user_id = $userId;
 
-            $currentIpAddresses = $model->ip_addresses ?? [];
-            $currentIpAddresses['created_ip'] = request()->ip();
-            $model->ip_addresses = $currentIpAddresses;
+            if (array_key_exists('ip_addresses', $model->getCasts())) {
+                $currentIpAddresses = $model->ip_addresses ?? [];
+                $currentIpAddresses['created_ip'] = request()->ip();
+                $model->ip_addresses = $currentIpAddresses;
+            }
         }
     }
 
@@ -46,9 +48,11 @@ class UserActionObserver
             $userId = Auth::id() ?? $this->user;
             $model->updated_by_user_id = $userId;
 
-            $currentIpAddresses = $model->ip_addresses ?? [];
-            $currentIpAddresses['updated_ip'] = request()->ip();
-            $model->ip_addresses = $currentIpAddresses;
+            if (array_key_exists('ip_addresses', $model->getCasts())) {
+                $currentIpAddresses = $model->ip_addresses ?? [];
+                $currentIpAddresses['updated_ip'] = request()->ip();
+                $model->ip_addresses = $currentIpAddresses;
+            }
         }
     }
 
@@ -56,13 +60,22 @@ class UserActionObserver
     {
         if (Auth::check()) {
             $userId = Auth::id() ?? $this->user;
-            $model->deleted_by_user_id = $userId;
 
-            $currentIpAddresses = $model->ip_addresses ?? [];
-            $currentIpAddresses['deleted_ip'] = request()->ip();
-            $model->ip_addresses = $currentIpAddresses;
-            
-            $model->save(); // Menyimpan perubahan sebelum penghapusan
+            try {
+                if (Schema::hasColumn($model->getTable(), 'deleted_by_user_id')) {
+                    $model->deleted_by_user_id = $this->user;
+
+                    if (array_key_exists('ip_addresses', $model->getCasts())) {
+                        $currentIpAddresses = $model->ip_addresses ?? [];
+                        $currentIpAddresses['deleted_ip'] = request()->ip();
+                        $model->ip_addresses = $currentIpAddresses;
+                    }
+
+                    $model->save(); // Menyimpan perubahan sebelum penghapusan
+                }
+            } catch (\Throwable $e) {
+                // Abaikan jika kolom deleted_by_user_id tidak tersedia
+            }
         }
     }
 }

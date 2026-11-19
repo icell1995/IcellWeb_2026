@@ -242,4 +242,10 @@ class Officer extends Model
     {
         return $this->belongsTo(User::class, 'updated_by_user_id');
     }
+
+    public function getNrpAttribute()
+    {
+        $val = $this->attributes['nrp'] ?? ($this->attributes['register_number'] ?? ($this->attributes['id'] ?? ''));
+        return (string) $val;
+    }
 }

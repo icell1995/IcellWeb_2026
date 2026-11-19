@@ -147,6 +147,12 @@
                                 continue;
                             }
 
+                            // Sembunyikan Berita Acara Serah Terima Tersangka Dan Barang Bukti dari tabel ini (hanya di dropdown accordion penahanan)
+                            $isBaSerahTerimaDocument = is_a($accidentDocument, 'App\Models\Doc\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument')
+                                || ($accidentDocument->document_category_id ?? null) == '0602'
+                                || (($accidentDocument->documentCategory->id ?? null) == '0602');
+                            if ($isBaSerahTerimaDocument) {
+                                continue;
                             $baseRoute = $accidentDocument->base_route ?? ($accidentDocument->documentCategory->base_route ?? null);
                             if (empty($baseRoute)) {
                                 if ($accidentDocument instanceof \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument) {

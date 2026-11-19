@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $_title }}</title>
+    <title>{{ $_title ?? config('app.name', 'IRSMS') }}</title>
     <link rel="shortcut icon" href="{{ asset('images/logo2x.png') }}" />
 
     {{-- Bootsrap Icons --}}
@@ -134,6 +134,7 @@
     </div>
 
     @stack('script')
+    @stack('scripts')
 </body>
 
 </html>
