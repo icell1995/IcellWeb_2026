@@ -42,6 +42,12 @@
             </div>
         @endif
 
+        @if (session()->has('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <table class="table table-striped table-bordered table-users" id="dataTable" name="dataTable" width="100%">
             <thead>
@@ -59,6 +65,72 @@
             </thead>
 
             <tbody>
+                @php
+                    $lpItem = null;
+                    if (!empty($LaporanPolisi)) {
+                        $lpItem = is_array($LaporanPolisi) && count($LaporanPolisi) > 0 ? $LaporanPolisi[0] : (is_object($LaporanPolisi) ? $LaporanPolisi : null);
+                    }
+                @endphp
+
+                {{-- Baris Dokumen Laporan Polisi (LP) - Muncul jika dokumen sudah diupload --}}
+                @if($lpItem)
+                <tr>
+                    <td class="text-center align-middle fw-semibold">
+                        Laporan Polisi (LP)
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ $no_lp ?? '-' }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ !empty($lpItem->created_at) ? Carbon\Carbon::parse($lpItem->created_at)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </td>
+                    <td class="text-center align-middle">
+                        {{ !empty($accident_report_date ?? ($accident->report_date ?? null)) ? Carbon\Carbon::parse($accident_report_date ?? $accident->report_date)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </td>
+                    <td class="text-center align-middle">-</td>
+                    <td class="text-center align-middle">-</td>
+                    <td class="text-center align-middle">
+                        @php
+                            $lpCreator = !empty($lpItem->created_by) ? \App\Models\User::where('username', $lpItem->created_by)->orWhere('register_number', $lpItem->created_by)->first() : null;
+                        @endphp
+                        <div class="d-flex flex-column">
+                            @if($lpCreator)
+                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
+                                    {{ App\Helpers\PeopleNameHelper::getFullName($lpCreator->first_title, $lpCreator->first_name, $lpCreator->last_name, $lpCreator->last_title) }}
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
+                                    {{ $lpCreator->register_number ?? $lpCreator->username }}
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger btn-block text-bold mb-2" disabled>
+                                    {{ $lpCreator->rank->name ?? ($lpCreator->pangkat ?? '') }}
+                                </button>
+                            @elseif(!empty($lpItem->created_by))
+                                <button type="button" class="btn btn-sm btn-secondary btn-block text-bold mb-2" disabled>
+                                    {{ $lpItem->created_by }}
+                                </button>
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </td>
+                    <td class="text-center align-middle">
+                        <a target="_blank" href="{{ url('/laporan_polisi/' . $id) }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-eye"></i>
+                            <h6 class="" style="font-size: 14px!important;">
+                                View Dokumen
+                            </h6>
+                        </a>
+                    </td>
+                    <td class="text-center align-middle">
+                        @if (in_array(Auth::getUser()->role_id, [1, 3, 4, 5]) || $isCanEntryDocument == true)
+                            <button type="button" class="btn btn-warning btn-sm m-1" data-bs-toggle="modal" data-bs-target="#modalGantiLp">
+                                <i class="bi bi-pencil-square"></i> Ganti File
+                            </button>
+                        @endif
+                    </td>
+                </tr>
+                @endif
+
                 @if (!empty($accidentDocuments))
                     @foreach ($accidentDocuments as $accidentDocument)
                         @php
@@ -81,6 +153,15 @@
                                 || (($accidentDocument->documentCategory->id ?? null) == '0602');
                             if ($isBaSerahTerimaDocument) {
                                 continue;
+                            $baseRoute = $accidentDocument->base_route ?? ($accidentDocument->documentCategory->base_route ?? null);
+                            if (empty($baseRoute)) {
+                                if ($accidentDocument instanceof \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument) {
+                                    $baseRoute = 'doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document';
+                                } elseif ($accidentDocument instanceof \App\Models\Doc\Tahap1Document\Tahap1Document) {
+                                    $baseRoute = 'doc.tahap-1-document';
+                                } elseif ($accidentDocument instanceof \App\Models\Doc\Tahap2Document\Tahap2Document) {
+                                    $baseRoute = 'doc.tahap-2-document';
+                                }
                             }
                         @endphp
                         <tr class="{{ $isLegacy ? 'table-primary' : '' }}">
@@ -171,7 +252,7 @@
                                     </button>
                                 @else
                                     <a target="_blank"
-                                        href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.download', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                        href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.download', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                         class="btn btn-primary btn-lg">
                                         <i class="bi bi-printer"></i>
                                         
@@ -209,10 +290,10 @@
                                         @case('1')
 
                                             @if (in_array(Auth::getUser()->role_id, [4, 1]) || $isCanEntryDocument == true)
-                                                <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                                <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                     class="btn btn-warning btn-sm m-1"><i class="bi bi-pencil-square"></i> Edit</a>
                                                 <br>
-                                                <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                                <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                     class="btn btn-danger btn-sm m-1" data-method="delete"
                                                     data-token="{{ csrf_token() }}"
                                                     data-confirm="Apakah Anda yakin ingin menghapus ini?"><i
@@ -236,10 +317,10 @@
                                                 <br>
                                             @endif
 
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                 class="btn btn-warning btn-sm m-1"><i class="bi bi-pencil-square"></i> Edit</a>
                                             <br>
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                 class="btn btn-danger btn-sm m-1" data-method="delete"
                                                 data-token="{{ csrf_token() }}"
                                                 data-confirm="Apakah Anda yakin ingin menghapus ini?"><i
@@ -272,10 +353,10 @@
                                                 <br>
                                             @endif
 
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.edit', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                 class="btn btn-warning btn-sm m-1"><i class="fa fa-edit"></i> Revisi</a>
                                             <br>
-                                            <a href="@if ($isExistsDocumentCategory) {{ route($accidentDocument->documentCategory->base_route . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @endif"
+                                            <a href="@if ($isExistsDocumentCategory && !empty($baseRoute)) {{ route($baseRoute . '.delete', ['id' => $accidentDocument->id, 'accident_id' => $id, 'document_category_id' => $accidentDocument->documentCategory->id]) }} @else # @endif"
                                                 class="btn btn-danger btn-sm m-1" data-method="delete"
                                                 data-token="{{ csrf_token() }}"
                                                 data-confirm="Apakah Anda yakin ingin menghapus ini?"><i
@@ -381,14 +462,14 @@
                                 @endif
 
                                 @if(!$isSp2hpDocument && in_array($accidentDocument->document_category_id, ['0601', '0603', '0604', '0605', '0903']))
-                                    <a href="{{ route(($accidentDocument->documentCategory->base_route ?? 'doc.surat-perintah-penahanan-document') . '.show', ['id' => $accidentDocument->id, 'accident_id' => $id]) }}"
+                                    <a href="{{ route(($baseRoute ?? 'doc.surat-perintah-penahanan-document') . '.show', ['id' => $accidentDocument->id, 'accident_id' => $id]) }}"
                                         class="btn btn-info btn-sm m-1 text-white" target="_blank">
                                         <i class="bi bi-eye"></i> Detail / JSON
                                     </a>
                                     <br>
                                 @endif
-
                                 @if (Auth::getUser()->role_id == 1)
+                                    <br>
                                     <button type="button" data-document-id="{{$accidentDocument->id}}"
                                             class="btn btn-primary btn-sm m-1 copy-document-id"><i class="bi bi-clipboard"></i>
                                             Copy ID
@@ -455,6 +536,51 @@
                     </button>
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                         {{ __('Batal') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Upload / Ganti File Laporan Polisi (LP) --}}
+<div class="modal fade" id="modalGantiLp" tabindex="-1" aria-labelledby="modalGantiLpLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalGantiLpLabel">
+                    <i class="bi bi-file-earmark-pdf text-danger me-2"></i>
+                    {{ $lpItem ? 'Ganti Dokumen Laporan Polisi (LP)' : 'Upload Dokumen Laporan Polisi (LP)' }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('file.upload.post') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" name="form_id" value="laporan_polisi">
+                <input type="hidden" name="accident_id" value="{{ $id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nomor LP</label>
+                        <input type="text" class="form-control" value="{{ $no_lp ?? '-' }}" readonly>
+                    </div>
+                    @if($lpItem)
+                        <div class="alert alert-info py-2 small mb-3">
+                            <i class="bi bi-info-circle me-1"></i> Berkas LP saat ini: <strong>{{ $lpItem->name }}</strong>.<br>
+                            Mengunggah berkas baru akan menggantikan berkas LP yang lama.
+                        </div>
+                    @endif
+                    <div class="mb-3">
+                        <label for="lp_file_input" class="form-label fw-bold">File Dokumen LP (PDF) <span class="text-danger">*</span></label>
+                        <div class="text-muted small mb-2">
+                            Silakan upload dokumen Laporan Polisi (LP) yang di-download dari IRSMS dan sudah ditandatangani. (Format berkas <strong>.PDF</strong>, maks. 30 MB)
+                        </div>
+                        <input type="file" class="form-control" id="lp_file_input" name="file" accept="application/pdf" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-dark-blue">
+                        <i class="bi bi-cloud-arrow-up me-1"></i> {{ $lpItem ? 'Simpan Perubahan' : 'Upload Berkas' }}
                     </button>
                 </div>
             </form>
@@ -593,5 +719,19 @@
                 }
             });
         });
+
+        @if (session()->has('error'))
+            @php
+                $isDeleteRestriction = str_contains(session('error'), 'tidak dapat dihapus');
+                $isParentMissing = str_contains(session('error'), 'tidak ditemukan atau telah dihapus');
+            @endphp
+            Swal.fire({
+                icon: 'warning',
+                title: '{{ $isDeleteRestriction ? "Dokumen Tidak Dapat Dihapus" : ($isParentMissing ? "Perlu Pembaruan Dokumen Induk" : "Perhatian") }}',
+                text: {!! json_encode(session('error')) !!},
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Saya Mengerti'
+            });
+        @endif
     </script>
 @endpush

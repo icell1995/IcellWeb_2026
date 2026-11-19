@@ -76,12 +76,12 @@
                                     </td>
 
                                     <td class="text-center align-middle">
-                                        @if($user_polres_id == $case['polres_id'] || in_array($user_role_id, [1]))
+                                        {{-- @if($user_polres_id == $case['polres_id'] || in_array($user_role_id, [1])) --}}
                                             <a href="{{ route('case.show', ['id' => $case['id']]) }}"
                                                 class="btn btn-primary">
                                                 <i class="bi bi-eye bi-lg"></i> Tindak Lanjut
                                             </a>
-                                        @endif
+                                        {{-- @endif --}}
                                     </td>
                                 </tr>
                             @endforeach

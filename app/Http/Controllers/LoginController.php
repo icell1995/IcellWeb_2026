@@ -43,7 +43,7 @@ class LoginController extends Controller
         }
 
         // dd(Auth::check());
-        return view('auth.login');
+        return view('Auth.login');
     }
 
     public function myCaptcha()

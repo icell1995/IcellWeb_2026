@@ -604,7 +604,19 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
             'prosecutor.regency',
             'court',
             'suratPerintahTugasDocument.suratPerintahTugasDocumentOfficers'
-        ])->where('id', $id)->firstOrFail();
+        ])->where('id', $id)->first();
+
+        if (!$suratPemberitahuanDimulainyaPenyidikanDocument) {
+            $legacyDoc = \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument::find($id);
+            if ($legacyDoc) {
+                return redirect()->route('doc.surat-pemberitahuan-dimulainya-penyidikan-document.download', [
+                    'id' => $id,
+                    'accident_id' => request()->query('accident_id'),
+                    'document_category_id' => request()->query('document_category_id', '0204'),
+                ]);
+            }
+            abort(404, 'Dokumen Surat Pemberitahuan Dimulainya Penyidikan tidak ditemukan.');
+        }
 
         $accidentId = $suratPemberitahuanDimulainyaPenyidikanDocument->accident_id;
         $isSuspectExist = $suratPemberitahuanDimulainyaPenyidikanDocument->is_suspect_exists;
@@ -626,25 +638,52 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
             ->merge(public_path('images/logo2x.png'), .2, true)
             ->generate('https://dokumen-tte.bareskrim.polri.go.id/DocumentInfo/Icell?id=' . $suratPemberitahuanDimulainyaPenyidikanDocument->id, $tempQrCodePath);
 
-        $signatureTitleText = [
-            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . $accident->polres->polda->full_name,
-        ];
+        $signatoryPositionId = $signatory ? (is_array($signatory->position) ? ($signatory->position['id'] ?? null) : $signatory->position_id) : null;
+        $signatoryPositionDetail = $signatoryPositionId
+            ? \App\Models\Lib\Position::with('positionCluster')->find($signatoryPositionId)
+            : null;
 
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/surat_pemberitahuan_dimulainya_penyidikan_2026.docx');
-
-        $signatoryPosition = $signatory->position()->first();
-        $signatoryHeadText = 'a.n. <BR/>';
-        if (!empty($signatoryPosition)) {
-            if ($signatoryPosition->position_cluster_id == '1') {
-                $signatoryHeadText = $signatureTitleText['KAPOLRES'];
-            } else if ($signatoryPosition->position_cluster_id == '9') {
-                $signatoryHeadText = $signatureTitleText['NO_DIRLANTAS'];
+        $polresFullName = $accident->polres->full_name ?? '';
+        $poldaFullName  = $accident->polres->polda->full_name ?? '';
+        $signatoryHeadText     = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+        $signatoryPositionName = '';
+        if ($signatoryPositionDetail) {
+            if ($signatoryPositionDetail->position_cluster_id == '1') {
+                $signatoryHeadText     = 'KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = '';
+            } elseif ($signatoryPositionDetail->position_cluster_id == '9') {
+                $signatoryHeadText     = 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName;
+                $signatoryPositionName = $signatoryPositionDetail->positionCluster->alias_name ?? $signatoryPositionDetail->name;
             } else {
-                $signatoryHeadText = $signatureTitleText['NO_KAPOLRES'];
+                $signatoryPositionName = $signatoryPositionDetail->positionCluster->alias_name ?? $signatoryPositionDetail->name;
             }
         }
+        if (!$signatoryPositionName && $signatoryPositionDetail && $signatoryPositionDetail->position_cluster_id != '1') {
+            $signatoryPositionName = 'KASAT LANTAS';
+        }
+
+
+        $hasParty = ($isSuspectExist && $suspects->isNotEmpty()) || (!$isSuspectExist && $reportedPersons->isNotEmpty());
+
+        if ($hasParty) {
+            $templateName = 'surat_pemberitahuan_dimulainya_penyidikan_2026.docx';
+            // Cek apakah ada file temp_spdp_2026.docx yang sudah disinkronkan saat file utama terkunci oleh Word
+            if (file_exists(public_path('word-template/temp_spdp_2026.docx'))) {
+                if (@copy(public_path('word-template/temp_spdp_2026.docx'), public_path('word-template/surat_pemberitahuan_dimulainya_penyidikan_2026.docx'))) {
+                    @unlink(public_path('word-template/temp_spdp_2026.docx'));
+                } else {
+                    $templateName = 'temp_spdp_2026.docx';
+                }
+            }
+        } else {
+            $templateName = 'surat_pemberitahuan_dimulainya_penyidikan_tanpa_tersangka_2026.docx';
+        }
+
+        $templatePath = public_path('word-template/' . $templateName);
+        if (!file_exists($templatePath)) {
+            $templatePath = base_path('public/word-template/' . $templateName);
+        }
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
 
         $documentDate = \Carbon\Carbon::parse($suratPemberitahuanDimulainyaPenyidikanDocument->document_date)->locale('id')->translatedFormat('d F Y');
         $documentNumber = $suratPemberitahuanDimulainyaPenyidikanDocument->document_number;
@@ -655,6 +694,49 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
         $accidentNumber = $accident->no_lp;
         $accidentDate = \Carbon\Carbon::parse($accident->accident_date)->locale('id')->translatedFormat('d F Y');
 
+        // LP Model A / B party clause logic (untuk SPDP Tanpa Tersangka / Poin 2)
+        $pelaporKorbanText = '';
+        $isLpModelA = str_contains(strtoupper($accidentNumber), '/A/') || str_contains(strtoupper($accidentNumber), '-A/');
+
+        if ($isLpModelA) {
+            // LP Model A: Penyidik/petugas polri yang menjadi pelapor
+            $officerRank = $accident->rank_id ? trim($accident->rank_id) . ' ' : '';
+            $officerName = trim(($accident->officer_first_name ?? '') . ' ' . ($accident->officer_last_name ?? ''));
+            $officerFullName = trim($officerRank . $officerName);
+            if (!empty($officerFullName)) {
+                $pelaporKorbanText = ' atas nama pelapor ' . $officerFullName;
+            }
+        } else {
+            // LP Model B: Pelapor masyarakat atau Korban
+            $victimName = null;
+            if ($accident->dors_id) {
+                $victim = \App\Models\Stg\DorsVictim::where('dors_id', $accident->dors_id)
+                    ->whereIn('status_korban', ['MD', 'LB', 'LR'])
+                    ->first();
+                if ($victim && !empty($victim->nama)) {
+                    $victimName = trim($victim->nama);
+                }
+            }
+
+            if (!$victimName && $accident->involvedPeoples) {
+                $invVictim = $accident->involvedPeoples
+                    ->whereIn('class', ['DRIVER', 'PASSENGER', 'PEDESTRIAN'])
+                    ->first();
+                if ($invVictim && !empty($invVictim->name)) {
+                    $victimName = trim($invVictim->name);
+                }
+            }
+
+            if ($victimName) {
+                $pelaporKorbanText = ' atas nama korban ' . $victimName;
+            } else {
+                $reporter = \App\Models\ReportingPerson::where('accident_id', $accidentId)->first();
+                if ($reporter && !empty($reporter->name)) {
+                    $pelaporKorbanText = ' atas nama pelapor ' . trim($reporter->name);
+                }
+            }
+        }
+
         $prosecutor = $suratPemberitahuanDimulainyaPenyidikanDocument->prosecutor;
         $prosecutorName = $prosecutor->name ?? $prosecutor->full_name ?? '';
         $prosecutorLocation = ucwords(strtolower($prosecutor->regency->name ?? ''));
@@ -662,34 +744,92 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
         $court = $suratPemberitahuanDimulainyaPenyidikanDocument->court;
         $courtName = $court->name ?? '';
 
-        // Suspect logic
-        $suspect = $isSuspectExist ? $suspects->first() : $reportedPersons->first();
-        $suspectProperties = $suspect ? $suspect->properties : null;
-        
+        // Suspect / Reported person logic (Tersangka vs Terlapor)
+        $isSuspect = $isSuspectExist && $suspects->isNotEmpty();
+        $partyTypeLabel = $isSuspect ? 'tersangka' : 'terlapor';
+        $partyTypeLabelTitle = ucfirst($partyTypeLabel);
+        $partyTypeLabelUpper = strtoupper($partyTypeLabel);
+
+        $suspect = $isSuspect ? $suspects->first() : $reportedPersons->first();
+        if ($suspect) {
+            $relationsToLoad = [
+                'gender', 'religion', 'job', 'country',
+                'village', 'district', 'regency', 'province'
+            ];
+            if (method_exists($suspect, 'nationality')) {
+                $relationsToLoad[] = 'nationality';
+            }
+            if (method_exists($suspect, 'suratKetetapanTentangPenetapanTersangkaDocument')) {
+                $relationsToLoad[] = 'suratKetetapanTentangPenetapanTersangkaDocument';
+            }
+            $suspect->loadMissing($relationsToLoad);
+        }
+
+        $suspectProperties = $suspect ? ($suspect->properties ?? []) : [];
+        $isUnknownBirthPlace = ($suspectProperties['is_unknown_birth_place'] ?? false) || ($suspect->is_unknown_birth_place ?? false);
+        $isUnknownBirthDate  = ($suspectProperties['is_unknown_birth_date'] ?? false) || ($suspect->is_unknown_birth_date ?? false);
+        $isUnknownGender     = ($suspectProperties['is_unknown_gender'] ?? false) || ($suspect->is_unknown_gender ?? false);
+        $isUnknownAddress    = ($suspectProperties['is_unknown_address'] ?? false) || ($suspect->is_unknown_address ?? false);
+
         $suspectName = $suspect ? $suspect->name : '-';
-        $suspectIdentityNo = $suspect ? $suspect->identity_number : '-';
-        $suspectBirthPlace = (isset($suspect->birth_place)) ? (($suspectProperties['is_unknown_birth_place'] ?? false) ? 'TIDAK DIKETAHUI' : ucwords(strtolower($suspect->birth_place)) ) : '-';
-        $suspectBirthDate = (isset($suspect->birth_date)) ? (($suspectProperties['is_unknown_birth_date'] ?? false) ? 'TIDAK DIKETAHUI' : \Carbon\Carbon::parse($suspect->birth_date)->locale('id')->translatedFormat('d F Y')) : '-';
-        $suspectGender = (isset($suspect->gender->name)) ? (($suspectProperties['is_unknown_gender'] ?? false) ? 'TIDAK DIKETAHUI' : ucwords(strtolower($suspect->gender->name)) ) : '-';
-        $suspectNationality = $suspect->nationality->name ?? $suspect->nationality ?? '-';
-        $suspectReligion = (isset($suspect->religion->name)) ? ucwords(strtolower($suspect->religion->name)) : '-';
-        $suspectJob = (isset($suspect->job->name)) ? ucwords(strtolower($suspect->job->name)) : '-';
-        
+        $suspectIdentityNo = $suspect ? ($suspect->identity_number ?? '-') : '-';
+
+        $suspectBirthPlace = '-';
+        if ($suspect && !empty($suspect->birth_place)) {
+            $suspectBirthPlace = $isUnknownBirthPlace ? 'TIDAK DIKETAHUI' : ucwords(strtolower($suspect->birth_place));
+        } elseif ($isUnknownBirthPlace) {
+            $suspectBirthPlace = 'TIDAK DIKETAHUI';
+        }
+
+        $suspectBirthDate = '-';
+        if ($suspect && !empty($suspect->birth_date)) {
+            $suspectBirthDate = $isUnknownBirthDate ? 'TIDAK DIKETAHUI' : \Carbon\Carbon::parse($suspect->birth_date)->locale('id')->translatedFormat('d F Y');
+        } elseif ($isUnknownBirthDate) {
+            $suspectBirthDate = 'TIDAK DIKETAHUI';
+        }
+
+        $suspectGender = '-';
+        if ($suspect && isset($suspect->gender->name)) {
+            $suspectGender = $isUnknownGender ? 'TIDAK DIKETAHUI' : ucwords(strtolower($suspect->gender->name));
+        } elseif ($isUnknownGender) {
+            $suspectGender = 'TIDAK DIKETAHUI';
+        }
+
+        $suspectNationality = 'Indonesia';
+        if ($suspect) {
+            if (method_exists($suspect, 'nationality') && is_object($suspect->nationality)) {
+                $suspectNationality = $suspect->nationality->name ?? 'Indonesia';
+            } elseif (!empty($suspect->nationality) && !is_object($suspect->nationality)) {
+                $suspectNationality = $suspect->nationality;
+            } elseif ($suspect->country) {
+                $rawCountry = $suspect->country->name ?? 'Indonesia';
+                $suspectNationality = stripos($rawCountry, 'indone') !== false ? 'Indonesia' : ucwords(strtolower($rawCountry));
+            } else {
+                $suspectNationality = 'Indonesia';
+            }
+        }
+
+        $suspectReligion = ($suspect && isset($suspect->religion->name)) ? ucwords(strtolower($suspect->religion->name)) : '-';
+        $suspectJob = ($suspect && isset($suspect->job->name)) ? ucwords(strtolower($suspect->job->name)) : '-';
+
         $suspectFullAddress = '-';
         if ($suspect) {
-            if ($suspectProperties['is_unknown_address'] ?? false) {
+            if ($isUnknownAddress) {
                 $suspectFullAddress = 'TIDAK DIKETAHUI';
             } else {
                 $village = $suspect->village->name ?? '';
                 $district = $suspect->district->name ?? '';
                 $regency = $suspect->regency->name ?? '';
                 $province = $suspect->province->name ?? '';
-                $suspectFullAddress = ucwords(strtolower(trim($suspect->address . ', ' . $village . ', ' . $district . ', ' . $regency . ', ' . $province, ', ')));
+                $addrParts = array_filter([$suspect->address, $village, $district, $regency, $province]);
+                $suspectFullAddress = !empty($addrParts) ? ucwords(strtolower(implode(', ', $addrParts))) : '-';
             }
         }
 
         // SKPPT (Surat Ketetapan tentang Penetapan Tersangka)
-        $skppt = $isSuspectExist && $suspect ? $suspect->suratKetetapanTentangPenetapanTersangkaDocument->first() : null;
+        $skppt = $isSuspectExist && $suspect && method_exists($suspect, 'suratKetetapanTentangPenetapanTersangkaDocument')
+            ? $suspect->suratKetetapanTentangPenetapanTersangkaDocument->first()
+            : null;
         $skpptNumber = $skppt ? $skppt->document_number : '-';
         $skpptDate = $skppt ? \Carbon\Carbon::parse($skppt->document_date)->locale('id')->translatedFormat('d F Y') : '-';
 
@@ -735,10 +875,17 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
         $resorPolice = $accident->polres;
         $resorPoliceAddress = $resorPolice ? ($resorPolice->address . ', ' . $resorPolice->polres_zipcode) : '';
         $resorPoliceFullName = $resorPolice ? ((in_array($resorPolice->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice->full_name)) : '';
-        $documentLocation = ucwords(strtolower($resorPolice->polres_province ?? ''));
+        $documentLocation = ucwords(strtolower($resorPolice->polres_regency ?? ($resorPolice->name ?? '')));
 
-        $signatoryName = \App\Helpers\PeopleNameHelper::getFullName($signatory->first_title ?? '', $signatory->first_name ?? '', $signatory->last_name ?? '', $signatory->last_title ?? '');
-        $signatoryRankName = $signatory->rank->full_name ?? '';
+        $signatoryName = trim(implode(' ', array_filter([
+            $signatory->first_title ?? '',
+            $signatory->first_name ?? '',
+            $signatory->last_name ?? '',
+            $signatory->last_title ?? ''
+        ])));
+        $signatoryName = $signatoryName ?: '-';
+        $signatoryRank = $signatory->rank ?? ($signatory->rank_id ? \App\Models\Lib\Rank::find($signatory->rank_id) : null);
+        $signatoryRankName = $signatoryRank->full_name ?? ($signatoryRank->name ?? '');
         $signatoryRegisterNumber = $signatory->register_number ?? '';
 
         $carbonCopies = $suratPemberitahuanDimulainyaPenyidikanDocument->carbon_copies ?? [];
@@ -775,6 +922,10 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
             'SuratPerintahPenyidikanMonth' => $sprindikMonth,
             'SuratPerintahPenyidikanYear' => $sprindikYear,
             'SuratPerintahPenyidikanLawsDocument' => $crimeConstitutionText,
+            'pelaporKorbanText' => $pelaporKorbanText,
+            'partyTypeLabel' => $partyTypeLabel,
+            'partyTypeLabelTitle' => $partyTypeLabelTitle,
+            'partyTypeLabelUpper' => $partyTypeLabelUpper,
             'suspectName' => $suspectName,
             'suspectIdentityNo' => $suspectIdentityNo,
             'suspectBirthPlace' => $suspectBirthPlace,
@@ -788,7 +939,9 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
             'KetuaTimPenyidikPhoneNumber' => $ketuaTimPhone,
             'courtName' => $courtName,
             'signatoryHeadText' => $signatoryHeadText,
-            'signatoryName' => $signatoryName,
+            'signatoryPositionName' => $signatoryPositionName,
+            'signatoryPositionHeadText' => $signatoryPositionName,
+            'signatoryName' => strtoupper($signatoryName),
             'signatoryRankName' => strtoupper($signatoryRankName),
             'signatoryRegisterNumber' => $signatoryRegisterNumber,
             'SuratPerintahTugasPenyidikanNumber' => $sptNumber,
@@ -816,7 +969,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
             return response()->json([
                 'code'    => '422',
                 'success' => false,
-                'errors'  => $validator->errors()->all(),
+                'errors'  => $validator->errors(),
             ], 422);
         }
 

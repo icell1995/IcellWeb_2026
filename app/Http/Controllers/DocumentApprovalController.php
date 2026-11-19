@@ -13,14 +13,29 @@ use App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument;
+use App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument;
+use App\Models\BeritaAcaraPenahanan;
 use App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument;
 use App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument;
 use App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument;
 use App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocument;
+use App\Models\Doc\SuratPerintahPencabutanPenangguhanPenahananDocument\SuratPerintahPencabutanPenangguhanPenahananDocument;
+use App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument;
+use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument;
+use App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument;
+use App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument;
 use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
 use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument as SpdpPusiknasDocument;
 use App\Models\Doc\Tahap1Document\Tahap1Document;
 use App\Models\Doc\Tahap2Document\Tahap2Document;
+use App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratPerintahPenghentianPenyelidikanDocument\SuratPerintahPenghentianPenyelidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument;
+use App\Models\Doc\BeritaAcaraPenahananDocument\BeritaAcaraPenahananDocument;
+use App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument;
+use App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument;
 
 use App\Traits\DocsOfficersTraits;
 use App\Services\Kafka\KafkaService;
@@ -173,23 +188,37 @@ class DocumentApprovalController extends Controller
                 }
 
                 if(filter_var($isApproved, FILTER_VALIDATE_BOOLEAN) == true){
-                    if(in_array($documentCategoryId, ['0101', '0201', '0702', '0706', '0601', '0603'])){
+                    if(in_array($documentCategoryId, [
+                        '0101', '0112', '0113', '0201', '0211', '0212', '0213', '0215',
+                        '0205', '0206', '0216', // Penghentian Penyidikan (Sprint, Sket, Pemberitahuan)
+                        '0404', '0405',
+                        '0601', '0603', '0604', '0605', '0606', '0607', '0608', '0609',
+                        '0702', '0706',
+                        '0805', '0806', '0807', // Berkas Perkara Tahap I & Tahap II
+                    ])){
                         $document->status_id = '86';
                     }else{
                         $document->status_id = '11';
                     }
+                    $document->released_at = now();
 
                     $document->timestamps = [
                         'uploaded_at' => now()
                     ];
                 }else{
-                    $document->status_id = '4';
-                    $document->messages = [
-                        'reason_approval_rejected' => $message,
-                    ];
-                    $document->timestamps = [
-                        'rejected_at' => now(),
-                    ];
+                    if ($document->documentCategory && $document->documentCategory->is_digital_signature == true) {
+                        $document->status_id = '6';
+                    } else {
+                        $document->status_id = '5';
+                    }
+
+                    $currentMessages = is_array($document->getAttribute('messages')) ? $document->getAttribute('messages') : (json_decode($document->getAttribute('messages'), true) ?: []);
+                    $currentMessages['reason_approval_file_rejected'] = $message;
+                    $document->messages = $currentMessages;
+
+                    $currentTimestamps = is_array($document->getAttribute('timestamps')) ? $document->getAttribute('timestamps') : (json_decode($document->getAttribute('timestamps'), true) ?: []);
+                    $currentTimestamps['rejected_at'] = now();
+                    $document->timestamps = $currentTimestamps;
                 }
 
                 $document->save();
@@ -241,14 +270,28 @@ class DocumentApprovalController extends Controller
             LaporanHasilGelarPerkaraDocument::class,
             SuratKetetapanTentangPenetapanTersangkaDocument::class,
             SuratPemberitahuanDimulainyaPenyidikanDocument::class,
+            SuratPermohonanPenetapanDiversiDocument::class,
+            SuratPemberitahuanUpayaDiversiDocument::class,
+            BeritaAcaraPenahanan::class,
             SuratPermintaanPenggeledahanDocument::class,
             SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
             SuratPerintahPenahananDocument::class,
             SuratPerintahPenangguhanPenahananDocument::class,
+            SuratPerintahPencabutanPenangguhanPenahananDocument::class,
+            SuratPerintahPenghentianPenyelidikanDocument::class,
+            SuratKetetapanPenghentianPenyelidikanDocument::class,
+            SuratPerintahPenghentianPenyidikanDocument::class,
+            SuratKetetapanPenghentianPenyidikanDocument::class,
+            SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
+            SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
+            SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
+            SuratPerintahPembantaranPenahananDocument::class,
             SuratPemberitahuanPenghentianPenyidikanDocument::class,
             SpdpPusiknasDocument::class,
             Tahap1Document::class,
             Tahap2Document::class,
+            SuratPermintaanIzinPenyitaanDocument::class,
+            SuratLaporanPersetujuanPenyitaanDocument::class,
         ];
 
         $documentsCollection = Collection::make();
@@ -274,20 +317,36 @@ class DocumentApprovalController extends Controller
     {
         $documentModels = [
             '0101' => SuratPerintahPenyelidikanDocument::class,
+            '0112' => SuratKetetapanPenghentianPenyelidikanDocument::class,
+            '0113' => SuratPerintahPenghentianPenyelidikanDocument::class,
             '0201' => SuratPerintahPenyidikanDocument::class,
             '0204' => [
                 SuratPemberitahuanDimulainyaPenyidikanDocument::class,
                 \App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class
             ],
+            '0205' => SuratPerintahPenghentianPenyidikanDocument::class,
+            '0206' => SuratKetetapanPenghentianPenyidikanDocument::class,
+            '0211' => SuratPemberitahuanUpayaDiversiDocument::class,
+            '0212' => SuratPermohonanPenetapanDiversiDocument::class,
             '0215' => SuratKetetapanTentangPenetapanTersangkaDocument::class,
+            '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
             '0404' => SuratPermintaanPenggeledahanDocument::class,
             '0405' => SuratGunaMemperolehPersetujuanPenggeledahanDocument::class,
-            '0702' => SuratPerintahTugasDocument::class,
-            '0706' => LaporanHasilGelarPerkaraDocument::class,
+            '0504' => SuratPermintaanIzinPenyitaanDocument::class,
+            '0505' => SuratLaporanPersetujuanPenyitaanDocument::class,
             '0601' => SuratPerintahPenahananDocument::class,
             '0603' => SuratPerintahPenangguhanPenahananDocument::class,
-            // Add more document types here
-            '0216' => SuratPemberitahuanPenghentianPenyidikanDocument::class,
+            '0604' => SuratPerintahPencabutanPenangguhanPenahananDocument::class,
+            '0605' => SuratPermohonanPerpanjanganPenahananKejaksaanDocument::class,
+            '0606' => SuratPermintaanPerpanjanganPenahananLanjutanDocument::class,
+            '0607' => SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument::class,
+            '0608' => SuratPerintahPembantaranPenahananDocument::class,
+            '0609' => [
+                BeritaAcaraPenahanan::class,
+                BeritaAcaraPenahananDocument::class,
+            ],
+            '0702' => SuratPerintahTugasDocument::class,
+            '0706' => LaporanHasilGelarPerkaraDocument::class,
             '0805' => Tahap1Document::class,
             '0806' => Tahap1Document::class,
             '0807' => Tahap2Document::class,

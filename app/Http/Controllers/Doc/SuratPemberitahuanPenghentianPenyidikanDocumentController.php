@@ -22,6 +22,10 @@ use App\Models\Lib\Ref;
 use App\Models\Lib\DocumentClassification;
 use App\Models\Opt\Status;
 
+use App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument;
+use App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument;
+use App\Models\Lib\Prosecutor;
+use App\Models\Lib\Court;
 use App\Traits\DocsOfficersTraits;
 
 /**
@@ -88,9 +92,6 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
             
         $documentClassifications = DocumentClassification::where('group', 'SURAT_PEMBERITAHUAN_DIMULAINYA_PENYIDIKAN')
             ->where('is_active', true)->orderBy('sort')->get();
-            
-        $documentClassifications = DocumentClassification::where('group', 'SURAT_PEMBERITAHUAN_DIMULAINYA_PENYIDIKAN')
-            ->where('is_active', true)->orderBy('sort')->get();
 
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
         $authorizedSignatories = Officer::withRelated()
@@ -103,14 +104,38 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
 
         $masterAlasan = self::$masterAlasan;
 
+        $sprintHentiDocuments = SuratPerintahPenghentianPenyidikanDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')->get();
+
+        $sketHentiDocuments = SuratKetetapanPenghentianPenyidikanDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')->get();
+
+        $prosecutors = Prosecutor::where('is_active', true)->orderBy('name')->get();
+        $courts      = Court::where('is_active', true)->orderBy('name')->get();
+
+        $latestSketHenti     = $sketHentiDocuments->first();
+        $defaultProsecutorId = $latestSketHenti ? $latestSketHenti->prosecutor_id : null;
+        $defaultCourtId      = $latestSketHenti ? $latestSketHenti->court_id : null;
+        if (!$defaultProsecutorId && $spdpDocuments->isNotEmpty()) {
+            $defaultProsecutorId = $spdpDocuments->first()->prosecutor_id;
+        }
+
         return view('docs.surat-pemberitahuan-penghentian-penyidikan-document.create', compact(
             'accidentId',
             'accident',
             'spdpDocuments',
+            'sprintHentiDocuments',
+            'sketHentiDocuments',
             'suspects',
             'documentClassifications',
             'authorizedSignatories',
-            'masterAlasan'
+            'masterAlasan',
+            'prosecutors',
+            'courts',
+            'defaultProsecutorId',
+            'defaultCourtId'
         ));
     }
 
@@ -141,17 +166,11 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         }
 
         // konten_dokumen
-        $kodeAlasan  = $request->kode_alasan ?? [];   // array of int
-        $signatoryId = htmlspecialchars($request->signatory);
-        $suspects    = $request->suspects ?? [];
-
-        // file upload
-        $fileName = null;
-        if ($request->hasFile('dokumen_digital')) {
-            $file = $request->file('dokumen_digital');
-            $fileName = time() . '_sp3_' . str_replace(' ', '_', $file->getClientOriginalName());
-            $file->move(public_path('documents/attachments/'), $fileName);
-        }
+        $kodeAlasan   = $request->kode_alasan ?? [];   // array of int
+        $signatoryId  = htmlspecialchars($request->signatory);
+        $suspects     = $request->suspects ?? [];
+        $prosecutorId = htmlspecialchars($request->prosecutor_id ?? '');
+        $courtId      = htmlspecialchars($request->court_id ?? '');
 
         $klasifikasi = htmlspecialchars($request->klasifikasi ?? '');
         $noSkPenghentian = htmlspecialchars($request->noSkPenghentian ?? '');
@@ -159,9 +178,7 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         $noSpPenghentian = htmlspecialchars($request->noSpPenghentian ?? '');
         $tanggalSpPenghentian = htmlspecialchars($request->tanggalSpPenghentian ?? '');
         $carbonCopies = $request->carbonCopies ?? [];
-        $appendix = $request->lampiran ?? 0;
-
-
+        $appendix = $request->appendix ?? $request->lampiran ?? 0;
 
         // Cek duplikat
         $exists = SuratPemberitahuanPenghentianPenyidikanDocument::where('accident_id', $accidentId)->where('document_number', 'ILIKE', $noSp3)->exists();
@@ -172,26 +189,26 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         DB::beginTransaction();
         try {
             // Simpan ke tabel sp3
-            // Field kode_alasan disimpan sebagai JSON di kolom alasan
             $sp3 = SuratPemberitahuanPenghentianPenyidikanDocument::create([
-                'accident_id'               => $accidentId,
-                'document_number'           => $noSp3,
-                'document_date'             => $tanggalSp3,
-                'document_classification_id'=> $klasifikasi,
-                'no_spdp'                   => $noSpdp,
-                'no_sk_penghentian'         => $noSkPenghentian,
-                'tanggal_sk_penghentian'    => $tanggalSkPenghentian,
-                'no_sp_penghentian'         => $noSpPenghentian,
-                'tanggal_sp_penghentian'    => $tanggalSpPenghentian,
-                'kode_alasan'               => json_encode(array_map('intval', $kodeAlasan)),
-                'suspect_ids'               => json_encode($suspects),
-                'carbon_copies'             => $carbonCopies,
-                'appendix'                  => $appendix,
-                'messages'                  => [
+                'accident_id'                => $accidentId,
+                'document_number'            => $noSp3,
+                'document_date'              => $tanggalSp3,
+                'document_classification_id' => $klasifikasi,
+                'prosecutor_id'              => $prosecutorId ?: null,
+                'court_id'                   => $courtId ?: null,
+                'no_spdp'                    => $noSpdp,
+                'no_sk_penghentian'          => $noSkPenghentian,
+                'tanggal_sk_penghentian'     => $tanggalSkPenghentian,
+                'no_sp_penghentian'          => $noSpPenghentian,
+                'tanggal_sp_penghentian'     => $tanggalSpPenghentian,
+                'kode_alasan'                => json_encode(array_map('intval', $kodeAlasan)),
+                'suspect_ids'                => json_encode($suspects),
+                'carbon_copies'              => $carbonCopies,
+                'appendix'                   => $appendix,
+                'messages'                   => [
                     'signatory_id'     => $signatoryId,
                     'sumber'           => 'PUSIKNAS_FORM',
                     'kode_alasan_raw'  => $kodeAlasan,
-                    'file_name'        => $fileName,
                 ],
             ]);
 
@@ -237,7 +254,7 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
     public function show($id)
     {
         $accidentId  = htmlspecialchars(request()->query('accident_id'));
-        $sp3         = SuratPemberitahuanPenghentianPenyidikanDocument::with(['accident', 'accident.polres', 'accident.polres.polda', 'accident.suspects'])->where('id', $id)->firstOrFail();
+        $sp3         = SuratPemberitahuanPenghentianPenyidikanDocument::with(['accident', 'accident.polres', 'accident.polres.polda', 'accident.suspects', 'prosecutor', 'court'])->where('id', $id)->firstOrFail();
         $accident    = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
         $masterAlasan = self::$masterAlasan;
 
@@ -296,17 +313,32 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         $kodeAlasan     = json_decode($sp3->kode_alasan, true) ?? [];
         $extraData      = is_string($sp3->messages) ? json_decode($sp3->messages, true) : ($sp3->messages ?? []);
 
+        $sprintHentiDocuments = SuratPerintahPenghentianPenyidikanDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')->get();
+
+        $sketHentiDocuments = SuratKetetapanPenghentianPenyidikanDocument::where('accident_id', $accidentId)
+            ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
+            ->orderBy('created_at', 'desc')->get();
+
+        $prosecutors = Prosecutor::where('is_active', true)->orderBy('name')->get();
+        $courts      = Court::where('is_active', true)->orderBy('name')->get();
+
         return view('docs.surat-pemberitahuan-penghentian-penyidikan-document.edit', compact(
             'accidentId',
             'accident',
             'sp3',
             'spdpDocuments',
+            'sprintHentiDocuments',
+            'sketHentiDocuments',
             'suspects',
             'documentClassifications',
             'authorizedSignatories',
             'masterAlasan',
             'kodeAlasan',
-            'extraData'
+            'extraData',
+            'prosecutors',
+            'courts'
         ));
     }
 
@@ -340,34 +372,28 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         $kodeAlasan = $request->kode_alasan ?? [];
         $extraData  = is_string($sp3->messages) ? json_decode($sp3->messages, true) : ($sp3->messages ?? []);
 
-        // file upload
-        $fileName = null;
-        if ($request->hasFile('dokumen_digital')) {
-            $file = $request->file('dokumen_digital');
-            $fileName = time() . '_sp3_' . str_replace(' ', '_', $file->getClientOriginalName());
-            $file->move(public_path('documents/attachments/'), $fileName);
-        }
-
         DB::beginTransaction();
         try {
             $sp3->update([
-                'document_number'           => htmlspecialchars($request->noSp3),
-                'document_date'             => htmlspecialchars($request->tanggalSp3),
-                'document_classification_id'=> htmlspecialchars($request->klasifikasi ?? ''),
-                'no_spdp'                   => htmlspecialchars($request->noSpdp),
-                'no_sk_penghentian'         => htmlspecialchars($request->noSkPenghentian),
-                'tanggal_sk_penghentian'    => htmlspecialchars($request->tanggalSkPenghentian),
-                'no_sp_penghentian'         => htmlspecialchars($request->noSpPenghentian),
-                'tanggal_sp_penghentian'    => htmlspecialchars($request->tanggalSpPenghentian),
-                'kode_alasan'               => json_encode(array_map('intval', $kodeAlasan)),
-                'suspect_ids'               => json_encode($request->suspects ?? []),
-                'carbon_copies'             => $request->carbonCopies ?? [],
-                'appendix'                  => $request->lampiran ?? 0,
-                'messages'                  => [
+                'document_number'            => htmlspecialchars($request->noSp3),
+                'document_date'              => htmlspecialchars($request->tanggalSp3),
+                'document_classification_id' => htmlspecialchars($request->klasifikasi ?? ''),
+                'prosecutor_id'              => htmlspecialchars($request->prosecutor_id ?? '') ?: null,
+                'court_id'                   => htmlspecialchars($request->court_id ?? '') ?: null,
+                'no_spdp'                    => htmlspecialchars($request->noSpdp),
+                'no_sk_penghentian'          => htmlspecialchars($request->noSkPenghentian),
+                'tanggal_sk_penghentian'     => htmlspecialchars($request->tanggalSkPenghentian),
+                'no_sp_penghentian'          => htmlspecialchars($request->noSpPenghentian),
+                'tanggal_sp_penghentian'     => htmlspecialchars($request->tanggalSpPenghentian),
+                'kode_alasan'                => json_encode(array_map('intval', $kodeAlasan)),
+                'suspect_ids'                => json_encode($request->suspects ?? []),
+                'carbon_copies'              => $request->carbonCopies ?? [],
+                'appendix'                   => $request->appendix ?? $request->lampiran ?? 0,
+                'messages'                   => [
                     'signatory_id'    => htmlspecialchars($request->signatory),
                     'sumber'          => 'PUSIKNAS_FORM',
                     'kode_alasan_raw' => $kodeAlasan,
-                    'file_name'       => $fileName ?? ($extraData['file_name'] ?? null),
+                    'file_name'       => $extraData['file_name'] ?? null,
                 ],
             ]);
 
@@ -462,24 +488,31 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         $daerahPoliceFullName = strtoupper($accident->polres->polda->full_name ?? '');
         $resorPoliceFullName  = $resorPolice ? ((in_array($resorPolice->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice->full_name)) : '';
         $resorPoliceAddress   = $resorPolice ? ($resorPolice->address . ', ' . $resorPolice->polres_zipcode) : '';
-        $documentLocation     = ucwords(strtolower($resorPolice->polres_province ?? ''));
+        $documentLocation     = ucwords(strtolower($resorPolice->polres_regency ?? ($resorPolice->name ?? '')));
 
         // Signatory head text
-        $signatureTitleText = [
-            'KAPOLRES'     => 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? ''),
-            'NO_KAPOLRES'  => 'a.n. KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? ''),
-            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . ($accident->polres->polda->full_name ?? ''),
-        ];
-        $signatoryPosition = $signatory->position()->first();
-        $signatoryHeadText = 'a.n. <BR/>';
-        if (!empty($signatoryPosition)) {
-            if ($signatoryPosition->position_cluster_id == '1') {
-                $signatoryHeadText = $signatureTitleText['KAPOLRES'];
-            } elseif ($signatoryPosition->position_cluster_id == '9') {
-                $signatoryHeadText = $signatureTitleText['NO_DIRLANTAS'];
+        $signatoryPositionId = $signatory ? (is_array($signatory->position) ? ($signatory->position['id'] ?? null) : $signatory->position_id) : null;
+        $signatoryPositionDetail = $signatoryPositionId
+            ? \App\Models\Lib\Position::with('positionCluster')->find($signatoryPositionId)
+            : null;
+
+        $polresFullName = $accident->polres->full_name ?? ($resorPolice->full_name ?? '');
+        $poldaFullName  = $accident->polres->polda->full_name ?? '';
+        $signatoryHeadText     = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+        $signatoryPositionName = '';
+        if ($signatoryPositionDetail) {
+            if ($signatoryPositionDetail->position_cluster_id == '1') {
+                $signatoryHeadText     = 'KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = '';
+            } elseif ($signatoryPositionDetail->position_cluster_id == '9') {
+                $signatoryHeadText     = 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName;
+                $signatoryPositionName = $signatoryPositionDetail->positionCluster->alias_name ?? $signatoryPositionDetail->name;
             } else {
-                $signatoryHeadText = $signatureTitleText['NO_KAPOLRES'];
+                $signatoryPositionName = $signatoryPositionDetail->positionCluster->alias_name ?? $signatoryPositionDetail->name;
             }
+        }
+        if (!$signatoryPositionName && $signatoryPositionDetail && $signatoryPositionDetail->position_cluster_id != '1') {
+            $signatoryPositionName = 'KASAT LANTAS';
         }
 
         // Document fields
@@ -511,8 +544,15 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         $alasanPenghentian = implode('; ', $alasanTexts);
 
         // Signatory info
-        $signatoryName           = \App\Helpers\PeopleNameHelper::getFullName($signatory->first_title ?? '', $signatory->first_name ?? '', $signatory->last_name ?? '', $signatory->last_title ?? '');
-        $signatoryRankName       = $signatory->rank->full_name ?? '';
+        $signatoryName = trim(implode(' ', array_filter([
+            $signatory->first_title ?? '',
+            $signatory->first_name ?? '',
+            $signatory->last_name ?? '',
+            $signatory->last_title ?? ''
+        ])));
+        $signatoryName = $signatoryName ?: '-';
+        $signatoryRank = $signatory->rank ?? ($signatory->rank_id ? \App\Models\Lib\Rank::find($signatory->rank_id) : null);
+        $signatoryRankName = $signatoryRank->full_name ?? ($signatoryRank->name ?? '');
         $signatoryRegisterNumber = $signatory->register_number ?? '';
 
         // Suspect
@@ -539,8 +579,12 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         if (!$prosecutor && $spdp) {
             $prosecutor = $spdp->prosecutor;
         }
-        $prosecutorName = $prosecutor ? ($prosecutor->name ?? $prosecutor->full_name ?? '-') : '-';
+        $prosecutorName     = $prosecutor ? ($prosecutor->name ?? $prosecutor->full_name ?? '-') : '-';
         $prosecutorLocation = $prosecutor ? ucwords(strtolower($prosecutor->regency->name ?? '-')) : '-';
+
+        // Court (from SP3 if available)
+        $court     = $sp3->court;
+        $courtName = $court ? ($court->name ?? '-') : '-';
 
         // SKPPT
         $skppt = $suspect ? $suspect->suratKetetapanTentangPenetapanTersangkaDocument->first() : null;
@@ -610,12 +654,26 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
             ->merge(public_path('images/logo2x.png'), .2, true)
             ->generate('https://dokumen-tte.bareskrim.polri.go.id/DocumentInfo/Icell?id=' . $sp3->id, $tempQrCodePath);
 
-        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/surat_pemberitahuan_penghentian_penyidikan_2026.docx');
+        $templateFile = file_exists(public_path('word-template/surat_pemberitahuan_penghentian_penyidikan_2026.docx'))
+            ? public_path('word-template/surat_pemberitahuan_penghentian_penyidikan_2026.docx')
+            : public_path('word-template/surat_pemberitahuan_penghentian_penyidikan.docx');
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templateFile);
 
-        if (count($blockCarbonCopies) > 0) {
-            $templateProcessor->cloneBlock('block_carbon_copies', 0, true, false, $blockCarbonCopies);
-        } else {
-            $templateProcessor->cloneBlock('block_carbon_copies', 0);
+        $templateVariables = $templateProcessor->getVariables();
+
+        if (in_array('block_carbon_copies', $templateVariables)) {
+            if (count($blockCarbonCopies) > 0) {
+                $templateProcessor->cloneBlock('block_carbon_copies', 0, true, false, $blockCarbonCopies);
+            } else {
+                $templateProcessor->cloneBlock('block_carbon_copies', 0);
+            }
+        } elseif (in_array('carbon_copy_iteration', $templateVariables)) {
+            if (count($blockCarbonCopies) > 0) {
+                $templateProcessor->cloneRowAndSetValues('carbon_copy_iteration', $blockCarbonCopies);
+            } else {
+                $templateProcessor->setValue('carbon_copy_iteration', '-');
+                $templateProcessor->setValue('carbon_copy_name', '-');
+            }
         }
 
         $templateProcessor->setValues([
@@ -629,6 +687,8 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
             'appendix'                   => $appendix,
             'accidentNumber'             => $accidentNumber,
             'accidentDate'               => $accidentDate,
+            'lpNumber'                   => $accidentNumber,
+            'lpDate'                     => $accidentDate,
             'noSpdp'                     => $noSpdp,
             'noSkPenghentian'            => $noSkPenghentian,
             'tanggalSkPenghentian'       => $tanggalSkPenghentian,
@@ -636,90 +696,72 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
             'tanggalSpPenghentian'       => $tanggalSpPenghentian,
             'alasanPenghentian'          => $alasanPenghentian,
             'signatoryHeadText'          => $signatoryHeadText,
-            'signatoryName'              => $signatoryName,
+            'signatoryPositionName'      => $signatoryPositionName,
+            'signatoryPositionHeadText'  => $signatoryPositionName,
+            'signatoryName'              => strtoupper($signatoryName),
             'signatoryRankName'          => strtoupper($signatoryRankName),
             'signatoryRegisterNumber'    => $signatoryRegisterNumber,
-            'prosecutorName'                                 => $prosecutorName,
-            'prosecutorLocation'                             => $prosecutorLocation,
+            'prosecutorName'             => $prosecutorName,
+            'nama_kejaksaan'             => $prosecutorName,
+            'prosecutorLocation'         => $prosecutorLocation,
+            'courtName'                  => $courtName,
+            'PutusanPengadilanName'      => '-',
+            'PutusanPengadilanDate'      => '-',
+            'kejaksaanExtensionNumber'   => '-',
+            'kejaksaanExtensionDate'     => '-',
+            'kejaksaanExtensionSuspectName' => $suspectName,
+            'perpanjanganOrderNumber'    => '-',
+            'perpanjanganOrderDate'      => '-',
+            'perpanjanganOrderSuspectName' => $suspectName,
             'suratPerintahPenyidikanDocumentNumber'          => $sprindikNumber,
             'suratPerintahPenyidikanDocumentDocumentDate'    => $sprindikFullDate,
+            'SuratPerintahPenyidikanNumber'                  => $sprindikNumber,
+            'SuratPerintahPenyidikanDate'                    => $sprindikFullDate,
             'SuratKetetapantentangPenetapanDocumentNumber'   => $skpptNumber,
             'SuratKetetapantentangPenetapanDocumentDate'     => $skpptDate,
+            'sketNumber'                                     => $skpptNumber,
+            'sketDate'                                       => $skpptDate,
+            'sketSuspectName'                                => $suspectName,
             'SuratPemberitahuanDimulainyaPenyidikanNumber'   => $spdpNumber,
             'SuratPemberitahuanDimulainyaPenyidikanDate'     => $spdpDate,
+            'spdpNumber'                                     => $spdpNumber,
+            'spdpDate'                                       => $spdpDate,
             'SuratKetetapantentangPenghentianPenyidikanNumber' => $noSkPenghentian,
             'SuratKetetapantentangPenghentianPenyidikanDate' => $tanggalSkPenghentian,
+            'StapPenghentianPenyidikanNumber'                => $noSkPenghentian,
+            ' StapPenghentianPenyidikanNumber '              => $tanggalSkPenghentian,
             'SuratPerintahPenghentianPenyidikanNumber'       => $noSpPenghentian,
             'SuratPerintahPenghentianPenyidikanDate'         => $tanggalSpPenghentian,
+            'SprinHentiSidikNumber'                          => $noSpPenghentian,
+            'SprinHentiSidikDate'                            => $tanggalSpPenghentian,
+            ' SprinHentiSidikDate'                           => $tanggalSpPenghentian,
             'SuratPerintahPenyidikanDay'                     => $sprindikDocumentDay,
             'SuratPerintahDate'                              => $sprindikDate,
             'SuratPerintahPenyidikanMonth'                   => $sprindikMonth,
             'SuratPerintahPenyidikanYear'                    => $sprindikYear,
             'SuratPerintahPenyidikanLawsDocument'            => $crimeConstitutionText,
             'SuspectName'                                    => $suspectName,
+            'dugaan_tindak_pidana'                           => 'Kecelakaan Lalu Lintas',
+            'terlapor/tersangka'                             => 'Tersangka',
+            'terlapor/tersangkaName'                         => $suspectName,
             'alasan'                                         => $alasanPenghentian,
             'KetuaTimPenyidik'                               => $ketuaTimName,
             'KetuaTimPenyidikPhoneNumber'                    => $ketuaTimPhone,
+            'contactOfficerName'                             => $ketuaTimName,
+            'contactOfficerPhone'                            => $ketuaTimPhone,
         ]);
 
-        $templateProcessor->setImageValue('QRCodeImage', [
-            'path'   => $tempQrCodePath,
-            'width'  => 111,
-            'height' => 111,
-        ]);
+        if (in_array('QRCodeImage', $templateVariables)) {
+            $templateProcessor->setImageValue('QRCodeImage', [
+                'path'   => $tempQrCodePath,
+                'width'  => 111,
+                'height' => 111,
+            ]);
+        }
 
         $filename = 'generate/' . $sp3->id . ' - SP3 Pusiknas - ' . ($accident->polres->full_name ?? '');
         $templateProcessor->saveAs(public_path($filename . '.docx'));
         return response()->download(public_path($filename . '.docx'))->deleteFileAfterSend(true);
-    }
-
-    // ─────────────────────────────────────────────
-    // VALIDATE FORM (AJAX)
-    // ─────────────────────────────────────────────
-    public function validateRequestForm(Request $request)
-    {
-        $validator = $this->validateForm($request);
-        if ($validator->fails()) {
-            return response()->json([
-                'code'    => '422',
-                'success' => false,
-                'errors'  => $validator->errors()->all(),
-            ], 422);
-        }
-        return response()->json(['success' => true, 'message' => 'Data valid, dokumen siap disimpan.']);
-    }
-
-    // ─────────────────────────────────────────────
-    // PRIVATE HELPERS
-    // ─────────────────────────────────────────────
-    private function validateForm(Request $request)
-    {
-        return Validator::make($request->all(), [
-            'noSp3'           => 'required|string|max:255|min:3',
-            'tanggalSp3'      => 'required|date_format:Y-m-d',
-            'noSpdp'          => 'required|string',
-            'kode_alasan'     => 'required|array|min:1',
-            'kode_alasan.*'   => 'required|integer|min:1',
-            'signatory'       => 'required',
-            // Tersangka wajib dipilih minimal 1
-            'suspects'        => 'required|array|min:1',
-            'suspects.*'      => 'exists:suspects,id',
-            // Dokumen digital opsional
-            'dokumen_digital' => 'nullable|file|mimes:pdf|max:5120',
-        ], [
-            'noSp3.required'           => 'Mohon mengisi Nomor SP3.',
-            'noSp3.min'                => 'Nomor SP3 harus lengkap.',
-            'tanggalSp3.required'      => 'Mohon mengisi Tanggal SP3.',
-            'tanggalSp3.date_format'   => 'Format Tanggal SP3 tidak valid.',
-            'noSpdp.required'          => 'Mohon memilih/mengisi Nomor SPDP.',
-            'kode_alasan.required'     => 'Mohon memilih minimal 1 Alasan Penghentian.',
-            'kode_alasan.min'          => 'Mohon memilih minimal 1 Alasan Penghentian.',
-            'signatory.required'       => 'Mohon mengisi Penandatangan.',
-            'suspects.required'        => 'Mohon memilih minimal 1 Tersangka.',
-            'suspects.min'             => 'Mohon memilih minimal 1 Tersangka.',
-            'dokumen_digital.mimes'    => 'Format dokumen digital harus PDF.',
-            'dokumen_digital.max'      => 'Ukuran dokumen digital maksimal 5MB.',
-        ]);
     }
 
     /**
@@ -819,4 +861,55 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
         }
     }
 
+    // ─────────────────────────────────────────────
+    // VALIDATE REQUEST FORM (AJAX)
+    // ─────────────────────────────────────────────
+    public function validateRequestForm(Request $request)
+    {
+        $validator = $this->validateForm($request, $request->id);
+        if ($validator->fails()) {
+            return response()->json([
+                'code'    => '422',
+                'success' => false,
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+        return response()->json(['success' => true, 'message' => 'Data valid, dokumen siap disimpan.']);
+    }
+
+    private function validateForm(Request $request, $id = null)
+    {
+        return Validator::make($request->all(), [
+            'noSp3'                => 'required|string|max:255',
+            'tanggalSp3'           => 'required|date',
+            'klasifikasi'          => 'required',
+            'appendix'             => 'required|numeric|min:1|max:999',
+            'noSpdp'               => 'required|string',
+            'noSkPenghentian'      => 'required|string',
+            'tanggalSkPenghentian' => 'required|date',
+            'noSpPenghentian'      => 'required|string',
+            'tanggalSpPenghentian' => 'required|date',
+            'kode_alasan'          => 'required|array|min:1',
+            'prosecutor_id'        => 'required',
+            'court_id'             => 'required',
+            'signatory'            => 'required',
+            'carbonCopies'         => 'required|array|min:1',
+        ], [
+            'noSp3.required'                => 'Nomor surat SP3 wajib diisi.',
+            'tanggalSp3.required'           => 'Tanggal surat SP3 wajib diisi.',
+            'klasifikasi.required'          => 'Klasifikasi surat wajib dipilih.',
+            'appendix.required'             => 'Jumlah lampiran wajib diisi.',
+            'noSpdp.required'               => 'Nomor SPDP terkait wajib dipilih.',
+            'noSkPenghentian.required'      => 'Nomor SK Penghentian wajib dipilih atau diisi.',
+            'tanggalSkPenghentian.required' => 'Tanggal SK Penghentian wajib diisi.',
+            'noSpPenghentian.required'      => 'Nomor Surat Perintah Penghentian wajib dipilih atau diisi.',
+            'tanggalSpPenghentian.required' => 'Tanggal Surat Perintah Penghentian wajib diisi.',
+            'kode_alasan.required'          => 'Alasan penghentian penyidikan wajib dipilih minimal 1.',
+            'prosecutor_id.required'        => 'Kejaksaan Negeri terkait wajib dipilih.',
+            'court_id.required'             => 'Pengadilan Negeri terkait wajib dipilih.',
+            'signatory.required'            => 'Pejabat penandatangan wajib dipilih.',
+            'carbonCopies.required'         => 'Tembusan wajib diisi.',
+        ]);
+    }
 }
+

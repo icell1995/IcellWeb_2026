@@ -265,13 +265,13 @@
 
                 {{-- Keterangan Tempat Penahanan --}}
                 <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="lokasi_penahanan">Keterangan Tempat Penahanan<span class="text-danger fs-5">*</span></label>
+                    <label class="fw-bold col-sm-3 col-form-label" for="lokasi_penahanan" id="lokasi_penahanan_label">Nama Rutan / Tempat Penahanan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input id="lokasi_penahanan" type="text"
                             class="form-control @error('lokasi_penahanan') is-invalid @enderror font-weight-bold"
                             name="lokasi_penahanan"
-                            value="{{ old('lokasi_penahanan', 'RUTAN ' . strtoupper($accident->polres->full_name ?? '')) }}"
-                            placeholder="Contoh: RUTAN POLRES ... / Jl. Merdeka No. 10 / KOTA ...">
+                            value="{{ old('lokasi_penahanan', '') }}"
+                            placeholder="Contoh: RUTAN POLRES SUMEDANG / RUTAN KELAS IIB SUMEDANG">
                         @error('lokasi_penahanan')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
@@ -295,16 +295,17 @@
                     </div>
                 </div>
 
-                {{-- Tanggal Akhir Penahanan --}}
+                {{-- Tanggal Akhir Penahanan (Otomatis 20 hari dari Tanggal Mulai & Readonly) --}}
                 <div class="input-group row mb-3 ms-0">
                     <label class="fw-bold col-sm-3 col-form-label" for="tanggal_akhir">Tanggal Akhir Penahanan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <input class="form-control @error('tanggal_akhir') is-invalid @enderror" id="tanggal_akhir" name="tanggal_akhir"
                             placeholder="YYYY-MM-DD" autocomplete="off"
-                            value="{{ old('tanggal_akhir', date('Y-m-d', strtotime('+20 days'))) }}"
-                            data-provide="datepicker" data-date-format="yyyy-mm-dd" data-date-autoclose="true" data-date-today-highlight="true" required>
+                            value="{{ old('tanggal_akhir', date('Y-m-d', strtotime('+19 days'))) }}"
+                            readonly required style="background-color: #e9ecef; cursor: not-allowed;">
                         <small class="text-muted d-block mt-1">
-                            <span id="durasiPenahananText" class="badge bg-secondary">Durasi: 21 Hari</span>
+                            <span id="durasiPenahananText" class="badge bg-secondary">Durasi: 20 Hari</span>
+                            <span class="ms-1 text-muted small">(Dihitung otomatis 20 hari masa penahanan)</span>
                         </small>
                         @error('tanggal_akhir')
                             <span class="invalid-feedback" role="alert">
@@ -565,41 +566,81 @@
                 todayHighlight: true,
                 orientation: 'auto bottom'
             }).on('changeDate', function(selected) {
-                if (selected.date) {
-                    var startDate = new Date(selected.date.valueOf());
-                    $('#tanggal_akhir').datepicker('setStartDate', startDate);
-                }
                 $(this).trigger('change');
-                updateDurasi();
             });
 
-            $('#tanggal_akhir').datepicker({
-                format: 'yyyy-mm-dd',
-                autoclose: true,
-                todayHighlight: true,
-                orientation: 'auto bottom'
-            }).on('changeDate', function(selected) {
-                if (selected.date) {
-                    var endDate = new Date(selected.date.valueOf());
-                    $('#tanggal_mulai').datepicker('setEndDate', endDate);
-                }
-                $(this).trigger('change');
-                updateDurasi();
+            $('#tanggal_mulai, #tanggal_akhir').keydown(function(e) {
+                e.preventDefault();
+                return false;
             });
+
+            // Hitung otomatis Tanggal Akhir Penahanan (20 hari penahanan)
+            function calculateTanggalAkhir() {
+                var startVal = ($('#tanggal_mulai').val() || '').trim();
+                if (startVal) {
+                    var parts = startVal.split('-');
+                    if (parts.length === 3) {
+                        var y = parseInt(parts[0], 10);
+                        var m = parseInt(parts[1], 10) - 1;
+                        var d = parseInt(parts[2], 10);
+                        var date = new Date(y, m, d);
+                        if (!isNaN(date.getTime())) {
+                            // Durasi 20 hari: hari mulai dihitung hari ke-1 (tgl akhir = mulai + 19 hari)
+                            date.setDate(date.getDate() + 19);
+                            var yyyy = date.getFullYear();
+                            var mm = String(date.getMonth() + 1).padStart(2, '0');
+                            var dd = String(date.getDate()).padStart(2, '0');
+                            $('#tanggal_akhir').val(yyyy + '-' + mm + '-' + dd);
+                        }
+                    }
+                }
+                updateDurasi();
+            }
 
             // Toggle Satker Rutan based on jenis penahanan
             function toggleRutanSection() {
                 var jenis = $('#kode_jenis_penahanan').val();
                 if (jenis == '1') {
                     $('#rutanSection').slideDown();
-                } else {
+                    $('#lokasi_penahanan_label').html('Nama Rutan / Tempat Penahanan<span class="text-danger fs-5">*</span>');
+                    $('#lokasi_penahanan').attr('placeholder', 'Contoh: RUTAN POLRES SUMEDANG / RUTAN KELAS IIB SUMEDANG');
+                } else if (jenis == '2') {
                     $('#rutanSection').slideUp();
+                    $('#lokasi_penahanan_label').html('Alamat Rumah Kediaman Tersangka<span class="text-danger fs-5">*</span>');
+                    $('#lokasi_penahanan').attr('placeholder', 'Contoh: Jl. Mayor Abdurrahman No. 12, Kel. Kotakaler, Kec. Sumedang Utara');
+                } else if (jenis == '3') {
+                    $('#rutanSection').slideUp();
+                    $('#lokasi_penahanan_label').html('Kota Tempat Tinggal Tersangka<span class="text-danger fs-5">*</span>');
+                    $('#lokasi_penahanan').attr('placeholder', 'Contoh: SUMEDANG / KOTA BANDUNG');
                 }
             }
-            $('#kode_jenis_penahanan').on('change', toggleRutanSection);
+
+            var previousJenis = $('#kode_jenis_penahanan').val();
+            $('#kode_jenis_penahanan').on('change', function() {
+                var currentJenis = $(this).val();
+                var curVal = ($('#lokasi_penahanan').val() || '').trim();
+                if (previousJenis == '1' && currentJenis != '1') {
+                    if (curVal.toUpperCase().startsWith('RUTAN') || curVal.toUpperCase().startsWith('LAPAS')) {
+                        $('#lokasi_penahanan').val('');
+                    }
+                }
+                previousJenis = currentJenis;
+                toggleRutanSection();
+            });
             toggleRutanSection();
 
-            // Hitung durasi hari otomatis
+            // Auto-fill nama rutan saat memilih Rutan/Lapas dari dropdown
+            $('#kode_satker_tempat_penahanan').on('change', function() {
+                var selectedText = $(this).find('option:selected').text().trim();
+                if (selectedText && $(this).val()) {
+                    var cleanName = selectedText.replace(/\s*\([^)]*\)\s*$/, '').trim();
+                    if ($('#kode_jenis_penahanan').val() == '1') {
+                        $('#lokasi_penahanan').val(cleanName);
+                    }
+                }
+            });
+
+            // Hitung durasi hari otomatis untuk badge
             function updateDurasi() {
                 var tglMulai = $('#tanggal_mulai').val();
                 var tglAkhir = $('#tanggal_akhir').val();
@@ -615,8 +656,98 @@
                     }
                 }
             }
-            $('#tanggal_mulai, #tanggal_akhir').on('change', updateDurasi);
-            updateDurasi();
+            $('#tanggal_mulai').on('change input', calculateTanggalAkhir);
+            
+            // Panggil saat page load
+            if ($('#tanggal_mulai').val()) {
+                calculateTanggalAkhir();
+            } else {
+                updateDurasi();
+            }
+
+            // Cache semua opsi asli anggota
+            var allMemberOptions = [];
+            $('#officerInternalMemberOption option').each(function() {
+                allMemberOptions.push({
+                    val: $(this).val(),
+                    text: $(this).text(),
+                    nrp: String($(this).data('register-number') || $(this).val() || '').trim(),
+                    rank: $(this).data('rank-name') || '',
+                    name: $(this).data('name') || '',
+                    position: $(this).data('position-name') || '',
+                    police: $(this).data('police-name') || ''
+                });
+            });
+
+            function filterMemberOptions() {
+                var leaderOpt = $('#officerLeader option:selected');
+                var selectedLeaderNrp = String(leaderOpt.data('register-number') || leaderOpt.attr('data-register-number') || '').trim();
+
+                // Ambil daftar NRP yang sudah ada di tabel anggota
+                var existingMemberNrps = [];
+                $('#internalOfficerMemberTable tbody tr').each(function() {
+                    var nrp = String($(this).find('.registerNumber').text() || '').trim();
+                    if (nrp) {
+                        existingMemberNrps.push(nrp);
+                    }
+                });
+
+                // Jika Ketua Tim yang baru dipilih ternyata sudah ada di tabel anggota, hapus otomatis dari tabel
+                if (selectedLeaderNrp) {
+                    $('#internalOfficerMemberTable tbody tr').each(function() {
+                        var nrp = String($(this).find('.registerNumber').text() || '').trim();
+                        if (nrp === selectedLeaderNrp) {
+                            $(this).remove();
+                        }
+                    });
+                }
+
+                // Rebuild dropdown #officerInternalMemberOption
+                var curVal = $('#officerInternalMemberOption').val();
+                $('#officerInternalMemberOption').empty();
+
+                $.each(allMemberOptions, function(index, opt) {
+                    if (!opt.val) {
+                        $('#officerInternalMemberOption').append($('<option>', {
+                            value: '',
+                            text: opt.text
+                        }));
+                        return;
+                    }
+
+                    // Sembunyikan/hilangkan jika sama dengan Ketua Tim ATAU sudah ada di tabel anggota
+                    if (opt.nrp === selectedLeaderNrp || existingMemberNrps.includes(opt.nrp)) {
+                        return;
+                    }
+
+                    var $opt = $('<option>', {
+                        value: opt.val,
+                        text: opt.text
+                    });
+                    $opt.attr('data-register-number', opt.nrp);
+                    $opt.attr('data-rank-name', opt.rank);
+                    $opt.attr('data-name', opt.name);
+                    $opt.attr('data-position-name', opt.position);
+                    $opt.attr('data-police-name', opt.police);
+
+                    $('#officerInternalMemberOption').append($opt);
+                });
+
+                if (curVal && $('#officerInternalMemberOption option[value="' + curVal + '"]').length) {
+                    $('#officerInternalMemberOption').val(curVal);
+                } else {
+                    $('#officerInternalMemberOption').val('');
+                }
+
+                $('#officerInternalMemberOption').trigger('change');
+            }
+
+            $('#officerLeader').on('change', function() {
+                filterMemberOptions();
+            });
+
+            // Jalankan filter pada inisialisasi awal
+            filterMemberOptions();
 
             // Tambah Petugas yang Diperintahkan (Poin 6)
             $('#officerInternalMemberOptionAddButtton').on('click', function() {
@@ -627,6 +758,17 @@
                     return Swal.fire({
                         title: 'Perhatian',
                         text: 'Silahkan pilih petugas terlebih dahulu',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+
+                var leaderOpt = $('#officerLeader option:selected');
+                var selectedLeaderNrp = String(leaderOpt.data('register-number') || leaderOpt.attr('data-register-number') || '').trim();
+                if (selectedLeaderNrp && registerNumber === selectedLeaderNrp) {
+                    return Swal.fire({
+                        title: 'Perhatian',
+                        text: 'Petugas ini sudah dipilih sebagai Ketua Tim dan tidak dapat ditambahkan sebagai anggota.',
                         icon: 'warning',
                         confirmButtonText: 'Ok'
                     });
@@ -668,11 +810,13 @@
 
                 $('#internalOfficerMemberTable tbody').append(newRow);
                 $('#officerInternalMemberOption').val('').trigger('change');
+                filterMemberOptions();
             });
 
             // Hapus baris petugas
             $(document).on('click', '.deleteInternalOfficer', function() {
                 $(this).closest('tr').remove();
+                filterMemberOptions();
             });
 
             // Helper scroll ke error pertama
@@ -780,13 +924,14 @@
                 // 1. Validasi Identitas Dokumen
                 checkInput('#documentDate', 'Tanggal Ditandatangani Dokumen');
                 var docDateVal = ($('#documentDate').val() || '').trim();
-                if (docDateVal) {
-                    var selectedDate = new Date(docDateVal);
-                    var today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    selectedDate.setHours(0, 0, 0, 0);
-                    if (selectedDate < today) {
-                        markError('#documentDate', 'Tanggal Ditandatangani Dokumen minimal hari ini (tidak boleh tanggal kemarin/masa lalu)');
+                var spdpDateVal = ($('#tanggal_spdp').val() || '').trim();
+                if (docDateVal && spdpDateVal) {
+                    var dDoc = new Date(docDateVal);
+                    var dSpdp = new Date(spdpDateVal);
+                    dDoc.setHours(0, 0, 0, 0);
+                    dSpdp.setHours(0, 0, 0, 0);
+                    if (dDoc < dSpdp) {
+                        markError('#documentDate', 'Tanggal Ditandatangani Dokumen tidak boleh kurang dari tanggal ditandatangani SPDP (' + spdpDateVal + ')');
                     }
                 }
                 checkInput('#nomor_spdp', 'Nomor SPDP');

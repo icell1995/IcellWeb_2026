@@ -227,13 +227,14 @@
                     </div>
                 </div>
 
-                {{-- Tempat Penahanan / Rutan --}}
-                <div class="input-group row mb-3 ms-0" id="tempatPenahananSection">
-                    <label class="fw-bold col-sm-3 col-form-label" for="kode_satker_tempat_penahanan">Tempat / Lokasi Penahanan<span class="text-danger fs-5">*</span></label>
+                {{-- Dropdown Satker Rutan / Lapas (Khusus Jenis Penahanan 1 - Rutan) --}}
+                <div class="input-group row mb-3 ms-0" id="rutanSection">
+                    <label class="fw-bold col-sm-3 col-form-label" for="kode_satker_tempat_penahanan">Rutan / Lapas Tempat Penahanan<span class="text-danger fs-5">*</span></label>
                     <div class="col-lg-9 col-md-9 col-sm-12 col-12">
                         <select class="form-control select2" name="kode_satker_tempat_penahanan" id="kode_satker_tempat_penahanan">
                             <option value="">-- Pilih Rutan / Tempat Penahanan --</option>
-                            <option value="Rutan {{ $accident->polres->full_name ?? $accident->polres->name ?? 'Polres' }}" selected>
+                            <option value="Rutan {{ $accident->polres->full_name ?? $accident->polres->name ?? 'Polres' }}"
+                                {{ old('kode_satker_tempat_penahanan', 'Rutan ' . ($accident->polres->full_name ?? $accident->polres->name ?? 'Polres')) == ('Rutan ' . ($accident->polres->full_name ?? $accident->polres->name ?? 'Polres')) ? 'selected' : '' }}>
                                 Rutan {{ $accident->polres->full_name ?? $accident->polres->name ?? 'Polres' }}
                             </option>
                             @foreach ($prisons as $p)
@@ -242,10 +243,20 @@
                                 </option>
                             @endforeach
                         </select>
-                        <input type="text" class="form-control mt-2" name="tempat_penahanan" id="tempat_penahanan"
-                            placeholder="Atau ketik kustom nama tempat penahanan..."
+                        <small class="text-muted">(*Pilih Rutan tempat tersangka ditahan kembali)</small>
+                    </div>
+                </div>
+
+                {{-- Tempat / Alamat Penahanan --}}
+                <div class="input-group row mb-3 ms-0" id="lokasiPenahananSection">
+                    <label class="fw-bold col-sm-3 col-form-label" id="label_tempat_penahanan" for="tempat_penahanan">
+                        Tempat / Lokasi Penahanan<span class="text-danger fs-5">*</span>
+                    </label>
+                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
+                        <input type="text" class="form-control font-weight-bold" name="tempat_penahanan" id="tempat_penahanan"
+                            placeholder="Ketik nama tempat atau alamat penahanan..."
                             value="{{ old('tempat_penahanan') }}">
-                        <small class="text-muted">(*Tempat penahanan tersangka saat ditahan kembali)</small>
+                        <small class="text-muted" id="help_tempat_penahanan">(*Tempat penahanan tersangka saat ditahan kembali)</small>
                     </div>
                 </div>
 
@@ -318,6 +329,8 @@
                                         <td class="text-center align-middle">
                                             <input type="checkbox" name="suspects[]" value="{{ $suspect->id }}"
                                                 class="suspect-checkbox" id="suspect_{{ $suspect->id }}"
+                                                data-name="{{ $suspect->name }}"
+                                                data-address="{{ $suspect->address ?? '' }}"
                                                 {{ (is_array(old('suspects')) && in_array($suspect->id, old('suspects'))) || ($idx === 0 && !old('suspects')) ? 'checked' : '' }}>
                                         </td>
                                         <td class="align-middle fw-bold">
@@ -523,6 +536,95 @@
             }
             $('#jumlah_hari, #tanggal_mulai').on('change input', calculateTanggalAkhir);
 
+            // Helper untuk mendapatkan alamat tersangka yang dicentang
+            function getSelectedSuspectAddress() {
+                var $checked = $('.suspect-checkbox:checked').first();
+                if ($checked.length) {
+                    return $checked.data('address') || '';
+                }
+                return '';
+            }
+
+            var defaultPolresRutan = "Rutan {{ $accident->polres->full_name ?? $accident->polres->name ?? 'Polres' }}";
+            var defaultCity = "Kota {{ $accident->polres->city ?? $accident->polres->name ?? '' }}";
+
+            // Toggle tampilan Tempat / Lokasi Penahanan berdasarkan Jenis Penahanan
+            function toggleJenisPenahanan(isInitialLoad) {
+                var jenis = $('#kode_jenis_penahanan').val();
+                var currentVal = $('#tempat_penahanan').val() ? $('#tempat_penahanan').val().trim() : '';
+
+                if (jenis == '1') {
+                    // 1 - Penahanan Rutan
+                    $('#rutanSection').slideDown();
+                    $('#label_tempat_penahanan').html('Keterangan / Nama Rutan <small class="text-muted font-weight-normal">(Opsional / Kustom)</small>');
+                    $('#tempat_penahanan').attr('placeholder', 'Atau ketik kustom nama tempat penahanan (Contoh: ' + defaultPolresRutan + ')');
+                    $('#help_tempat_penahanan').text('(*Nama Rutan tempat penahanan tersangka saat ditahan kembali)');
+
+                    if (!isInitialLoad && !$('#kode_satker_tempat_penahanan').val()) {
+                        $('#kode_satker_tempat_penahanan').val(defaultPolresRutan).trigger('change');
+                    }
+                } else if (jenis == '2') {
+                    // 2 - Penahanan Rumah
+                    $('#rutanSection').slideUp();
+                    $('#kode_satker_tempat_penahanan').val('').trigger('change');
+
+                    $('#label_tempat_penahanan').html('Alamat Rumah Tempat Tinggal<span class="text-danger fs-5">*</span>');
+                    $('#tempat_penahanan').attr('placeholder', 'Contoh: Jl. ..., Kel. ..., Kec. ...');
+                    $('#help_tempat_penahanan').text('(*Alamat rumah tinggal / kediaman tersangka tempat penahanan rumah dijalani)');
+
+                    if (!isInitialLoad || !currentVal) {
+                        var suspectAddress = getSelectedSuspectAddress();
+                        if (suspectAddress && (!currentVal || currentVal.toLowerCase().indexOf('rutan') !== -1 || currentVal.toLowerCase().indexOf('lapas') !== -1 || currentVal.toLowerCase().indexOf('kota') === 0)) {
+                            $('#tempat_penahanan').val(suspectAddress);
+                        }
+                    }
+                } else if (jenis == '3') {
+                    // 3 - Penahanan Kota
+                    $('#rutanSection').slideUp();
+                    $('#kode_satker_tempat_penahanan').val('').trigger('change');
+
+                    $('#label_tempat_penahanan').html('Wilayah Kota Tempat Penahanan<span class="text-danger fs-5">*</span>');
+                    $('#tempat_penahanan').attr('placeholder', 'Contoh: ' + defaultCity);
+                    $('#help_tempat_penahanan').text('(*Wilayah kota tempat tersangka menjalani penahanan kota)');
+
+                    if (!isInitialLoad || !currentVal) {
+                        if (!currentVal || currentVal.toLowerCase().indexOf('rutan') !== -1 || currentVal.toLowerCase().indexOf('lapas') !== -1) {
+                            $('#tempat_penahanan').val(defaultCity);
+                        }
+                    }
+                }
+            }
+
+            // Sync pilihan Rutan ke input tempat_penahanan (khusus jenis 1)
+            $('#kode_satker_tempat_penahanan').on('change', function() {
+                var jenis = $('#kode_jenis_penahanan').val();
+                if (jenis == '1') {
+                    var rutanVal = $(this).val();
+                    if (rutanVal) {
+                        $('#tempat_penahanan').val(rutanVal);
+                    }
+                }
+            });
+
+            // Saat jenis penahanan berubah
+            $('#kode_jenis_penahanan').on('change', function() {
+                toggleJenisPenahanan(false);
+            });
+
+            // Saat tersangka dicentang/berubah
+            $(document).on('change', '.suspect-checkbox', function() {
+                var jenis = $('#kode_jenis_penahanan').val();
+                if (jenis == '2') {
+                    var addr = getSelectedSuspectAddress();
+                    if (addr) {
+                        $('#tempat_penahanan').val(addr);
+                    }
+                }
+            });
+
+            // Jalankan inisialisasi pada load awal
+            toggleJenisPenahanan(true);
+
             // Tambah Petugas yang Diperintahkan
             $('#officerInternalMemberOptionAddButtton').on('click', function() {
                 var selectedOption = $('#officerInternalMemberOption').find('option:selected');
@@ -667,6 +769,18 @@
 
                 // 2. Validasi Ketentuan Penahanan
                 checkSelect('#kode_jenis_penahanan', 'Jenis Penahanan');
+                var currentJenis = $('#kode_jenis_penahanan').val();
+                if (currentJenis == '1') {
+                    var rutanSelect = $('#kode_satker_tempat_penahanan').val();
+                    var rutanInput = $('#tempat_penahanan').val();
+                    if (!rutanSelect && !rutanInput) {
+                        markError('#kode_satker_tempat_penahanan', 'Rutan / Tempat Penahanan harus dipilih atau diisi');
+                    }
+                } else if (currentJenis == '2') {
+                    checkInput('#tempat_penahanan', 'Alamat Rumah Tempat Tinggal');
+                } else if (currentJenis == '3') {
+                    checkInput('#tempat_penahanan', 'Wilayah Kota Tempat Penahanan');
+                }
 
                 // 3. Validasi Tersangka minimal 1
                 if ($('.suspect-checkbox:checked').length === 0) {

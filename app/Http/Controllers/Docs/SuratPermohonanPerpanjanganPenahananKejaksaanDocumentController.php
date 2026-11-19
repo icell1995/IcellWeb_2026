@@ -138,14 +138,17 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
             ->get();
 
         // 6. Kejaksaan (Prosecutors)
-        $prosecutors = Prosecutor::where('is_active', true)->orderBy('name', 'asc')->get();
+        $prosecutors = Prosecutor::with('regency')->where('is_active', true)->orderBy('name', 'asc')->get();
         $defaultProsecutorId = $spdpDocument->prosecutor_id ?? ($sketTersangkaDocument->prosecutor_id ?? null);
-        $defaultProsecutor = $defaultProsecutorId ? Prosecutor::find($defaultProsecutorId) : null;
-        $defaultProsecutorLocation = $defaultProsecutor->address ?? ($accident->polres->name ?? '');
+        $defaultProsecutor = $defaultProsecutorId ? Prosecutor::with('regency')->find($defaultProsecutorId) : null;
+        $defaultProsecutorLocation = $defaultProsecutor?->regency
+            ? ucwords(strtolower($defaultProsecutor->regency->name))
+            : ($defaultProsecutor->address ?? ($accident->polres->name ?? ''));
 
         // 7. Personel Internal & Pejabat Penandatangan
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
         $authorizedSignatories = Officer::withRelated()
+            ->with(['position.positionCluster'])
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -157,6 +160,7 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
             ->get();
 
         $internalOfficers = Officer::withRelated()
+            ->with('user')
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -183,6 +187,23 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
             'Kepala Kepolisian Resor ' . ($accident->polres->name ?? '') . ' (sebagai laporan)',
             'Tersangka / Keluarga Tersangka',
         ];
+
+        $prosecutorLocationsMap = $prosecutors->mapWithKeys(function ($p) {
+            return [(string)$p->id => (string)($p->regency ? ucwords(strtolower($p->regency->name)) : ($p->address ?? $p->name ?? ''))];
+        })->toArray();
+
+        $officerPhonesMap = $internalOfficers->mapWithKeys(function ($o) {
+            return [(string)$o->id => (string)($o->phone_number ?? ($o->user->phone_number ?? ''))];
+        })->toArray();
+
+        $signatoryDataMap = $authorizedSignatories->mapWithKeys(function ($s) {
+            $posAlias = $s->position->positionCluster->alias_name ?? ($s->position->name ?? 'Kasat Lantas');
+            $clusterId = $s->position->position_cluster_id ?? '';
+            return [(string)$s->id => [
+                'cluster' => (string)$clusterId,
+                'position' => (string)$posAlias,
+            ]];
+        })->toArray();
 
         return view('docs.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.create', compact(
             'accidentId',
@@ -213,7 +234,10 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
             'defaultProsecutorLocation',
             'internalOfficers',
             'authorizedSignatories',
-            'defaultCarbonCopies'
+            'defaultCarbonCopies',
+            'prosecutorLocationsMap',
+            'officerPhonesMap',
+            'signatoryDataMap'
         ));
     }
 
@@ -245,25 +269,43 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
                 ->orderBy('created_at', 'desc')->first();
 
             // Data Kejaksaan
-            $prosecutor = Prosecutor::find($request->prosecutor_id);
+            $prosecutor = Prosecutor::with('regency')->find($request->prosecutor_id);
             $namaKejaksaan = $prosecutor ? $prosecutor->name : ($request->nama_kejaksaan ?? '-');
-            $lokasiKejaksaan = $request->lokasi_kejaksaan ?: ($prosecutor->address ?? ($accident->polres->name ?? '-'));
+            $lokasiKejaksaan = $prosecutor?->regency
+                ? ucwords(strtolower($prosecutor->regency->name))
+                : ($prosecutor->address ?? ($request->lokasi_kejaksaan ?? ($accident->polres->name ?? '-')));
 
             // Data Kontak Penyidik Penghubung
-            $contactOfficer = Officer::with(['rank', 'position', 'police'])->find($request->contact_officer_id);
+            $contactOfficer = Officer::with(['rank', 'position', 'police', 'user'])->find($request->contact_officer_id);
             $contactOfficerName = $contactOfficer
                 ? PeopleNameHelper::getFullName($contactOfficer->first_title, $contactOfficer->first_name, $contactOfficer->last_name, $contactOfficer->last_title)
                 : ($request->contact_officer_name ?? '-');
-            $contactOfficerPhone = $request->contact_officer_phone ?? '-';
+            $contactOfficerPhone = $contactOfficer?->phone_number ?: ($contactOfficer?->user?->phone_number ?: ($request->contact_officer_phone ?: '-'));
 
             // Data Signatory
-            $signatory = Officer::with(['rank', 'position', 'police'])->find($request->signatory);
+            $signatory = Officer::with(['rank', 'position.positionCluster', 'police'])->find($request->signatory);
             $signatoryName = $signatory
                 ? PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title)
                 : '-';
             $signatoryRank = $signatory->rank->name ?? ($signatory->rank_id ?? '-');
             $signatoryNrp = $signatory->register_number ?? '-';
-            $signatoryPosition = $signatory->position->name ?? ($signatory->position_id ?? 'KASAT LANTAS');
+            $signatoryPosition = 'KASAT LANTAS';
+            $polresFullName = strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? ''));
+            $poldaFullName = strtoupper($accident->polres->polda->full_name ?? ($accident->polres->polda->name ?? ''));
+            $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+
+            if ($signatory && $signatory->position) {
+                if ($signatory->position->position_cluster_id == '1') {
+                    $signatoryPosition = '';
+                    $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                } else if ($signatory->position->position_cluster_id == '9') {
+                    $signatoryPosition = strtoupper($signatory->position->positionCluster?->alias_name ?? ($signatory->position->name ?? 'DIRLANTAS'));
+                    $signatoryHeadText = 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName;
+                } else {
+                    $signatoryPosition = strtoupper($signatory->position->positionCluster?->alias_name ?? ($signatory->position->name ?? 'KASAT LANTAS'));
+                    $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                }
+            }
 
             // Format Tembusan (Carbon Copies)
             $carbonCopies = [];
@@ -309,7 +351,7 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
                 'contact_officer_phone'                 => $contactOfficerPhone,
                 'carbon_copies'                         => $carbonCopies,
                 'signatory_id'                          => $request->signatory,
-                'signatory_head_text'                   => $request->signatory_head_text,
+                'signatory_head_text'                   => $signatoryHeadText,
                 'signatory_position'                    => $signatoryPosition,
                 'signatory_name'                        => $signatoryName,
                 'signatory_rank'                        => $signatoryRank,
@@ -395,7 +437,7 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
             'accident.polres',
             'accident.polres.polda',
             'suspects',
-            'prosecutor',
+            'prosecutor.regency',
             'officers',
             'signatory',
             'contactOfficer',
@@ -410,11 +452,12 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
             ->get();
 
         // Kejaksaan (Prosecutors)
-        $prosecutors = Prosecutor::where('is_active', true)->orderBy('name', 'asc')->get();
+        $prosecutors = Prosecutor::with('regency')->where('is_active', true)->orderBy('name', 'asc')->get();
 
         // Personel Internal & Pejabat Penandatangan
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
         $authorizedSignatories = Officer::withRelated()
+            ->with(['position.positionCluster'])
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -426,6 +469,7 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
             ->get();
 
         $internalOfficers = Officer::withRelated()
+            ->with('user')
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -439,6 +483,23 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
         $selectedSuspectIds = $document->suspects->pluck('id')->toArray();
         $carbonCopies = $document->carbon_copies ?? [];
 
+        $prosecutorLocationsMap = $prosecutors->mapWithKeys(function ($p) {
+            return [(string)$p->id => (string)($p->regency ? ucwords(strtolower($p->regency->name)) : ($p->address ?? $p->name ?? ''))];
+        })->toArray();
+
+        $officerPhonesMap = $internalOfficers->mapWithKeys(function ($o) {
+            return [(string)$o->id => (string)($o->phone_number ?? ($o->user->phone_number ?? ''))];
+        })->toArray();
+
+        $signatoryDataMap = $authorizedSignatories->mapWithKeys(function ($s) {
+            $posAlias = $s->position->positionCluster->alias_name ?? ($s->position->name ?? 'Kasat Lantas');
+            $clusterId = $s->position->position_cluster_id ?? '';
+            return [(string)$s->id => [
+                'cluster' => (string)$clusterId,
+                'position' => (string)$posAlias,
+            ]];
+        })->toArray();
+
         return view('docs.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.edit', compact(
             'document',
             'accident',
@@ -448,7 +509,10 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
             'prosecutors',
             'internalOfficers',
             'authorizedSignatories',
-            'carbonCopies'
+            'carbonCopies',
+            'prosecutorLocationsMap',
+            'officerPhonesMap',
+            'signatoryDataMap'
         ));
     }
 
@@ -466,25 +530,43 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
         DB::beginTransaction();
         try {
             // Data Kejaksaan
-            $prosecutor = Prosecutor::find($request->prosecutor_id);
+            $prosecutor = Prosecutor::with('regency')->find($request->prosecutor_id);
             $namaKejaksaan = $prosecutor ? $prosecutor->name : ($request->nama_kejaksaan ?? '-');
-            $lokasiKejaksaan = $request->lokasi_kejaksaan ?: ($prosecutor->address ?? ($accident->polres->name ?? '-'));
+            $lokasiKejaksaan = $prosecutor?->regency
+                ? ucwords(strtolower($prosecutor->regency->name))
+                : ($prosecutor->address ?? ($request->lokasi_kejaksaan ?? ($accident->polres->name ?? '-')));
 
             // Data Kontak Penyidik Penghubung
-            $contactOfficer = Officer::with(['rank', 'position', 'police'])->find($request->contact_officer_id);
+            $contactOfficer = Officer::with(['rank', 'position', 'police', 'user'])->find($request->contact_officer_id);
             $contactOfficerName = $contactOfficer
                 ? PeopleNameHelper::getFullName($contactOfficer->first_title, $contactOfficer->first_name, $contactOfficer->last_name, $contactOfficer->last_title)
                 : ($request->contact_officer_name ?? '-');
-            $contactOfficerPhone = $request->contact_officer_phone ?? '-';
+            $contactOfficerPhone = $contactOfficer?->phone_number ?: ($contactOfficer?->user?->phone_number ?: ($request->contact_officer_phone ?: '-'));
 
             // Data Signatory
-            $signatory = Officer::with(['rank', 'position', 'police'])->find($request->signatory);
+            $signatory = Officer::with(['rank', 'position.positionCluster', 'police'])->find($request->signatory);
             $signatoryName = $signatory
                 ? PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title)
                 : '-';
             $signatoryRank = $signatory->rank->name ?? ($signatory->rank_id ?? '-');
             $signatoryNrp = $signatory->register_number ?? '-';
-            $signatoryPosition = $signatory->position->name ?? ($signatory->position_id ?? 'KASAT LANTAS');
+            $signatoryPosition = 'KASAT LANTAS';
+            $polresFullName = strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? ''));
+            $poldaFullName = strtoupper($accident->polres->polda->full_name ?? ($accident->polres->polda->name ?? ''));
+            $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+
+            if ($signatory && $signatory->position) {
+                if ($signatory->position->position_cluster_id == '1') {
+                    $signatoryPosition = '';
+                    $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                } else if ($signatory->position->position_cluster_id == '9') {
+                    $signatoryPosition = strtoupper($signatory->position->positionCluster?->alias_name ?? ($signatory->position->name ?? 'DIRLANTAS'));
+                    $signatoryHeadText = 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName;
+                } else {
+                    $signatoryPosition = strtoupper($signatory->position->positionCluster?->alias_name ?? ($signatory->position->name ?? 'KASAT LANTAS'));
+                    $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                }
+            }
 
             // Format Tembusan (Carbon Copies)
             $carbonCopies = [];
@@ -525,7 +607,7 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
                 'contact_officer_phone'                 => $contactOfficerPhone,
                 'carbon_copies'                         => $carbonCopies,
                 'signatory_id'                          => $request->signatory,
-                'signatory_head_text'                   => $request->signatory_head_text,
+                'signatory_head_text'                   => $signatoryHeadText,
                 'signatory_position'                    => $signatoryPosition,
                 'signatory_name'                        => $signatoryName,
                 'signatory_rank'                        => $signatoryRank,
@@ -674,8 +756,13 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
         $templateProcessor->setValue('appendix', $document->lampiran ?? '1 (satu) Berkas');
 
         // Kejaksaan Tujuan
-        $prosecutorName = $document->nama_kejaksaan ?: ($document->prosecutor->name ?? 'KEJAKSAAN NEGERI');
-        $prosecutorLocation = $document->lokasi_kejaksaan ?: ($document->prosecutor->address ?? $location);
+        // 1. Variabel prosecutorLocation mendapatkan Kota / Kabupaten dari Kejaksaan yang dipilih
+        $prosecutor = $document->prosecutor()->with('regency')->first() ?? $document->prosecutor;
+        $prosecutorName = $document->nama_kejaksaan ?: ($prosecutor->name ?? 'KEJAKSAAN NEGERI');
+        $prosecutorRegencyName = $prosecutor?->regency?->name ?? '';
+        $prosecutorLocation = !empty($prosecutorRegencyName)
+            ? ucwords(strtolower($prosecutorRegencyName))
+            : ($document->lokasi_kejaksaan ?: ucwords(strtolower($prosecutor?->address ?? $location)));
         $templateProcessor->setValue('prosecutorName', $prosecutorName);
         $templateProcessor->setValue('prosecutorLocation', $prosecutorLocation);
 
@@ -721,8 +808,11 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
         $extStartDate = $document->tanggal_mulai_perpanjangan ? $this->formatDateIndo($document->tanggal_mulai_perpanjangan) : '-';
         $extEndDate = $document->tanggal_akhir_perpanjangan ? $this->formatDateIndo($document->tanggal_akhir_perpanjangan) : '-';
 
+        $contactOfficer = $document->contact_officer_id
+            ? Officer::with('user')->find($document->contact_officer_id)
+            : null;
         $contactName = $document->contact_officer_name ?: ($document->contactOfficer ? PeopleNameHelper::getFullName($document->contactOfficer->first_title, $document->contactOfficer->first_name, $document->contactOfficer->last_name, $document->contactOfficer->last_title) : '-');
-        $contactPhone = $document->contact_officer_phone ?: '-';
+        $contactPhone = $document->contact_officer_phone ?: ($contactOfficer?->phone_number ?: ($contactOfficer?->user?->phone_number ?: '-'));
 
         $templateProcessor->setValue('lastDate_penahanan', $lastDatePenahanan);
         $templateProcessor->setValue('rutan_name', $namaRutan);
@@ -755,17 +845,61 @@ class SuratPermohonanPerpanjanganPenahananKejaksaanDocumentController extends Co
 
         $templateProcessor->cloneRowAndSetValues('carbon_copy_iteration', $blockCarbonCopies);
 
-        // 6. Signatory (Penandatangan)
-        $signatoryHeadText = $document->signatory_head_text ?? ('a.n. KEPALA KEPOLISIAN RESOR ' . strtoupper($accident->polres->name ?? ''));
-        $signatoryPosition = $document->signatory_position ?? 'KASAT LANTAS';
-        $signatoryName = $document->signatory_name ?? '-';
-        $signatoryRank = $document->signatory_rank ?? '-';
-        $signatoryNrp = $document->signatory_nrp ?? '-';
+        // 6. Signatory (Penandatangan - sesuai SPDP)
+        $signatoryOfficer = null;
+        if (!empty($document->signatory_id)) {
+            $signatoryOfficer = Officer::with(['rank', 'position.positionCluster', 'police'])->find($document->signatory_id);
+        }
+        if (!$signatoryOfficer && $document->signatory) {
+            $signatoryOfficer = Officer::with(['rank', 'position.positionCluster', 'police'])->find($document->signatory->officer_id);
+        }
+
+        $polresFullName = strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? ''));
+        $poldaFullName = strtoupper($accident->polres->polda->full_name ?? ($accident->polres->polda->name ?? ''));
+
+        $signatureTitleText = [
+            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . $polresFullName,
+            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName,
+            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName,
+        ];
+
+        if ($signatoryOfficer) {
+            $signatoryPositionObj = $signatoryOfficer->position;
+            $signatoryClusterId = $signatoryPositionObj?->position_cluster_id ?? '';
+
+            $signaturePositionName = [
+                'KAPOLRES' => '',
+                'NO_KAPOLRES' => strtoupper($signatoryPositionObj?->positionCluster?->alias_name ?? ($signatoryPositionObj?->name ?? 'KASAT LANTAS')),
+                'NO_DIRLANTAS' => strtoupper($signatoryPositionObj?->positionCluster?->alias_name ?? ($signatoryPositionObj?->name ?? 'DIRLANTAS')),
+            ];
+
+            if ($signatoryClusterId == '1') {
+                $signatoryHeadText = $signatureTitleText['KAPOLRES'];
+                $signatoryPosition = $signaturePositionName['KAPOLRES'];
+            } else if ($signatoryClusterId == '9') {
+                $signatoryHeadText = $signatureTitleText['NO_DIRLANTAS'];
+                $signatoryPosition = $signaturePositionName['NO_DIRLANTAS'];
+            } else {
+                $signatoryHeadText = $signatureTitleText['NO_KAPOLRES'];
+                $signatoryPosition = $signaturePositionName['NO_KAPOLRES'];
+            }
+
+            $signatoryName = PeopleNameHelper::getFullName($signatoryOfficer->first_title, $signatoryOfficer->first_name, $signatoryOfficer->last_name, $signatoryOfficer->last_title);
+            $signatoryRank = $signatoryOfficer->rank->name ?? ($signatoryOfficer->rank_id ?? '-');
+            $signatoryNrp = $signatoryOfficer->register_number ?? '-';
+        } else {
+            $signatoryHeadText = $document->signatory_head_text ?: ('a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName);
+            $signatoryPosition = strtoupper($document->signatory_position ?? 'KASAT LANTAS');
+            $signatoryName = $document->signatory_name ?? '-';
+            $signatoryRank = $document->signatory_rank ?? '-';
+            $signatoryNrp = $document->signatory_nrp ?? '-';
+        }
 
         $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText);
         $templateProcessor->setValue('signatoryPositionName', $signatoryPosition);
+        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPosition);
         $templateProcessor->setValue('signatoryName', $signatoryName);
-        $templateProcessor->setValue('signatoryRankName', $signatoryRank);
+        $templateProcessor->setValue('signatoryRankName', strtoupper($signatoryRank));
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryNrp);
 
         $outputFilename = 'SURAT_PERMOHONAN_PERPANJANGAN_PENAHANAN_KEJAKSAAN_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $document->nomor ?: 'DRAFT') . '.docx';

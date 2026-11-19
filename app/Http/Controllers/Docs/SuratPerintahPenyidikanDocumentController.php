@@ -17,6 +17,13 @@ use App\Services\Doc\DocService;
 use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument;
 use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocumentOfficer;
 use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocumentLaw;
+use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
+use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument;
+use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument;
+use App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument;
+use App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument;
+use App\Models\Doc\Tahap1Document\Tahap1Document;
+use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Lib\CaseKeyword;
 use App\Models\Lib\Rank;
 use App\Models\Lib\Position;
@@ -1115,11 +1122,50 @@ class SuratPerintahPenyidikanDocumentController extends Controller
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $suratPerintahPenyidikanDocumentId = $id;
 
+        // Validasi relasi dokumen turunan aktif
+        $childDocs = [];
+
+        if (LaporanHasilGelarPerkaraDocument::where('surat_perintah_penyidikan_document_id', $suratPerintahPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'Laporan Hasil Gelar Perkara (LHGP)';
+        }
+
+        if (SuratKetetapanTentangPenetapanTersangkaDocument::where('surat_perintah_penyidikan_document_id', $suratPerintahPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'Surat Ketetapan Penetapan Tersangka (S.Tap.Tsk)';
+        }
+
+        if (SuratPemberitahuanDimulainyaPenyidikanDocument::where('surat_perintah_penyidikan_document_id', $suratPerintahPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'Surat Pemberitahuan Dimulainya Penyidikan (SPDP)';
+        }
+
+        if (SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::where('surat_perintah_penyidikan_document_id', $suratPerintahPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'SPDP Pusiknas';
+        }
+
+        if (SuratPemberitahuanPenghentianPenyidikanDocument::where('surat_perintah_penyidikan_document_id', $suratPerintahPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'Surat Pemberitahuan Penghentian Penyidikan (SP3)';
+        }
+
+        if (Tahap1Document::where('surat_perintah_penyidikan_id', $suratPerintahPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'Tahap 1';
+        }
+
+        if (Tahap2Document::where('surat_perintah_penyidikan_id', $suratPerintahPenyidikanDocumentId)->exists()) {
+            $childDocs[] = 'Tahap 2';
+        }
+
+        if (!empty($childDocs)) {
+            $listDocs = implode(', ', $childDocs);
+            $message = "Surat Perintah Penyidikan (Sp.Sidik) tidak dapat dihapus karena masih menjadi dasar penerbitan dokumen turunan: {$listDocs}. Silakan hapus dokumen turunan tersebut terlebih dahulu sebelum menghapus dokumen Sp.Sidik ini.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+
         DB::beginTransaction();
         try{
             // Delete from database
             $suratPerintahPenyidikanDocument = SuratPerintahPenyidikanDocument::where('id', $suratPerintahPenyidikanDocumentId)->first();
-            $suratPerintahPenyidikanDocument->delete();
+            if ($suratPerintahPenyidikanDocument) {
+                $suratPerintahPenyidikanDocument->delete();
+            }
 
             DB::commit();
         } catch (\Exception $e) {

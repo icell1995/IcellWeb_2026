@@ -141,10 +141,32 @@ class FileUploadController extends Controller
             //start tugas ketegori 1
 
             case 'laporan_polisi':
-                $fileName = uniqid($accident). $request->file->getClientOriginalName();
-                $request->file->move(public_path('file/tugas/laporan_polisi') ,$fileName);
+                $dirPath = public_path('file/tugas/laporan_polisi');
+                if (!file_exists($dirPath)) {
+                    mkdir($dirPath, 0755, true);
+                }
+                $fileName = uniqid($accident) . '_' . $request->file->getClientOriginalName();
+                $request->file->move($dirPath, $fileName);
                 /* Store $fileName name in DATABASE from HERE */
-                LaporanPolisi::create(['accident_id'=>$accident,'name' => $fileName,'category' => 'D010105','initial'=>'laporan-polisi', 'created_by'=>$user]);
+                $existingLp = LaporanPolisi::where('accident_id', $accident)->first();
+                if ($existingLp) {
+                    $oldFile = $dirPath . '/' . $existingLp->name;
+                    if (file_exists($oldFile) && is_file($oldFile)) {
+                        @unlink($oldFile);
+                    }
+                    $existingLp->update([
+                        'name' => $fileName,
+                        'created_by' => $user,
+                    ]);
+                } else {
+                    LaporanPolisi::create([
+                        'accident_id' => $accident,
+                        'name' => $fileName,
+                        'category' => 'D010105',
+                        'initial' => 'laporan-polisi',
+                        'created_by' => $user,
+                    ]);
+                }
                 Accident::where('id', $accident)
                 ->update([
                     'last_update' => Carbon::now(),

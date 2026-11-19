@@ -7,6 +7,18 @@
 @push('style')
     <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
+    <style>
+        .select2-container .select2-selection.border-danger,
+        .select2-container .select2-selection.is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .invalid-feedback.frontend-error {
+            display: block;
+            font-size: 80%;
+            color: #dc3545;
+            margin-top: 0.25rem;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -54,7 +66,7 @@
 
         <div class="box-body">
             <form action="{{ route('doc.tahap-1-document.update', ['accident_id' => $accidentId, 'id' => $document->id]) }}"
-                method="POST" enctype="multipart/form-data" id="tahap1Form">
+                method="POST" enctype="multipart/form-data" id="tahap1Form" novalidate>
                 @csrf
                 
                 <input type="hidden" name="accident_id" value="{{ $accidentId }}">
@@ -234,38 +246,13 @@
                     </div>
                 </div>
 
-                                {{-- Tanggal Kejadian --}}
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label">Tanggal Kejadian <span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <div class="row">
-                            <div class="col-sm-4">
-                                <input type="number" class="form-control" name="tahunKejadian" placeholder="Tahun" value="{{ old('tahunKejadian', $document->messages['tahun_kejadian'] ?? ($accident->accident_date ? date('Y', strtotime($accident->accident_date)) : '')) }}" required>
-                            </div>
-                            <div class="col-sm-4">
-                                <select class="form-control" name="bulanKejadian" required>
-                                    <option value="">-- Bulan --</option>
-                                    @for($i=1; $i<=12; $i++)
-                                        <option value="{{$i}}" {{ old('bulanKejadian', $document->messages['bulan_kejadian'] ?? ($accident->accident_date ? date('n', strtotime($accident->accident_date)) : '')) == $i ? 'selected' : '' }}>
-                                            {{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}
-                                        </option>
-                                    @endfor
-                                </select>
-                            </div>
-                            <div class="col-sm-4">
-                                <input type="number" class="form-control" name="tanggalKejadian" placeholder="Tanggal" min="1" max="31" value="{{ old('tanggalKejadian', $document->messages['tanggal_kejadian'] ?? ($accident->accident_date ? date('j', strtotime($accident->accident_date)) : '')) }}" required>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {{-- Waktu Kejadian (Hidden) --}}
+                <input type="hidden" name="waktuKejadian" value="{{ old('waktuKejadian', $document->messages['waktu_kejadian'] ?? ('Sekitar pukul ' . ($accident->accident_time ? \Carbon\Carbon::parse($accident->accident_time)->format('H:i') : '-') . ' WIB')) }}">
 
-                {{-- Waktu Kejadian --}}
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-3 col-form-label" for="waktuKejadian">Waktu Kejadian <span class="text-danger fs-5">*</span></label>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12">
-                        <input id="waktuKejadian" type="text" class="form-control" name="waktuKejadian" value="{{ old('waktuKejadian', $document->messages['waktu_kejadian'] ?? ('Sekitar pukul ' . ($accident->accident_time ? \Carbon\Carbon::parse($accident->accident_time)->format('H:i') : '-') . ' WIB')) }}" placeholder="Sekitar pukul ..." required>
-                    </div>
-                </div>
+                {{-- Tanggal Kejadian (Hidden) --}}
+                <input type="hidden" name="tahunKejadian" value="{{ old('tahunKejadian', $document->messages['tahun_kejadian'] ?? ($accident->accident_date ? date('Y', strtotime($accident->accident_date)) : '')) }}">
+                <input type="hidden" name="bulanKejadian" value="{{ old('bulanKejadian', $document->messages['bulan_kejadian'] ?? ($accident->accident_date ? date('n', strtotime($accident->accident_date)) : '')) }}">
+                <input type="hidden" name="tanggalKejadian" value="{{ old('tanggalKejadian', $document->messages['tanggal_kejadian'] ?? ($accident->accident_date ? date('j', strtotime($accident->accident_date)) : '')) }}">
 
                 {{-- Daftar Tersangka --}}
                 <div class="input-group row mb-3 ms-0">
@@ -324,113 +311,178 @@
                 </div>
 
                 <div id="detentionFieldsContainer" style="{{ old('penahanan_status', $document->penahanan_status ?? 'DITAHAN') == 'TIDAK_DITAHAN' ? 'display:none;' : '' }}">
-                                    <div class="input-group row mb-3 ms-0">
-                    <div class="col-sm-3"></div>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
-                        <div class="col-md-6 mb-2">
-                            <label class="fw-bold d-block mb-1" for="penahanan_rutan">Nama Rutan</label>
-                            <select id="penahanan_rutan" name="penahanan_rutan" class="form-control select2">
-                            <option value="">--Pilih Rutan--</option>
-                        </select>
-                        </div>
-                        <div class="col-md-6 mb-2 pe-0">
-                            <label class="fw-bold d-block mb-1" for="penahanan_cabang">Cabang Rutan</label>
-                            <select id="penahanan_cabang" name="penahanan_cabang" class="form-control select2">
-                            <option value="">--Pilih Cabang--</option>
-                        </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group row mb-3 ms-0">
-                    <div class="col-sm-3"></div>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
-                        <div class="col-md-6 mb-2">
-                            <label class="fw-bold d-block mb-1" for="penahanan_start_date">Tgl Mulai Penahanan</label>
-                            <input class="form-control" id="penahanan_start_date" name="penahanan_start_date" placeholder="YYYY-MM-DD" value="{{ old('penahanan_start_date', $document->penahanan_start_date ? $document->penahanan_start_date->format('Y-m-d') : '') }}" data-provide="datepicker">
-                        </div>
-                        <div class="col-md-6 mb-2 pe-0">
-                            <label class="fw-bold d-block mb-1" for="penahanan_end_date">Tgl Selesai Penahanan</label>
-                            <input class="form-control" id="penahanan_end_date" name="penahanan_end_date" placeholder="YYYY-MM-DD" value="{{ old('penahanan_end_date', $document->penahanan_end_date ? $document->penahanan_end_date->format('Y-m-d') : '') }}" data-provide="datepicker">
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group row mb-3 ms-0">
-                    <div class="col-sm-3"></div>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
-                        <div class="col-md-6 mb-2">
-                            <label class="fw-bold d-block mb-1" for="surat_perintah_penahanan_ref">No. Surat Penahanan</label>
-                            <select id="surat_perintah_penahanan_ref" class="form-control select2 mb-2"
-                            data-placeholder="-- Pilih Surat Perintah Penahanan --">
-                            <option value="">-- Pilih Surat Perintah Penahanan --</option>
-                            @foreach($suratPerintahPenahananDocuments as $spp)
-                                @php
-                                    $sppSuspects = $spp->suspect->pluck('name')->implode(', ');
-                                    $isSelected = ($document->surat_perintah_penahanan_number === $spp->document_number);
-                                @endphp
-                                <option value="{{ $spp->id }}"
-                                    data-number="{{ $spp->document_number }}"
-                                    data-date="{{ $spp->document_date ? $spp->document_date->format('Y-m-d') : '' }}"
-                                    data-rutan="{{ $spp->lokasi_penahanan }}"
-                                    data-cabang="{{ $spp->cabang_penahanan }}"
-                                    {{ $isSelected ? 'selected' : '' }}>
-                                    {{ $spp->document_number }}
-                                    @if($sppSuspects) &mdash; {{ $sppSuspects }} @endif
-                                </option>
-                            @endforeach
-                        </select>
-                        <small class="text-info"><i class="bi bi-info-circle"></i> Pilih untuk auto-fill nomor, tanggal, rutan, dan cabang. Dapat diubah manual setelah dipilih.</small>
-                        <input id="surat_perintah_penahanan_number" type="text" class="form-control mt-2" name="surat_perintah_penahanan_number" value="{{ old('surat_perintah_penahanan_number', $document->surat_perintah_penahanan_number) }}" placeholder="Nomor surat (terisi otomatis atau isi manual)">
-                        </div>
-                        <div class="col-md-6 mb-2 pe-0">
-                            <label class="fw-bold d-block mb-1" for="surat_perintah_penahanan_date">Tgl Surat Penahanan</label>
-                            <input class="form-control" id="surat_perintah_penahanan_date" name="surat_perintah_penahanan_date" placeholder="YYYY-MM-DD" value="{{ old('surat_perintah_penahanan_date', $document->surat_perintah_penahanan_date ? $document->surat_perintah_penahanan_date->format('Y-m-d') : '') }}" data-provide="datepicker">
-                        </div>
-                    </div>
-                </div>
-                <hr class="border-secondary border-dashed">
-                <div class="input-group row mb-3 ms-0">
-                    <div class="col-sm-3"></div>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
-                        <div class="col-md-6 mb-2">
-                            <label class="fw-bold d-block mb-1" for="surat_perpanjangan_penahanan_number">No. Surat Perpanjangan Penahanan</label>
-                            <input id="surat_perpanjangan_penahanan_number" type="text" class="form-control" name="surat_perpanjangan_penahanan_number" value="{{ old('surat_perpanjangan_penahanan_number', $document->surat_perpanjangan_penahanan_number) }}">
-                        </div>
-                        <div class="col-md-6 mb-2 pe-0">
-                            <label class="fw-bold d-block mb-1" for="surat_perpanjangan_penahanan_date">Tgl Surat Perpanjangan Penahanan</label>
-                            <input class="form-control" id="surat_perpanjangan_penahanan_date" name="surat_perpanjangan_penahanan_date" placeholder="YYYY-MM-DD" value="{{ old('surat_perpanjangan_penahanan_date', $document->surat_perpanjangan_penahanan_date ? $document->surat_perpanjangan_penahanan_date->format('Y-m-d') : '') }}" data-provide="datepicker">
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group row mb-3 ms-0">
-                    <div class="col-sm-3"></div>
-                    <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
-                        <div class="col-md-6 mb-2">
-                            <label class="fw-bold d-block mb-1" for="surat_perpanjangan_penahanan_court_number">No. Surat Perpanjangan Penahanan ke Pengadilan</label>
-                            <input id="surat_perpanjangan_penahanan_court_number" type="text" class="form-control" name="surat_perpanjangan_penahanan_court_number" value="{{ old('surat_perpanjangan_penahanan_court_number', $document->surat_perpanjangan_penahanan_court_number) }}">
-                        </div>
-                        <div class="col-md-6 mb-2 pe-0">
-                            <label class="fw-bold d-block mb-1" for="surat_perpanjangan_penahanan_court_date">Tgl Surat Perpanjangan Penahanan ke Pengadilan</label>
-                            <input class="form-control" id="surat_perpanjangan_penahanan_court_date" name="surat_perpanjangan_penahanan_court_date" placeholder="YYYY-MM-DD" value="{{ old('surat_perpanjangan_penahanan_court_date', $document->surat_perpanjangan_penahanan_court_date ? $document->surat_perpanjangan_penahanan_court_date->format('Y-m-d') : '') }}" data-provide="datepicker">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Suspension Fields (Only for DITANGGUHKAN) --}}
-                <div id="suspensionFields" style="{{ old('penahanan_status', $document->penahanan_status) == 'DITANGGUHKAN' ? '' : 'display:none;' }}">
                     <div class="input-group row mb-3 ms-0">
                         <div class="col-sm-3"></div>
                         <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
                             <div class="col-md-6 mb-2">
-                                <label class="fw-bold d-block mb-1" for="surat_penangguhan_penahanan_number">No. Surat Penangguhan Penahanan</label>
-                                <input id="surat_penangguhan_penahanan_number" type="text" class="form-control" name="surat_penangguhan_penahanan_number" value="{{ old('surat_penangguhan_penahanan_number', $document->surat_penangguhan_penahanan_number) }}">
+                                <label class="fw-bold d-block mb-1" for="penahanan_rutan">Nama Rutan <span class="text-danger required-penahanan">*</span></label>
+                                <select id="penahanan_rutan" name="penahanan_rutan" class="form-control select2">
+                                    <option value="">--Pilih Rutan--</option>
+                                </select>
                             </div>
                             <div class="col-md-6 mb-2 pe-0">
-                                <label class="fw-bold d-block mb-1" for="surat_penangguhan_penahanan_date">Tgl Surat Penangguhan Penahanan</label>
-                                <input class="form-control" id="surat_penangguhan_penahanan_date" name="surat_penangguhan_penahanan_date" placeholder="YYYY-MM-DD" value="{{ old('surat_penangguhan_penahanan_date', $document->surat_penangguhan_penahanan_date ? $document->surat_penangguhan_penahanan_date->format('Y-m-d') : '') }}" data-provide="datepicker">
+                                <label class="fw-bold d-block mb-1" for="penahanan_cabang">Cabang Rutan</label>
+                                <select id="penahanan_cabang" name="penahanan_cabang" class="form-control select2">
+                                    <option value="">--Pilih Cabang--</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <div class="col-sm-3"></div>
+                        <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
+                            <div class="col-md-6 mb-2">
+                                <label class="fw-bold d-block mb-1" for="penahanan_start_date">Tgl Mulai Penahanan <span class="text-danger required-penahanan">*</span></label>
+                                <input class="form-control" id="penahanan_start_date" name="penahanan_start_date" placeholder="YYYY-MM-DD" value="{{ old('penahanan_start_date', $document->penahanan_start_date ? $document->penahanan_start_date->format('Y-m-d') : '') }}" data-provide="datepicker">
+                            </div>
+                            <div class="col-md-6 mb-2 pe-0">
+                                <label class="fw-bold d-block mb-1" for="penahanan_end_date">Tgl Selesai Penahanan <span class="text-danger required-penahanan">*</span></label>
+                                <input class="form-control" id="penahanan_end_date" name="penahanan_end_date" placeholder="YYYY-MM-DD" value="{{ old('penahanan_end_date', $document->penahanan_end_date ? $document->penahanan_end_date->format('Y-m-d') : '') }}" data-provide="datepicker">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <div class="col-sm-3"></div>
+                        <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
+                            <div class="col-md-6 mb-2">
+                                <label class="fw-bold d-block mb-1" for="surat_perintah_penahanan_number">No. Surat Penahanan <span class="text-danger required-penahanan">*</span></label>
+                                <select id="surat_perintah_penahanan_number" name="surat_perintah_penahanan_number" class="form-control select2"
+                                    data-placeholder="-- Pilih Surat Perintah Penahanan --">
+                                    <option value="">-- Pilih Surat Perintah Penahanan --</option>
+                                    @if($document->surat_perintah_penahanan_number && !$suratPerintahPenahananDocuments->contains('document_number', $document->surat_perintah_penahanan_number))
+                                        <option value="{{ $document->surat_perintah_penahanan_number }}" selected>
+                                            {{ $document->surat_perintah_penahanan_number }} (Tersimpan sebelumnya)
+                                        </option>
+                                    @endif
+                                    @foreach($suratPerintahPenahananDocuments as $spp)
+                                        @php
+                                            $sppSuspects = ($spp->suspects && $spp->suspects->count() > 0) ? $spp->suspects->pluck('name')->implode(', ') : '';
+                                        @endphp
+                                        <option value="{{ $spp->document_number }}"
+                                            data-date="{{ $spp->document_date ? \Carbon\Carbon::parse($spp->document_date)->format('Y-m-d') : '' }}"
+                                            data-rutan="{{ $spp->lokasi_penahanan }}"
+                                            data-cabang="{{ $spp->cabang_penahanan }}"
+                                            data-start-date="{{ $spp->tanggal_mulai ? \Carbon\Carbon::parse($spp->tanggal_mulai)->format('Y-m-d') : '' }}"
+                                            data-end-date="{{ $spp->tanggal_akhir ? \Carbon\Carbon::parse($spp->tanggal_akhir)->format('Y-m-d') : '' }}"
+                                            {{ old('surat_perintah_penahanan_number', $document->surat_perintah_penahanan_number) == $spp->document_number ? 'selected' : '' }}>
+                                            {{ $spp->document_number }}
+                                            @if($sppSuspects) &mdash; {{ $sppSuspects }} @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @if($suratPerintahPenahananDocuments->isEmpty())
+                                    <div class="mt-2 p-2 bg-light border border-warning rounded d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <small class="text-danger mb-0 fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Belum ada Surat Perintah Penahanan yang dibuat.</small>
+                                        <a href="{{ route('doc.surat-perintah-penahanan-document.create', ['accident_id' => $accidentId]) }}" target="_blank" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-plus-circle me-1"></i> Buat Surat Perintah Penahanan
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="col-md-6 mb-2 pe-0">
+                                <label class="fw-bold d-block mb-1" for="surat_perintah_penahanan_date">Tgl Surat Penahanan <span class="text-danger required-penahanan">*</span></label>
+                                <input class="form-control" id="surat_perintah_penahanan_date" name="surat_perintah_penahanan_date" placeholder="YYYY-MM-DD" value="{{ old('surat_perintah_penahanan_date', $document->surat_perintah_penahanan_date ? $document->surat_perintah_penahanan_date->format('Y-m-d') : '') }}" readonly style="background-color: #e9ecef; cursor: not-allowed;">
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="border-secondary border-dashed">
+                    <div class="input-group row mb-3 ms-0">
+                        <div class="col-sm-3"></div>
+                        <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
+                            <div class="col-md-6 mb-2">
+                                <label class="fw-bold d-block mb-1" for="surat_perpanjangan_penahanan_number">No. Surat Perpanjangan Penahanan <span class="text-danger required-ditangguhkan" style="{{ old('penahanan_status', $document->penahanan_status) == 'DITANGGUHKAN' ? '' : 'display:none;' }}">*</span></label>
+                                <select id="surat_perpanjangan_penahanan_number" name="surat_perpanjangan_penahanan_number" class="form-control select2"
+                                    data-placeholder="-- Pilih Surat Perpanjangan Penahanan --">
+                                    <option value="">-- Pilih Surat Perpanjangan Penahanan --</option>
+                                    @if($document->surat_perpanjangan_penahanan_number && !$suratPerpanjanganPenahananDocuments->contains('document_number', $document->surat_perpanjangan_penahanan_number))
+                                        <option value="{{ $document->surat_perpanjangan_penahanan_number }}" selected>
+                                            {{ $document->surat_perpanjangan_penahanan_number }} (Tersimpan sebelumnya)
+                                        </option>
+                                    @endif
+                                    @foreach($suratPerpanjanganPenahananDocuments as $sppp)
+                                        @php
+                                            $spppSuspects = ($sppp->suspects && $sppp->suspects->count() > 0) ? $sppp->suspects->pluck('name')->implode(', ') : '';
+                                        @endphp
+                                        <option value="{{ $sppp->document_number }}"
+                                            data-date="{{ $sppp->document_date ? \Carbon\Carbon::parse($sppp->document_date)->format('Y-m-d') : '' }}"
+                                            {{ old('surat_perpanjangan_penahanan_number', $document->surat_perpanjangan_penahanan_number) == $sppp->document_number ? 'selected' : '' }}>
+                                            {{ $sppp->document_number }}
+                                            @if($spppSuspects) &mdash; {{ $spppSuspects }} @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @if($suratPerpanjanganPenahananDocuments->isEmpty())
+                                    <div class="mt-2 p-2 bg-light border border-warning rounded d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                        <small class="text-danger mb-0 fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Belum ada Surat Perpanjangan Penahanan yang dibuat.</small>
+                                        <a href="{{ route('doc.surat-permohonan-perpanjangan-penahanan-kejaksaan-document.create', ['accident_id' => $accidentId]) }}" target="_blank" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-plus-circle me-1"></i> Buat Surat Perpanjangan Penahanan
+                                        </a>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="col-md-6 mb-2 pe-0">
+                                <label class="fw-bold d-block mb-1" for="surat_perpanjangan_penahanan_date">Tgl Surat Perpanjangan Penahanan <span class="text-danger required-ditangguhkan" style="{{ old('penahanan_status', $document->penahanan_status) == 'DITANGGUHKAN' ? '' : 'display:none;' }}">*</span></label>
+                                <input class="form-control" id="surat_perpanjangan_penahanan_date" name="surat_perpanjangan_penahanan_date" placeholder="YYYY-MM-DD" value="{{ old('surat_perpanjangan_penahanan_date', $document->surat_perpanjangan_penahanan_date ? $document->surat_perpanjangan_penahanan_date->format('Y-m-d') : '') }}" readonly style="background-color: #e9ecef; cursor: not-allowed;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group row mb-3 ms-0">
+                        <div class="col-sm-3"></div>
+                        <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
+                            <div class="col-md-6 mb-2">
+                                <label class="fw-bold d-block mb-1" for="surat_perpanjangan_penahanan_court_number">No. Surat Perpanjangan Penahanan ke Pengadilan <span class="text-danger required-ditangguhkan" style="{{ old('penahanan_status', $document->penahanan_status) == 'DITANGGUHKAN' ? '' : 'display:none;' }}">*</span></label>
+                                <input id="surat_perpanjangan_penahanan_court_number" type="text" class="form-control" name="surat_perpanjangan_penahanan_court_number" value="{{ old('surat_perpanjangan_penahanan_court_number', $document->surat_perpanjangan_penahanan_court_number) }}" placeholder="Nomor perpanjangan ke Pengadilan">
+                            </div>
+                            <div class="col-md-6 mb-2 pe-0">
+                                <label class="fw-bold d-block mb-1" for="surat_perpanjangan_penahanan_court_date">Tgl Surat Perpanjangan Penahanan ke Pengadilan <span class="text-danger required-ditangguhkan" style="{{ old('penahanan_status', $document->penahanan_status) == 'DITANGGUHKAN' ? '' : 'display:none;' }}">*</span></label>
+                                <input class="form-control" id="surat_perpanjangan_penahanan_court_date" name="surat_perpanjangan_penahanan_court_date" placeholder="YYYY-MM-DD" value="{{ old('surat_perpanjangan_penahanan_court_date', $document->surat_perpanjangan_penahanan_court_date ? $document->surat_perpanjangan_penahanan_court_date->format('Y-m-d') : '') }}" data-provide="datepicker">
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Suspension Fields (Only for DITANGGUHKAN) --}}
+                    <div id="suspensionFields" style="{{ old('penahanan_status', $document->penahanan_status) == 'DITANGGUHKAN' ? '' : 'display:none;' }}">
+                        <div class="input-group row mb-3 ms-0">
+                            <div class="col-sm-3"></div>
+                            <div class="col-lg-9 col-md-9 col-sm-12 col-12 row pe-0">
+                                <div class="col-md-6 mb-2">
+                                    <label class="fw-bold d-block mb-1" for="surat_penangguhan_penahanan_number">No. Surat Penangguhan Penahanan <span class="text-danger required-ditangguhkan">*</span></label>
+                                    <select id="surat_penangguhan_penahanan_number" name="surat_penangguhan_penahanan_number" class="form-control select2"
+                                        data-placeholder="-- Pilih Surat Penangguhan Penahanan --">
+                                        <option value="">-- Pilih Surat Penangguhan Penahanan --</option>
+                                        @if($document->surat_penangguhan_penahanan_number && !$suratPenangguhanPenahananDocuments->contains('document_number', $document->surat_penangguhan_penahanan_number))
+                                            <option value="{{ $document->surat_penangguhan_penahanan_number }}" selected>
+                                                {{ $document->surat_penangguhan_penahanan_number }} (Tersimpan sebelumnya)
+                                            </option>
+                                        @endif
+                                        @foreach($suratPenangguhanPenahananDocuments as $spnp)
+                                            @php
+                                                $spnpSuspects = ($spnp->suspects && $spnp->suspects->count() > 0) ? $spnp->suspects->pluck('name')->implode(', ') : '';
+                                            @endphp
+                                            <option value="{{ $spnp->document_number }}"
+                                                data-date="{{ $spnp->document_date ? \Carbon\Carbon::parse($spnp->document_date)->format('Y-m-d') : '' }}"
+                                                {{ old('surat_penangguhan_penahanan_number', $document->surat_penangguhan_penahanan_number) == $spnp->document_number ? 'selected' : '' }}>
+                                                {{ $spnp->document_number }}
+                                                @if($spnpSuspects) &mdash; {{ $spnpSuspects }} @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @if($suratPenangguhanPenahananDocuments->isEmpty())
+                                        <div class="mt-2 p-2 bg-light border border-warning rounded d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                            <small class="text-danger mb-0 fw-semibold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Belum ada Surat Penangguhan Penahanan yang dibuat.</small>
+                                            <a href="{{ route('doc.surat-perintah-penangguhan-penahanan-document.create', ['accident_id' => $accidentId]) }}" target="_blank" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-plus-circle me-1"></i> Buat Surat Penangguhan Penahanan
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="col-md-6 mb-2 pe-0">
+                                    <label class="fw-bold d-block mb-1" for="surat_penangguhan_penahanan_date">Tgl Surat Penangguhan Penahanan <span class="text-danger required-ditangguhkan">*</span></label>
+                                    <input class="form-control" id="surat_penangguhan_penahanan_date" name="surat_penangguhan_penahanan_date" placeholder="YYYY-MM-DD" value="{{ old('surat_penangguhan_penahanan_date', $document->surat_penangguhan_penahanan_date ? $document->surat_penangguhan_penahanan_date->format('Y-m-d') : '') }}" readonly style="background-color: #e9ecef; cursor: not-allowed;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <hr>
@@ -619,7 +671,7 @@
                     <a href="{{ route('view_produktivitas_accident', ['accident_id' => $accidentId]) }}" class="btn btn-secondary me-2">
                         <i class="bi bi-x-circle"></i> Batal
                     </a>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="button" class="btn btn-primary" id="tahap1FormSubmit">
                         <i class="bi bi-save"></i> Update Dokumen
                     </button>
                 </div>
@@ -884,38 +936,50 @@
                 var status = $(this).val();
                 if (status === 'TIDAK_DITAHAN') {
                     $('#detentionFieldsContainer').slideUp();
+                    $('.required-penahanan').hide();
+                    $('.required-ditangguhkan').hide();
                 } else {
                     $('#detentionFieldsContainer').slideDown();
+                    $('.required-penahanan').show();
                     if (status === 'DITANGGUHKAN') {
                         $('#suspensionFields').slideDown();
+                        $('.required-ditangguhkan').show();
                     } else {
                         $('#suspensionFields').slideUp();
+                        $('.required-ditangguhkan').hide();
                     }
                 }
             });
+            $('.penahanan-status-radio:checked').trigger('change');
 
             // Initialize Select2
             $('.select2').select2({
-            theme: 'bootstrap4',
-            width: '100%',
                 theme: 'bootstrap4',
                 width: '100%'
             });
 
             // ===== AUTO-FILL dari dropdown Surat Perintah Penahanan =====
-            $('#surat_perintah_penahanan_ref').on('change', function() {
+            $('#surat_perintah_penahanan_number').on('change', function() {
                 var selected = $(this).find('option:selected');
-                var number   = selected.data('number') || '';
-                var date     = selected.data('date')   || '';
-                var rutan    = selected.data('rutan')  || '';
-                var cabang   = selected.data('cabang') || '';
+                var date     = selected.data('date')       || '';
+                var rutan    = selected.data('rutan')      || '';
+                var cabang   = selected.data('cabang')     || '';
+                var sDate    = selected.data('start-date') || '';
+                var eDate    = selected.data('end-date')   || '';
 
-                // Isi nomor & tanggal SP Penahanan
-                $('#surat_perintah_penahanan_number').val(number);
-                if (date) {
-                    $('#surat_perintah_penahanan_date').datepicker('update', date);
-                } else {
-                    $('#surat_perintah_penahanan_date').val('');
+                // Isi tanggal SP Penahanan
+                $('#surat_perintah_penahanan_date').val(date);
+
+                // Auto-fill tanggal mulai & selesai penahanan
+                if (sDate) {
+                    $('#penahanan_start_date').datepicker('update', sDate);
+                } else if (!$(this).val()) {
+                    $('#penahanan_start_date').val('');
+                }
+                if (eDate) {
+                    $('#penahanan_end_date').datepicker('update', eDate);
+                } else if (!$(this).val()) {
+                    $('#penahanan_end_date').val('');
                 }
 
                 // Auto-fill Rutan & Cabang di form penahanan (jika ada data)
@@ -931,7 +995,24 @@
 
                     // Set Rutan dropdown value
                     $('#penahanan_rutan').val(rutan).trigger('change.select2');
+                } else if (!$(this).val()) {
+                    $('#penahanan_rutan').val('').trigger('change.select2');
+                    $('#penahanan_cabang').val('').trigger('change.select2');
                 }
+            });
+
+            // ===== AUTO-FILL dari dropdown Surat Perpanjangan Penahanan =====
+            $('#surat_perpanjangan_penahanan_number').on('change', function() {
+                var selected = $(this).find('option:selected');
+                var date     = selected.data('date') || '';
+                $('#surat_perpanjangan_penahanan_date').val(date);
+            });
+
+            // ===== AUTO-FILL dari dropdown Surat Penangguhan Penahanan =====
+            $('#surat_penangguhan_penahanan_number').on('change', function() {
+                var selected = $(this).find('option:selected');
+                var date     = selected.data('date') || '';
+                $('#surat_penangguhan_penahanan_date').val(date);
             });
             // ===== END AUTO-FILL =====
 
@@ -1188,28 +1269,203 @@
                 $(this).closest('.input-group').remove();
             });
 
-            // Form AJAX Submission
-            $('#tahap1Form').on('submit', function(e) {
+            // Helper check field has value
+            function hasFieldValue($field) {
+                var raw = $field.val();
+                if (raw === null || raw === undefined) return false;
+                if (Array.isArray(raw)) return raw.length > 0;
+                var str = String(raw).trim();
+                return str !== '' && str !== '0';
+            }
+
+            // Helper clear single field error
+            function clearFieldError($field) {
+                $field.removeClass('is-invalid border border-danger');
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+                    $field.next('.select2-container').next('.frontend-error, .invalid-feedback').remove();
+                }
+                $field.next('.frontend-error, .invalid-feedback').remove();
+                $field.siblings('.frontend-error, .invalid-feedback').remove();
+                $field.closest('.input-group, .form-group, .mb-3, div').find('.frontend-error, .invalid-feedback').remove();
+            }
+
+            // Auto-clear realtime saat user mengetik atau mengubah nilai field
+            $(document).on('input change changeDate dp.change keyup blur', 'input, textarea, select', function() {
+                var $field = $(this);
+                if (hasFieldValue($field)) {
+                    clearFieldError($field);
+                }
+            });
+
+            $(document).on('select2:select select2:unselect change', 'select', function() {
+                var $field = $(this);
+                if (hasFieldValue($field)) {
+                    clearFieldError($field);
+                }
+            });
+
+            // Continuous watcher
+            setInterval(function() {
+                $('input.is-invalid, textarea.is-invalid, select.is-invalid').each(function() {
+                    var $field = $(this);
+                    if (hasFieldValue($field)) {
+                        clearFieldError($field);
+                    }
+                });
+            }, 200);
+
+            // Helper scrollToFirstError
+            function scrollToFirstError() {
+                var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+                if (!$firstError.length) {
+                    $firstError = $('.is-invalid, .border-danger').first();
+                }
+                if ($firstError && $firstError.length) {
+                    var el = $firstError[0];
+                    if (el && typeof el.scrollIntoView === 'function') {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    var topPos = $firstError.offset() ? $firstError.offset().top : 0;
+                    $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                        scrollTop: Math.max(0, topPos - 140)
+                    }, 400);
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+
+            // Validasi Submit Form
+            $('#tahap1FormSubmit').on('click', function(e) {
                 e.preventDefault();
-                Swal.fire({ title: 'Menyimpan Data...', text: 'Mohon tunggu sebentar', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                var formData = new FormData(this);
+
+                // Bersihkan error sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.border.border-danger').removeClass('border border-danger');
+                $('.select2-selection').removeClass('border border-danger is-invalid');
+                $('.frontend-error').remove();
+                $('.invalid-feedback').remove();
+
+                let errors = [];
+
+                function markError(fieldSelector, message) {
+                    var $field = typeof fieldSelector === 'string' ? $(fieldSelector) : fieldSelector;
+                    if (!$field || !$field.length) return;
+
+                    $field.addClass('is-invalid');
+                    if ($field.next('.select2-container').length) {
+                        $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    }
+                    var $target = $field.next('.select2-container').length ? $field.next('.select2-container') : $field;
+                    $target.siblings('.frontend-error, .invalid-feedback').remove();
+                    $target.next('.frontend-error, .invalid-feedback').remove();
+                    $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    errors.push(message);
+                }
+
+                function checkInput(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || !$field.is(':visible')) return;
+                    var raw = $field.val();
+                    var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                    if (!val || val === '') {
+                        markError(fieldSelector, label + ' harus diisi');
+                    }
+                }
+
+                function checkSelect(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                    var raw = $field.val();
+                    var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                    if (!hasVal) {
+                        markError(fieldSelector, label + ' harus dipilih');
+                    }
+                }
+
+                // Validasi field wajib di sisi frontend
+                checkInput('#document_number', 'Nomor Surat Pengantar');
+                checkInput('#document_date', 'Tanggal Surat Pengantar');
+                checkSelect('#klasifikasi', 'Klasifikasi Dokumen');
+                checkSelect('#surat_pemberitahuan_dimulainya_penyidikan_id', 'Nomor SPDP Terkait');
+                checkInput('#berkas_perkara_number', 'Nomor Berkas Perkara');
+                checkInput('#berkas_perkara_date', 'Tanggal Berkas Perkara');
+                checkInput('#berkas_perkara_rangkap', 'Jumlah Rangkap Berkas Perkara');
+                checkSelect('#signatory', 'Pejabat Penandatangan');
+                checkSelect('#suspects', 'Tersangka');
+                checkSelect('#penahanan_status', 'Status Penahanan');
+
+                var penahananStatus = $('#penahanan_status').val();
+                if (penahananStatus === 'DITAHAN' || penahananStatus === 'DITANGGUHKAN') {
+                    checkSelect('#penahanan_rutan', 'Nama Rutan');
+                    checkInput('#penahanan_start_date', 'Tanggal Mulai Penahanan');
+                    checkInput('#penahanan_end_date', 'Tanggal Selesai Penahanan');
+                    checkInput('#surat_perintah_penahanan_number', 'Nomor Surat Perintah Penahanan');
+                    checkInput('#surat_perintah_penahanan_date', 'Tanggal Surat Perintah Penahanan');
+                }
+                if (penahananStatus === 'DITANGGUHKAN') {
+                    checkInput('#surat_perpanjangan_penahanan_number', 'Nomor Surat Perpanjangan Penahanan');
+                    checkInput('#surat_perpanjangan_penahanan_date', 'Tanggal Surat Perpanjangan Penahanan');
+                    checkInput('#surat_perpanjangan_penahanan_court_number', 'Nomor Surat Perpanjangan Penahanan ke Pengadilan');
+                    checkInput('#surat_perpanjangan_penahanan_court_date', 'Tanggal Surat Perpanjangan Penahanan ke Pengadilan');
+                    checkInput('#surat_penangguhan_penahanan_number', 'Nomor Surat Penangguhan Penahanan');
+                    checkInput('#surat_penangguhan_penahanan_date', 'Tanggal Surat Penangguhan Penahanan');
+                }
+
+                // Jika ada error di frontend, scroll ke field pertama
+                if (errors.length > 0) {
+                    scrollToFirstError();
+                    return false;
+                }
+
+                // Validasi sisi server via Ajax
                 $.ajax({
-                    url: $(this).attr('action'),
+                    url: "{{ route('doc.tahap-1-document.api.validate-request-form', ['accident_id' => $accidentId, 'id' => $document->id]) }}",
                     type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
+                    dataType: 'json',
+                    data: $('#tahap1Form').serialize(),
                     success: function(response) {
-                        Swal.fire({ icon: 'success', title: 'Berhasil!', text: response.message, showConfirmButton: false, timer: 2000 }).then(() => { window.location.href = response.redirect; });
+                        if (response.success) {
+                            Swal.fire({
+                                title: 'Berhasil',
+                                text: response.message || 'Silahkan menunggu proses update data',
+                                icon: 'success',
+                                confirmButtonText: 'Ok'
+                            }).then((result) => {
+                                $('#tahap1Form')[0].submit();
+                            });
+                        }
                     },
                     error: function(xhr) {
-                        Swal.close();
-                        if (xhr.status === 422) {
-                            var errors = xhr.responseJSON.errors;
-                            var errorMsg = '<ul>' + Object.values(errors).map(e => `<li>${e[0]}</li>`).join('') + '</ul>';
-                            Swal.fire({ icon: 'error', title: 'Validasi Gagal', html: errorMsg });
-                        } else {
-                            Swal.fire({ icon: 'error', title: 'Gagal!', text: xhr.responseJSON.message || 'Terjadi kesalahan pada server' });
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            if (response.code == '422' && response.errors) {
+                                if (typeof response.errors === 'object' && !Array.isArray(response.errors)) {
+                                    $.each(response.errors, function(key, messages) {
+                                        var msg = Array.isArray(messages) ? messages[0] : messages;
+                                        var $target = $('#' + key + ', [name="' + key + '"], [name="' + key + '[]"]');
+                                        if ($target.length) {
+                                            markError($target, msg);
+                                        } else {
+                                            markError('#' + key, msg);
+                                        }
+                                    });
+                                    scrollToFirstError();
+                                } else {
+                                    var errorMessages = '';
+                                    $.each(response.errors, function(key, value) { errorMessages += '- ' + value + '<br>'; });
+                                    Swal.fire({ icon: 'error', title: 'Periksa Isian', html: errorMessages });
+                                }
+                            } else {
+                                var message = response.message || response.errors || 'Terjadi kesalahan saat memproses data.';
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Perhatian',
+                                    text: typeof message === 'string' ? message : JSON.stringify(message)
+                                });
+                            }
+                        } catch(e) {
+                            console.error(e);
                         }
                     }
                 });

@@ -5,15 +5,29 @@
             4. Penahanan
         </button>
         <div class="progress4 progress-bar-none">
-            <div id="kategori4" class="progress-bar bg-success kategori4" role="progressbar" style="width: " aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{$TotalKategori4}}%</div>
+            <div id="kategori4" class="progress-bar bg-success kategori4" role="progressbar" style="width: {{ $TotalKategori4 ?? 0 }}%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{$TotalKategori4}}%</div>
         </div>
     </h2>
     <div id="collapsePenahanan" class="accordion-collapse collapse" data-bs-parent="#accordionProduktivitas">
         <div class="accordion-body item-body">
             <div class="item-list">
                 <span>Surat perintah penahanan</span>
-                @if ($surat_perintah_penahanan==null)
+                @php
+                    $docSpPenahanan = \App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument::where('accident_id', $id)->first();
+                @endphp
+                @if ($surat_perintah_penahanan == null && !$docSpPenahanan)
                 <i class="bi bi-pencil-square" id="surat_penahanan_1" name="surat_penahanan_1"></i>
+                @elseif($docSpPenahanan)
+                <div class="d-inline-flex align-items-center">
+                    <a target="_blank" href="{{ route('doc.surat-perintah-penahanan-document.show', ['id' => $docSpPenahanan->id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-primary fw-bold text-decoration-none p-0 me-2">Lihat</a>
+                    <a href="{{ route('doc.surat-perintah-penahanan-document.edit', ['id' => $docSpPenahanan->id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-warning fw-bold text-decoration-none p-0 me-2">Edit</a>
+                    <a href="{{ route('doc.surat-perintah-penahanan-document.download', ['id' => $docSpPenahanan->id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-success fw-bold text-decoration-none p-0 me-2">Unduh</a>
+                    <form action="{{ route('doc.surat-perintah-penahanan-document.delete', ['id' => $docSpPenahanan->id, 'accident_id' => $id]) }}" method="post" class="d-inline m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                        @method('DELETE')
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-link text-danger fw-bold text-decoration-none border-0 bg-transparent p-0">Hapus</button>
+                    </form>
+                </div>
                 @else
                 {{-- <a href=# class="" id="surat_penahanan_1" name="surat_penahanan_1">Edit</a> --}}
                 <a target="_blank" href="/surat-perintah-penahanan/{{$id}}" id="">Lihat</a></span>
@@ -29,18 +43,19 @@
 
             <div class="item-list">
                 <span>Berita acara penahanan</span>
-                @if ($berita_acara_penahanan==null)
+                @if (empty($berita_acara_penahanan))
                 <i class="bi bi-pencil-square" id="surat_penahanan_2" name="surat_penahanan_2"></i>
                 @else
-                {{-- <a href=# class="" id="surat_penahanan_2" name="surat_penahanan_2">Edit</a> --}}
-                <a target="_blank" href="/berita-acara-penahanan/{{$id}}" id="">Lihat</a></span>
-                <form action="/berita-acara-penahanan/{{$id}}" method="post">
-                    @method('DELETE')
-                    @csrf
-                    <button type="submit" style="color: #007bff; border: none; background: none;
-                    font-weight: bold; padding: 10px;">DELETE</button>
-                </form>
-                {{-- <a href=# class="" id="delete" name="delete">Delete</a> --}}
+                <div class="d-inline-flex align-items-center">
+                    <a target="_blank" href="{{ route('doc.berita-acara-penahanan-document.show', ['id' => $berita_acara_penahanan[0]->id ?? $id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-primary fw-bold text-decoration-none p-0 me-2">Lihat</a>
+                    <a href="{{ route('doc.berita-acara-penahanan-document.edit', ['id' => $berita_acara_penahanan[0]->id ?? $id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-warning fw-bold text-decoration-none p-0 me-2">Edit</a>
+                    <a href="{{ route('doc.berita-acara-penahanan-document.download', ['id' => $berita_acara_penahanan[0]->id ?? $id, 'accident_id' => $id]) }}" class="btn btn-sm btn-link text-success fw-bold text-decoration-none p-0 me-2">Unduh</a>
+                    <form action="{{ route('doc.berita-acara-penahanan-document.delete', ['id' => $berita_acara_penahanan[0]->id ?? $id, 'accident_id' => $id]) }}" method="post" class="d-inline m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus dokumen ini?')">
+                        @method('DELETE')
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-link text-danger fw-bold text-decoration-none border-0 bg-transparent p-0">Hapus</button>
+                    </form>
+                </div>
                 @endif
             </div>
 
@@ -243,21 +258,23 @@ $(document).ready(function(){
     });
 
     $(".kategori4").css("width","{{$TotalKategori4}}%")
+$(document).ready(function() {
+    var totalKategori4 = parseInt("{{ $TotalKategori4 ?? 0 }}", 10) || 0;
+    $(".kategori4").css("width", totalKategori4 + "%");
     $(".progress4").hide();
-   if({{$TotalKategori4}}>=40 && {{$TotalKategori4}}<=70){
-    $(".progress4").show();
-    document.getElementById("kategori4").classList.add("bg-warning")
-   }else if({{$TotalKategori4}}>0 && {{$TotalKategori4}}<40){
-    $(".progress4").show();
-    document.getElementById("kategori4").classList.add("bg-danger")
-   }else if({{$TotalKategori4}}>=80 && {{$TotalKategori4}}<=90){
-    $(".progress4").show();
-    document.getElementById("kategori4").classList.add("bg-info")
-   }else if({{$TotalKategori4}}>90){
-    $(".progress4").show();
-    document.getElementById("kategori4").classList.add("bg-success")
-   }
-})
-
+    if (totalKategori4 >= 40 && totalKategori4 <= 70) {
+        $(".progress4").show();
+        document.getElementById("kategori4").classList.add("bg-warning");
+    } else if (totalKategori4 > 0 && totalKategori4 < 40) {
+        $(".progress4").show();
+        document.getElementById("kategori4").classList.add("bg-danger");
+    } else if (totalKategori4 >= 80 && totalKategori4 <= 90) {
+        $(".progress4").show();
+        document.getElementById("kategori4").classList.add("bg-info");
+    } else if (totalKategori4 > 90) {
+        $(".progress4").show();
+        document.getElementById("kategori4").classList.add("bg-success");
+    }
+});
 </script>
 @endpush

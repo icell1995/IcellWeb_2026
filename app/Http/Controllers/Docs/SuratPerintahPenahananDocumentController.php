@@ -186,7 +186,10 @@ class SuratPerintahPenahananDocumentController extends Controller
         $kodeJenisPenahanan = intval($request->kode_jenis_penahanan);
         $kodeSatkerTempatPenahanan = $request->kode_satker_tempat_penahanan ? htmlspecialchars($request->kode_satker_tempat_penahanan) : null;
         $tanggalMulai = htmlspecialchars($request->tanggal_mulai);
-        $tanggalAkhir = htmlspecialchars($request->tanggal_akhir);
+        $tanggalAkhir = $request->tanggal_akhir ? htmlspecialchars($request->tanggal_akhir) : Carbon::parse($tanggalMulai)->addDays(19)->format('Y-m-d');
+        if ($tanggalMulai) {
+            $tanggalAkhir = Carbon::parse($tanggalMulai)->addDays(19)->format('Y-m-d');
+        }
 
         $suspectIds = $request->suspects ?? [];
         $signatoryId = htmlspecialchars($request->signatory);
@@ -266,7 +269,7 @@ class SuratPerintahPenahananDocumentController extends Controller
             $doc = SuratPerintahPenahananDocument::create([
                 'accident_id'                           => $accidentId,
                 'surat_perintah_penyidikan_document_id' => $sprindikId,
-                'surat_ketetapan_penetapan_tersangka_id'=> $penetapanTersangkaId,
+                'surat_ketetapan_penetapan_tersangka_id' => $penetapanTersangkaId,
 
                 // Identitas Dokumen (Gambar 1)
                 'nomor'                                 => $nomor ?: null,
@@ -525,7 +528,10 @@ class SuratPerintahPenahananDocumentController extends Controller
         $kodeJenisPenahanan = intval($request->kode_jenis_penahanan);
         $kodeSatkerTempatPenahanan = $request->kode_satker_tempat_penahanan ? htmlspecialchars($request->kode_satker_tempat_penahanan) : null;
         $tanggalMulai = htmlspecialchars($request->tanggal_mulai);
-        $tanggalAkhir = htmlspecialchars($request->tanggal_akhir);
+        $tanggalAkhir = $request->tanggal_akhir ? htmlspecialchars($request->tanggal_akhir) : Carbon::parse($tanggalMulai)->addDays(19)->format('Y-m-d');
+        if ($tanggalMulai) {
+            $tanggalAkhir = Carbon::parse($tanggalMulai)->addDays(19)->format('Y-m-d');
+        }
 
         $suspectIds = $request->suspects ?? [];
         $signatoryId = htmlspecialchars($request->signatory);
@@ -603,7 +609,7 @@ class SuratPerintahPenahananDocumentController extends Controller
 
             $document->update([
                 'surat_perintah_penyidikan_document_id' => $sprindikId,
-                'surat_ketetapan_penetapan_tersangka_id'=> $penetapanTersangkaId,
+                'surat_ketetapan_penetapan_tersangka_id' => $penetapanTersangkaId,
                 'nomor'                                 => $nomor ?: $document->nomor,
                 'document_number'                       => $nomor ?: $document->document_number,
                 'tanggal'                               => $tanggal,
@@ -756,9 +762,9 @@ class SuratPerintahPenahananDocumentController extends Controller
             'suspects.maritalStatus',
             'suspects.country',
             'signatory.rank',
-            'signatory.position',
+            'signatory.position.positionCluster',
             'suratPerintahPenahananDocumentOfficers.rank',
-            'suratPerintahPenahananDocumentOfficers.position',
+            'suratPerintahPenahananDocumentOfficers.position.positionCluster',
             'suratPerintahPenyidikanDocument',
             'suratKetetapanTentangPenetapanTersangkaDocument'
         ])->where('id', $id)->firstOrFail();
@@ -837,7 +843,10 @@ class SuratPerintahPenahananDocumentController extends Controller
         $templateProcessor->setValue('resorPoliceAddress', $resorPoliceAddress);
 
         // Dokumen & Perkara
+        $docDateRaw = $document->document_date ?? $document->tanggal;
+        $docDate = $docDateRaw ? Carbon::parse($docDateRaw)->locale('id')->translatedFormat('d F Y') : '-';
         $templateProcessor->setValue('documentNumber', $document->document_number ?? $document->nomor ?? '-');
+        $templateProcessor->setValue('documentDate', $docDate);
         $templateProcessor->setValue('accidentNumber', $accident->no_lp ?? '-');
         $templateProcessor->setValue('accidentDate', $accident->accident_date ? Carbon::parse($accident->accident_date)->locale('id')->translatedFormat('d F Y') : '-');
 
@@ -884,14 +893,28 @@ class SuratPerintahPenahananDocumentController extends Controller
         $blockOfficers = [];
         $no = 1;
         foreach ($officers as $officer) {
+            $fullName = PeopleNameHelper::getFullName(
+                $officer->first_title,
+                $officer->first_name,
+                $officer->last_name,
+                $officer->last_title
+            );
+            $rankName = $officer->rank->name ?? '';
+            $nrp = $officer->register_number ?? '';
+            $posName = $officer->position->name ?? '';
+            $officerFull = trim($rankName . ' ' . $fullName . ' ' . $nrp);
+
             $blockOfficers[] = [
                 'number' => $no,
-                'first_name' => ($officer->first_title ? $officer->first_title . ' ' : '') . $officer->first_name,
-                'last_name' => ($officer->last_title ? ', ' . $officer->last_title : ($officer->last_name ? ' ' . $officer->last_name : '')),
-                'rank_name' => $officer->rank->name ?? '',
-                'rank_id' => $officer->rank->name ?? '',
-                'officer_id' => $officer->register_number ?? '',
-                'position' => $officer->position->name ?? '',
+                'first_name' => $fullName,
+                'last_name' => '',
+                'name' => $fullName,
+                'rank_name' => $rankName,
+                'rank_id' => $rankName,
+                'officer_id' => $nrp,
+                'position' => $posName,
+                'officer_full' => $officerFull,
+                'officer_identity' => $officerFull,
             ];
             $no++;
         }
@@ -903,10 +926,13 @@ class SuratPerintahPenahananDocumentController extends Controller
                 'number' => 1,
                 'first_name' => '-',
                 'last_name' => '',
+                'name' => '-',
                 'rank_name' => '-',
                 'rank_id' => '-',
                 'officer_id' => '-',
                 'position' => '-',
+                'officer_full' => '-',
+                'officer_identity' => '-',
             ]]);
         }
 
@@ -1006,6 +1032,26 @@ class SuratPerintahPenahananDocumentController extends Controller
         $templateProcessor->setValue('lokasi_penahanan_text', $penetapanTempatPenahananText);
         $templateProcessor->setValue('detentionPlace', $penetapanTempatPenahananText);
 
+        // Tanggal Mulai dan Tanggal Akhir Penahanan (20 Hari)
+        $tglMulaiRaw = $document->tanggal_mulai ?? $document->start_date;
+        $tglAkhirRaw = $document->tanggal_akhir ?? $document->end_date;
+
+        $detentionStartDate = $tglMulaiRaw ? Carbon::parse($tglMulaiRaw)->locale('id')->translatedFormat('d F Y') : '-';
+        if ($tglAkhirRaw) {
+            $detentionEndDate = Carbon::parse($tglAkhirRaw)->locale('id')->translatedFormat('d F Y');
+        } elseif ($tglMulaiRaw) {
+            $detentionEndDate = Carbon::parse($tglMulaiRaw)->addDays(19)->locale('id')->translatedFormat('d F Y');
+        } else {
+            $detentionEndDate = '-';
+        }
+
+        $templateProcessor->setValue('detentionStartDate', $detentionStartDate);
+        $templateProcessor->setValue('detentionEndDate', $detentionEndDate);
+        $templateProcessor->setValue('tanggal_mulai', $detentionStartDate);
+        $templateProcessor->setValue('tanggal_akhir', $detentionEndDate);
+        $templateProcessor->setValue('detention_start_date', $detentionStartDate);
+        $templateProcessor->setValue('detention_end_date', $detentionEndDate);
+
         // Data Tersangka
         if ($firstSuspect) {
             $templateProcessor->setValue('suspectName', $firstSuspect->name);
@@ -1028,32 +1074,40 @@ class SuratPerintahPenahananDocumentController extends Controller
         }
 
         // Pejabat Penandatangan
+        $polresFullName = strtoupper($accident->polres->full_name ?? ($accident->polres->name ?? ''));
+        $poldaFullName = strtoupper($accident->polres->polda->full_name ?? ($accident->polres->polda->name ?? ''));
+
+        $signatory = $signatory ?? ($document->suratPerintahPenahananDocumentOfficers ? $document->suratPerintahPenahananDocumentOfficers->where('class', 'SIGNATORY')->first() : null);
         $signatoryName = '-';
         $signatoryRankName = '-';
         $signatoryRegisterNumber = '-';
-        $signatoryPosition = '-';
-        $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? '');
-        $signatoryPositionHeadText = '';
+        $signatoryPositionName = 'KASAT LANTAS';
+        $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
 
         if ($signatory) {
             $signatoryName = PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title);
             $signatoryRankName = strtoupper($signatory->rank->name ?? '');
             $signatoryRegisterNumber = $signatory->register_number ?? '-';
-            $signatoryPosition = $signatory->position->name ?? '';
 
-            if (isset($signatory->position)) {
-                if ($signatory->position->position_cluster_id == '1') {
-                    $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? '');
-                    $signatoryPositionHeadText = '';
-                } else {
-                    $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? '');
-                    $signatoryPositionHeadText = strtoupper($signatoryPosition);
-                }
+            $signatoryPositionObj = $signatory->position;
+            $clusterId = $signatoryPositionObj?->position_cluster_id ?? ($signatoryPositionObj?->positionCluster?->id ?? null);
+            $aliasName = strtoupper($signatoryPositionObj?->positionCluster?->alias_name ?? ($signatoryPositionObj?->name ?? 'KASAT LANTAS'));
+
+            if ($clusterId == '1') {
+                $signatoryHeadText = 'KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = '';
+            } else if ($clusterId == '9') {
+                $signatoryHeadText = 'a.n. DIREKTUR LALU LINTAS POLDA ' . $poldaFullName;
+                $signatoryPositionName = $aliasName;
+            } else {
+                $signatoryHeadText = 'a.n. KEPALA KEPOLISIAN RESOR ' . $polresFullName;
+                $signatoryPositionName = $aliasName;
             }
         }
 
         $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText);
-        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPositionHeadText);
+        $templateProcessor->setValue('signatoryPositionName', $signatoryPositionName);
+        $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPositionName);
         $templateProcessor->setValue('signatoryName', $signatoryName);
         $templateProcessor->setValue('signatoryRankName', $signatoryRankName);
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);
@@ -1484,7 +1538,7 @@ class SuratPerintahPenahananDocumentController extends Controller
             'kode_jenis_penahanan'         => intval($document->kode_jenis_penahanan ?: 1),
             'kode_satker_tempat_penahanan' => !empty($document->kode_satker_tempat_penahanan) ? (string) $document->kode_satker_tempat_penahanan : null,
             'tanggal_mulai'                => $document->tanggal_mulai ? Carbon::parse($document->tanggal_mulai)->format('Y-m-d') : ($document->start_date ? Carbon::parse($document->start_date)->format('Y-m-d') : date('Y-m-d')),
-            'tanggal_akhir'                => $document->tanggal_akhir ? Carbon::parse($document->tanggal_akhir)->format('Y-m-d') : ($document->end_date ? Carbon::parse($document->end_date)->format('Y-m-d') : date('Y-m-d')),
+            'tanggal_akhir'                => $document->tanggal_akhir ? Carbon::parse($document->tanggal_akhir)->format('Y-m-d') : ($document->end_date ? Carbon::parse($document->end_date)->format('Y-m-d') : ($document->tanggal_mulai ? Carbon::parse($document->tanggal_mulai)->addDays(19)->format('Y-m-d') : date('Y-m-d'))),
             'pejabat_penandatangan'        => $pejabatPenandatangan,
         ];
 
@@ -1529,7 +1583,7 @@ class SuratPerintahPenahananDocumentController extends Controller
      */
     private function validateForm(Request $request)
     {
-        return Validator::make($request->all(), [
+        $rules = [
             'accident_id'                 => 'required',
             'documentDate'                => 'required_without:tanggal|nullable|date_format:Y-m-d',
             'tanggal'                     => 'required_without:documentDate|nullable|date_format:Y-m-d',
@@ -1538,19 +1592,29 @@ class SuratPerintahPenahananDocumentController extends Controller
             'kode_satker_penerbit_spdp'   => 'required|string|max:50',
             'nomor_surat_perintah_penangkapan' => 'nullable|string|max:255',
             'kode_jenis_penahanan'        => 'required|integer|in:1,2,3',
-            'kode_satker_tempat_penahanan'=> 'nullable|string|max:100',
+            'kode_satker_tempat_penahanan' => 'nullable|string|max:100',
             'tanggal_mulai'               => 'required|date_format:Y-m-d',
             'tanggal_akhir'               => 'required|date_format:Y-m-d|after_or_equal:tanggal_mulai',
             'suspects'                    => 'required|array|min:1',
             'officerLeader'               => 'required',
             'signatory'                   => 'required',
-        ], [
+        ];
+
+        if ($request->filled('tanggal_spdp')) {
+            $rules['documentDate'] .= '|after_or_equal:tanggal_spdp';
+            $rules['tanggal'] .= '|after_or_equal:tanggal_spdp';
+        }
+
+        $validator = Validator::make($request->all(), $rules, [
             'documentDate.required_without'      => 'Mohon mengisi Tanggal Ditandatangani Dokumen.',
             'documentDate.date_format'           => 'Format Tanggal Ditandatangani Dokumen tidak valid.',
+            'documentDate.after_or_equal'        => 'Tanggal Ditandatangani Dokumen tidak boleh kurang dari tanggal ditandatangani SPDP.',
             'tanggal.required_without'           => 'Mohon mengisi Tanggal Ditandatangani Dokumen.',
             'tanggal.date_format'                => 'Format Tanggal Ditandatangani Dokumen tidak valid.',
+            'tanggal.after_or_equal'             => 'Tanggal Ditandatangani Dokumen tidak boleh kurang dari tanggal ditandatangani SPDP.',
             'nomor_spdp.required'                => 'Mohon mengisi Nomor SPDP.',
             'tanggal_spdp.required'              => 'Mohon mengisi Tanggal SPDP.',
+            'tanggal_spdp.date_format'           => 'Format Tanggal SPDP tidak valid.',
             'kode_satker_penerbit_spdp.required' => 'Mohon mengisi Kode Satker Penerbit SPDP.',
             'kode_jenis_penahanan.required'      => 'Mohon memilih Jenis Penahanan.',
             'tanggal_mulai.required'             => 'Mohon mengisi Tanggal Mulai Penahanan.',
@@ -1561,5 +1625,17 @@ class SuratPerintahPenahananDocumentController extends Controller
             'officerLeader.required'             => 'Mohon memilih Ketua Tim.',
             'signatory.required'                 => 'Mohon memilih Pejabat Penandatangan.',
         ]);
+        $validator->after(function ($v) use ($request) {
+            if ($request->officerLeader && !empty($request->internalOfficers)) {
+                $leader = Officer::where('id', $request->officerLeader)
+                    ->orWhere('register_number', $request->officerLeader)
+                    ->first();
+                if ($leader && in_array($leader->register_number, (array) $request->internalOfficers)) {
+                    $v->errors()->add('internalOfficers', 'Ketua Tim (' . $leader->register_number . ') tidak dapat dipilih kembali sebagai Anggota Petugas.');
+                }
+            }
+        });
+
+        return $validator;
     }
 }

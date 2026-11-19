@@ -294,4 +294,24 @@ class SuratPerintahPenahananDocument extends Model
     {
         return $this->belongsTo('App\Models\User', 'deleted_by_user_id', 'id');
     }
+
+    public function suratPermohonanPerpanjanganPenahananKejaksaanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument', 'surat_perintah_penahanan_document_id', 'id');
+    }
+
+    public function suratPermintaanPerpanjanganPenahananLanjutanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument', 'surat_perintah_penahanan_document_id', 'id');
+    }
+
+    public function suratPermintaanPerpanjanganPenahananLanjutanKeduaDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument', 'surat_perintah_penahanan_document_id', 'id');
+    }
+
+    public function suratPerintahPembantaranPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument', 'surat_perintah_penahanan_document_id', 'id');
+    }
 }

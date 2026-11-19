@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Accident;
 use App\Models\CaseVehicle;
 use App\Models\UploadSuratKetetapan;
+use App\Models\LaporanPolisi;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -113,8 +114,17 @@ class CaseController extends Controller
         return view('case.show', compact('case'));
     }
 
-    public function save($id)
+    public function save(Request $request, $id)
     {
+        $request->validate([
+            'lp_file' => 'required|file|mimes:pdf|max:30000',
+        ], [
+            'lp_file.required' => 'Dokumen Laporan Polisi (LP) yang sudah ditandatangani wajib diunggah.',
+            'lp_file.file' => 'Dokumen Laporan Polisi (LP) harus berupa berkas file yang valid.',
+            'lp_file.mimes' => 'Dokumen Laporan Polisi (LP) harus berformat PDF.',
+            'lp_file.max' => 'Ukuran file Dokumen Laporan Polisi (LP) maksimal 30MB.',
+        ]);
+
         $case = Http::withHeaders([
             'Key' => '3b1i4BNs3C7y1BTudsPeMFRtkLBGiennZ0Tojg3dL4Ynql3ehRsfZbsQubzRR5mmK99xEVPyQE26KTpo5h6DxwW34m2TkUGnqD24=getDetailJatanlin',
             'Content-Type' => 'application/json',
@@ -126,6 +136,34 @@ class CaseController extends Controller
             $currentCase = Accident::where('id', $case['result'][0]['id'])->first();
 
             if($currentCase){
+                if ($request->hasFile('lp_file')) {
+                    $destinationPath = public_path('file/tugas/laporan_polisi');
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
+                    }
+                    $fileName = uniqid($currentCase->id) . '_' . $request->file('lp_file')->getClientOriginalName();
+                    $request->file('lp_file')->move($destinationPath, $fileName);
+
+                    $existingLp = LaporanPolisi::where('accident_id', $currentCase->id)->first();
+                    if ($existingLp) {
+                        $oldFilePath = $destinationPath . '/' . $existingLp->name;
+                        if (file_exists($oldFilePath) && is_file($oldFilePath)) {
+                            @unlink($oldFilePath);
+                        }
+                        $existingLp->update([
+                            'name' => $fileName,
+                            'created_by' => Auth::user()->username ?? (Auth::user()->register_number ?? 'System'),
+                        ]);
+                    } else {
+                        LaporanPolisi::create([
+                            'accident_id' => $currentCase->id,
+                            'name' => $fileName,
+                            'category' => 'D010105',
+                            'initial' => 'laporan-polisi',
+                            'created_by' => Auth::user()->username ?? (Auth::user()->register_number ?? 'System'),
+                        ]);
+                    }
+                }
                 return redirect()->route('view_produktivitas_accident', ['accident_id' => $case['result'][0]['id']]);
             }
 
@@ -210,11 +248,28 @@ class CaseController extends Controller
                     'accident_description' => $case['result'][0]['accident_description'],
                 ]);
 
+                if ($request->hasFile('lp_file')) {
+                    $destinationPath = public_path('file/tugas/laporan_polisi');
+                    if (!file_exists($destinationPath)) {
+                        mkdir($destinationPath, 0755, true);
+                    }
+                    $fileName = uniqid($case['result'][0]['id']) . '_' . $request->file('lp_file')->getClientOriginalName();
+                    $request->file('lp_file')->move($destinationPath, $fileName);
+
+                    LaporanPolisi::create([
+                        'accident_id' => $case['result'][0]['id'],
+                        'name' => $fileName,
+                        'category' => 'D010105',
+                        'initial' => 'laporan-polisi',
+                        'created_by' => Auth::user()->username ?? (Auth::user()->register_number ?? 'System'),
+                    ]);
+                }
+
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
                 
-                return redirect()->back()->with('error', 'Terjadi kesalahan pada saat menyimpan data.');
+                return redirect()->back()->with('error', 'Terjadi kesalahan pada saat menyimpan data: ' . $e->getMessage());
             }
 
             return redirect()->route('view_produktivitas_accident', ['accident_id' => $case['result'][0]['id']]);

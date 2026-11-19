@@ -18,8 +18,14 @@ class Suspect extends Model
 
     protected $casts = [
         'id' => 'string',
-        'properties' => 'json'
+        'properties' => 'json',
+        'is_child' => 'boolean',
     ];
+
+    public function getNikAttribute()
+    {
+        return $this->identity_number;
+    }
 
     // public static function boot()
     // {

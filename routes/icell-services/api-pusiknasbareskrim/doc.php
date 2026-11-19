@@ -6,6 +6,8 @@ use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPemberitahu
 use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPemberitahuanPenghentianPenyidikanDocumentController;
 use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Tahap1PusiknasDocumentController;
 use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Tahap2PusiknasDocumentController;
+use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPermintaanIzinPenyitaanPusiknasDocumentController;
+use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratLaporanPersetujuanPenyitaanPusiknasDocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +19,16 @@ use App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\Tahap2PusiknasDo
 | Method    : GET
 | Auth      : Authorization: Bearer {token}
 | Middleware: api-auth (terdaftar di RouteServiceProvider)
+| Mapping Kode Dokumen → Kode Proses SPPT-TI:
+| spdp        → DIK-10  (Surat Pemberitahuan Dimulainya Penyidikan)
+| sp3         → DIK-40  (Surat Pemberitahuan Penghentian Penyidikan)
+| spud        → VER-10  (Surat Pemberitahuan Upaya Diversi)
+|
+| Mapping Kode Dokumen → Kode Proses SPPT-TI:
+| spdp        → DIK-10  (Surat Pemberitahuan Dimulainya Penyidikan)
+| sp3         → DIK-40  (Surat Pemberitahuan Penghentian Penyidikan)
+| s22         → HAN-10.30 (Surat Permintaan Perpanjangan Penahanan Lanjutan)
+| s23         → DAT-5   (Surat Perintah Pembantaran Penahanan)
 |
 */
 
@@ -46,6 +58,27 @@ Route::prefix('tahap-2-pusiknas')->group(function () {
         '/',
         [Tahap2PusiknasDocumentController::class, 'index']
     )->name('api.pusiknasbareskrim.doc.tahap-2-pusiknas.index');
+});
+
+Route::prefix('ppd-pol')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\PpdPolDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ppd-pol.index');
+});
+
+Route::prefix('ppd')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\PpdPolDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ppd.index');
+});
+
+Route::prefix('spud')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SpudDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.spud.index');
 });
 
 Route::prefix('s17')->group(function () {
@@ -91,6 +124,19 @@ Route::prefix('s21')->group(function () {
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S21DocumentController::class, 'show']
     )->name('api.pusiknasbareskrim.doc.s21.show');
 });
+Route::prefix('s22')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S22DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s22.index');
+});
+
+Route::prefix('s23')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\S23DocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s23.index');
+});
 
 Route::prefix('surat-permintaan-penggeledahan')->group(function () {
     Route::get(
@@ -104,4 +150,32 @@ Route::prefix('surat-persetujuan-penggeledahan')->group(function () {
         '/',
         [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\SuratPersetujuanPenggeledahan::class, 'index']
     )->name('api.pusiknasbareskrim.doc.surat-persetujuan-penggeledahan.index');
+});
+
+Route::prefix('ba-han')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\BaHanDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.ba-han.index');
+});
+
+Route::prefix('bahan')->group(function () {
+    Route::get(
+        '/',
+        [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\Doc\BaHanDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.bahan.index');
+});
+
+Route::prefix('s12')->group(function () {
+    Route::get(
+        '/',
+        [SuratPermintaanIzinPenyitaanPusiknasDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s12.index');
+});
+
+Route::prefix('s13')->group(function () {
+    Route::get(
+        '/',
+        [SuratLaporanPersetujuanPenyitaanPusiknasDocumentController::class, 'index']
+    )->name('api.pusiknasbareskrim.doc.s13.index');
 });

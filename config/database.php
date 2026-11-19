@@ -74,11 +74,11 @@ return [
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'public',
+            'search_path' => 'public, sigma, doc, history, legacy, lib, opt, pivot',
             'sslmode' => 'prefer',
         ],
 
-	'irsms-pgsql' => [
+        'irsms-pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),
             'host' => env('DB_IRSMS_HOST', '127.0.0.1'),

@@ -21,6 +21,8 @@ use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapa
 use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocumentOfficer;
 use App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument;
 use App\Models\Doc\LaporanHasilGelarPerkaraDocument\LaporanHasilGelarPerkaraDocument;
+use App\Models\Doc\Tahap1Document\Tahap1Document;
+use App\Models\Doc\Tahap2Document\Tahap2Document;
 use App\Models\Accident;
 use App\Models\Lib\AccidentCause;
 use App\Models\Lib\Rank;
@@ -1034,11 +1036,27 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $suratKetetapanTentangPenetapanTersangkaDocumentId = $id;
 
+        // Validasi relasi dokumen turunan aktif
+        $childDocs = [];
+        if (Tahap1Document::where('surat_ketetapan_penetapan_tersangka_id', $suratKetetapanTentangPenetapanTersangkaDocumentId)->exists()) {
+            $childDocs[] = 'Tahap 1';
+        }
+        if (Tahap2Document::where('surat_ketetapan_penetapan_tersangka_id', $suratKetetapanTentangPenetapanTersangkaDocumentId)->exists()) {
+            $childDocs[] = 'Tahap 2';
+        }
+        if (!empty($childDocs)) {
+            $listDocs = implode(', ', $childDocs);
+            $message = "Surat Ketetapan Penetapan Tersangka (S.Tap.Tsk) tidak dapat dihapus karena masih terhubung dengan dokumen: {$listDocs}. Silakan hapus dokumen tersebut terlebih dahulu sebelum menghapus S.Tap.Tsk ini.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+
         DB::beginTransaction();
         try{
             // Delete from database
             $suratKetetapanTentangPenetapanTersangkaDocument = SuratKetetapanTentangPenetapanTersangkaDocument::where('id', $suratKetetapanTentangPenetapanTersangkaDocumentId)->first();
-            $suratKetetapanTentangPenetapanTersangkaDocument->delete();
+            if ($suratKetetapanTentangPenetapanTersangkaDocument) {
+                $suratKetetapanTentangPenetapanTersangkaDocument->delete();
+            }
 
             DB::commit();
         } catch (\Exception $e) {
@@ -1060,17 +1078,17 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
         $signatory = $suratKetetapanTentangPenetapanTersangkaDocument->suratKetetapanTentangPenetapanTersangkaDocumentOfficers->where('class','=', SuratKetetapanTentangPenetapanTersangkaDocumentOfficer::getEnumOption('class', 'SIGNATORY'))->first();
         $suspect = $suratKetetapanTentangPenetapanTersangkaDocument->suspect->first();
       
-        $accident = Accident::with(['polres'])->where('id', $accidentId)->first();
+        $accident = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         $signatoryHeadText = [
-            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . $accident->polres->full_name,
-            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . $accident->polres->polda->full_name,
+            'KAPOLRES' => 'KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? ''),
+            'NO_KAPOLRES' => 'a.n. KEPALA KEPOLISIAN RESOR ' . ($accident->polres->full_name ?? ''),
+            'NO_DIRLANTAS' => 'a.n. DIREKTUR LALU LINTAS POLDA ' . ($accident->polres->polda->full_name ?? ''),
         ];
 
         $signatoryPositionHeadText = [
-            'NO_KAPOLRES' => $signatory->position->positionCluster->alias_name ?? '',
-            'NO_DIRLANTAS' => $signatory->position->positionCluster->alias_name ?? '',
+            'NO_KAPOLRES' => $signatory?->position?->positionCluster?->alias_name ?? '',
+            'NO_DIRLANTAS' => $signatory?->position?->positionCluster?->alias_name ?? '',
         ];
 
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/surat_ketetapan_tentang_penetapan_tersangka.docx');
@@ -1086,63 +1104,76 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
                 $templateProcessor->setValue('signatoryHeadText', $signatoryHeadText['NO_KAPOLRES']);
                 $templateProcessor->setValue('signatoryPositionHeadText', $signatoryPositionHeadText['NO_KAPOLRES']);
             }
+        } else {
+            $templateProcessor->setValue('signatoryHeadText', '');
+            $templateProcessor->setValue('signatoryPositionHeadText', '');
         }
 
         $documentDate = Carbon::parse($suratKetetapanTentangPenetapanTersangkaDocument->document_date)->locale('id')->translatedFormat('d F Y');
         $documentNumber = $suratKetetapanTentangPenetapanTersangkaDocument->document_number;
         
-        $accidentNumber = $accident->no_lp;
-        $accidentDate = Carbon::parse($accident->accident_date)->locale('id')->translatedFormat('d F Y');
-        $reportDate = Carbon::parse($accident->report_date)->locale('id')->translatedFormat('d F Y');
+        $accidentNumber = $accident->no_lp ?? '-';
+        $accidentDate = $accident->accident_date ? Carbon::parse($accident->accident_date)->locale('id')->translatedFormat('d F Y') : '-';
+        $reportDate = $accident->report_date ? Carbon::parse($accident->report_date)->locale('id')->translatedFormat('d F Y') : '-';
         
         $prosecutor = $suratKetetapanTentangPenetapanTersangkaDocument->prosecutor;
-        $prosecutorName = $prosecutor->name;
+        $prosecutorName = $prosecutor?->name ?? '-';
 
         $suspectName = $suspect->name ?? '';
         $suspectIdentityNumber = $suspect->identity_number ?? '';
         $suspectNationality = $suspect->nationality ?? '';
         $suspectBirthPlace = $suspect->birth_place ?? '';
         $suspectBirthDate = (!empty($suspect->birth_date)) ? Carbon::parse($suspect->birth_date)->locale('id')->translatedFormat('d F Y') : '-';
-        $suspectGender = $suspect->gender()->first() ?? '';
+        $suspectGender = $suspect ? $suspect->gender()->first() : null;
         $suspectGenderName = $suspectGender->name ?? '';
-        $suspectJob = $suspect->job()->first() ?? '';
+        $suspectJob = $suspect ? $suspect->job()->first() : null;
         $suspectJobName = $suspectJob->name ?? '';
-        $suspectReligion = $suspect->religion()->first() ?? '';
+        $suspectReligion = $suspect ? $suspect->religion()->first() : null;
         $suspectReligionName = $suspectReligion->name ?? '';
 
-        $suspectCountry = $suspect->country()->first() ?? '';
+        $suspectCountry = $suspect ? $suspect->country()->first() : null;
         $suspectCountryName = $suspectCountry->name ?? '';
-        $suspectProvince = $suspect->province()->first() ?? '';
+        $suspectProvince = $suspect ? $suspect->province()->first() : null;
         $suspectProvinceName = ($suspectProvince) ? ', ' . $suspectProvince->name : '';
-        $suspectRegency = $suspect->regency()->first() ?? '';
+        $suspectRegency = $suspect ? $suspect->regency()->first() : null;
         $suspectRegencyName = ($suspectRegency) ? ', ' . $suspectRegency->name : '';
-        $suspectDistrict = $suspect->district()->first() ?? '';
+        $suspectDistrict = $suspect ? $suspect->district()->first() : null;
         $suspectDistrictName = ($suspectDistrict) ? ', ' . $suspectDistrict->name : '';
-        $suspectVillage = $suspect->village()->first() ?? '';
+        $suspectVillage = $suspect ? $suspect->village()->first() : null;
         $suspectVillageName = ($suspectVillage) ? ', ' . $suspectVillage->name : '';
         $suspectAddress = $suspect->address ?? '';
         $suspectFullAddress = ucwords(strtolower($suspectAddress . $suspectVillageName . $suspectDistrictName . $suspectRegencyName . $suspectProvinceName));
         
-        $suratPerintahPenyidikanDocument = $suratKetetapanTentangPenetapanTersangkaDocument->suratPerintahPenyidikanDocument;
-        $suratPerintahPenyidikanDocumentNumber = $suratPerintahPenyidikanDocument->document_number;
-        $suratPerintahPenyidikanDocumentDocumentDate = Carbon::parse($suratPerintahPenyidikanDocument->document_date)->locale('id')->translatedFormat('d F Y');
+        // Validasi ketersediaan dokumen induk SP.Sidik
+        $spSidik = $suratKetetapanTentangPenetapanTersangkaDocument->suratPerintahPenyidikanDocument;
+        if (!$spSidik) {
+            $message = "Surat Perintah Penyidikan (Sp.Sidik) yang menjadi dasar dokumen Penetapan Tersangka ini tidak ditemukan atau telah dihapus. Silakan klik menu 'Edit' pada dokumen ini untuk memilih Sp.Sidik yang aktif terlebih dahulu sebelum mengunduh.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+        $suratPerintahPenyidikanDocumentNumber = $spSidik->document_number ?? '-';
+        $suratPerintahPenyidikanDocumentDocumentDate = $spSidik->document_date ? Carbon::parse($spSidik->document_date)->locale('id')->translatedFormat('d F Y') : '-';
         
-        $laporanHasilGelarPerkaraDocument = $suratKetetapanTentangPenetapanTersangkaDocument->laporanHasilGelarPerkaraDocument;
-        $laporanHasilGelarPerkaraDocumentDate = Carbon::parse($laporanHasilGelarPerkaraDocument->date)->locale('id')->translatedFormat('d F Y');
+        // Validasi ketersediaan dokumen LHGP jika dasar penetapan adalah Gelar Perkara
+        $lhgpDoc = $suratKetetapanTentangPenetapanTersangkaDocument->laporanHasilGelarPerkaraDocument;
+        if (!$lhgpDoc && $suratKetetapanTentangPenetapanTersangkaDocument->suspect_source_id == '1') {
+            $message = "Laporan Hasil Gelar Perkara (LHGP) yang menjadi dasar dokumen Penetapan Tersangka ini tidak ditemukan atau telah dihapus. Silakan klik menu 'Edit' pada dokumen ini untuk memilih LHGP yang aktif terlebih dahulu sebelum mengunduh.";
+            return redirect()->route('view_produktivitas_accident', ['accident_id' => $accidentId])->with('error', $message);
+        }
+        $laporanHasilGelarPerkaraDocumentDate = $lhgpDoc?->date ? Carbon::parse($lhgpDoc->date)->locale('id')->translatedFormat('d F Y') : '-';
 
         $daerahPolice = $accident->polres->polda;
-        $daerahPoliceFullName = $daerahPolice->full_name;
+        $daerahPoliceFullName = $daerahPolice->full_name ?? '';
         
         $resorPolice = $accident->polres;
-        $resorPoliceAddress = $resorPolice->address . ', ' . $resorPolice->polres_zipcode;
-        $resorPoliceFullName = (in_array($resorPolice->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice->full_name);
-        $resorPoliceProvinceName = $resorPolice->polres_province;
+        $resorPoliceAddress = ($resorPolice?->address ?? '') . ', ' . ($resorPolice?->polres_zipcode ?? '');
+        $resorPoliceFullName = (in_array($resorPolice?->id, ['1114'])) ? 'DIREKTORAT LALU LINTAS' : 'RESOR ' . strtoupper($resorPolice?->full_name ?? '');
+        $resorPoliceProvinceName = $resorPolice?->polres_province ?? '';
         
         $documentLocation = $resorPoliceProvinceName;
 
-        $signatoryName = PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_name, $signatory->last_title);
-        $signatoryRankName = $signatory->rank->name ?? '';
-        $signatoryRegisterNumber = $signatory->register_number;
+        $signatoryName = $signatory ? PeopleNameHelper::getFullName($signatory->first_title, $signatory->first_name, $signatory->last_title) : '';
+        $signatoryRankName = $signatory?->rank?->name ?? '';
+        $signatoryRegisterNumber = $signatory?->register_number ?? '';
 
         //===============================================================
 
@@ -1180,7 +1211,7 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentController extends Controll
         $templateProcessor->setValue('signatoryRankName', strtoupper($signatoryRankName));
         $templateProcessor->setValue('signatoryRegisterNumber', $signatoryRegisterNumber);
 
-        $filename = 'generate/' . Str::uuid() . ' - Surat Ketetapan Tentang Penetapan Tersangka - Resor ' . $accident->polres->full_name;
+        $filename = 'generate/' . Str::uuid() . ' - Surat Ketetapan Tentang Penetapan Tersangka - Resor ' . ($accident->polres->full_name ?? '');
         $templateProcessor->saveAs($filename.'.docx');
         return response()->download($filename.'.docx')->deleteFileAfterSend(true);
     }

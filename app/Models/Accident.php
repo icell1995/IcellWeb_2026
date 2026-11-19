@@ -146,9 +146,58 @@ class Accident extends Model
             ]);
     }
 
+    public function suratPermintaanIzinPenyitaanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
+    public function suratLaporanPersetujuanPenyitaanDocuments()
+    {
+        return $this->hasMany(
+            \App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument::class,
+            'accident_id',
+            'id'
+        );
+    }
+
     public function suratPemberitahuanPerkembanganHasilPenyidikanDocuments()
     {
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument', 'accident_id', 'id');
+    }
+
+    public function suratPermohonanPenetapanDiversiDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment'
+            ]);
+    }
+
+    public function suratPemberitahuanUpayaDiversiDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPemberitahuanUpayaDiversiDocument\SuratPemberitahuanUpayaDiversiDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'suspect',
+                'attachment',
+                'createdByUser',
+            ]);
+    }
+
+    public function beritaAcaraPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\BeritaAcaraPenahanan', 'accident_id', 'id')
+            ->with(['documentCategory', 'attachment']);
+    }
+
+    public function beritaAcaraPenahanans()
+    {
+        return $this->beritaAcaraPenahananDocuments();
     }
 
     public function suratPermintaanPenggeledahanDocuments()
@@ -211,12 +260,63 @@ class Accident extends Model
             ->with([
                 'documentCategory',
                 'attachment'
+    public function suratPermintaanPerpanjanganPenahananLanjutanDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanDocument\SuratPermintaanPerpanjanganPenahananLanjutanDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment',
+                'createdByUser',
+            ]);
+    }
+
+    public function suratPermintaanPerpanjanganPenahananLanjutanKeduaDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument\SuratPermintaanPerpanjanganPenahananLanjutanKeduaDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment',
+                'createdByUser',
+            ]);
+    }
+
+    public function suratPerintahPembantaranPenahananDocuments()
+    {
+        return $this->hasMany('App\Models\Doc\SuratPerintahPembantaranPenahananDocument\SuratPerintahPembantaranPenahananDocument', 'accident_id', 'id')
+            ->with([
+                'documentCategory',
+                'attachment',
+                'createdByUser',
             ]);
     }
 
     public function suspect()
     {
         return $this->hasMany(Suspect::class, 'accident_id', 'id');
+    }
+
+    public function suratPerintahPenghentianPenyelidikanDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratPerintahPenghentianPenyelidikanDocument\SuratPerintahPenghentianPenyelidikanDocument::class, 'accident_id', 'id')
+            ->where('is_active', true)
+            ->with(['documentCategory', 'attachment']);
+    }
+
+    public function suratKetetapanPenghentianPenyelidikanDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument::class, 'accident_id', 'id')
+            ->where('is_active', true)
+            ->with(['documentCategory', 'attachment']);
+    }
+
+    public function suratPerintahPenghentianPenyidikanDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument::class, 'accident_id', 'id')->where('is_active', true);
+    }
+
+    public function suratKetetapanPenghentianPenyidikanDocuments()
+    {
+        return $this->hasMany(\App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument::class, 'accident_id', 'id')->where('is_active', true);
     }
 
     public function suratPemberitahuanPenghentianPenyidikanDocuments()
@@ -272,5 +372,8 @@ class Accident extends Model
     public function daftarPencarianBarangDocuments()
     {
         return $this->hasMany(\App\Models\Doc\DaftarPencarianBarangDocument\DaftarPencarianBarangDocument::class, 'accident_id', 'id');
+    public function involvedPeoples()
+    {
+        return $this->hasMany(InvolvedPeople::class, 'accident_id', 'id');
     }
 }

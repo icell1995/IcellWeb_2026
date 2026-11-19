@@ -212,8 +212,16 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="fw-bold">Tempat Penahanan</td>
-                                <td>{{ $document->tempat_penahanan ?? '-' }}</td>
+                                <td class="fw-bold">
+                                    @if ($document->kode_jenis_penahanan == 2)
+                                        Alamat Rumah Penahanan
+                                    @elseif ($document->kode_jenis_penahanan == 3)
+                                        Wilayah Kota Penahanan
+                                    @else
+                                        Rutan / Tempat Penahanan
+                                    @endif
+                                </td>
+                                <td>{{ $document->tempat_penahanan ?: ($document->kode_satker_tempat_penahanan ?: '-') }}</td>
                             </tr>
                             <tr>
                                 <td class="fw-bold">Sisa Waktu Masa Penahanan</td>
