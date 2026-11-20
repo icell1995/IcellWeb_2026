@@ -156,12 +156,6 @@ class AccidentController extends Controller
                 $apiPolres = $apiPolres === '0' ? "-" : $apiPolres;
         }
 
-        // $response = Http::get('https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_icell?polres_id='.$id);
-        // $data = $response->json();
-        // return view('accident.accident-index',compact('data'));
-        // if($no_lp == null){
-        // get data from api with guzzle
-
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_icell?no_lp=" . $no_lp . "&polda=" . $apiPolda . "&polres=" . $apiPolres . "&tipe_laka=" . $tipe_laka,
@@ -178,11 +172,10 @@ class AccidentController extends Controller
         ));
         $response = curl_exec($curl);
         $err = curl_error($curl);
-        curl_close($curl);
 
         $get_data = $response ? json_decode($response) : null;
 
-        dd($tipe_laka);
+        // dd($tipe_laka);
 
         if ($err || !$get_data || !isset($get_data->status) || $get_data->status == "failed") {
             $status = $get_data->status ?? 'failed';
@@ -269,7 +262,7 @@ class AccidentController extends Controller
                 }
         }
 
-        if (\App\Helpers\AppModeHelper::isApiEnabled()) {
+        if (\App\Helpers\AppModeHelper::isApiEnabled('AccidentController@search')) {
             $curl = curl_init();
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_accident_search_icell",
@@ -292,7 +285,6 @@ class AccidentController extends Controller
             ));
             $response = curl_exec($curl);
             $err = curl_error($curl);
-            curl_close($curl);
             $get_data = (!$err && $response) ? json_decode($response) : (object)['status' => 'failed', 'result' => []];
         } else {
             $get_data = (object)['status' => 'success', 'result' => []];
@@ -319,7 +311,7 @@ class AccidentController extends Controller
     public function view(Request $request)
     {
         $accident_id = $request->input('accident_id');
-        if (\App\Helpers\AppModeHelper::isApiEnabled()) {
+        if (\App\Helpers\AppModeHelper::isApiEnabled('AccidentController@view')) {
             $curl = curl_init();
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/view?accident_id=" . urlencode((string) $accident_id),
@@ -335,7 +327,6 @@ class AccidentController extends Controller
             ));
             $response = curl_exec($curl);
             $err = curl_error($curl);
-            curl_close($curl);
 
             $get_data = (!$err && $response) ? json_decode($response) : null;
         } else {
@@ -457,7 +448,7 @@ class AccidentController extends Controller
 
             DB::commit();
 
-            if (env('APP_MODE') == 'PRODUCTION') {
+            if (\App\Helpers\AppModeHelper::isProduction()) {
                 $headers = [
                     'Content-Type' => 'application/json',
                     'Key' => config('services.irsms.selra_key')
@@ -968,9 +959,9 @@ class AccidentController extends Controller
         $Sddl = DB::select('select * from suspect_determination_decision_letters where accident_id = ?', [$get_accident]);
         $lpCreatorUser = !empty($LaporanPolisi[0]->created_by)
             ? \App\Models\User::with('rank')
-                ->where('username', $LaporanPolisi[0]->created_by)
-                ->orWhere('register_number', $LaporanPolisi[0]->created_by)
-                ->first()
+            ->where('username', $LaporanPolisi[0]->created_by)
+            ->orWhere('register_number', $LaporanPolisi[0]->created_by)
+            ->first()
             : null;
 
         //total surat ketegori 1
@@ -1699,7 +1690,7 @@ class AccidentController extends Controller
                 ]
             );
 
-            if (env('APP_MODE') == 'PRODUCTION') {
+            if (\App\Helpers\AppModeHelper::isProduction()) {
                 $headers = [
                     'Content-Type' => 'application/json',
                     'Key' => config('services.irsms.selra_key')
@@ -1738,7 +1729,7 @@ class AccidentController extends Controller
 
             $resolutionDate = AccidentResolution::where('accident_id', $accident->id)->value('date');
 
-            if (env('APP_MODE') == 'PRODUCTION') {
+            if (\App\Helpers\AppModeHelper::isProduction()) {
                 $headers = [
                     'Content-Type' => 'application/json',
                     'Key' => config('services.irsms.selra_key')

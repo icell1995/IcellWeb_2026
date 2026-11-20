@@ -229,7 +229,7 @@ Route::prefix('/sp2hp-document')->middleware(['document-access'])->group(functio
 Route::prefix('/surat-pemberitahuan-perkembangan-hasil-penyidikan-document')->middleware(['document-access'])->group(function () {
     Route::get('/create', [Sp2hpDocumentController::class, 'create'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.create');
     Route::get('/{id}/edit', [Sp2hpDocumentController::class, 'edit'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.edit');
-    Route::get('/{id}/show', [Sp2hpDocumentController::class, 'downloadShow'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.download');
+    Route::get('/{id}/show', [Sp2hpDocumentController::class, 'downloadShow'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.show');
     Route::get('/{id}/download', [Sp2hpDocumentController::class, 'download'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.download');
 
     Route::get('/api/locations', [Sp2hpDocumentController::class, 'getLocations'])->name('doc.surat-pemberitahuan-perkembangan-hasil-penyidikan-document.api.locations');

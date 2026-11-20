@@ -29,11 +29,12 @@ class CheckOfficerDataController extends Controller
     public function getOfficerData(Request $request){
         $registerNumber = htmlspecialchars($request->registerNumber);
 
+        $tokenService = app(\App\Services\ESignature\ESignatureTokenService::class);
         $response = Http::withHeaders(
             [
-                'Authorization' => env('ESIGNATURE_API_TOKEN'),
+                'Authorization' => $tokenService->getToken(),
             ]
-        )->get(env('ESIGNATURE_API_HOST') . '/api/values/CekDataPersonelICELL', [
+        )->get($tokenService->getHost() . '/api/values/CekDataPersonelICELL', [
             'nrp' => $registerNumber,
         ]);
 

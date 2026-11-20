@@ -494,7 +494,7 @@ class CaseResolutionsAprrovalController extends Controller
                 $r->delete();
             });
 
-            if (env('APP_MODE') == 'PRODUCTION' && $accidentIdToSync) {
+            if (\App\Helpers\AppModeHelper::isProduction() && $accidentIdToSync) {
                 try {
                     $headers = [
                         'Content-Type' => 'application/json',

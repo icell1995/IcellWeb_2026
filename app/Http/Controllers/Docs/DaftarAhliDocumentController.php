@@ -435,7 +435,7 @@ class DaftarAhliDocumentController extends Controller
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
      */
-    public function download($id, Request $request = null)
+    public function download($id, ?Request $request = null)
     {
         try {
             $document = DaftarAhliDocument::findOrFail($id);

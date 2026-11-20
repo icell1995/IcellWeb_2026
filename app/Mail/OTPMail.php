@@ -43,26 +43,13 @@ class OTPMail extends Mailable
         $this->subjectLine = $subject;
     }
 
-    public function build()
-    {
-        Log::info("Membangun email OTP");
-
-        return $this->subject($this->subjectLine)
-            ->view('email.otp')
-            ->with([
-                'otp' => $this->otp,
-                'expiryMinutes' => $this->expiryMinutes,
-                'subjectLine' => $this->subjectLine,
-            ]);
-    }
-
     /**
      * Get the message envelope.
      */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'O T P Mail',
+            subject: $this->subjectLine,
         );
     }
 
@@ -74,6 +61,11 @@ class OTPMail extends Mailable
         return new Content(
             view: 'email.otp',
             text: 'email.otp_plain',
+            with: [
+                'otp' => $this->otp,
+                'expiryMinutes' => $this->expiryMinutes,
+                'subjectLine' => $this->subjectLine,
+            ],
         );
     }
 

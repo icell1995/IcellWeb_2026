@@ -175,7 +175,7 @@ class LoginController extends Controller
             $whatsapp = new WhatsappWebhookService();
             $result = $whatsapp->sendMessageTemplate(
                 destinationPhoneNumber: $phoneNumber, // Ganti dengan field phone user
-                templateId: env('WHATSAPP_BOT_TEMPLATE_ID_OTP_CODE'),
+                templateId: config('services.whatsapp.templates.otp_code'),
                 props: [
                     '{officerName}' => $user->officer->full_name ?? $user->name,
                     '{codeOTP}' => $code,

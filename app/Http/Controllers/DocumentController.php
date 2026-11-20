@@ -35,8 +35,6 @@ class DocumentController extends Controller
 
         if (empty($typeDocument->route)) {
             return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia.');
-        if(empty($typeDocument) || $typeDocument->route == null){
-            return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia');
         }
 
         if ($typeDocumentId == '0405') {

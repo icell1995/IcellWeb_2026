@@ -31,6 +31,7 @@ return [
 
     'env' => env('APP_ENV', 'production'),
     'mode' => env('APP_MODE', 'LOCAL'),
+    'forms_confirmation_active' => (bool) env('FORMS_CONFIRMATION_ACTIVE', false),
 
     /*
     |--------------------------------------------------------------------------

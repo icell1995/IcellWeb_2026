@@ -45,7 +45,7 @@ Route::group(['middleware' => ['is-evaluation-form-filled', 'is-signatory']], fu
 
     Route::post('/store-tersangka', [App\Http\Controllers\DaftarTersangkaController::class, 'store_tersangka'])->name('store_tersangka');
     Route::get('/suspects/list', [App\Http\Controllers\DaftarTersangkaController::class, 'read_tersangka'])->name('read_tersangka');
-    Route::get('/suspects/edit', [App\Http\Controllers\DaftarTersangkaController::class, 'edit_tersangka'])->name('edit_tersangka');
+    Route::get('/suspects/edit', [App\Http\Controllers\DaftarTersangkaController::class, 'edit_tersangka'])->name('suspects.edit_tersangka');
     Route::post('/suspects/delete', [App\Http\Controllers\DaftarTersangkaController::class, 'destroy_tersangka'])->name('destroy_tersangka');
 
 

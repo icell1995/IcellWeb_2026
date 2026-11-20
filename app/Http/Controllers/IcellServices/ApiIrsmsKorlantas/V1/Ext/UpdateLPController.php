@@ -232,7 +232,7 @@ class UpdateLPController extends Controller
         ], $httpStatus);
     }
 
-    protected function errorResponse(int $httpStatus = 400, string $errorCode = 'ERROR', string $message = 'Terjadi kesalahan.', array $errors = null)
+    protected function errorResponse(int $httpStatus = 400, string $errorCode = 'ERROR', string $message = 'Terjadi kesalahan.', ?array $errors = null)
     {
         $payload = [
             'status'     => 'error',

@@ -9,6 +9,49 @@
     <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
     <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Pastikan kolom input membungkus error ke bawah (tidak ke samping) tanpa mengubah lebar kolom */
+        #officerForm .col-lg-10.d-flex,
+        #officerForm .col-md-10.d-flex,
+        #officerForm .col-sm-12.d-flex,
+        #officerForm .col-12.d-flex {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            justify-content: center !important;
+        }
+
+        #officerForm .form-control,
+        #officerForm .select2-container {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Pesan Error: tepat di bawah input, jarak proporsional, tanpa margin bawah tambahan */
+        #officerForm .frontend-error,
+        #officerForm .invalid-feedback {
+            display: block !important;
+            width: 100% !important;
+            margin-top: 4px !important;
+            margin-bottom: 0 !important;
+            font-size: 0.85rem !important;
+            font-weight: 500 !important;
+            color: #dc3545 !important;
+            line-height: 1.3 !important;
+            clear: both !important;
+        }
+
+        /* Select2 Border Error */
+        #officerForm .select2-container .select2-selection.border-danger {
+            border-color: #dc3545 !important;
+        }
+
+        /* Radio & Checkbox Error Wrapper */
+        #officerForm .radio-group-error {
+            border: 1px solid #dc3545 !important;
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -43,7 +86,7 @@
     <div class="boxy-body">
         <form
             action="{{ route('personnel.store', ['policeId' => $policeId]) }}"
-            method="POST" enctype="multipart/form-data" id="officerForm">
+            method="POST" enctype="multipart/form-data" id="officerForm" novalidate>
             @csrf
 
             <div class="input-group row mb-3 ms-0">
@@ -221,7 +264,7 @@
                         <option value="">--Tidak Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
                         @foreach ($positions as $position)
                             @php
-                                $isCanSignatory = $position->positionCLuster ? ($position->positionCluster->is_can_signatory == true ? 'true' : 'false') : 'false';
+                                $isCanSignatory = $position->positionCluster ? ($position->positionCluster->is_can_signatory == true ? 'true' : 'false') : 'false';
                             @endphp
 
                             <option value="{{ $position->id }}" data-is-can-signatory="{{ $isCanSignatory }}"
@@ -1515,47 +1558,290 @@
             });
         });
 
+        // Helper: Scroll ke field error pertama (identik dengan modul dokumen)
+        function scrollToFirstError() {
+            setTimeout(function() {
+                var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+                if (!$firstError.length) {
+                    $firstError = $('.is-invalid, .border-danger').first();
+                }
+
+                if ($firstError && $firstError.length) {
+                    var $target = $firstError;
+                    if ($firstError.next('.select2-container').is(':visible')) {
+                        $target = $firstError.next('.select2-container');
+                    } else if ($firstError.siblings('.select2-container').is(':visible')) {
+                        $target = $firstError.siblings('.select2-container');
+                    } else if ($firstError.closest('.input-group').length && $firstError.closest('.input-group').is(':visible')) {
+                        $target = $firstError.closest('.input-group');
+                    } else if ($firstError.closest('.form-check, .d-flex, .icheck-primary').length && $firstError.closest('.form-check, .d-flex, .icheck-primary').is(':visible')) {
+                        $target = $firstError.closest('.form-check, .d-flex, .icheck-primary');
+                    }
+
+                    if ($target[0] && typeof $target[0].scrollIntoView === 'function') {
+                        $target[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    if ($target.offset()) {
+                        $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                            scrollTop: Math.max(0, $target.offset().top - 140)
+                        }, 400);
+                    }
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }, 100);
+        }
+
+        // Realtime Error Cleanup saat input diisi/diubah
+        $(document).on('input change', 'input, select, textarea', function() {
+            var $el = $(this);
+            $el.removeClass('is-invalid');
+            if ($el.next('.select2-container').length) {
+                $el.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+            }
+            var $col = $el.closest('.col-lg-10, .col-md-10, .col-sm-12, .col-12');
+            if ($col.length) {
+                $col.find('.frontend-error, .invalid-feedback').remove();
+                $col.find('.radio-group-error').removeClass('radio-group-error is-invalid');
+            }
+            $el.siblings('.frontend-error, .invalid-feedback').remove();
+            $el.next('.frontend-error, .invalid-feedback').remove();
+            $el.closest('.border-danger').removeClass('border border-danger is-invalid');
+            $el.closest('.radio-group-error').removeClass('radio-group-error is-invalid');
+        });
+
         // Validasi Submit Form
         $(document).ready(function() {
             $('#officerFormSubmit').on('click', function(e) {
                 e.preventDefault();
 
-                // Lakukan validasi di sisi server menggunakan Ajax
+                // Format email terlebih dahulu jika belum sesuai
+                var emailVal = $('#email').val();
+                var nrpVal = $('#registerNumber').val();
+                if ((!emailVal || emailVal === '') && nrpVal) {
+                    $('#email').val(generateEmailFromNRP(nrpVal));
+                } else if (emailVal && !emailVal.includes('@polri.go.id')) {
+                    $('#email').val(emailVal + '@polri.go.id');
+                }
+
+                // Bersihkan penanda error sebelumnya
+                $('.is-invalid').removeClass('is-invalid');
+                $('.border.border-danger').removeClass('border border-danger');
+                $('.select2-selection').removeClass('border border-danger is-invalid');
+                $('.radio-group-error').removeClass('radio-group-error is-invalid');
+                $('.frontend-error').remove();
+                $('.invalid-feedback').remove();
+
+                var errors = [];
+
+                function markError(fieldSelector, message) {
+                    var $field = typeof fieldSelector === 'string' ? $(fieldSelector) : fieldSelector;
+                    if (!$field || !$field.length) return;
+
+                    $field.addClass('is-invalid');
+
+                    if ($field.next('.select2-container').length) {
+                        $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                    }
+
+                    if ($field.attr('type') === 'radio' || $field.attr('type') === 'checkbox') {
+                        var $parentGroup = $field.closest('.d-flex, .icheck-primary, .form-check');
+                        if ($parentGroup.length) {
+                            $parentGroup.addClass('radio-group-error is-invalid');
+                        }
+                    }
+
+                    if ($field.is('table') || $field.attr('id') === 'certificateTable') {
+                        var $tableWrapper = $field.closest('.input-group, #certificate');
+                        $tableWrapper.siblings('.frontend-error, .invalid-feedback').remove();
+                        $tableWrapper.next('.frontend-error, .invalid-feedback').remove();
+                        $tableWrapper.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    } else {
+                        var $col = $field.closest('.col-lg-10, .col-md-10, .col-sm-12, .col-12');
+                        if ($col.length) {
+                            $col.find('.frontend-error, .invalid-feedback').remove();
+                            $col.append('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                        } else {
+                            var $target = $field;
+                            if ($field.next('.select2-container').length) {
+                                $target = $field.next('.select2-container');
+                            } else if ($field.closest('.input-group').length) {
+                                $target = $field.closest('.input-group');
+                            }
+                            $target.siblings('.frontend-error, .invalid-feedback').remove();
+                            $target.next('.frontend-error, .invalid-feedback').remove();
+                            $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                        }
+                    }
+
+                    errors.push(message);
+                }
+
+                function checkInput(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || !$field.is(':visible')) return;
+                    var raw = $field.val();
+                    var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                    if (!val || val === '') {
+                        markError(fieldSelector, label + ' harus diisi');
+                    }
+                }
+
+                function checkSelect(fieldSelector, label) {
+                    var $field = $(fieldSelector);
+                    if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                    var raw = $field.val();
+                    var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                    if (!hasVal) {
+                        markError(fieldSelector, label + ' harus dipilih');
+                    }
+                }
+
+                // 1. Validasi Frontend Field Wajib
+                checkInput('#name', 'Nama Lengkap');
+
+                if ($('input[name="employmentType"]:checked').length === 0) {
+                    markError('input[name="employmentType"]', 'Status Kepegawaian harus dipilih');
+                }
+
+                checkSelect('#rank', 'Pangkat/Golongan');
+                checkInput('#birthDate', 'Tanggal Lahir');
+
+                var nrp = ($('#registerNumber').val() || '').trim();
+                if (!nrp) {
+                    markError('#registerNumber', 'NRP harus diisi');
+                } else if (!/^\d+$/.test(nrp)) {
+                    markError('#registerNumber', 'NRP harus berupa angka');
+                } else if (!/^\d{8}$|^\d{16}$/.test(nrp)) {
+                    markError('#registerNumber', 'NRP harus lengkap (8 digit untuk NRP atau 16 digit untuk NIP)');
+                }
+
+                var email = ($('#email').val() || '').trim();
+                if (!email) {
+                    markError('#email', 'Email harus diisi');
+                } else if (!email.includes('@')) {
+                    markError('#email', 'Format Email tidak valid');
+                }
+
+                checkInput('#phoneNumber', 'Nomor Telepon');
+                checkSelect('#gender', 'Jenis Kelamin');
+                checkSelect('#religion', 'Agama');
+                checkSelect('#position', 'Jabatan Struktural');
+
+                if ($('#isRegisterSignatory').is(':checked')) {
+                    checkSelect('#registerSignatoryIdentityType', 'Jenis Identitas Penandatangan');
+                    checkInput('#registerSignatoryIdentityNumber', 'Nomor NIK Penandatangan');
+                }
+
+                checkSelect('#education', 'Jenjang Pendidikan Terakhir');
+                checkSelect('#policeDiktukEducation', 'Diktuk Polri');
+                checkInput('#policeDiktukEducationGraduateYear', 'Tahun Lulus Diktuk');
+
+                var skepPenyidikChecked = $('input[name="isExistsOfficerSkepPenyidik"]:checked').val();
+                if (!skepPenyidikChecked) {
+                    markError('input[name="isExistsOfficerSkepPenyidik"]', 'Status Kepenyidikan harus dipilih');
+                } else if (skepPenyidikChecked === 'true') {
+                    checkInput('#officerSkepPenyidikNumber', 'Nomor Skep Penyidik');
+                }
+
+                var certChecked = $('input[name="isExistsOfficerCertificate"]:checked').val();
+                if (!certChecked) {
+                    markError('input[name="isExistsOfficerCertificate"]', 'Status Sertifikasi harus dipilih');
+                } else if (certChecked === 'true') {
+                    if ($('#certificateTable tbody tr').length === 0 || $('#certificateTable input[name="certificateNumbers[]"]').length === 0) {
+                        markError('#certificateTable', 'Sertifikat harus ditambahkan minimal 1 jika memilih sudah memiliki sertifikasi');
+                    }
+                }
+
+                var bkoChecked = $('input[name="isOfficerOperationControlAssistance"]:checked').val();
+                if (!bkoChecked) {
+                    markError('input[name="isOfficerOperationControlAssistance"]', 'Status BKO harus dipilih');
+                } else if (bkoChecked === 'true') {
+                    checkInput('#officerOperationControlAssistanceNumber', 'Nomor Surat BKO');
+                    checkInput('#officerOperationControlAssistanceDate', 'Tanggal Penugasan BKO');
+                    var bkoOriginPolice = ($('#officerOperationControlAssistanceOriginPoliceId').val() || '').trim();
+                    if (!bkoOriginPolice) {
+                        markError('#officerOperationControlAssistanceOriginPoliceName', 'Satker Asal BKO harus dipilih');
+                    }
+                }
+
+                // Jika terdapat error pada frontend, langsung scroll ke field pertama
+                if (errors.length > 0) {
+                    scrollToFirstError();
+                    return false;
+                }
+
+                // 2. Lakukan validasi di sisi server menggunakan Ajax
                 $.ajax({
                     url: "{{ route('personnel.api.validate-request-form', ['policeId' => $policeId]) }}",
                     type: 'POST',
                     dataType: 'json',
                     data: $('#officerForm').serialize(),
                     success: function(response) {
-                        // Cek jika validasi berhasil di sisi server
                         if (response.success) {
-                            // sweetalert2 berhasil sebelum submit form
                             Swal.fire({
                                 title: 'Berhasil',
                                 text: response.message,
                                 icon: 'success',
                                 confirmButtonText: 'Ok'
                             }).then((result) => {
-                                // Submit form
-                                $('#officerForm').submit();
+                                $('#officerForm')[0].submit();
                             });
                         }
                     },
                     error: function(xhr) {
-                        // Tangani error jika terjadi kesalahan saat melakukan validasi
-                        response = JSON.parse(xhr.responseText);
+                        try {
+                            var response = JSON.parse(xhr.responseText);
 
-                        if (response.code == '422') {
-                            var errorMessages = '';
+                            if (response.code == '422' && response.errors) {
+                                var errorMessages = '';
 
-                            $.each(response.errors, function(key, value) {
-                                errorMessages += '- ' + value + '<br>';
-                            });
+                                $('.is-invalid').removeClass('is-invalid');
+                                $('.border.border-danger').removeClass('border border-danger');
+                                $('.select2-selection').removeClass('border border-danger is-invalid');
+                                $('.frontend-error').remove();
+                                $('.invalid-feedback').remove();
+                                errors = [];
 
-                            return Swal.fire({
+                                $.each(response.errors, function(key, messages) {
+                                    var msg = Array.isArray(messages) ? messages[0] : messages;
+                                    errorMessages += '- ' + msg + '<br>';
+
+                                    var $target = $('#' + key + ', [name="' + key + '"], [name="' + key + '[]"]');
+                                    if (!$target.length) {
+                                        if (key === 'employmentType') {
+                                            $target = $('input[name="employmentType"]');
+                                        } else if (key === 'isExistsOfficerSkepPenyidik') {
+                                            $target = $('input[name="isExistsOfficerSkepPenyidik"]');
+                                        } else if (key === 'isExistsOfficerCertificate' || key.indexOf('certificate') !== -1) {
+                                            $target = $('#certificateTable');
+                                        } else if (key === 'isOfficerOperationControlAssistance') {
+                                            $target = $('input[name="isOfficerOperationControlAssistance"]');
+                                        } else if (key === 'officerOperationControlAssistanceOriginPoliceId') {
+                                            $target = $('#officerOperationControlAssistanceOriginPoliceName');
+                                        }
+                                    }
+
+                                    if ($target && $target.length) {
+                                        markError($target, msg);
+                                    }
+                                });
+
+                                scrollToFirstError();
+                            } else {
+                                var message = (response && (response.message || response.errors)) ? (response.message || response.errors) : 'Terjadi kesalahan saat memproses data.';
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Perhatian',
+                                    text: typeof message === 'string' ? message : JSON.stringify(message)
+                                });
+                            }
+                        } catch (e) {
+                            console.error(e);
+                            Swal.fire({
                                 icon: 'error',
-                                title: 'Mohon Periksa Kembali Isian Anda',
-                                html: errorMessages,
+                                title: 'Error',
+                                text: 'Terjadi kesalahan pada server saat validasi.'
                             });
                         }
                     }

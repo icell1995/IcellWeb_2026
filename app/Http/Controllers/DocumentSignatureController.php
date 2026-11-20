@@ -181,7 +181,8 @@ class DocumentSignatureController extends Controller
 
             if(!empty($document)){
                 // post header to e-signature
-                $authorizationToken = env('ESIGNATURE_API_TOKEN');
+                $tokenService = app(\App\Services\ESignature\ESignatureTokenService::class);
+                $authorizationToken = $tokenService->getToken();
 
                 // post body to e-signature
                 $identityNumber = $officer->identity_number;
@@ -211,7 +212,7 @@ class DocumentSignatureController extends Controller
                 ->timeout(90)
                 ->connectTimeout(30)
                 ->retry(3, 100)
-                ->post(env('ESIGNATURE_API_HOST') . '/api/values/SignTTEICELL', [
+                ->post($tokenService->getHost() . '/api/values/SignTTEICELL', [
                     'IdDokumen' => $documentId,
                     'NIK' => $identityNumber,
                     'PassPhrase' => $passphraseCode,

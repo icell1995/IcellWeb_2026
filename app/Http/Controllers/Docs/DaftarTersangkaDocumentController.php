@@ -449,7 +449,7 @@ class DaftarTersangkaDocumentController extends Controller
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
      */
-    public function download($id, Request $request = null)
+    public function download($id, ?Request $request = null)
     {
         try {
             $document = DaftarTersangkaDocument::findOrFail($id);
@@ -556,7 +556,7 @@ class DaftarTersangkaDocumentController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function delete($id, Request $request = null)
+    public function delete($id, ?Request $request = null)
     {
         try {
             $document = DaftarTersangkaDocument::findOrFail($id);

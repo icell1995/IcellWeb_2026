@@ -12,14 +12,14 @@ class WhatsappWebhookService
     {
         if (is_numeric($destinationPhoneNumber) && Str::startsWith($destinationPhoneNumber, '62')) {
             try {
-                $appKey = env('WHATSAPP_BOT_APP_KEY');
-                $authKey = env('WHATSAPP_BOT_AUTH_KEY');
+                $appKey = config('services.whatsapp.app_key');
+                $authKey = config('services.whatsapp.auth_key');
                 $to = $destinationPhoneNumber;
                 $templateId = $templateId;
                 $props = $props;
                 $sandbox = $sandbox;
 
-                $response = Http::post(env('WHATSAPP_BOT_API_URL') . 'create-message', [
+                $response = Http::post(config('services.whatsapp.api_url') . 'create-message', [
                     'appkey' => $appKey,
                     'authkey' => $authKey,
                     'to' => $to,

@@ -254,7 +254,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
                                 try {
                                     $whatsappWebhookService->sendMessageTemplate(
                                         destinationPhoneNumber: $officer->phone_number, 
-                                        templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_READY_TO_SIGNED'),
+                                        templateId: config('services.whatsapp.templates.doc_ready_to_signed'),
                                         props: [
                                             '{positionName}' => $documentSignatory->position->name,
                                             '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument->document_number,
@@ -276,7 +276,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
                                 $policeName = (isset($policeAdmin->police->full_name)) ? $policeAdmin->police->full_name : '';
                                 $whatsappWebhookService->sendMessageTemplate(
                                     destinationPhoneNumber: $policeAdmin->phone_number,
-                                    templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_VALIDATED'),
+                                    templateId: config('services.whatsapp.templates.doc_validated'),
                                     props: [
                                         '{positionName}' => 'ADMIN ' . $policeName,
                                         '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument->document_number,
@@ -488,7 +488,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
                             $policeName = (isset($policeAdmin->police->full_name)) ? $policeAdmin->police->full_name : '';
                             $whatsappWebhookService->sendMessageTemplate(
                                 destinationPhoneNumber: $policeAdmin->phone_number,
-                                templateId: env('WHATSAPP_BOT_TEMPLATE_ID_DOC_VALIDATE_REJECTED'),
+                                templateId: config('services.whatsapp.templates.doc_validate_rejected'),
                                 props: [
                                     '{positionName}' => 'ADMIN ' . $policeName,
                                     '{documentNumber}' => $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument->document_number,
