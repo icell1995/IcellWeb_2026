@@ -56,10 +56,10 @@ class SuratPemberitahuanDimulainyaPenyidikanDocumentValidationController extends
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $suratPemberitahuanDimulainyaPenyidikanDocumentId = $id;
 
-        $suratPemberitahuanDimulainyaPenyidikanDocument = SuratPemberitahuanDimulainyaPenyidikanDocument::with(['suratPemberitahuanDimulainyaPenyidikanDocumentOfficers', 'suratPerintahPenyidikanDocument', 'suratPemberitahuanDimulainyaPenyidikanDocumentAttachment'])->where('id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)->first();
-        $accident = Accident::where('id', $accidentId)->first();
+        $suratPemberitahuanDimulainyaPenyidikanDocument = SuratPemberitahuanDimulainyaPenyidikanDocument::with(['accident', 'status', 'documentCategory', 'suspects', 'suratPemberitahuanDimulainyaPenyidikanDocumentOfficers', 'suratPerintahPenyidikanDocument.suratPerintahPenyidikanDocumentLaws.crimeConstitution', 'suratPemberitahuanDimulainyaPenyidikanDocumentAttachment'])->where('id', $suratPemberitahuanDimulainyaPenyidikanDocumentId)->first();
+        $accident = $suratPemberitahuanDimulainyaPenyidikanDocument?->accident ?? Accident::where('id', $accidentId)->first();
 
-        $selectedSuspects = $suratPemberitahuanDimulainyaPenyidikanDocument->suspects()->get()->pluck('id')->toArray();
+        $selectedSuspects = $suratPemberitahuanDimulainyaPenyidikanDocument->suspects->pluck('id')->toArray();
 
         $ranks = Rank::where('is_active', true)->wherePolri()->orderBy('sort')->get();
 

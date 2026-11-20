@@ -16,15 +16,9 @@ class ApiAuthMiddleware
      * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @return Response|RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, ?string $scope = null)
     {
-        $tokens = [
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSUNFTEwtRU1QIiwicHJvdmlkZXIiOiJJQ0VMTC1BUEkifQ.EhjiING3v9rX54P3afd29H4TRzV0LlI9t3AHyjiWGKg', //ICELL-EMP
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSUNFTEwtVEFSIiwicHJvdmlkZXIiOiJJQ0VMTC1BUEkifQ.2A2TDuDtWXyNLHiUB4LTPpBC6L5nIlerFI07pEnuQeI', //ICELL-TAR
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSUNFTEwtSVJTTVMiLCJwcm92aWRlciI6IklDRUxMLUFQSSJ9.BEy5KZ6CQqAZgRI6nnwEW-u80WB4zKcO_hJBuABPqWE', //ICELL-IRSMS
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSUNFTEwtIiwicHJvdmlkZXIiOiJJQ0VMTC1BUEkifQ.4v3w3pXrX1sY4mJtX5sT8eGf6b0g9yZ1zQ9v62H3Fs=divtik', //ICELL-DIVTIK
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSUNFTEwtU1AySFAiLCJwcm92aWRlciI6IklDRUxMLUFQSSJ9.7kZ9mN2pQ8vWxJ4sL3rY6tH5uA1bC0gD9fE2_sp2hp', //ICELL-SP2HP        
-        ];
+        $configuredTokens = array_filter((array) config('services.icell_api_tokens', []));
 
         $rawAuth = $request->header('AUTHORIZATION') ?? $request->header('Authorization');
 
@@ -34,17 +28,25 @@ class ApiAuthMiddleware
             $token = trim(preg_replace('/^Bearer\s+/i', '', $rawAuth));
         }
 
-        $isPusiknasDoc = $request->is('icell-services/api-pusiknasbareskrim/doc*');
+        $isPusiknasDoc = $scope === 'pusiknas-doc' || $request->is('icell-services/api-pusiknasbareskrim/doc*');
 
-        // 1. Cek static token bawaan ICELL (HANYA untuk endpoint non-Pusiknas Dokumen)
-        if (!$isPusiknasDoc) {
-            if ($token && in_array($token, $tokens)) {
-                return $next($request);
+        // 1. Cek static token bawaan ICELL sesuai scope service (HANYA untuk endpoint non-Pusiknas Dokumen)
+        if (!$isPusiknasDoc && $token) {
+            if ($scope && isset($configuredTokens[$scope])) {
+                if (hash_equals((string) $configuredTokens[$scope], (string) $token)) {
+                    return $next($request);
+                }
+            } elseif (!$scope) {
+                foreach ($configuredTokens as $configuredToken) {
+                    if (hash_equals((string) $configuredToken, (string) $token)) {
+                        return $next($request);
+                    }
+                }
             }
         }
 
         // 2. Cek dynamic token (Pusiknas API Token)
-        if ($token) {
+        if ($token && ($isPusiknasDoc || !$scope)) {
             $pusiknasToken = PusiknasApiToken::where('token', $token)->first();
 
             if ($pusiknasToken) {

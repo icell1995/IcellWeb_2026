@@ -30,6 +30,8 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+    'mode' => env('APP_MODE', 'LOCAL'),
+    'forms_confirmation_active' => (bool) env('FORMS_CONFIRMATION_ACTIVE', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -172,8 +174,7 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
         Mews\Captcha\CaptchaServiceProvider::class,
         // App\Providers\FortifyServiceProvider::class,
-        Mews\Captcha\CaptchaServiceProvider::class,
-        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
+        F9WebLtd\QrCode\QrCodeServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
     ])->toArray(),
 
@@ -225,16 +226,12 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'Form' => Collective\Html\FormFacade::class,
-        'Html' => Collective\Html\HtmlFacade::class,
-        'Image' => Intervention\Image\Facades\Image::class,
         'Captcha' => Mews\Captcha\Facades\Captcha::class,
         'DataTables' => Yajra\DataTables\Facades\DataTables::class,
         'Uuid' => Webpatser\Uuid\Uuid::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
-        'Captcha' => Mews\Captcha\Facades\Captcha::class,
-        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
+        'QrCode' => F9WebLtd\QrCode\Facades\QrCode::class,
+        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
     ])->toArray(),
 
 ];

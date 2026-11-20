@@ -27,43 +27,27 @@ class ExportController extends Controller
         }if($polda=="" || $polda==null){
             $polda = "-";
         }
-        $data = DB::select(
-            "select
-            no_lp,
-            polres.name as polres_name,
-            polda.name as polda_name,
-            md,
-            lb,
-            lr,
-            date(accidents.created_at),
-            (
-                CASE
-                WHEN LEFT(accidents.accident_type_id,4) IN ('$grp_1' , '$grp_2') THEN 'TUNGGAL'
-                  WHEN LEFT(ACCIDENT_TYPE_ID,4) NOT IN ('$grp_1' , '$grp_2') THEN 'KONTRA'
-                END
-            ) as jenislaka,
-            (
-                case
-                    when md>=1 and lb<=md and lr<=md then 'Berat'
-                    when lb>=1 and lb<md and lr<=lb then 'Sedang'
-                    else 'Ringan'
-
-                end
-            )as tingkatlaka,
-            accidents.total_ranmor as ranmor,
-            ref.name as ref_name
-            from accidents
-            left join polres on polres.id = accidents.polres_id
-            left join polda on polda.id = polres.polda_id
-            left join ref on ref.id = accidents.selra_flag
-            where
-            case when '$polda' <> '-' then polda.id = '$polda' else true end
-            and
-            case when '$polres' <> '-' then polres.id = '$polres' else true end
-            and
-            date(accidents.created_at) between '$checkBulanPast' and '$checkBulan'
-            "
-        );
+        $data = DB::table('accidents')
+            ->select(
+                'no_lp',
+                'polres.name as polres_name',
+                'polda.name as polda_name',
+                'md',
+                'lb',
+                'lr',
+                DB::raw('DATE(accidents.created_at) as created_date'),
+                DB::raw("CASE WHEN LEFT(accidents.accident_type_id, 4) IN ('$grp_1', '$grp_2') THEN 'TUNGGAL' WHEN LEFT(ACCIDENT_TYPE_ID, 4) NOT IN ('$grp_1', '$grp_2') THEN 'KONTRA' END as jenislaka"),
+                DB::raw("CASE WHEN md >= 1 AND lb <= md AND lr <= md THEN 'Berat' WHEN lb >= 1 AND lb < md AND lr <= lb THEN 'Sedang' ELSE 'Ringan' END as tingkatlaka"),
+                'accidents.total_ranmor as ranmor',
+                'ref.name as ref_name'
+            )
+            ->leftJoin('polres', 'polres.id', '=', 'accidents.polres_id')
+            ->leftJoin('polda', 'polda.id', '=', 'polres.polda_id')
+            ->leftJoin('ref', 'ref.id', '=', 'accidents.selra_flag')
+            ->when($polda !== '-', fn ($query) => $query->where('polda.id', $polda))
+            ->when($polres !== '-', fn ($query) => $query->where('polres.id', $polres))
+            ->whereBetween(DB::raw('DATE(accidents.created_at)'), [$checkBulanPast, $checkBulan])
+            ->get();
         $check = Excel::download(new ExportStatistika($data),"Statistika Month".date("Y-m-d H-i-s")." .xlsx");
         return $check;
     }

@@ -74,7 +74,7 @@ class SuratPermintaanBlokirRekeningBankDocumentController extends Controller
         // 3. Petugas internal
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -84,7 +84,7 @@ class SuratPermintaanBlokirRekeningBankDocumentController extends Controller
             ->get();
 
         // 4. Pejabat Penandatangan (Kasat Lantas / KBO)
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -406,7 +406,7 @@ class SuratPermintaanBlokirRekeningBankDocumentController extends Controller
         $suspects = Suspect::with(['gender', 'job', 'religion'])->where('accident_id', $accident->id)->get();
 
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -415,7 +415,7 @@ class SuratPermintaanBlokirRekeningBankDocumentController extends Controller
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -849,12 +849,13 @@ class SuratPermintaanBlokirRekeningBankDocumentController extends Controller
             }
         }
 
-        if (!file_exists(public_path('generate'))) {
-            mkdir(public_path('generate'), 0777, true);
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
         }
 
         $cleanNomor = preg_replace('/[^A-Za-z0-9_\-]/', '_', $document->nomor ?: ($document->document_number ?: 'DRAFT'));
-        $filename = public_path('generate/' . $document->id . ' - Surat Permintaan Pemblokiran Rekening Bank - ' . ($accident->polres->full_name ?? ($accident->polres->name ?? 'Polres')) . '.docx');
+        $filename = $tempDir . '/' . $document->id . ' - Surat Permintaan Pemblokiran Rekening Bank - ' . ($accident->polres->full_name ?? ($accident->polres->name ?? 'Polres')) . '.docx';
         $templateProcessor->saveAs($filename);
 
         return [

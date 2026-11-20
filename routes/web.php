@@ -1,5 +1,5 @@
 <?php
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use F9WebLtd\QrCode\Facades\QrCode;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -22,26 +22,26 @@ use App\Http\Controllers\KPangkatController;
 |
 */
 
-Auth::routes();
-Route::get('search', [App\Http\Controllers\OfficerController::class, 'search'])->name('searchOfficer');
-Route::get('search_user', [App\Http\Controllers\PenggunaController::class, 'search_user'])->name('searchUser');
+Auth::routes([
+    'reset' => false,
+    'confirm' => false,
+]);
+// Legacy URL compatibility for Laravel UI password reset & confirmation links
+Route::get('password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('legacy.password.request');
+Route::post('password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('legacy.password.email');
+Route::get('password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('legacy.password.reset');
+Route::post('password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('legacy.password.update');
+Route::get('password/confirm', [App\Http\Controllers\Auth\ConfirmPasswordController::class, 'showConfirmForm'])->name('legacy.password.confirm');
+Route::post('password/confirm', [App\Http\Controllers\Auth\ConfirmPasswordController::class, 'confirm']);
+Route::get('authenticate', fn () => redirect()->route('login'));
 Route::post('authenticate', [App\Http\Controllers\LoginController::class, 'authenticate'])->name('authenticate')->middleware('throttle:3,1');
-Route::post('verifyOtp', [App\Http\Controllers\LoginController::class, 'verifyOtp'])->name('verifyOtp');
-Route::post('resend-otp', [App\Http\Controllers\LoginController::class, 'resendOtp'])->name('resendOtp');
+Route::post('verifyOtp', [App\Http\Controllers\LoginController::class, 'verifyOtp'])->name('verifyOtp')->middleware('throttle:5,1');
+Route::post('resend-otp', [App\Http\Controllers\LoginController::class, 'resendOtp'])->name('resendOtp')->middleware('throttle:5,1');
 Route::get('forget-password', [App\Http\Controllers\LoginController::class, 'forget_password'])->name('forget-password');
-Route::post('forget-password', [App\Http\Controllers\LoginController::class, 'post_forget_password'])->name('forget-password');
+Route::post('forget-password', [App\Http\Controllers\LoginController::class, 'post_forget_password'])->name('forget-password.post')->middleware('throttle:5,1');
 Route::get('refresh_captcha', [App\Http\Controllers\LoginController::class, 'refreshCaptcha'])->name('refresh_captcha');
 // Route::get('reset-password/{token}', [App\Http\Controllers\LoginController::class, 'reset_password'])->name('reset-password');
 // Route::post('reset-password', [App\Http\Controllers\LoginController::class, 'post_reset_password'])->name('reset-password');
-
-Route::get('/dashboardicell', [App\Http\Controllers\DashboardicellController::class, 'index'])->name('index');
-Route::get('/getDashBar', [App\Http\Controllers\DashboardicellController::class, 'getDashBar'])->name('getDashBar');
-Route::get('/getDashPie', [App\Http\Controllers\DashboardicellController::class, 'getDashPie'])->name('getDashPie');
-Route::get('/updateContent', [App\Http\Controllers\DashboardicellController::class, 'updateContent'])->name('updateContent');
-// Route::get('/dashChartLine', [App\Http\Controllers\DashboardicellController::class, 'dashChartBar'])->name('dashChartLine');
-
-// Route::get('/qr-codes', [App\Http\Controllers\QrCodeController::class, 'generateQRCode'])->name('generateQRCode');
-// Route::get('/qr-codes', [App\Http\Controllers\QrCodeController::class, 'index'])->name('index');
 
 // SSO IRSMS
 Route::get('/sso-login', [\App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\SsoLoginController::class, 'handleSSOLogin']);
@@ -53,16 +53,20 @@ Route::group(['middleware' => ['guest', 'prevent-back-history']], function () {
     Route::get('/login', [App\Http\Controllers\LoginController::class, 'get_login'])->name('get_login');
 });
 
-Route::prefix('anev')->group(function () {
-    Route::get('/', [App\Http\Controllers\AnevController::class, 'index_anev'])->name('index_anev');
-    Route::get('/get_report_anev',  [App\Http\Controllers\AnevController::class, 'get_report_anev'])->name('get_report_anev');
-    Route::get('/export_report_anev',  [App\Http\Controllers\AnevController::class, 'export_report_anev'])->name('export_report_anev');
-    Route::get('/report_individu', [App\Http\Controllers\AnevController::class, 'report_individu'])->name('report_individu');
-    Route::get('/get_report_individu',  [App\Http\Controllers\AnevController::class, 'get_report_individu'])->name('get_report_individu');
-    Route::get('/export_report_individu',  [App\Http\Controllers\AnevController::class, 'export_report_individu'])->name('export_report_individu');
-});
-
 Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
+    Route::get('/dashboardicell', [App\Http\Controllers\DashboardicellController::class, 'index'])->name('index');
+    Route::get('/getDashBar', [App\Http\Controllers\DashboardicellController::class, 'getDashBar'])->name('getDashBar');
+    Route::get('/getDashPie', [App\Http\Controllers\DashboardicellController::class, 'getDashPie'])->name('getDashPie');
+    Route::get('/updateContent', [App\Http\Controllers\DashboardicellController::class, 'updateContent'])->name('updateContent');
+
+    Route::prefix('anev')->group(function () {
+        Route::get('/', [App\Http\Controllers\AnevController::class, 'index_anev'])->name('index_anev');
+        Route::get('/get_report_anev',  [App\Http\Controllers\AnevController::class, 'get_report_anev'])->name('get_report_anev');
+        Route::get('/export_report_anev',  [App\Http\Controllers\AnevController::class, 'export_report_anev'])->name('export_report_anev');
+        Route::get('/report_individu', [App\Http\Controllers\AnevController::class, 'report_individu'])->name('report_individu');
+        Route::get('/get_report_individu',  [App\Http\Controllers\AnevController::class, 'get_report_individu'])->name('get_report_individu');
+        Route::get('/export_report_individu',  [App\Http\Controllers\AnevController::class, 'export_report_individu'])->name('export_report_individu');
+    });
     Route::prefix('/evaluation-form-fill')->group(function () {
         Route::get('/', [App\Http\Controllers\EvaluationFormController::class, 'index'])->name('evaluation-form-fill.index');
         Route::get('/redirect', [App\Http\Controllers\EvaluationFormController::class, 'redirect'])->name('evaluation-form-fill.redirect');
@@ -119,6 +123,8 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
         });
 
         Route::group(['middleware' => 'can:manage-users'], function () {
+            Route::get('search', [App\Http\Controllers\OfficerController::class, 'search'])->name('searchOfficer');
+            Route::get('search_user', [App\Http\Controllers\PenggunaController::class, 'search_user'])->name('searchUser');
 
             Route::prefix('pengguna')->group(function () {
                 Route::get('/', [App\Http\Controllers\PenggunaController::class, 'index'])->name('pengguna');
@@ -204,7 +210,7 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
             Route::resource('/surat-penyelidikan', PdfController::class);
             Route::resource('/surat-penyidikan', PdfController::class);
             // Route::resource('/surat-spdp', PdfController::class);
-            Route::resource('/spdp', PdfController::class);
+            Route::resource('/spdp', PdfController::class)->names('pdf.spdp');
             Route::resource('/laporan_polisi', PdfController::class);
             Route::resource('/BA_Penangkapan', PdfController::class);
             Route::resource('/BA_Pemotretan', PdfController::class);
@@ -363,19 +369,19 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
 
                 // Export
                 // Route::get('/export', [App\Http\Controllers\ExportRekapController::class, 'ExportRekap'])->name('ExportRekap');
-                Route::post('/add-surat-tugas', [App\Http\Controllers\AccidentController::class, 'add_surat_tugas'])->name('add_surat_tugas');
-                Route::post('/autocomplete/fetch', [App\Http\Controllers\AccidentController::class, 'fetch'])->name('autocomplete.fetch');
+                Route::post('/add-surat-tugas', [App\Http\Controllers\AccidentController::class, 'add_surat_tugas'])->name('rekap.add_surat_tugas');
+                Route::post('/autocomplete/fetch', [App\Http\Controllers\AccidentController::class, 'fetch'])->name('rekap.autocomplete.fetch');
                 Route::get('file-upload', [App\Http\Controllers\FileUploadController::class, 'fileUpload'])->name('file.upload');
-                Route::post('file-upload', [App\Http\Controllers\FileUploadController::class, 'fileUploadPost'])->name('file.upload.post');
+                Route::post('file-upload', [App\Http\Controllers\FileUploadController::class, 'fileUploadPost'])->name('rekap.file.upload.post');
                 // Route::post('/petugas/getPetugas/', [App\Http\Controllers\AccidentController::class, 'getPetugas'])->name('get_petugas');
             });
 
             Route::prefix('wilayah')->group(function () {
-                Route::get('/', [App\Http\Controllers\daftarWilayahController::class, 'index'])->name('index');
+                Route::get('/', [App\Http\Controllers\daftarWilayahController::class, 'index'])->name('wilayah.index');
             });
 
             Route::prefix('organisasi')->group(function () {
-                Route::get('/', [App\Http\Controllers\SturkturOrganisasiController::class, 'index'])->name('index');
+                Route::get('/', [App\Http\Controllers\SturkturOrganisasiController::class, 'index'])->name('organisasi.index');
             });
 
             Route::get('/createword-surat-tugas/{id}', [App\Http\Controllers\WordController::class, 'createword_surat_tugas'])->name('createword_surat_tugas');
@@ -412,7 +418,7 @@ Route::group(['middleware' => ['auth', 'prevent-back-history']], function () {
             });
 
             Route::prefix('organisasi')->group(function (){
-                Route::get('/struktur-organisasi', [App\Http\Controllers\SturkturOrganisasiController::class, 'index'])->name('index');
+                Route::get('/struktur-organisasi', [App\Http\Controllers\SturkturOrganisasiController::class, 'index'])->name('organisasi.struktur.index');
                 Route::post('/struktur-organisasi',[App\Http\Controllers\SturkturOrganisasiController::class, 'store'])->name('store');
                 Route::post('/delete_img/{name}',[App\Http\Controllers\SturkturOrganisasiController::class, 'delete_img'])->name('delete_img');
             });

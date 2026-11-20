@@ -20,7 +20,7 @@ class IsFormsConfirmationComplete
      */
     public function handle(Request $request, Closure $next)
     {
-        $active = env('FORMS_CONFIRMATION_ACTIVE', false);
+        $active = config('app.forms_confirmation_active', false);
         
         if($active == true){
             $user = Auth::user();

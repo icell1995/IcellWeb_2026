@@ -65,7 +65,8 @@ class ESignatureConfirmationController extends Controller
         DB::beginTransaction();
         try{ 
             // post header to e-signature
-            $authorizationToken = env('ESIGNATURE_API_TOKEN');
+            $tokenService = app(\App\Services\ESignature\ESignatureTokenService::class);
+            $authorizationToken = $tokenService->getToken();
 
             // post body to e-signature
             $passphraseCode = $passphrase;
@@ -76,7 +77,7 @@ class ESignatureConfirmationController extends Controller
             // send file to e-signature with http post request
             $response = Http::withHeaders([
                 'Authorization' => $authorizationToken
-            ])->post(env('ESIGNATURE_API_HOST') . '/api/values/SignTTEICELL', [
+            ])->post($tokenService->getHost() . '/api/values/SignTTEICELL', [
                 'IdDokumen' => Str::uuid(),
                 'NIK' => $identityNumber,
                 'PassPhrase' => $passphraseCode,

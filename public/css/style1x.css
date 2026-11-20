@@ -798,6 +798,10 @@ input.input-form:selected {
     background-color: transparent !important;
 }
 
+.progress-bar-none {
+    display: none;
+}
+
 .item-header {
     background-color: rgb(226, 226, 236);
     padding: 0.7rem 0.5rem !important;

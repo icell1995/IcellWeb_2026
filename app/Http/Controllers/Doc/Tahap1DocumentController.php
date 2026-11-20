@@ -1333,7 +1333,7 @@ class Tahap1DocumentController extends Controller
     {
         try {
             $payload = $this->buildBpt1Payload($document);
-            $url = env('PUSKARDA_API_URL', 'https://10.34.17.4/puskarda-main/proses');
+            $url = config('services.puskarda.api_url');
             
             \Illuminate\Support\Facades\Http::withoutVerifying()
                 ->post($url, $payload);

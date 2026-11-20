@@ -107,7 +107,7 @@ class SuratPerintahPenggeledahanRumahDocumentController extends Controller
         $policeId = $accident->polres_id;
         $getOldNewPolresIds = $this->getOldNewPolresIds($policeId);
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -118,7 +118,7 @@ class SuratPerintahPenggeledahanRumahDocumentController extends Controller
             ->get();
 
         // Pejabat Penandatangan (Atasan Penyidik)
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -130,9 +130,9 @@ class SuratPerintahPenggeledahanRumahDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = AuthorizedSignatory::with(['rank', 'user'])
-                ->where('police_id', $policeId)
-                ->where('is_active', true)
+            $authorizedSignatories = AuthorizedSignatory::select('*', DB::raw("CONCAT(first_title, ' ', first_name, ' ', last_name, ', ', last_title) AS full_name"))
+                ->where('polres_id', $accident->polres_id)
+                ->orderBy('first_name', 'asc')
                 ->get();
         }
 
@@ -313,7 +313,7 @@ class SuratPerintahPenggeledahanRumahDocumentController extends Controller
         $policeId = $accident->polres_id;
         $getOldNewPolresIds = $this->getOldNewPolresIds($policeId);
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -323,7 +323,7 @@ class SuratPerintahPenggeledahanRumahDocumentController extends Controller
             ->orderBy('first_name')
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -335,9 +335,9 @@ class SuratPerintahPenggeledahanRumahDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = AuthorizedSignatory::with(['rank', 'user'])
-                ->where('police_id', $policeId)
-                ->where('is_active', true)
+            $authorizedSignatories = AuthorizedSignatory::select('*', DB::raw("CONCAT(first_title, ' ', first_name, ' ', last_name, ', ', last_title) AS full_name"))
+                ->where('polres_id', $accident->polres_id)
+                ->orderBy('first_name', 'asc')
                 ->get();
         }
 

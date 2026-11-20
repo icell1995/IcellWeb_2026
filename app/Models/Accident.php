@@ -96,7 +96,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPerintahPenyelidikanDocument\SuratPerintahPenyelidikanDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -105,7 +106,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPerintahPenyidikanDocument\SuratPerintahPenyidikanDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -114,7 +116,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPerintahTugasDocument\SuratPerintahTugasDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -124,7 +127,8 @@ class Accident extends Model
             ->with([
                 'documentCategory',
                 'caseDegreeType',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -133,7 +137,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapanTentangPenetapanTersangkaDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -142,7 +147,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanDocument\SuratPemberitahuanDimulainyaPenyidikanDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -151,7 +157,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPermintaanIzinPenyitaanDocument\SuratPermintaanIzinPenyitaanDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -161,12 +168,13 @@ class Accident extends Model
             \App\Models\Doc\SuratLaporanPersetujuanPenyitaanDocument\SuratLaporanPersetujuanPenyitaanDocument::class,
             'accident_id',
             'id'
-        );
+        )->with(['documentCategory', 'createdByUser.rank']);
     }
 
     public function suratPemberitahuanPerkembanganHasilPenyidikanDocuments()
     {
-        return $this->hasMany('App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument', 'accident_id', 'id');
+        return $this->hasMany('App\Models\Doc\SuratPemberitahuanPerkembanganHasilPenyidikanDocument\SuratPemberitahuanPerkembanganHasilPenyidikanDocument', 'accident_id', 'id')
+            ->with(['createdByUser.rank']);
     }
 
     public function suratPermohonanPenetapanDiversiDocuments()
@@ -174,7 +182,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPermohonanPenetapanDiversiDocument\SuratPermohonanPenetapanDiversiDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -185,14 +194,14 @@ class Accident extends Model
                 'documentCategory',
                 'suspect',
                 'attachment',
-                'createdByUser',
+                'createdByUser.rank',
             ]);
     }
 
     public function beritaAcaraPenahananDocuments()
     {
         return $this->hasMany('App\Models\BeritaAcaraPenahanan', 'accident_id', 'id')
-            ->with(['documentCategory', 'attachment']);
+            ->with(['documentCategory', 'attachment', 'createdByUser.rank']);
     }
 
     public function beritaAcaraPenahanans()
@@ -205,7 +214,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPermintaanPenggeledahanDocument\SuratPermintaanPenggeledahanDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -214,7 +224,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratGunaMemperolehPersetujuanPenggeledahanDocument\SuratGunaMemperolehPersetujuanPenggeledahanDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -233,7 +244,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPerintahPenahananDocument\SuratPerintahPenahananDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -242,7 +254,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPerintahPenangguhanPenahananDocument\SuratPerintahPenangguhanPenahananDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -251,7 +264,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPerintahPencabutanPenangguhanPenahananDocument\SuratPerintahPencabutanPenangguhanPenahananDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -260,7 +274,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\SuratPermohonanPerpanjanganPenahananKejaksaanDocument\SuratPermohonanPerpanjanganPenahananKejaksaanDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -269,7 +284,8 @@ class Accident extends Model
         return $this->hasMany('App\Models\Doc\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument\BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocument', 'accident_id', 'id')
             ->with([
                 'documentCategory',
-                'attachment'
+                'attachment',
+                'createdByUser.rank',
             ]);
     }
 
@@ -279,7 +295,7 @@ class Accident extends Model
             ->with([
                 'documentCategory',
                 'attachment',
-                'createdByUser',
+                'createdByUser.rank',
             ]);
     }
 
@@ -289,7 +305,7 @@ class Accident extends Model
             ->with([
                 'documentCategory',
                 'attachment',
-                'createdByUser',
+                'createdByUser.rank',
             ]);
     }
 
@@ -299,7 +315,7 @@ class Accident extends Model
             ->with([
                 'documentCategory',
                 'attachment',
-                'createdByUser',
+                'createdByUser.rank',
             ]);
     }
 
@@ -312,44 +328,58 @@ class Accident extends Model
     {
         return $this->hasMany(\App\Models\Doc\SuratPerintahPenghentianPenyelidikanDocument\SuratPerintahPenghentianPenyelidikanDocument::class, 'accident_id', 'id')
             ->where('is_active', true)
-            ->with(['documentCategory', 'attachment']);
+            ->with(['documentCategory', 'attachment', 'createdByUser.rank']);
     }
 
     public function suratKetetapanPenghentianPenyelidikanDocuments()
     {
         return $this->hasMany(\App\Models\Doc\SuratKetetapanPenghentianPenyelidikanDocument\SuratKetetapanPenghentianPenyelidikanDocument::class, 'accident_id', 'id')
             ->where('is_active', true)
-            ->with(['documentCategory', 'attachment']);
+            ->with(['documentCategory', 'attachment', 'createdByUser.rank']);
     }
 
     public function suratPerintahPenghentianPenyidikanDocuments()
     {
-        return $this->hasMany(\App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument::class, 'accident_id', 'id')->where('is_active', true);
+        return $this->hasMany(\App\Models\Doc\SuratPerintahPenghentianPenyidikanDocument\SuratPerintahPenghentianPenyidikanDocument::class, 'accident_id', 'id')
+            ->where('is_active', true)
+            ->with(['documentCategory', 'createdByUser.rank']);
     }
 
     public function suratKetetapanPenghentianPenyidikanDocuments()
     {
-        return $this->hasMany(\App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument::class, 'accident_id', 'id')->where('is_active', true);
+        return $this->hasMany(\App\Models\Doc\SuratKetetapanPenghentianPenyidikanDocument\SuratKetetapanPenghentianPenyidikanDocument::class, 'accident_id', 'id')
+            ->where('is_active', true)
+            ->with(['documentCategory', 'createdByUser.rank']);
     }
 
     public function suratPemberitahuanPenghentianPenyidikanDocuments()
     {
-        return $this->hasMany(\App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument::class, 'accident_id', 'id');
+        return $this->hasMany(\App\Models\Doc\SuratPemberitahuanPenghentianPenyidikanDocument\SuratPemberitahuanPenghentianPenyidikanDocument::class, 'accident_id', 'id')
+            ->with(['documentCategory', 'createdByUser.rank']);
     }
 
     public function tahap1Documents()
     {
-        return $this->hasMany(\App\Models\Doc\Tahap1Document\Tahap1Document::class)->where('is_active', true)->where('is_legacy', false);
+        return $this->hasMany(\App\Models\Doc\Tahap1Document\Tahap1Document::class)
+            ->where('is_active', true)
+            ->where('is_legacy', false)
+            ->with(['documentCategory', 'createdByUser.rank']);
     }
 
     public function tahap2Documents()
     {
-        return $this->hasMany(\App\Models\Doc\Tahap2Document\Tahap2Document::class)->where('is_active', true)->where('is_legacy', false);
+        return $this->hasMany(\App\Models\Doc\Tahap2Document\Tahap2Document::class)
+            ->where('is_active', true)
+            ->where('is_legacy', false)
+            ->with(['documentCategory', 'createdByUser.rank']);
     }
 
     public function suratPemberitahuanDimulainyaPenyidikanPusiknasDocuments()
     {
-        return $this->hasMany(\App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class)->where('is_active', true)->where('is_legacy', false);
+        return $this->hasMany(\App\Models\Doc\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument\SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::class)
+            ->where('is_active', true)
+            ->where('is_legacy', false)
+            ->with(['documentCategory', 'createdByUser.rank']);
     }
 
     public function suspects()
@@ -399,7 +429,8 @@ class Accident extends Model
 
     public function resumeDocuments()
     {
-        return $this->hasMany(\App\Models\Doc\ResumeDocument\ResumeDocument::class, 'accident_id', 'id');
+        return $this->hasMany(\App\Models\Doc\ResumeDocument\ResumeDocument::class, 'accident_id', 'id')
+            ->with(['documentCategory', 'createdByUser.rank']);
     }
 
     public function resumeDocument()

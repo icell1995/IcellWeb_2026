@@ -254,8 +254,20 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
     public function show($id)
     {
         $accidentId  = htmlspecialchars(request()->query('accident_id'));
-        $sp3         = SuratPemberitahuanPenghentianPenyidikanDocument::with(['accident', 'accident.polres', 'accident.polres.polda', 'accident.suspects', 'prosecutor', 'court'])->where('id', $id)->firstOrFail();
-        $accident    = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
+        $sp3         = SuratPemberitahuanPenghentianPenyidikanDocument::with([
+            'accident',
+            'accident.polres',
+            'accident.polres.polda',
+            'accident.suspects',
+            'prosecutor',
+            'court',
+            'status',
+            'documentClassification',
+            'suspects',
+            'suratPemberitahuanPenghentianPenyidikanDocumentOfficers.rank',
+            'suratPemberitahuanPenghentianPenyidikanDocumentOfficers.position',
+        ])->where('id', $id)->firstOrFail();
+        $accident    = $sp3->accident ?? Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
         $masterAlasan = self::$masterAlasan;
 
         $kodeAlasan = json_decode($sp3->kode_alasan, true) ?? [];
@@ -277,13 +289,18 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
     public function edit($id)
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
-        $sp3        = SuratPemberitahuanPenghentianPenyidikanDocument::where('id', $id)->firstOrFail();
+        $sp3        = SuratPemberitahuanPenghentianPenyidikanDocument::with([
+            'accident.polres.polda',
+            'status',
+            'suspects',
+            'suratPemberitahuanPenghentianPenyidikanDocumentOfficers',
+        ])->where('id', $id)->firstOrFail();
 
         if (!$sp3->isEditable()) {
             return redirect()->back()->with('error', 'Dokumen tidak dapat diedit karena sudah disetujui atau sedang dalam proses persetujuan.');
         }
 
-        $accident   = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
+        $accident   = $sp3->accident ?? Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         $spdpDocuments = SuratPemberitahuanDimulainyaPenyidikanDocument::where('accident_id', $accidentId)
             ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
@@ -462,21 +479,24 @@ class SuratPemberitahuanPenghentianPenyidikanDocumentController extends Controll
     public function download($id)
     {
         $sp3 = SuratPemberitahuanPenghentianPenyidikanDocument::with([
-            'suratPemberitahuanPenghentianPenyidikanDocumentOfficers',
+            'status',
+            'suratPemberitahuanPenghentianPenyidikanDocumentOfficers.position.positionCluster',
+            'suratPemberitahuanPenghentianPenyidikanDocumentOfficers.rank',
             'documentClassification',
             'accident.polres.polda',
+            'accident.police',
             'prosecutor.regency',
+            'court',
             'suratPerintahPenyidikanDocument.suratPerintahPenyidikanDocumentLaws.crimeConstitution',
             'suratPerintahTugasDocument.suratPerintahTugasDocumentOfficers',
-            'suspects',
+            'suspects.suratKetetapanTentangPenetapanTersangkaDocument',
         ])->where('id', $id)->firstOrFail();
 
         $accidentId = $sp3->accident_id;
-        $accident   = Accident::with(['polres.polda', 'police'])->where('id', $accidentId)->first();
+        $accident   = $sp3->accident ?? Accident::with(['polres.polda', 'police'])->where('id', $accidentId)->first();
 
         // Signatory
-        $signatory = $sp3->suratPemberitahuanPenghentianPenyidikanDocumentOfficers()
-            ->with(['position.positionCluster', 'rank'])
+        $signatory = $sp3->suratPemberitahuanPenghentianPenyidikanDocumentOfficers
             ->where('class', 'SIGNATORY')
             ->first();
         if (!$signatory) {

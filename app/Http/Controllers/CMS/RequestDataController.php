@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Yajra\DataTables\Facades\DataTables;
+use App\Services\Regional\RegionalScopeService;
 
 class RequestDataController extends Controller
 {
@@ -376,10 +377,6 @@ class RequestDataController extends Controller
      ───────────────────────────────────────────────── */
     private function getPoldaList()
     {
-        $excludePolda = ['90', '99', '80'];
-        return Polda::select('id', 'name')
-            ->whereNotIn('id', $excludePolda)
-            ->orderBy('name')
-            ->get();
+        return RegionalScopeService::getPoldas();
     }
 }

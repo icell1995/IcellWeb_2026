@@ -41,8 +41,8 @@ class SuratPerintahPenyelidikanDocumentValidationController extends Controller
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $suratPerintahPenyelidikanDocumentId = $id;
 
-        $suratPerintahPenyelidikanDocument = SuratPerintahPenyelidikanDocument::with(['suratPerintahPenyelidikanDocumentOfficers', 'suratPerintahPenyelidikanDocumentCaseKeywords', 'suratPerintahPenyelidikanDocumentAttachment', 'documentCategory'])->where('id', $suratPerintahPenyelidikanDocumentId)->first();
-        $accident = Accident::where('id', $accidentId)->first();
+        $suratPerintahPenyelidikanDocument = SuratPerintahPenyelidikanDocument::with(['accident', 'status', 'suratPerintahPenyelidikanDocumentOfficers', 'suratPerintahPenyelidikanDocumentCaseKeywords', 'suratPerintahPenyelidikanDocumentAttachment', 'documentCategory'])->where('id', $suratPerintahPenyelidikanDocumentId)->first();
+        $accident = $suratPerintahPenyelidikanDocument?->accident ?? Accident::where('id', $accidentId)->first();
 
         $ranks = Rank::where('is_active', true)->wherePolri()->orderBy('sort')->get();
 

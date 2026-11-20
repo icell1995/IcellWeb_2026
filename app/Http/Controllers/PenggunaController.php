@@ -11,6 +11,7 @@ use App\Models\Lib\Role;
 use App\Models\Polda;
 use App\Models\Polres;
 use App\Models\Ref;
+use App\Services\Regional\RegionalScopeService;
 use DB;
 use Session;
 
@@ -115,6 +116,9 @@ class PenggunaController extends Controller{
         $level = $user->role_id;
         $cek_level = $request->role_id_add;
 
+        if (!RegionalScopeService::canAssignRole($user, (int) $cek_level)) {
+            abort(403, 'Anda tidak diizinkan menetapkan role tersebut.');
+        }
 
         if($cek_level=="1") {
             $this->validate($request, [
@@ -141,6 +145,12 @@ class PenggunaController extends Controller{
             ]);
             $polda_id = $request->polda_id_add;
             $polres_id = $request->polres_id_add;
+            if ($level == 2 && (string) $polda_id !== (string) $user->polda_id) {
+                abort(403, 'Akses lintas Polda ditolak.');
+            }
+            if ($level == 3 && (string) $polres_id !== (string) $user->polres_id) {
+                abort(403, 'Akses lintas Polres ditolak.');
+            }
         } else {
             $polda_id = $polres_id = $officer_id = $rank_id = null;
         }
@@ -207,28 +217,30 @@ class PenggunaController extends Controller{
     {
         // mengambil data pegawai berdasarkan id yang dipilih
         $user=Auth::getUser();
+        $targetUser = User::findOrFail($id);
+        if (!RegionalScopeService::authorizeTargetUser($user, $targetUser)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
         $pengguna = DB::table('users')->where('id',$id)->get();
         $role=Role::all();
         $polda=Polda::all();
         $polres=Polres::all();
-        // dd($pengguna);
-        // passing data pegawai yang didapat ke view edit.blade.php
         return view('pengguna.pengguna-edit',compact('user','pengguna','role','polda','polres'));
     }
 
     public function edit_modal_pengguna(Request $request)
     {
-        $id=$request->id;
-        $get_users= DB::select('select * from users where id = \''.$id.'\' ');
-        $role=Role::all();
-        $polda=Polda::all();
-        $polres=Polres::all();
-        // $poldaId = $request->old_value['polda_id_edit']; // tambahkan baris ini
-        // $polres = Polres::where('polda_id', $poldaId)->get();
-        $rank=Ref::where('grp_id','=','RANK')->orderBy('sort')->get();
-        $users= $get_users[0];
-        $data=[
-            'users'=>$users,
+        $id = $request->id;
+        $users = User::find($id);
+        if (!$users || !RegionalScopeService::authorizeTargetUser(Auth::user(), $users)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
+        $role = Role::all();
+        $polda = Polda::all();
+        $polres = Polres::all();
+        $rank = Ref::where('grp_id', '=', 'RANK')->orderBy('sort')->get();
+        $data = [
+            'users' => $users,
             'role'=>$role,
             'polda'=>$polda,
             'polres'=>$polres,
@@ -238,6 +250,14 @@ class PenggunaController extends Controller{
     }
     public function edit_pengguna(Request $request )
     {
+        $targetUser = User::findOrFail($request->id);
+        if (!RegionalScopeService::authorizeTargetUser(Auth::user(), $targetUser)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
+        if (!RegionalScopeService::canAssignRole(Auth::user(), (int) $request->role_id_edit)) {
+            abort(403, 'Anda tidak diizinkan menetapkan role tersebut.');
+        }
+
         // dd($request->all());
         // if($request->role_id <> 2){
             $this->validate($request,[
@@ -348,10 +368,11 @@ class PenggunaController extends Controller{
 
 
     public function delete_pengguna($id){
+        $targetUser = User::findOrFail($id);
+        if (!RegionalScopeService::authorizeTargetUser(Auth::user(), $targetUser)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
         $pengguna = DB::table('users')->where('id',$id)->get();
-        // dd($pengguna);
-
-        // dd($pengguna);
         if($pengguna[0]->state == 1){
         User::where('id', $pengguna[0]->id)
         ->update(['state'=>0 ]);
@@ -372,156 +393,97 @@ class PenggunaController extends Controller{
         if($status == null){
             $status = 99;
         }
-        // if($polres_input==null){
-        //     $polres_input = '-';
-        // }
-        $roleData=Auth::user()->role_id;
+
+        $roleData = Auth::user()->role_id;
+        $applySearchFilters = function ($query, $poldaFilter, $polresFilter, $statusFilter, $searchFilter) {
+            return $query
+                ->when(!empty($poldaFilter) && $poldaFilter !== '-', fn($q) => $q->where('polda_id', $poldaFilter))
+                ->when(!empty($polresFilter) && $polresFilter !== '-', fn($q) => $q->where('polres_id', $polresFilter))
+                ->when((string) $statusFilter !== '99' && $statusFilter !== '-', fn($q) => $q->where('state', $statusFilter))
+                ->when(!empty($searchFilter) && $searchFilter !== '-', function ($q) use ($searchFilter) {
+                    $term = '%' . $searchFilter . '%';
+                    $q->where(function ($sub) use ($term) {
+                        $sub->where('first_name', 'ilike', $term)
+                            ->orWhere('last_name', 'ilike', $term)
+                            ->orWhere('username', 'ilike', $term);
+                    });
+                });
+        };
+
         switch ($roleData) {
             case 2:
-                    if($polda_input==null){
-                        $polda_input= $user->polda_id;
-                    }else if($polda_input != $user->polda_id){
-                        $polda_input = $user->polda_id;
-                    }
-
-                    if($polres_input==null){
-                        $polres_input='-';
-                    }
-                    $pengguna = User::with(['role'])
-                    ->where('users.id','>',1)
-                    ->where('username','<>',$user->username)
-                    ->whereRaw("case
-                                    when '$polda_input' <> '-' then polda_id = '$polda_input' else true
-                                    end
-                                    and
-                                    case
-                                        when '$polres_input' <> '-' then polres_id = '$polres_input' else true
-                                    end
-                                    and
-                                    case
-                                        when '$status' <> 99 then state = '$status'else true
-                                    end
-                                    and
-                                    case
-                                        when '$search' <> '-' then first_name ilike '%$search%' or last_name ilike '%$search%' or username ilike '%$search%'  else true
-                                    end")
-                    ->orderBy('created_at', 'asc')
-                    ->paginate(10);
-                    $role=Role::where('id','!=','1')->where('id','!=','2')->get();
-                    $polda=Polda::where('id','=',$user->polda_id)->get();
-                    $polres=Polres::where('polda_id','=',$user->polda_id)->get();
-
+                $polda_input = $user->polda_id;
+                if ($polres_input == null) {
+                    $polres_input = '-';
+                }
+                $pengguna = $applySearchFilters(
+                    User::with(['role'])->where('users.id', '>', 1)->where('username', '<>', $user->username),
+                    $polda_input,
+                    $polres_input,
+                    $status,
+                    $search
+                )->orderBy('created_at', 'asc')->paginate(10);
+                $role = Role::where('id', '!=', '1')->where('id', '!=', '2')->get();
+                $polda = Polda::where('id', '=', $user->polda_id)->get();
+                $polres = Polres::where('polda_id', '=', $user->polda_id)->get();
                 break;
-                case 3:
-                    if($polda_input==null){
-                        $polda_input= $user->polda_id;
-                    }else if($polda_input != $user->polda_id){
-                        $polda_input = $user->polda_id;
-                    }
 
-                    if($polres_input==null){
-                        $polres_input= $user->polres_id;
-                    }else if($polres_input != $user->polres_id){
-                        $polres_input = $user->polres_id;
-                    }
-                    $pengguna = User::with(['role'])
-                    ->where('username','<>',$user->username)
-                    ->where('users.id','>',2)
-                    ->whereRaw("case
-                                when '$polda_input' <> '-' then polda_id = '$polda_input' else true
-                            end
-                            and
-                            case
-                                when '$polres_input' <> '-' then polres_id = '$polres_input' else true
-                            end
-                            and
-                            case
-                                when '$status' <> 99 then state = '$status'else true
-                            end
-                            and
-                            case
-                                when '$search' <> '-' then first_name ilike '%$search%' or last_name ilike '%$search%' or username ilike '%$search%'  else true
-                            end")
-                    ->orderBy('created_at', 'asc')->paginate(10);
-                    $role=Role::where('id','>','3')->get();
-                    $polda=Polda::where('id','=',$user->polda_id)->get();
-                    $polres=Polres::where('id','=',$user->polres_id)->get();
-
+            case 3:
+                $polda_input = $user->polda_id;
+                $polres_input = $user->polres_id;
+                $pengguna = $applySearchFilters(
+                    User::with(['role'])->where('username', '<>', $user->username)->where('users.id', '>', 2),
+                    $polda_input,
+                    $polres_input,
+                    $status,
+                    $search
+                )->orderBy('created_at', 'asc')->paginate(10);
+                $role = Role::where('id', '>', '3')->get();
+                $polda = Polda::where('id', '=', $user->polda_id)->get();
+                $polres = Polres::where('id', '=', $user->polres_id)->get();
                 break;
-                case 4:
-                    if($polda_input==null){
-                        $polda_input= $user->polda_id;
-                    }else if($polda_input != $user->polda_id){
-                        $polda_input = $user->polda_id;
-                    }
 
-                    if($polres_input==null){
-                        $polres_input= $user->polres_id;
-                    }else if($polres_input != $user->polres_id){
-                        $polres_input = $user->polres_id;
-                    }
-                    $pengguna = User::with(['role'])
-                    ->where('username','<>',$user->username)
-                    ->where('users.id','>',3)
-                    ->whereRaw("case
-                                when '$polda_input' <> '-' then polda_id = '$polda_input' else true
-                            end
-                            and
-                            case
-                                when '$polres_input' <> '-' then polres_id = '$polres_input' else true
-                            end
-                            and
-                            case
-                                when '$status' <> 99 then state = '$status'else true
-                            end
-                            and
-                            case
-                                when '$search' <> '-' then first_name ilike '%$search%' or last_name ilike '%$search%' or username ilike '%$search%'  else true
-                            end")
-                    ->orderBy('created_at', 'asc')->paginate(10);
-                    $role=Role::where('id','>','3')->get();
-                    $polda=Polda::where('id','=',$user->polda_id)->get();
-                    $polres=Polres::where('id','=',$user->polres_id)->get();
-
+            case 4:
+                $polda_input = $user->polda_id;
+                $polres_input = $user->polres_id;
+                $pengguna = $applySearchFilters(
+                    User::with(['role'])->where('username', '<>', $user->username)->where('users.id', '>', 3),
+                    $polda_input,
+                    $polres_input,
+                    $status,
+                    $search
+                )->orderBy('created_at', 'asc')->paginate(10);
+                $role = Role::where('id', '>', '3')->get();
+                $polda = Polda::where('id', '=', $user->polda_id)->get();
+                $polres = Polres::where('id', '=', $user->polres_id)->get();
                 break;
+
             default:
-            if($polda_input==null){
-                $polda_input='-';
-            }
-
-            if($polres_input==null){
-                $polres_input='-';
-            }
-            $pengguna = User::with('role')
-                ->where('username','<>',$user->username)
-                ->whereRaw("case
-                                when '$polda_input' <> '-' then polda_id = '$polda_input' else true
-                            end
-                            and
-                            case
-                                when '$polres_input' <> '-' then polres_id = '$polres_input' else true
-                            end
-                            and
-                            case
-                                when '$status' <> 99 then state = '$status'else true
-                            end
-                            and
-                            case
-                                when '$search' <> '-' then first_name ilike '%$search%' or last_name ilike '%$search%' or username ilike '%$search%'  else true
-                            end")
-                ->orderBy('role_id','asc')
-                ->orderBy('polres_id')
-                ->orderBy('id')
-                ->paginate(10);
-                $role=Role::all();
-                $polda=Polda::all();
-                $polres=Polres::all();
+                if ($polda_input == null) {
+                    $polda_input = '-';
+                }
+                if ($polres_input == null) {
+                    $polres_input = '-';
+                }
+                $pengguna = $applySearchFilters(
+                    User::with('role')->where('username', '<>', $user->username),
+                    $polda_input,
+                    $polres_input,
+                    $status,
+                    $search
+                )
+                    ->orderBy('role_id', 'asc')
+                    ->orderBy('polres_id')
+                    ->orderBy('id')
+                    ->paginate(10);
+                $role = Role::all();
+                $polda = Polda::all();
+                $polres = Polres::all();
                 break;
         }
-        $rank=Ref::where('grp_id','=','RANK')->orderBy('sort')->get();
+        $rank = Ref::where('grp_id', '=', 'RANK')->orderBy('sort')->get();
         $pengguna->appends($request->all());
-        return view('pengguna.pengguna-index',compact('user','pengguna','role','polres','polda','rank'));
-
+        return view('pengguna.pengguna-index', compact('user', 'pengguna', 'role', 'polres', 'polda', 'rank'));
     }
 
 

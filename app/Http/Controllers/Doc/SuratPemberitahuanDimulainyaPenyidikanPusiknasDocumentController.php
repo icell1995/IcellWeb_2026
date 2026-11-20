@@ -343,8 +343,8 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
     public function show($id)
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
-        $document   = SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::withRelated()->where('id', $id)->first();
-        $accident   = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
+        $document   = SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::withRelated()->with(['accident.polres.polda', 'status'])->where('id', $id)->first();
+        $accident   = $document?->accident ?? Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         return view('docs.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.show', compact(
             'accidentId',
@@ -357,15 +357,18 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document   = SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::with([
+            'accident.polres.polda',
+            'status',
             'officers',
             'suratPerintahPenyidikanDocument',
             'suspects',
+            'reportedPersons',
         ])->where('id', $id)->first();
         if (!$document->isEditable()) {
             return redirect()->back()->with('error', 'Dokumen tidak dapat diedit karena sudah disetujui atau sedang dalam proses persetujuan.');
         }
 
-        $accident   = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
+        $accident   = $document->accident ?? Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
@@ -410,7 +413,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
         $documentClassifications = DocumentClassification::where('group', 'SURAT_PEMBERITAHUAN_DIMULAINYA_PENYIDIKAN')
             ->where('is_active', true)->orderBy('sort')->get();
 
-        $selectedSuspects = $document->suspects()->get()->pluck('id')->toArray();
+        $selectedSuspects = $document->suspects->pluck('id')->toArray();
 
         // Load & filter districts based on Polres regency name to avoid regency_id mismatch
         $regencyName = $accident->polres->polres_regency ?? '';
@@ -596,7 +599,12 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
     public function download($id)
     {
         $suratPemberitahuanDimulainyaPenyidikanDocument = SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument::with([
-            'officers',
+            'accident.polres.polda',
+            'accident.police',
+            'accident.involvedPeoples',
+            'status',
+            'officers.position.positionCluster',
+            'officers.rank',
             'suratPerintahPenyidikanDocument',
             'suspects',
             'reportedPersons',
@@ -621,15 +629,15 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentController extends C
         $accidentId = $suratPemberitahuanDimulainyaPenyidikanDocument->accident_id;
         $isSuspectExist = $suratPemberitahuanDimulainyaPenyidikanDocument->is_suspect_exists;
         
-        $suspects = $suratPemberitahuanDimulainyaPenyidikanDocument->suspects()->get();
-        $reportedPersons = $suratPemberitahuanDimulainyaPenyidikanDocument->reportedPersons()->get();
+        $suspects = $suratPemberitahuanDimulainyaPenyidikanDocument->suspects;
+        $reportedPersons = $suratPemberitahuanDimulainyaPenyidikanDocument->reportedPersons;
 
-        $signatory = $suratPemberitahuanDimulainyaPenyidikanDocument->officers()->with(['position.positionCluster', 'rank'])->where('class', 'SIGNATORY')->first();
+        $signatory = $suratPemberitahuanDimulainyaPenyidikanDocument->officers->where('class', 'SIGNATORY')->first();
         if (!$signatory) {
             return redirect()->back()->with('error', 'Penandatangan belum diset.');
         }
 
-        $accident = Accident::with(['polres.polda', 'police'])->where('id', $accidentId)->first();
+        $accident = $suratPemberitahuanDimulainyaPenyidikanDocument->accident ?? Accident::with(['polres.polda', 'police'])->where('id', $accidentId)->first();
 
         $tempQrCodePath = storage_path('images/qrcode-signature-' . $suratPemberitahuanDimulainyaPenyidikanDocument->id . '.png');
         \SimpleSoftwareIO\QrCode\Facades\QrCode::format('png')

@@ -117,7 +117,7 @@ class InvestigationCommencementNotificationLetterController extends Controller
                         "IdKewarganegaraan" => null, 
                         "IdJenisIdentitas" => $suspect['identity_type'], 
                         "NomorIdentitas" => strval($suspect['identity_number']), 
-                        "UmurSaatLK" => ($suspect['birth_date']) ? Carbon::parse($suspect['birth_date'])->diffInYears(Carbon::now()) : null, 
+                        "UmurSaatLK" => \App\Helpers\AgeHelper::calculateWholeYears($suspect['birth_date'] ?? null), 
                         "NamaAlias" => null, 
                         "Status" => "2",
                     ];

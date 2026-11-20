@@ -123,7 +123,7 @@ class SuratPerintahPenyitaanDocumentController extends Controller
             }
         } catch (\Exception $e) {}
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -143,7 +143,7 @@ class SuratPerintahPenyitaanDocumentController extends Controller
                 ->get();
         }
 
-        $availableOfficers = Officer::withRelated()
+        $availableOfficers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->active()

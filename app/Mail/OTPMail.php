@@ -14,32 +14,33 @@ class OTPMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $otp;
-    public $expiryMinutes;
-    public $subjectLine;
+    /**
+     * @var string
+     */
+    protected string $otp;
+
+    /**
+     * @var int
+     */
+    public int $expiryMinutes;
+
+    /**
+     * @var string
+     */
+    public string $subjectLine;
 
     /**
      * Create a new message instance.
+     *
+     * @param string|int $otp
+     * @param int $expiryMinute
+     * @param string $subject
      */
-    public function __construct($otp, $expiryMinute = 3, $subject = 'Kode OTP Anda')
+    public function __construct(string|int $otp, int $expiryMinute = 3, string $subject = 'Kode OTP Anda')
     {
-        //
-        $this->otp = $otp;
+        $this->otp = (string) $otp;
         $this->expiryMinutes = $expiryMinute;
         $this->subjectLine = $subject;
-    }
-
-    public function build()
-    {
-        Log::info("Membangun email dengan OTP: {$this->otp}");
-
-        return $this->subject($this->subjectLine)
-            ->view('email.otp')
-            ->with([
-                'otp' => $this->otp,
-                'expiryMinutes' => $this->expiryMinutes,
-                'subjectLine' => $this->subjectLine,
-            ]);
     }
 
     /**
@@ -48,7 +49,7 @@ class OTPMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'O T P Mail',
+            subject: $this->subjectLine,
         );
     }
 
@@ -60,6 +61,11 @@ class OTPMail extends Mailable
         return new Content(
             view: 'email.otp',
             text: 'email.otp_plain',
+            with: [
+                'otp' => $this->otp,
+                'expiryMinutes' => $this->expiryMinutes,
+                'subjectLine' => $this->subjectLine,
+            ],
         );
     }
 

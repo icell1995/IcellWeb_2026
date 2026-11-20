@@ -10,7 +10,7 @@ return [
     |
     */
 
-    'enabled' => env('LOG_VIEWER_ENABLED', true),
+    'enabled' => env('LOG_VIEWER_ENABLED', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -69,6 +69,7 @@ return [
 
     'middleware' => [
         'web',
+        'auth',
         \Opcodes\LogViewer\Http\Middleware\AuthorizeLogViewer::class,
         \App\Http\Middleware\LogViewerCspMiddleware::class,
     ],
@@ -83,6 +84,8 @@ return [
     */
 
     'api_middleware' => [
+        'web',
+        'auth',
         \Opcodes\LogViewer\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
         \Opcodes\LogViewer\Http\Middleware\AuthorizeLogViewer::class,
         \App\Http\Middleware\LogViewerCspMiddleware::class,

@@ -12,52 +12,14 @@ class rekapController extends Controller
     /** Halaman utama: render view + dropdown filter (terkunci per akun) */
     public function index(Request $request)
     {
-        $user         = Auth::user();
-        $roleId       = (int) ($user->role_id ?? 0);
-        $userPoldaId  = $user->polda_id ?? null;
-        $userPolresId = $user->polres_id ?? null;
+        $scoped = \App\Services\Regional\RegionalScopeService::getScopedPoldaAndPolres(Auth::user());
 
-        // daftar polda yang harus di-exclude
-        $excludePolda = ['90','99','80'];
-
-        // Lock UI
-        $lockPolres = !empty($userPolresId);
-        $lockPolda  = !$lockPolres && !empty($userPoldaId);
-
-        if ($lockPolres) {
-            $poldas  = DB::table('polda')->select('id','name')
-                        ->whereNotIn('id', $excludePolda)
-                        ->where('id', $userPoldaId)->get();
-
-            $polress = DB::table('polres')->select('id','name')
-                        ->where('state','<>',0)
-                        ->where('id', $userPolresId)->get();
-        } elseif ($lockPolda) {
-            $poldas  = DB::table('polda')->select('id','name')
-                        ->whereNotIn('id', $excludePolda)
-                        ->where('id', $userPoldaId)->get();
-
-            $polress = DB::table('polres')->select('id','name')
-                        ->where('state','<>',0)
-                        ->where('polda_id', $userPoldaId)
-                        ->orderBy('name')->get();
-        } else {
-            // pusat: semua polda (kecuali yang di-exclude), polres di-load via ajax/ganti polda
-            $poldas  = DB::table('polda')->select('id','name')
-                        ->whereNotIn('id', $excludePolda)
-                        ->orderBy('name')->get();
-
-            $polress = collect([]);
-        }
-
-        $locked = [
-            'is_lock_polres' => $lockPolres,
-            'is_lock_polda'  => $lockPolda,
-            'polda_id'       => $userPoldaId,
-            'polres_id'      => $userPolresId,
-        ];
-
-        return view('rekap.rekap-index', compact('poldas','polress','locked','roleId'));
+        return view('rekap.rekap-index', [
+            'poldas'  => $scoped['poldas'],
+            'polress' => $scoped['polress'],
+            'locked'  => $scoped['locked'],
+            'roleId'  => $scoped['roleId'],
+        ]);
     }
 
     /** JSON: data untuk DataTables (client-side) */
