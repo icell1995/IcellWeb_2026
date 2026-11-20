@@ -54,6 +54,14 @@
             </a>
         </li>
 
+        <li class="nav-item mb-2">
+            <a href="{{ route('cms.sp2lid-md.index') }}"
+                class="nav-link parents-menu d-flex align-items-center {{ request()->routeIs('cms.sp2lid-md.*') ? 'active' : '' }}">
+                <i class="bi bi-exclamation-triangle text-white fs-4"></i>
+                <span class="ms-3 text-white fw-semibold">SP2LID Korban MD</span>
+            </a>
+        </li>
+
 
         {{-- <li class="nav-item mb-2">
             <a href="{{ route('cms.case-resolution-validation-report.index') }}"
