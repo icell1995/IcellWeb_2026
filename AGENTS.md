@@ -3,7 +3,7 @@
 ## Scope and workflow
 
 - Target **Laravel 12 and PHP 8.5.x**. Check `composer.json`, `composer.lock`, and the current code before following examples. Treat audits and plans in `docs/upgrade/` as historical context.
-- Start with Git changes and the feature entry point. Use `rg` to locate routes, callers, and tests. Read relevant sections, exclude `vendor/` and backup files from initial searches, and limit tool output.
+- Start with Git changes and the feature entry point. Use `rg` to locate routes, callers, and tests. Read relevant sections, exclude `vendor/` and legacy backup files (`*.bak*`, `*.bakk`, `*.baks`) from searches and edits, and limit tool output.
 - Make the smallest change that fulfills the request. Reuse existing patterns and services. Preserve HTTP/API contracts, authorization, schema, and historical data. Keep unrelated refactors, dependencies, and formatting out of scope.
 - Keep updates concise. Report the outcome, checks run, and remaining blockers. Consult additional references when they inform a decision.
 
@@ -11,8 +11,14 @@
 
 - Use appropriate parameter and return types, explicit nullability, and clear names in new code. Use `casts(): array`, `Attribute::make()`, and typed Eloquent relationships where appropriate. Keep the existing Kernel and provider structure and modernize one feature at a time.
 - Use Form Requests for complex or repeated validation. Controllers handle request flow and responses. Keep reusable business logic in the appropriate component. Use transactions when database writes must succeed together.
-- Use `env()` only in `config/`. Read configuration via `config()` and rotating values from existing runtime storage. Use `ESignatureTokenService` for electronic signature tokens.
+- Use `env()` only in `config/`. Read configuration via `config()` and rotating values from existing runtime storage. Whenever adding or referencing `config('services.*')` keys, verify they are defined in `config/services.php` (and `.env.example`). Use `ESignatureTokenService` for electronic signature tokens.
+- Check `AppModeHelper::isApiEnabled()` when modifying external API integrations (IRSMS, Pusiknas, EMP, WhatsApp) so non-production gating is intentional and required read/detail endpoints are not silently blocked.
 - Follow Laravel Pint conventions in touched files. Keep route names unique and check callers before changing names, URLs, or HTTP methods.
+
+## Blade and frontend conventions
+
+- For long forms (documents, personnel, etc.), follow the inline validation pattern (`.is-invalid`, `.frontend-error`, Select2/radio support, real-time cleanup on input/change) with `scrollToFirstError()` and no blocking SweetAlert error-list modal.
+- Always provide an empty/error fallback state in Blade views backed by external APIs so failed or empty responses never render a blank page.
 
 ## Security and data integrity
 
