@@ -21,6 +21,7 @@ use App\Http\Controllers\CMS\ReturnedDocuments\DocumentReturnController;
 use App\Http\Controllers\CMS\RequestDataController;
 use App\Http\Controllers\CMS\IntegrationMonitorController;
 use App\Http\Controllers\CMS\MaintenanceModeController;
+use App\Http\Controllers\CMS\Sp2lidMdController;
 
 
 // Upload Surat Ketetapan - Hanya show (GET)
@@ -307,3 +308,9 @@ Route::prefix('/integration-monitor')
                 Route::get('/data', [IntegrationMonitorController::class, 'getMonthlyData'])->name('data');
             });
     });
+
+// Selra SP2LID Korban MD
+Route::prefix('/sp2lid-md')->name('cms.sp2lid-md.')->group(function () {
+    Route::get('/', [Sp2lidMdController::class, 'index'])->name('index');
+    Route::get('/{id}/preview', [Sp2lidMdController::class, 'previewPdf'])->name('preview');
+});
