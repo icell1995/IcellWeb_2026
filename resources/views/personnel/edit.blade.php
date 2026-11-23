@@ -1020,14 +1020,23 @@ $_title = 'Ubah Personel';
 <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
 <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
+<script id="personnel-edit-data" type="application/json">{!! json_encode([
+    'officer' => $officer,
+    'careerHistories' => $officer->officerCareerHistories,
+    'policeDikjurEducations' => $officer->officerPoliceDikjurEducations,
+    'certificateHistories' => $officer->officerCertificateHistories,
+    'investigativeDetail' => $officer->officerInvestigativeDetail,
+    'operationControlAssistance' => $officer->officerOperationControlAssistance,
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 <script type="text/javascript">
     $(document).ready(function() {
-        var officer = @json($officer);
-        var careerHistories = @json($officer - > officerCareerHistories);
-        var policeDikjurEducations = @json($officer - > officerPoliceDikjurEducations);
-        var certificateHistories = @json($officer - > officerCertificateHistories);
-        var investigativeDetail = @json($officer - > officerInvestigativeDetail);
-        var operationControlAssistance = @json($officer - > officerOperationControlAssistance);
+        var personnelData = JSON.parse(document.getElementById('personnel-edit-data').textContent);
+        var officer = personnelData.officer;
+        var careerHistories = personnelData.careerHistories;
+        var policeDikjurEducations = personnelData.policeDikjurEducations;
+        var certificateHistories = personnelData.certificateHistories;
+        var investigativeDetail = personnelData.investigativeDetail;
+        var operationControlAssistance = personnelData.operationControlAssistance;
 
         //careerHistory
         $(function() {

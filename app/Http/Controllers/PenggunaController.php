@@ -29,7 +29,7 @@ class PenggunaController extends Controller{
         $roleData=Auth::user()->role_id;
         switch ($roleData) {
             case 2:
-                    $pengguna = User::with(['role'])
+                    $pengguna = User::with(['role', 'polda', 'polres'])
                     ->where('username','<>',$user->username)
                     ->where('role_id','>',1)
                     ->where('polda_id','=',$user->polda_id)
@@ -40,7 +40,7 @@ class PenggunaController extends Controller{
 
                 break;
                 case 3:
-                    $pengguna = User::with(['role'])
+                    $pengguna = User::with(['role', 'polda', 'polres'])
                     ->where('username','<>',$user->username)
                     ->where('role_id','>',2)
                     ->where('polres_id','=',$user->polres_id)
@@ -51,7 +51,7 @@ class PenggunaController extends Controller{
 
                 break;
             default:
-                $pengguna = User::with('role')->where('username','<>',$user->username)
+                $pengguna = User::with(['role', 'polda', 'polres'])->where('username','<>',$user->username)
                 ->orderBy('role_id','asc')
                 ->orderBy('polres_id')
                 ->orderBy('id')
@@ -417,7 +417,7 @@ class PenggunaController extends Controller{
                     $polres_input = '-';
                 }
                 $pengguna = $applySearchFilters(
-                    User::with(['role'])->where('users.id', '>', 1)->where('username', '<>', $user->username),
+                    User::with(['role', 'polda', 'polres'])->where('users.id', '>', 1)->where('username', '<>', $user->username),
                     $polda_input,
                     $polres_input,
                     $status,
@@ -432,7 +432,7 @@ class PenggunaController extends Controller{
                 $polda_input = $user->polda_id;
                 $polres_input = $user->polres_id;
                 $pengguna = $applySearchFilters(
-                    User::with(['role'])->where('username', '<>', $user->username)->where('users.id', '>', 2),
+                    User::with(['role', 'polda', 'polres'])->where('username', '<>', $user->username)->where('users.id', '>', 2),
                     $polda_input,
                     $polres_input,
                     $status,
@@ -447,7 +447,7 @@ class PenggunaController extends Controller{
                 $polda_input = $user->polda_id;
                 $polres_input = $user->polres_id;
                 $pengguna = $applySearchFilters(
-                    User::with(['role'])->where('username', '<>', $user->username)->where('users.id', '>', 3),
+                    User::with(['role', 'polda', 'polres'])->where('username', '<>', $user->username)->where('users.id', '>', 3),
                     $polda_input,
                     $polres_input,
                     $status,
@@ -466,7 +466,7 @@ class PenggunaController extends Controller{
                     $polres_input = '-';
                 }
                 $pengguna = $applySearchFilters(
-                    User::with('role')->where('username', '<>', $user->username),
+                    User::with(['role', 'polda', 'polres'])->where('username', '<>', $user->username),
                     $polda_input,
                     $polres_input,
                     $status,
