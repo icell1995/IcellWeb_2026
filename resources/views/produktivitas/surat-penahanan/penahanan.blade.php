@@ -4,7 +4,7 @@
             data-bs-target="#collapsePenahanan" aria-expanded="false" aria-controls="collapsePenahanan">
             4. Penahanan
         </button>
-        <div class="progress4 progress-bar-none">
+        <div class="progress4 progress-bar-none" style="display: none;">
             <div id="kategori4" class="progress-bar bg-success kategori4" role="progressbar" style="width: {{ $TotalKategori4 ?? 0 }}%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{$TotalKategori4}}%</div>
         </div>
     </h2>
@@ -250,30 +250,32 @@
 @include('produktivitas.surat-penahanan.modal.modal')
 @push('script')
 <script type="text/javascript">
-
-$(document).ready(function(){
+$(document).ready(function() {
     $('#surat_penahanan_11').click(function(e) {
         e.preventDefault();
         window.location.href = "{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.create', ['accident_id' => $id]) }}";
     });
 
-    $(".kategori4").css("width","{{$TotalKategori4}}%")
-$(document).ready(function() {
     var totalKategori4 = parseInt("{{ $TotalKategori4 ?? 0 }}", 10) || 0;
     $(".kategori4").css("width", totalKategori4 + "%");
     $(".progress4").hide();
+
     if (totalKategori4 >= 40 && totalKategori4 <= 70) {
         $(".progress4").show();
-        document.getElementById("kategori4").classList.add("bg-warning");
+        var el = document.getElementById("kategori4");
+        if (el) el.classList.add("bg-warning");
     } else if (totalKategori4 > 0 && totalKategori4 < 40) {
         $(".progress4").show();
-        document.getElementById("kategori4").classList.add("bg-danger");
+        var el = document.getElementById("kategori4");
+        if (el) el.classList.add("bg-danger");
     } else if (totalKategori4 >= 80 && totalKategori4 <= 90) {
         $(".progress4").show();
-        document.getElementById("kategori4").classList.add("bg-info");
+        var el = document.getElementById("kategori4");
+        if (el) el.classList.add("bg-info");
     } else if (totalKategori4 > 90) {
         $(".progress4").show();
-        document.getElementById("kategori4").classList.add("bg-success");
+        var el = document.getElementById("kategori4");
+        if (el) el.classList.add("bg-success");
     }
 });
 </script>

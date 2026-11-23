@@ -215,7 +215,7 @@
                         <option value="">--Tidak Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
                         @foreach ($positions as $position)
                             @php
-                                $isCanSignatory = $position->positionCLuster ? ($position->positionCluster->is_can_signatory == true ? 'true' : 'false') : 'false';
+                                $isCanSignatory = $position->positionCluster ? ($position->positionCluster->is_can_signatory == true ? 'true' : 'false') : 'false';
                             @endphp
                             <option value="{{ $position->id }}" data-is-can-signatory="{{ $isCanSignatory }}"
                                 {{ ($currentOfficer->position_id == $position->id) ? 'selected' : '' }}>

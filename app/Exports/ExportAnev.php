@@ -18,358 +18,111 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 
-class ExportAnev implements  ShouldAutoSize, WithHeadings , WithEvents, WithStrictNullComparison, FromArray
-
+class ExportAnev implements ShouldAutoSize, WithHeadings , WithEvents, WithStrictNullComparison, FromArray
 {
+    protected string $poldaId;
+    protected string $polresId;
+    protected string $start_date_then;
+    protected string $end_date_then;
+    protected string $start_date_now;
+    protected string $end_date_now;
+
     /**
     * @return \Illuminate\Support\Collection
     */
 
     public function __construct($poldaId, $polresId, $start_date_then, $end_date_then, $start_date_now, $end_date_now)
     {
-        if ($poldaId !== null) {
-            $this->poldaId = $poldaId;
-        } else {
+        $this->poldaId = $poldaId !== null ? preg_replace('/[^A-Za-z0-9_-]/', '', (string)$poldaId) : '-';
+        if ($this->poldaId === '') {
             $this->poldaId = '-';
         }
-        
-        if ($polresId !== null) {
-            $this->polresId = $polresId;
-        } else {
+
+        $this->polresId = $polresId !== null ? preg_replace('/[^A-Za-z0-9_-]/', '', (string)$polresId) : '-';
+        if ($this->polresId === '') {
             $this->polresId = '-';
         }
-                
 
-        $this->start_date_then = $start_date_then;
-        $this->end_date_then = $end_date_then;
-        $this->start_date_now = $start_date_now;
-        $this->end_date_now = $end_date_now;
-
+        $this->start_date_then = !empty($start_date_then) && $start_date_then !== '-' ? date('Y-m-d', strtotime($start_date_then)) : '1970-01-01';
+        $this->end_date_then   = !empty($end_date_then) && $end_date_then !== '-' ? date('Y-m-d', strtotime($end_date_then)) : '2099-12-31';
+        $this->start_date_now  = !empty($start_date_now) && $start_date_now !== '-' ? date('Y-m-d', strtotime($start_date_now)) : '1970-01-01';
+        $this->end_date_now    = !empty($end_date_now) && $end_date_now !== '-' ? date('Y-m-d', strtotime($end_date_now)) : '2099-12-31';
     }
 
     public function array(): array
     {
-        //
-
-        $expression = DB::raw("select(SELECT row_to_json(t)
-        FROM(
+        $periodSql = "
             SELECT
-                (
-                    SELECT array_to_json(array_agg(row_to_json(w)))
-                        FROM(
-                            SELECT
-                            CASE WHEN '$this->poldaId' = '-' THEN polda.name ELSE polres.name END AS polda_polres,
-                                total_sidik_laka.total_sidik_laka,
-                                total_p21.total AS p21,
-                                total_sp3.total AS sp3,
-                                total_diversi.total AS diversi,
-                                total_pom_tni.total AS pom_tni,
-                                total_rj.total AS rj,
-                                total_dalam_proses.total AS dalam_proses,
-                                total_sp2lid.total AS sp2lid
+                CASE WHEN ? = '-' THEN polda.name ELSE polres.name END AS polda_polres,
+                agg.total_sidik_laka,
+                agg.p21,
+                agg.sp3,
+                agg.diversi,
+                agg.pom_tni,
+                agg.rj,
+                agg.dalam_proses,
+                agg.sp2lid
+            FROM polda
+            JOIN polres ON polda.id = polres.polda_id
+            LEFT JOIN (
+                SELECT
+                    CASE WHEN ? = '-' THEN polda.id ELSE polres.id END AS id,
+                    COUNT(accidents.id) AS total_sidik_laka,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0101') AS p21,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0102') AS sp3,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0103') AS diversi,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0104') AS pom_tni,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0106') AS rj,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0107') AS dalam_proses,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0108') AS sp2lid
+                FROM polda
+                JOIN polres ON polda.id = polres.polda_id
+                JOIN accidents ON polres.id = accidents.polres_id
+                WHERE
+                    CASE WHEN ? <> '-' THEN polda.id = ? ELSE TRUE END AND
+                    CASE WHEN ? <> '-' THEN polres.id = ? ELSE TRUE END
+                    AND accident_date BETWEEN ? AND ?
+                    AND polda.state <> 0
+                    AND polres.state <> 0
+                    AND accidents.state <> 0
+                GROUP BY 1
+            ) agg ON polda.id = agg.id OR polres.id = agg.id
+            WHERE
+                CASE WHEN ? <> '-' THEN polda.id = ? ELSE TRUE END AND
+                CASE WHEN ? <> '-' THEN polres.id = ? ELSE TRUE END
+                AND polda.state <> 0
+                AND polres.state <> 0
+            GROUP BY 1,2,3,4,5,6,7,8,9,polda.name
+            ORDER BY polda.name
+        ";
 
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total_sidik_laka
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_then' AND '$this->end_date_then'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_sidik_laka on polda.id = total_sidik_laka.id or polres.id = total_sidik_laka.id
-                                LEFT JOIN(
-                                 SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_then' AND '$this->end_date_then'
-                                AND selra_flag = 'S0101'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_p21 on polda.id = total_p21.id or polres.id = total_p21.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_then' AND '$this->end_date_then'
-                                  AND selra_flag = 'S0102'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_sp3 on polda.id = total_sp3.id or polres.id = total_sp3.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_then' AND '$this->end_date_then'
-                                  AND selra_flag = 'S0103'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_diversi on polda.id = total_diversi.id or polres.id = total_diversi.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_then' AND '$this->end_date_then'
-                                 AND selra_flag = 'S0104'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_pom_tni on polda.id = total_pom_tni.id or polres.id = total_pom_tni.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_then' AND '$this->end_date_then'
-                                  AND selra_flag = 'S0106'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_rj on polda.id = total_rj.id or polres.id = total_rj.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_then' AND '$this->end_date_then'
-                                AND selra_flag = 'S0107'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_dalam_proses on polda.id = total_dalam_proses.id or polres.id = total_dalam_proses.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_then' AND '$this->end_date_then'
-                                    AND selra_flag = 'S0108'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_sp2lid on polda.id = total_sp2lid .id or polres.id = total_sp2lid .id
+        $tahunLaluRows = DB::select($periodSql, [
+            $this->poldaId,
+            $this->poldaId,
+            $this->poldaId, $this->poldaId,
+            $this->polresId, $this->polresId,
+            $this->start_date_then, $this->end_date_then,
+            $this->poldaId, $this->poldaId,
+            $this->polresId, $this->polresId,
+        ]);
 
-                                WHERE
-                                CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                                GROUP BY 1,2,3,4,5,6,7,8,9,polda.name
-                                ORDER BY polda.name
-                        )w
-                    )AS tahun_lalu,
-                    (
-                    SELECT array_to_json(array_agg(row_to_json(w)))
-                        FROM(
-                            SELECT
-                            CASE WHEN '$this->poldaId' = '-' THEN polda.name ELSE polres.name END AS polda_polres,
-                                total_sidik_laka.total_sidik_laka,
-                                total_p21.total AS p21,
-                                total_sp3.total AS sp3,
-                                total_diversi.total AS diversi,
-                                total_pom_tni.total AS pom_tni,
-                                total_rj.total AS rj,
-                                total_dalam_proses.total AS dalam_proses,
-                                total_sp2lid.total AS sp2lid
+        $tahunIniRows = DB::select($periodSql, [
+            $this->poldaId,
+            $this->poldaId,
+            $this->poldaId, $this->poldaId,
+            $this->polresId, $this->polresId,
+            $this->start_date_now, $this->end_date_now,
+            $this->poldaId, $this->poldaId,
+            $this->polresId, $this->polresId,
+        ]);
 
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total_sidik_laka
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_now' AND '$this->end_date_now'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_sidik_laka on polda.id = total_sidik_laka.id or polres.id = total_sidik_laka.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_now' AND '$this->end_date_now'
-                                    AND selra_flag = 'S0101'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_p21 on polda.id = total_p21.id or polres.id = total_p21.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_now' AND '$this->end_date_now'
-                                   AND selra_flag = 'S0102'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_sp3 on polda.id = total_sp3.id or polres.id = total_sp3.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_now' AND '$this->end_date_now'
-                                   AND selra_flag = 'S0103'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_diversi on polda.id = total_diversi.id or polres.id = total_diversi.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_now' AND '$this->end_date_now'
-                                   AND selra_flag = 'S0104'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_pom_tni on polda.id = total_pom_tni.id or polres.id = total_pom_tni.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_now' AND '$this->end_date_now'
-                                   AND selra_flag = 'S0106'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_rj on polda.id = total_rj.id or polres.id = total_rj.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_now' AND '$this->end_date_now'
-                                  AND selra_flag = 'S0107'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_dalam_proses on polda.id = total_dalam_proses.id or polres.id = total_dalam_proses.id
-                                LEFT JOIN(
-                                    SELECT CASE WHEN '$this->poldaId' = '-' THEN polda.id ELSE polres.id END AS id,
-                                    count(accidents.id) AS total
-                                    FROM polda
-                                    JOIN polres ON polda.id = polres.polda_id
-                                    JOIN accidents ON polres.id = accidents.polres_id
-                                    WHERE
-                                    CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                    CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                    AND accident_date BETWEEN '$this->start_date_now' AND '$this->end_date_now'
-                                 AND selra_flag = 'S0108'
-                                    AND polda.state <> 0
-                                    AND polres.state <> 0
-                                    AND accidents.state <> 0
-                                    GROUP BY 1
-                                )total_sp2lid on polda.id = total_sp2lid .id or polres.id = total_sp2lid .id
-                                WHERE
-                                CASE WHEN '$this->poldaId' <> '-' THEN polda.id = '$this->poldaId' ELSE TRUE END AND
-                                CASE WHEN '$this->polresId' <> '-' THEN polres.id = '$this->polresId' ELSE TRUE END
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                                GROUP BY 1,2,3,4,5,6,7,8,9,polda.name
-                                ORDER BY polda.name
-                        )w
-                    )AS tahun_ini
-                )t) as data");
-
-                $query = DB::select($expression->getValue(DB::connection()->getQueryGrammar()));
-                // dd($query);
-
-
-                $data = json_decode($query[0]->data);
-                // return response()->json(['data' => $data]);
-                if(empty($data->tahun_lalu) && empty($data->tahun_ini)){
-                    return response()->json(['message' => 'Data tidak ditemukan'], 412);
-                }
+        $data = (object) [
+            'tahun_lalu' => $tahunLaluRows,
+            'tahun_ini' => $tahunIniRows,
+        ];
+        if (empty($data->tahun_lalu) && empty($data->tahun_ini)) {
+            return [];
+        }
 
                 $tahun_ini = [];
                 $tahun_lalu = [];

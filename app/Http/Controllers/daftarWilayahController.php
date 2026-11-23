@@ -11,60 +11,23 @@ use App\Models\Polres;
 class daftarWilayahController extends Controller
 {
     public function index(){
-        $user=Auth::getUser();
-        // // $check = $user->role_id;
-        // $officer = DB::table('polda')
-        //               ->select('polda.name as polda_name', 'polres.name as polres_name')
-        //               ->join('polres', 'polda.id', '=', 'polres.polda_id')
-        //               ->paginate(10);
+        $user = Auth::getUser();
 
-        
-         // $rekap = DB::table('Accident')->get();
+        $query = DB::table('polda')
+            ->select(
+                'polda.name as polda_name',
+                'polres.name as polres_name',
+                'polres.address as polres_alamat',
+                'polres.state as state'
+            )
+            ->join('polres', 'polda.id', '=', 'polres.polda_id');
 
-         $user = Auth::getUser();
-         $allpolres = DB::table('polres')->get();
-         $no_lp = '';
-         $polres = '';
-         $polda = '';
-         $checkTanggal  = '';
-         $checkstatus   = '';
-         $checkuser=$user->role_id;
-         switch ($user->role_id) {
-            case 2:
-                $officer = DB::table('polda')
-                ->select('polda.name as polda_name', 'polres.name as polres_name', 'polres.address as polres_alamat','polres.state as state')
-                ->join('polres', 'polda.id', '=', 'polres.polda_id')
-                ->where('polda.id','=',$user->polda_id)
-                ->paginate(10);
-            break;
-            case 3:
-                $officer = DB::table('polda')
-                ->select('polda.name as polda_name', 'polres.name as polres_name','polres.address as polres_alamat','polres.state as state')
-                ->join('polres', 'polda.id', '=', 'polres.polda_id')
-                ->where('polda.id','=',$user->polda_id)
-                ->paginate(10);
-            break;
-            case 4:
-                $officer = DB::table('polda')
-                ->select('polda.name as polda_name', 'polres.name as polres_name','polres.address as polres_alamat','polres.state as state')
-                ->join('polres', 'polda.id', '=', 'polres.polda_id')
-                ->where('polda.id','=',$user->polda_id)
-                ->paginate(10);
-            break;
-            case 5:
-                $officer = DB::table('polda')
-                ->select('polda.name as polda_name', 'polres.name as polres_name','polres.address as polres_alamat','polres.state as state')
-                ->join('polres', 'polda.id', '=', 'polres.polda_id')
-                ->where('polda.id','=',$user->polda_id)
-                ->paginate(10);
-            break;
-            default:
-                $officer = DB::table('polda')
-                ->select('polda.name as polda_name', 'polres.name as polres_name','polres.address as polres_alamat','polres.state as state')
-                ->join('polres', 'polda.id', '=', 'polres.polda_id')
-                ->paginate(10);
-            break;
-         }
-        return view('daftar_wilayah.daftar_wilayah_index',compact('officer'));
+        if (in_array((int) $user->role_id, [2, 3, 4, 5], true)) {
+            $query->where('polda.id', '=', $user->polda_id);
+        }
+
+        $officer = $query->paginate(10);
+
+        return view('daftar_wilayah.daftar_wilayah_index', compact('officer'));
     }
 }

@@ -26,6 +26,7 @@ use App\Models\Lib\PoliceDikjurEducationMaterial;
 use App\Models\Lib\PoliceDikjurEducationPlace;
 use App\Models\Lib\PoliceDivision;
 use App\Models\Lib\CertificateType;
+use App\Services\Regional\RegionalScopeService;
 
 class PersonnelController extends Controller
 {
@@ -308,11 +309,17 @@ class PersonnelController extends Controller
             ->selectFullNameExpression()
             ->where('users.id', $id)
             ->first();
+        if (empty($user) || !RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
 
         $officer = $user->officer()->selectFullName()->first();
 
         if(empty($user)){
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
+        }
+        if (!RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
         }
 
         //ranks based on officer employment type id
@@ -420,8 +427,7 @@ class PersonnelController extends Controller
             ->orderBy('users.police_id');
         
         if($userAuth->role_id == 3 && !empty($policeId)){
-	    $polices = Police::where('parent_id', $policeId)->orWhere('id', $policeId)->get();
-            $polices = $polices->pluck('id');
+            $polices = Police::where('parent_id', $policeId)->orWhere('id', $policeId)->pluck('id');
 
             $usersQuery->whereIn('police_id', $polices);
         }elseif(empty($policeId) && $userAuth->role_id != 1){
@@ -847,6 +853,9 @@ class PersonnelController extends Controller
         if(empty($user)){
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
         }
+        if (!RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
 
         //ranks based on officer employment type id
         $ranks = Rank::where('employment_type_id', $user->officer->employment_type_id ?? 1)
@@ -899,9 +908,11 @@ class PersonnelController extends Controller
             ->orderBy('sort')
             ->get();
 
+        $officer = $user->officer ?? $user->officer()->selectFullName()->first();
+
         $viewData = [
-            'officer' => $user->officer()->selectFullName()->first(),
-            'currentOfficer' => $user->officer()->selectFullName()->first(),
+            'officer' => $officer,
+            'currentOfficer' => $officer,
             'user' => $user,
             'currentUser' => $user,
             'ranks' => $ranks,
@@ -923,6 +934,7 @@ class PersonnelController extends Controller
 
     public function edit($id)
     { 
+        $userAuth = $this->userAuth;
         $policeId = $this->policeId;
 
         $user = User::withRelated()
@@ -932,6 +944,9 @@ class PersonnelController extends Controller
 
         if(empty($user)){
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
+        }
+        if (!RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
         }
 
         //ranks based on officer employment type id
@@ -984,10 +999,12 @@ class PersonnelController extends Controller
             ->orderBy('sort')
             ->get();
 
+        $officer = $user->officer ?? $user->officer()->selectFullName()->first();
+
         $viewData = [
             'user' => $user,
-            'officer' => $user->officer()->selectFullName()->first(),
-            'currentOfficer' => $user->officer()->selectFullName()->first(),
+            'officer' => $officer,
+            'currentOfficer' => $officer,
             'ranks' => $ranks,
             'policeId' => $policeId,
             'genders' => $genders,
@@ -1077,6 +1094,10 @@ class PersonnelController extends Controller
                 ->first();
 
             $user = User::where('id', $id)->first();
+            if (empty($user) || !RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+                DB::rollBack();
+                abort(403, 'Akses lintas satker ditolak.');
+            }
             
             $user->update(
                 [
@@ -1318,9 +1339,15 @@ class PersonnelController extends Controller
             ->selectFullNameExpression()
             ->where('users.id', $id)
             ->first();
+        if (empty($user) || !RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
 
         if(empty($user)){
             return redirect()->route('personnel.index', ['policeId' => $policeId]);
+        }
+        if (!RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
         }
 
         $viewData = [
@@ -1344,9 +1371,15 @@ class PersonnelController extends Controller
             ->selectFullNameExpression()
             ->where('users.id', $id)
             ->first();
+        if (empty($user) || !RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
 
         if(empty($user)){
             return redirect()->route('personnel.index', ['policeId', $policeId]);
+        }
+        if (!RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
         }
 
         $officer = $user->officer;
@@ -1389,9 +1422,15 @@ class PersonnelController extends Controller
             ->selectFullNameExpression()
             ->where('users.id', $id)
             ->first();
+        if (empty($user) || !RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
 
         if(empty($user)){
             return redirect()->route('personnel.index', ['policeId' => $policeId])->with('error', 'Data tidak ditemukan');
+        }
+        if (!RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
         }
 
         $regionalPolices = Police::where('class', 'DAERAH')
@@ -1447,9 +1486,15 @@ class PersonnelController extends Controller
             ->selectFullNameExpression()
             ->where('users.id', $id)
             ->first();
+        if (empty($user) || !RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
+        }
 
         if(empty($user)){
             return redirect()->route('personnel.index', ['policeId', $policeId]);
+        }
+        if (!RegionalScopeService::authorizeTargetUser($userAuth, $user)) {
+            abort(403, 'Akses lintas satker ditolak.');
         }
 
         $officer = $user->officer;

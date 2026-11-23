@@ -24,7 +24,7 @@ class SsoLoginController extends Controller
 
         $response = Http::withHeaders([
             'Accept' => 'application/json'
-        ])->get('https://irsms.korlantas.polri.go.id/verify-token', [
+        ])->get((string) config('services.irsms.verify_token_url', 'https://irsms.korlantas.polri.go.id/verify-token'), [
             'token' => $token,
         ]);
 
@@ -71,7 +71,7 @@ class SsoLoginController extends Controller
         $token = SSOHelper::generateToken($user->id);
 	
         if ($target === 'irsms') {
-            $redirectUrl = 'https://irsms.korlantas.polri.go.id/sso-login?token=' . $token;
+            $redirectUrl = rtrim((string) config('services.irsms.sso_login_url', 'https://irsms.korlantas.polri.go.id/sso-login'), '?') . '?token=' . urlencode((string) $token);
         } else {
             return response()->json([
                 'status' => 'failed',

@@ -54,8 +54,8 @@ class SuratKetetapanTentangPenetapanTersangkaDocumentValidationController extend
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $suratKetetapanTentangPenetapanTersangkaDocumentId = $id;
 
-        $suratKetetapanTentangPenetapanTersangkaDocument = SuratKetetapanTentangPenetapanTersangkaDocument::with(['suratKetetapanTentangPenetapanTersangkaDocumentOfficers', 'suspect', 'suratKetetapanTentangPenetapanTersangkaDocumentAttachment'])->where('id', $suratKetetapanTentangPenetapanTersangkaDocumentId)->first();
-        $accident = Accident::where('id',$accidentId)->first();
+        $suratKetetapanTentangPenetapanTersangkaDocument = SuratKetetapanTentangPenetapanTersangkaDocument::with(['accident', 'status', 'documentCategory', 'suratKetetapanTentangPenetapanTersangkaDocumentOfficers', 'suspect', 'suratKetetapanTentangPenetapanTersangkaDocumentAttachment'])->where('id', $suratKetetapanTentangPenetapanTersangkaDocumentId)->first();
+        $accident = $suratKetetapanTentangPenetapanTersangkaDocument?->accident ?? Accident::where('id',$accidentId)->first();
        
         $policeId = $accident->polres_id;
 

@@ -96,18 +96,9 @@
                             <td>{{ $penggunas->first_name }}</td>
                             <td>{{ $penggunas->last_name }}</td>
                             <td>{{ $penggunas->email }}</td>
-                            <td>{{ $penggunas->role->name }}</td>
-                            @if ($penggunas->polda_id == null)
-                                <td>-</td>
-                            @else
-                                <td>{{ $penggunas->polda->name }}</td>
-                            @endif
-
-                            @if ($penggunas->polres_id == null)
-                                <td>-</td>
-                            @else
-                                <td>{{ $penggunas->polres->name }}</td>
-                            @endif
+                            <td>{{ $penggunas->role?->name ?? '-' }}</td>
+                            <td>{{ $penggunas->polda?->name ?? '-' }}</td>
+                            <td>{{ $penggunas->polres?->name ?? '-' }}</td>
                             @if ($penggunas->state == 1)
                                 <td class="text-center"><span class="active">Aktif</span></td>
                             @else

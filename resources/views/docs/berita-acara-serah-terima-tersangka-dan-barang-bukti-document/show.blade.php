@@ -159,7 +159,7 @@
                 <span class="text-muted small">Berita Acara Serah Terima Tersangka Dan Barang Bukti (Format Word Resmi)</span>
             </div>
             <div class="d-flex align-items-center">
-                <a href="{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.download', ['id' => $document->id]) }}" class="btn btn-sm btn-success me-2 fw-bold shadow-sm">
+                <a href="{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.download', ['id' => $document->id, 'accident_id' => $document->accident_id]) }}" class="btn btn-sm btn-success me-2 fw-bold shadow-sm">
                     <i class="bi bi-file-earmark-word me-1"></i> Unduh File Word (.docx)
                 </a>
                 <a href="{{ route('doc.berita-acara-serah-terima-tersangka-dan-barang-bukti-document.edit', ['id' => $document->id, 'accident_id' => $document->accident_id]) }}" class="btn btn-sm btn-warning me-2 text-dark">

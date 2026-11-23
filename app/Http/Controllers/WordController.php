@@ -46,12 +46,12 @@ class WordController extends Controller
 
     public function createword_surat_tugas($id)
     {
-        $surat_perintah_tugas = DB::select('select * from surat_tugas left join officers on surat_tugas.officer_id = officers.id where accident_id = \''.$id.'\' ');
+        $surat_perintah_tugas = DB::select('select * from surat_tugas left join officers on surat_tugas.officer_id = officers.id where accident_id = ?', [$id]);
         // dd($surat_perintah_tugas);
         $get_accident = DB::select('select polda.name as polda_name, polres.name as polres_name, polda.address as polda_alamat, polres.address as polres_alamat from accidents
          left join polres on accidents.polres_id = polres.id
          left join polda on polda.id = polres.polda_id
-         where accidents.id = \''.$id.'\' ');
+         where accidents.id = ?', [$id]);
         $get_data = [];
         $i=1;
         foreach ($surat_perintah_tugas as $i => $surat_tugas) {
@@ -66,7 +66,7 @@ class WordController extends Controller
           ];
         }
             // dd($get_data);
-        $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [$id]);
 
 
 
@@ -109,12 +109,12 @@ class WordController extends Controller
     }
     public function createword_surat_penyitaan($id)
     {
-        $surat_perintah_penyitaan = DB::select('select * from surat_penyitaan left join officers on surat_penyitaan.officer_id = officers.id where accident_id = \''.$id.'\' ');
+        $surat_perintah_penyitaan = DB::select('select * from surat_penyitaan left join officers on surat_penyitaan.officer_id = officers.id where accident_id = ?', [$id]);
         // dd($surat_perintah_penyitaan);
         $get_accident = DB::select('select polda.name as polda_name, polres.name as polres_name, polda.address as polda_alamat, polres.address as polres_alamat from accidents
          left join polres on accidents.polres_id = polres.id
          left join polda on polda.id = polres.polda_id
-         where accidents.id = \''.$id.'\' ');
+         where accidents.id = ?', [$id]);
         $get_data = [];
         $i=1;
         foreach ($surat_perintah_penyitaan as $i => $surat_penyitaan) {
@@ -129,7 +129,7 @@ class WordController extends Controller
           ];
         }
             // dd($get_data);
-        $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [$id]);
 
 
 
@@ -165,21 +165,20 @@ class WordController extends Controller
 
     public function createword_springas($id)
     {
-        $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [$id]);
         $springas = SprintGas::where('accident_id',$id)->first();
         $pejabat = AuthorizedSignatory::where('id', $springas->pejabat_penandatangan)->first();
         $sprindik = InvestigationOrderLetter::where('accident_id',$id)->first();
         // $sprindik =DB::select('select * from legacy.investigation_order_letters where accident_id= \''.$id.'\' ');
-        $officer_springas =DB::select('select * from legacy.officer_springas left join legacy.springas on legacy.officer_springas.sprint_gas_id = legacy.springas.id left join officers on legacy.officer_springas.officer_id = officers.id where accident_id= \''.$id.'\' ');
+        $officer_springas = DB::select('select * from legacy.officer_springas left join legacy.springas on legacy.officer_springas.sprint_gas_id = legacy.springas.id left join officers on legacy.officer_springas.officer_id = officers.id where accident_id = ?', [$id]);
         $leader = Officer::where('id',$springas->ketua_tim)->first();
         $get_accident = DB::select('select polda.full_name as polda_name, polres.full_name as polres_name, polda.address as polda_alamat, polres.address as polres_alamat, polres.polres_district as polres_district, polres.polres_zipcode as polres_zipcode from accidents
         left join polres on accidents.polres_id = polres.id
         left join polda on polda.id = polres.polda_id
-        where accidents.id = \''.$id.'\' ');
+        where accidents.id = ?', [$id]);
         $get_data = [];
         // $count_officer_springas = count($officer_springas);
         $i=2;
-        var_dump($i);
         foreach($officer_springas as $officers){
             $get_data[] = [
                 'nomor' => $i,
@@ -191,7 +190,6 @@ class WordController extends Controller
             ];
             $i++;
         }
-        var_dump($i);
         // dd($count_officer_springas);
 
         $data['springas']=$springas;
@@ -260,7 +258,7 @@ class WordController extends Controller
 
     public function createword_lhgp($id)
     {
-        $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [$id]);
         $lhgp = LHGP::where('accident_id',$id)->first();
         $pejabat = AuthorizedSignatory::where('id', $lhgp->pejabat_penandatangan)->first();
         // $pejabat = Officer::with('rank')->where('id',$lhgp->pejabat_penandatangan)->first();
@@ -268,7 +266,7 @@ class WordController extends Controller
         $get_accident = DB::select('select polda.full_name as polda_name, polres.full_name as polres_name, polda.address as polda_alamat, polres.address as polres_alamat, polres.polres_province as polres_province from accidents
         left join polres on accidents.polres_id = polres.id
         left join polda on polda.id = polres.polda_id
-        where accidents.id = \''.$id.'\' ');
+        where accidents.id = ?', [$id]);
 
         $data['lhgp']=$lhgp;
         $data['accident']=$accident;
@@ -337,7 +335,7 @@ class WordController extends Controller
 
     public function createword_sddl($id)
     {
-      $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
+      $accident = DB::select('select * from accidents where id = ?', [$id]);
       $sddl = SuratKetetapanPenetapanTersangka::where('accident_id',$id)->first();
       $kejaksaan = Prosecutor::where('id',$sddl->prosecutor_office_id)->first();
       $spdik = InvestigationOrderLetter::where('accident_id',$id)->first();
@@ -358,7 +356,7 @@ class WordController extends Controller
           left join religions on suspects.religion = religions.id
           left join country on suspects.country = country.id
           left join authorized_signatories on accidents.polres_id = authorized_signatories.polres_id
-      where accidents.id = \''.$id.'\' ');
+      where accidents.id = ?', [$id]);
 
       $data['sddl']=$sddl;
       $data['accident']=$accident;
@@ -441,12 +439,12 @@ class WordController extends Controller
 
     public function createword_surat_penyelidikan($id)
     {
-        $surat_perintah_penyelidikan = DB::select('select * from surat_penyelidikan left join officers on surat_penyelidikan.officer_id = officers.id where accident_id = \''.$id.'\' ');
+        $surat_perintah_penyelidikan = DB::select('select * from surat_penyelidikan left join officers on surat_penyelidikan.officer_id = officers.id where accident_id = ?', [$id]);
         // dd($surat_perintah_tugas);
         $get_accident = DB::select('select polda.name as polda_name, polres.name as polres_name, polda.address as polda_alamat, polres.address as polres_alamat from accidents
          left join polres on accidents.polres_id = polres.id
          left join polda on polda.id = polres.polda_id
-         where accidents.id = \''.$id.'\' ');
+         where accidents.id = ?', [$id]);
         $get_data = [];
         $i=1;
         foreach ($surat_perintah_penyelidikan as $i => $surat_penyelidikan) {
@@ -461,7 +459,7 @@ class WordController extends Controller
                 ];
             }
             // dd($get_data);
-        $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [$id]);
 
 
 
@@ -505,12 +503,12 @@ class WordController extends Controller
 
     public function createword_surat_penyidikan($id)
     {
-        $surat_perintah_penyidikan = DB::select('select * from surat_penyidikan left join officers on surat_penyidikan.officer_id = officers.id where accident_id = \''.$id.'\' ');
+        $surat_perintah_penyidikan = DB::select('select * from surat_penyidikan left join officers on surat_penyidikan.officer_id = officers.id where accident_id = ?', [$id]);
         // dd($surat_perintah_tugas);
         $get_accident = DB::select('select polda.name as polda_name, polres.name as polres_name, polda.address as polda_alamat, polres.address as polres_alamat from accidents
         left join polres on accidents.polres_id = polres.id
         left join polda on polda.id = polres.polda_id
-        where accidents.id = \''.$id.'\' ');
+        where accidents.id = ?', [$id]);
         $get_data = [];
         $i=1;
         foreach ($surat_perintah_penyidikan as $i => $surat_penyidikan) {
@@ -525,7 +523,7 @@ class WordController extends Controller
                 ];
             }
             // dd($get_data);
-        $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [$id]);
 
 
 
@@ -569,7 +567,7 @@ class WordController extends Controller
 
     public function createword_surat_spdp($id)
     {
-        $surat_spdp = DB::select('select * from spdpp where accident_id = \''.$id.'\' ');
+        $surat_spdp = DB::select('select * from spdpp where accident_id = ?', [$id]);
         $kejaksaan = DB::table('prosecutors')
         ->join('spdpp', 'prosecutors.id', '=', 'spdpp.kejaksaan_id')
         ->select('prosecutors.*')
@@ -596,7 +594,7 @@ class WordController extends Controller
           left join religions on suspects.religion = religions.id
           left join country on suspects.country = country.id
           left join authorized_signatories on accidents.polres_id = authorized_signatories.polres_id
-      where accidents.id = \''.$id.'\' ');
+      where accidents.id = ?', [$id]);
         $get_data = [];
         $i=1;
         foreach ($get_accident as $i => $spdp) {
@@ -612,7 +610,7 @@ class WordController extends Controller
                 'alamat' => $spdp->alamat,
                 ];
             }
-        $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [$id]);
 
         $data['klasifikasi']=$surat_spdp[0]->klasifikasi;
         $data['lampiran']=$surat_spdp[0]->lampiran;
@@ -757,17 +755,25 @@ class WordController extends Controller
         // Loop $data['suspects']
         $get_data_suspects = [];
         $loop = 0;
-        foreach (json_decode($data['suspects'], true) as $suspectId) {
-          $suspectRow = DB::table('daftar_tersangka')->where('id', $suspectId)->first();
-          $suspectRow = (array) $suspectRow;
+        $suspectIds = json_decode($data['suspects'], true) ?? [];
+        $suspectsMap = !empty($suspectIds)
+          ? DB::table('daftar_tersangka')->whereIn('id', $suspectIds)->get()->keyBy('id')
+          : collect();
+        $refMap = DB::table('ref')->whereIn('grp_id', ['G01', 'R01'])->pluck('name', 'id');
+
+        foreach ($suspectIds as $suspectId) {
+          $suspectRow = (array) ($suspectsMap->get($suspectId) ?? []);
+          if (empty($suspectRow)) {
+            continue;
+          }
           $get_data_suspects[] = [
             'suspect_name' => ucwords(strtolower($suspectRow['name'])),
-            'suspect_gender' => ucwords(strtolower(DB::table('ref')->where('id', $suspectRow['gender'])->first()->name ?? '-')),
+            'suspect_gender' => ucwords(strtolower($refMap[$suspectRow['gender']] ?? '-')),
             'suspect_birthplace' => ucwords(strtolower($suspectRow['city'])),
             'suspect_birthday' => Carbon::parse($suspectRow['birth_date'])->format('d-m-Y'),
             'suspect_age' => Carbon::parse($suspectRow['birth_date'])->age,
             'suspect_citizen' => ucwords(strtolower($suspectRow['citizen'])),
-            'suspect_religion' => ucwords(strtolower(DB::table('ref')->where('id', $suspectRow['religion'])->first()->name ?? '-')),
+            'suspect_religion' => ucwords(strtolower($refMap[$suspectRow['religion']] ?? '-')),
             'suspect_job' => ucwords(strtolower($suspectRow['job'])),
             'suspect_address' => ucwords(strtolower($suspectRow['address'])),
           ];
@@ -877,17 +883,25 @@ class WordController extends Controller
         // Loop $data['suspects']
         $get_data_suspects = [];
         $loopSuspects = 0;
-        foreach (json_decode($data['suspects'], true) as $suspectId) {
-          $suspectRow = DB::table('daftar_tersangka')->where('id', $suspectId)->first();
-          $suspectRow = (array) $suspectRow;
+        $suspectIds = json_decode($data['suspects'], true) ?? [];
+        $suspectsMap = !empty($suspectIds)
+          ? DB::table('daftar_tersangka')->whereIn('id', $suspectIds)->get()->keyBy('id')
+          : collect();
+        $refMap = DB::table('ref')->whereIn('grp_id', ['G01', 'R01'])->pluck('name', 'id');
+
+        foreach ($suspectIds as $suspectId) {
+          $suspectRow = (array) ($suspectsMap->get($suspectId) ?? []);
+          if (empty($suspectRow)) {
+            continue;
+          }
           $get_data_suspects[] = [
             'suspect_name' => ucwords(strtolower($suspectRow['name'])),
-            'suspect_gender' => ucwords(strtolower(DB::table('ref')->where('id', $suspectRow['gender'])->first()->name ?? '-')),
+            'suspect_gender' => ucwords(strtolower($refMap[$suspectRow['gender']] ?? '-')),
             'suspect_birthplace' => ucwords(strtolower($suspectRow['city'])),
             'suspect_birthday' => Carbon::parse($suspectRow['birth_date'])->format('d-m-Y'),
             'suspect_age' => Carbon::parse($suspectRow['birth_date'])->age,
             'suspect_citizen' => ucwords(strtolower($suspectRow['citizen'])),
-            'suspect_religion' => ucwords(strtolower(DB::table('ref')->where('id', $suspectRow['religion'])->first()->name ?? '-')),
+            'suspect_religion' => ucwords(strtolower($refMap[$suspectRow['religion']] ?? '-')),
             'suspect_job' => ucwords(strtolower($suspectRow['job'])),
             'suspect_address' => ucwords(strtolower($suspectRow['address'])),
           ];
@@ -907,9 +921,16 @@ class WordController extends Controller
         // Loop $data['evidences']
         $get_data_evidences = [];
         $loopEvidences = 0;
-        foreach (json_decode($data['evidences'], true) as $evidenceRow) {
-          $evidenceRow = DB::table('daftar_barang_bukti')->where('id', $evidenceRow)->first();
-          $evidenceRow = (array) $evidenceRow;
+        $evidenceIds = json_decode($data['evidences'], true) ?? [];
+        $evidencesMap = !empty($evidenceIds)
+          ? DB::table('daftar_barang_bukti')->whereIn('id', $evidenceIds)->get()->keyBy('id')
+          : collect();
+
+        foreach ($evidenceIds as $evidenceId) {
+          $evidenceRow = (array) ($evidencesMap->get($evidenceId) ?? []);
+          if (empty($evidenceRow)) {
+            continue;
+          }
           $get_data_evidences[] = [
             'evidence_name' => ucwords(strtolower($evidenceRow['nama_barang'])),
             'evidence_amount' => $evidenceRow['jumlah_barang'],
@@ -946,13 +967,13 @@ class WordController extends Controller
     }
 
     public function createword_sp3($id){
-        $sp3 = DB::select('select * from sp3 where accident_id = \''.$id.'\'');
-        $accident =DB::select('select * from accidents where id= \''.$id.'\' ');
-        $surat_perintah_tugas = DB::select('select * from surat_tugas left join officers on surat_tugas.officer_id = officers.id where accident_id = \''.$id.'\' ');
+        $sp3 = DB::select('select * from sp3 where accident_id = ?', [$id]);
+        $accident = DB::select('select * from accidents where id = ?', [$id]);
+        $surat_perintah_tugas = DB::select('select * from surat_tugas left join officers on surat_tugas.officer_id = officers.id where accident_id = ?', [$id]);
         $get_accident = DB::select('select polda.name as polda_name, polres.name as polres_name, polda.address as polda_alamat, polres.address as polres_alamat, polres.polres_province as polres_province from accidents
         left join polres on accidents.polres_id = polres.id
         left join polda on polda.id = polres.polda_id
-        where accidents.id = \''.$id.'\' ');
+        where accidents.id = ?', [$id]);
         // dd($get_accident);
         $get_data = [];
         $i=1;
@@ -1008,9 +1029,9 @@ class WordController extends Controller
                                 from daftar_saksi
                                 left join (select * from ref where grp_id =\'G01\') as daftar_saksi_gender on daftar_saksi.gender = daftar_saksi_gender.id
                                 left join (select * from ref where grp_id =\'R01\') as daftar_saksi_religion on daftar_saksi.religion = daftar_saksi_religion.id
-                                where accident_id = \''.$id. '\' ');
+                                where accident_id = ?', [$id]);
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/daftar_saksi.docx');
-        
+
         $accident = \App\Models\Accident::with(['polres.polda'])->find($id);
         $poldaFullName = $accident->polres->polda->name ?? ($accident->polres->polda->full_name ?? '');
         $resorPoliceFullName = (in_array($accident->polres->id ?? '', ['1114']))
@@ -1058,9 +1079,13 @@ class WordController extends Controller
         }
         $templateProcessor->cloneRowAndSetValues('saksi_no', $data);
 
-        $filename = 'Daftar Saksi';
-        $templateProcessor->saveAs($filename.'.docx');
-        return response()->download($filename.'.docx')->deleteFileAfterSend(true);
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $tempPath = $tempDir . '/Daftar_Saksi_' . \Illuminate\Support\Str::uuid() . '.docx';
+        $templateProcessor->saveAs($tempPath);
+        return response()->download($tempPath, 'Daftar Saksi.docx')->deleteFileAfterSend(true);
     }
     public function daftarTersangka($id){
         $doc = \App\Models\Doc\DaftarTersangkaDocument\DaftarTersangkaDocument::where('accident_id', $id)->first();
@@ -1072,7 +1097,7 @@ class WordController extends Controller
                                   from daftar_tersangka
                                   left join (select * from ref where grp_id =\'G01\') as daftar_tersangka_gender on daftar_tersangka.gender = daftar_tersangka_gender.id
                                   left join (select * from ref where grp_id =\'R01\') as daftar_tersangka_religion on daftar_tersangka.religion = daftar_tersangka_religion.id
-                                  where accident_id = \''.$id. '\' ');
+                                  where accident_id = ?', [$id]);
         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor('word-template/daftar_tersangka.docx');
 
         $accident = \App\Models\Accident::with(['polres.polda'])->find($id);
@@ -1122,8 +1147,12 @@ class WordController extends Controller
         }
         $templateProcessor->cloneRowAndSetValues('tersangka_no', $data);
 
-        $filename = 'Daftar Tersangka';
-        $templateProcessor->saveAs($filename.'.docx');
-        return response()->download($filename.'.docx')->deleteFileAfterSend(true);
+        $tempDir = storage_path('app/temp');
+        if (!is_dir($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $tempPath = $tempDir . '/Daftar_Tersangka_' . \Illuminate\Support\Str::uuid() . '.docx';
+        $templateProcessor->saveAs($tempPath);
+        return response()->download($tempPath, 'Daftar Tersangka.docx')->deleteFileAfterSend(true);
       }
 }

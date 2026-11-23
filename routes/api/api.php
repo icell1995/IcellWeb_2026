@@ -21,27 +21,28 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/forms/regency', [App\Http\Controllers\FormsController::class, 'getRegency']);
-Route::post('/forms/district', [App\Http\Controllers\FormsController::class, 'getDistrict']);
-Route::post('/forms/village', [App\Http\Controllers\FormsController::class, 'getVillage']);
-Route::post('/forms/getPolres', [App\Http\Controllers\FormsController::class, 'getPolres']);
+Route::middleware('throttle:60,1')->group(function () {
+    Route::post('/forms/regency', [App\Http\Controllers\FormsController::class, 'getRegency']);
+    Route::post('/forms/district', [App\Http\Controllers\FormsController::class, 'getDistrict']);
+    Route::post('/forms/village', [App\Http\Controllers\FormsController::class, 'getVillage']);
+    Route::post('/forms/getPolres', [App\Http\Controllers\FormsController::class, 'getPolres']);
 
-Route::post('/sddl/regency', [App\Http\Controllers\SuratTugasController::class, 'getRegency']);
-Route::post('/sddl/district', [App\Http\Controllers\SuratTugasController::class, 'getDistrict']);
-Route::post('/sddl/village', [App\Http\Controllers\SuratTugasController::class, 'getVillage']);
+    Route::post('/sddl/regency', [App\Http\Controllers\SuratTugasController::class, 'getRegency']);
+    Route::post('/sddl/district', [App\Http\Controllers\SuratTugasController::class, 'getDistrict']);
+    Route::post('/sddl/village', [App\Http\Controllers\SuratTugasController::class, 'getVillage']);
 
-Route::post('/lhgp/regency', [App\Http\Controllers\SuratTugasController::class, 'getRegency']);
-Route::post('/lhgp/district', [App\Http\Controllers\SuratTugasController::class, 'getDistrict']);
-Route::post('/lhgp/village', [App\Http\Controllers\SuratTugasController::class, 'getVillage']);
-
+    Route::post('/lhgp/regency', [App\Http\Controllers\SuratTugasController::class, 'getRegency']);
+    Route::post('/lhgp/district', [App\Http\Controllers\SuratTugasController::class, 'getDistrict']);
+    Route::post('/lhgp/village', [App\Http\Controllers\SuratTugasController::class, 'getVillage']);
+});
 
 // Route::get('/index', [PositionController::class, 'index'])
-Route::get('/positions', [App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\PositionController::class, 'getPosition']);
+Route::get('/positions', [App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\PositionController::class, 'getPosition'])->middleware('api-auth:irsms');
 
 // Route::post('/regist/irsms/user' [App\Http\Controllers\IcellServices\ApiIrsmsKorlantas\RegistUserController]);
 
 // Public API untuk masyarakat cek SP2HP (Surat Pemberitahuan Perkembangan Hasil Penyidikan)
-Route::post('/public/cek-sp2hp', [App\Http\Controllers\api\CekSP2HPController::class, 'getCekSP2HP'])->middleware('api-auth');
+Route::post('/public/cek-sp2hp', [App\Http\Controllers\api\CekSP2HPController::class, 'getCekSP2HP'])->middleware('api-auth:sp2hp');
 
 // Alias untuk service GetTokenICELL
-Route::post('/values/GetTokenICELL', [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\AuthController::class, 'getToken']);
+Route::post('/values/GetTokenICELL', [App\Http\Controllers\IcellServices\ApiPusiknasBareskrim\AuthController::class, 'getToken'])->middleware('throttle:10,1');

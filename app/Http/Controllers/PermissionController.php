@@ -52,11 +52,10 @@ class PermissionController extends Controller
 
     public function edit_modal_permission(Request $request)
     {
-        $id=$request->id;
-        $get_permission= DB::select('select * from permissions where id = \''.$id.'\' ');
-        $permission= $get_permission[0];
-        $data=[
-            'permisiion'=>$permission,
+        $id = $request->id;
+        $permission = Permission::find($id);
+        $data = [
+            'permisiion' => $permission,
         ];
         return response()->json($data);
     }

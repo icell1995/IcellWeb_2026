@@ -48,27 +48,27 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('lms')
                 ->group(base_path('routes/lms.php'));
 
-            Route::middleware('api-auth')
+            Route::middleware('api-auth:emp')
                 ->prefix('icell-services/api-emp-bareskrim/v2')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-emp-bareskrim/v2.php'));
        
-            Route::middleware('api-auth')
+            Route::middleware('api-auth:emp')
                 ->prefix('icell-services/api-emp-bareskrim/v1')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-emp-bareskrim/v1.php'));
           
-            Route::middleware('api-auth')
+            Route::middleware('api-auth:tar')
                 ->prefix('icell-services/api-tar-korlantas/v1')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-tar-korlantas/v1.php'));
 
-	    Route::middleware('api-auth')
+	    Route::middleware('api-auth:irsms')
                 ->prefix('icell-services/api-irsms-korlantas/v1')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-irsms-korlantas/v1.php'));
 	    
-	    Route::middleware('api-auth')
+	    Route::middleware('api-auth:divtik')
                 ->prefix('icell-services/api-divtik-polri')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-divtik-polri/get-divtik.php'));
@@ -77,7 +77,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-pusiknasbareskrim/api.php'));
 
-            Route::middleware('api-auth')
+            Route::middleware('api-auth:pusiknas-doc')
                 ->prefix('icell-services/api-pusiknasbareskrim/doc')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/icell-services/api-pusiknasbareskrim/doc.php'));
@@ -88,7 +88,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/api/api.php'));
                 
             Route::prefix('api/emp')
-                ->middleware('api-auth')
+                ->middleware('api-auth:emp')
                 ->namespace($this->namespace)
                 ->group(base_path('routes/api/emp-api.php'));
                 
@@ -106,7 +106,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('produktivitas')
                 ->group(base_path('routes/produktivitas.php'));
             
-            Route::middleware(['web', 'auth', 'prevent-back-history', 'can:view-data'])
+            Route::middleware(['web', 'auth', 'prevent-back-history', 'can:view-data', 'document-active'])
                 ->namespace($this->namespace)
                 ->prefix('document')
                 ->group(base_path('routes/document.php'));

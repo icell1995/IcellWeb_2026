@@ -443,11 +443,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                        $document->memberOfficers->loadMissing(['rank', 'position', 'police']);
+                                        $memberOfficerIdsByReg = \App\Models\Officer::whereIn(
+                                            'register_number',
+                                            $document->memberOfficers->pluck('register_number')->filter()
+                                        )->pluck('id', 'register_number');
+                                    @endphp
                                     @foreach ($document->memberOfficers as $member)
                                         @php
                                             $mFullName = \App\Helpers\PeopleNameHelper::getFullName($member->first_title, $member->first_name, $member->last_name, $member->last_title);
-                                            $mOfficer = \App\Models\Officer::where('register_number', $member->register_number)->first();
-                                            $mOfficerId = $mOfficer ? $mOfficer->id : $member->id;
+                                            $mOfficerId = $memberOfficerIdsByReg[$member->register_number] ?? $member->id;
                                         @endphp
                                         <tr>
                                             <td>

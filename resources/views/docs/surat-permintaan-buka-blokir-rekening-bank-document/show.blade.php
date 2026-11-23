@@ -142,7 +142,7 @@
                 <span class="text-muted small">Surat Permintaan Buka Blokir Rekening Bank (Format Word Resmi)</span>
             </div>
             <div class="d-flex align-items-center">
-                <a href="{{ route('doc.surat-permintaan-buka-blokir-rekening-bank-document.download', ['id' => $document->id]) }}" class="btn btn-sm btn-success me-2 fw-bold shadow-sm">
+                <a href="{{ route('doc.surat-permintaan-buka-blokir-rekening-bank-document.download', ['id' => $document->id, 'accident_id' => $document->accident_id]) }}" class="btn btn-sm btn-success me-2 fw-bold shadow-sm">
                     <i class="bi bi-file-earmark-word me-1"></i> Unduh File Word (.docx)
                 </a>
                 <a href="{{ route('doc.surat-permintaan-buka-blokir-rekening-bank-document.edit', ['id' => $document->id, 'accident_id' => $document->accident_id]) }}" class="btn btn-sm btn-warning me-2 text-dark">

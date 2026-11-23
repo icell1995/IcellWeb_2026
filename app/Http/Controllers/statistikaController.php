@@ -70,463 +70,100 @@ class statistikaController extends Controller
 
 
 
+    private function queryPeriodStats(string $startDate, string $endDate, string $polda = '-', string $polres = '-', bool $useDateCast = true): object
+    {
+        $query = DB::table('accidents')
+            ->join('polres', 'polres.id', '=', 'accidents.polres_id')
+            ->join('polda', 'polda.id', '=', 'polres.polda_id')
+            ->selectRaw("
+                COUNT(accidents.id) AS countdata,
+                COALESCE(SUM(accidents.md), 0) AS md,
+                COALESCE(SUM(accidents.lb), 0) AS lb,
+                COALESCE(SUM(accidents.lr), 0) AS lr,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0101') AS p21,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0102') AS sp3,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0103') AS diversi,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0104') AS tni,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0106') AS adat_rj,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0108') AS sp2led,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0107') AS dalam_proses
+            ")
+            ->when($polda !== '-', fn ($q) => $q->where('polda.id', $polda))
+            ->when($polres !== '-', fn ($q) => $q->where('polres.id', $polres));
+
+        if ($useDateCast) {
+            $query->whereBetween(DB::raw('DATE(accidents.accident_date)'), [$startDate, $endDate]);
+        } else {
+            $query->whereBetween('accidents.accident_date', [$startDate, $endDate])
+                ->where('polda.state', '<>', 0)
+                ->where('polres.state', '<>', 0);
+        }
+
+        return $query->first();
+    }
+
     public function chartcalculationMonth(Request $request){
         $bulan=Carbon::parse($request->input('bulan'))->format('Y-m-d');
-        $textMonth=Carbon::parse($request->input('bulan'))->formatLocalized('%B');
-        $textMonthPast=Carbon::parse($request->input('bulan'))->addMonths(-1)->formatLocalized('%B');
+        $textMonth=Carbon::parse($request->input('bulan'))->translatedFormat('F');
+        $textMonthPast=Carbon::parse($request->input('bulan'))->addMonths(-1)->translatedFormat('F');
         $checkBulanPast = Carbon::parse($request->input('bulan'))->addMonths(-1)->format('Y-m-d');
         $checkBulanPast30 = Carbon::parse($request->input('bulan'))->addDays(-1)->format('Y-m-d');
-        $checkBulan = Carbon::parse($request->input('bulan'))->addMonths()->addDays(-1)->format('Y-m-d');//it's for check between date what you input or check 30 days from feature in date in form
-        $polres = $request->input('polres_id');
-        $polda  = $request->input('polda_id');
+        $checkBulan = Carbon::parse($request->input('bulan'))->addMonths()->addDays(-1)->format('Y-m-d');
+        $polres = $request->input('polres_id') ?: '-';
+        $polda  = $request->input('polda_id') ?: '-';
         $status = $request->input('selra_id');
-        if($polres == null){
-            $polres = '-';
-        }else{
-            $polres = $polres;
+
+        $curr = $this->queryPeriodStats($bulan, $checkBulan, (string) $polda, (string) $polres, true);
+        $past = $this->queryPeriodStats($checkBulanPast, $checkBulanPast30, (string) $polda, (string) $polres, true);
+
+        if ($polres !== "-" && $polda !== "-") {
+            $polresName1 = Polres::where('id', '=', $polres)->get('name');
+            $poldaName1 = Polda::where('id', '=', $polda)->get('name');
+            $polresName = isset($polresName1[0]) ? json_encode($polresName1[0]->name) : ' ';
+            $poldaName = isset($poldaName1[0]) ? json_encode($poldaName1[0]->name) : ' ';
+            $diversiPastKey = 'disversiPast';
+        } elseif ($polres === "-" && $polda !== "-") {
+            $polresName1 = Polres::where('id', '=', $polres)->get('name');
+            $poldaName1 = Polda::where('id', '=', $polda)->get('name');
+            $polresName = $polresName1;
+            $poldaName = isset($poldaName1[0]) ? json_encode($poldaName1[0]->name) : ' ';
+            $diversiPastKey = 'disversiPast';
+        } else {
+            $polresName = ' ';
+            $poldaName = 'Semua Polda';
+            $diversiPastKey = 'diversiPast';
         }
-        if($polda == null){
-            $polda = '-';
-        }else{
-            $polda = $polda;
-        }
-        if($polres!="-" && $polda!="-"){
 
-        $countdata = DB::table('accidents')
-                        ->where('polres_id','=', $polres)
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-        $md = Accident::where('polres_id','=', $polres)
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->sum('md');
-
-        $lb = Accident::where('polres_id','=', $polres)
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->sum('lb');
-
-        $lr = Accident::where('polres_id','=', $polres)
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->sum('lr');
-
-        $p21 = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0101')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $sp3 = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0102')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $diversi = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0103')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $tni = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0104')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $adat_rj = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0106')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $sp2led = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0108')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $dalamProses = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0107')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $mdPast = Accident::where('polres_id','=', $polres)
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('md');
-
-        $lbPast = Accident::where('polres_id','=', $polres)
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('lb');
-
-        $lrPast = Accident::where('polres_id','=', $polres)
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('lr');
-
-        $p21Past = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0101')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $sp3Past = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0102')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $diversiPast = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0103')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $tniPast = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0104')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $adat_rjPast = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0106')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $sp2ledPast = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0108')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $dalamProsesPast = Accident::where('polres_id','=', $polres)
-                        ->where('selra_flag', '=', 'S0107')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $polresName1 = Polres::where('id', '=', $polres)
-                        ->get('name');
-
-        $poldaName1 = Polda::where('id', '=', $polda)
-                        ->get('name');
-
-        $polresName = json_encode($polresName1[0]->name);
-        $poldaName = json_encode($poldaName1[0]->name);
         return response()->json([
-            'countdata' => $countdata,
-            'md' => $md,
-            'lb'=> $lb,
-            'lr'=> $lr,
-            'mdPast' => $mdPast,
-            'lbPast'=> $lbPast,
-            'lrPast' => $lrPast,
+            'countdata' => (int) $curr->countdata,
+            'md' => (int) $curr->md,
+            'lb'=> (int) $curr->lb,
+            'lr'=> (int) $curr->lr,
+            'mdPast' => (int) $past->md,
+            'lbPast'=> (int) $past->lb,
+            'lrPast' => (int) $past->lr,
             'textMonth' => $textMonth,
             'textMonthPast' => $textMonthPast,
             'checkBulanPast' => $checkBulanPast,
             'checkBulanPast30' => $checkBulanPast30,
             'checkBulan'=> $checkBulan,
-            'p21' => $p21,
-            'sp3' => $sp3,
-            'diversi' => $diversi,
-            'tni' => $tni,
-            'adat_rj' => $adat_rj,
-            'sp2led' => $sp2led,
-            'dalamProses' => $dalamProses,
-            'p21Past' => $p21Past,
-            'sp3Past' => $sp3Past,
-            'disversiPast' => $diversiPast,
-            'tniPast' => $tniPast,
-            'adat_rjPast' => $adat_rjPast,
-            'sp2ledPast' => $sp2ledPast,
-            'dalamProsesPast' => $dalamProsesPast,
+            'p21' => (int) $curr->p21,
+            'sp3' => (int) $curr->sp3,
+            'diversi' => (int) $curr->diversi,
+            'tni' => (int) $curr->tni,
+            'adat_rj' => (int) $curr->adat_rj,
+            'sp2led' => (int) $curr->sp2led,
+            'dalamProses' => (int) $curr->dalam_proses,
+            'p21Past' => (int) $past->p21,
+            'sp3Past' => (int) $past->sp3,
+            $diversiPastKey => (int) $past->diversi,
+            'tniPast' => (int) $past->tni,
+            'adat_rjPast' => (int) $past->adat_rj,
+            'sp2ledPast' => (int) $past->sp2led,
+            'dalamProsesPast' => (int) $past->dalam_proses,
             'polresName' => $polresName,
             'poldaName' => $poldaName
         ]);
-    }
-    else if($polres=="-" && $polda!="-"){
-
-        $countdata = DB::table('accidents')
-                        ->join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $md = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->sum('md');
-
-        $lb = Accident::join('polres','polres.id','=','accidents.polres_id')
-                    ->join('polda','polda.id','=','polres.polda_id')
-                    ->where('polda.id','=', $polda)
-                    ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                    ->sum('md');
-
-        $lr = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->sum('md');
-
-        $p21 = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0101')
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $sp3 = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $diversi = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0103')
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $tni = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0104')
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $adat_rj = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0106')
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $sp2led = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0108')
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $dalamProses = Accident::  join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0107')
-                        ->whereraw("date(accidents.accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $mdPast = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('md');
-
-        $lbPast = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->whereraw("date(accidents.accident_date)between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('lb');
-
-        $lrPast = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('lr');
-
-        $p21Past = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0101')
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $sp3Past = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0102')
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $diversiPast = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0103')
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $tniPast = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0104')
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $adat_rjPast = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0106')
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $sp2ledPast = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0108')
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $dalamProsesPast = Accident::join('polres','polres.id','=','accidents.polres_id')
-                        ->join('polda','polda.id','=','polres.polda_id')
-                        ->where('polda.id','=', $polda)
-                        ->where('selra_flag', '=', 'S0107')
-                        ->whereraw("date(accidents.accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $polresName1 = Polres::where('id', '=', $polres)
-                        ->get('name');
-
-        $poldaName1 = Polda::where('id', '=', $polda)
-                        ->get('name');
-
-        $polresName = ' ';
-        $poldaName = json_encode($poldaName1[0]->name);
-
-        // dd($polresName1);
-        return response()->json([
-            'countdata' => $countdata,
-            'md' => $md,
-            'lb'=> $lb,
-            'lr'=> $lr,
-            'mdPast' => $mdPast,
-            'lbPast'=> $lbPast,
-            'lrPast' => $lrPast,
-            'textMonth' => $textMonth,
-            'textMonthPast' => $textMonthPast,
-            'checkBulanPast' => $checkBulanPast,
-            'checkBulanPast30' => $checkBulanPast30,
-            'checkBulan'=> $checkBulan,
-            'p21' => $p21,
-            'sp3' => $sp3,
-            'diversi' => $diversi,
-            'tni' => $tni,
-            'adat_rj' => $adat_rj,
-            'sp2led' => $sp2led,
-            'dalamProses' => $dalamProses,
-            'p21Past' => $p21Past,
-            'sp3Past' => $sp3Past,
-            'disversiPast' => $diversiPast,
-            'tniPast' => $tniPast,
-            'adat_rjPast' => $adat_rjPast,
-            'sp2ledPast' => $sp2ledPast,
-            'dalamProsesPast' => $dalamProsesPast,
-            'polresName' => $polresName1,
-            'poldaName' => $poldaName
-        ]);
-    }
-    else{
-        $countdata = DB::table('accidents')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $md = Accident::whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->sum('md');
-
-        $lb = Accident::whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->sum('lb');
-
-        $lr = Accident::whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->sum('lr');
-
-        $p21 = Accident::where('selra_flag', '=', 'S0101')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $sp3 = Accident::where('selra_flag', '=', 'S0102')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $diversi = Accident::where('selra_flag', '=', 'S0103')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $tni = Accident::where('selra_flag', '=', 'S0104')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $adat_rj = Accident::where('selra_flag', '=', 'S0106')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $sp2led = Accident::where('selra_flag', '=', 'S0108')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $dalamProses = Accident::where('selra_flag', '=', 'S0107')
-                        ->whereraw("date(accident_date) between '$bulan' and '$checkBulan'")
-                        ->count();
-
-        $mdPast = Accident::whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('md');
-
-        $lbPast = Accident::whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('lb');
-
-        $lrPast = Accident::whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->sum('lr');
-
-        $p21Past = Accident::where('selra_flag', '=', 'S0101')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $sp3Past = Accident::where('selra_flag', '=', 'S0102')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $diversiPast = Accident::where('selra_flag', '=', 'S0103')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $tniPast = Accident::where('selra_flag', '=', 'S0104')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $adat_rjPast = Accident::where('selra_flag', '=', 'S0106')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $sp2ledPast = Accident::where('selra_flag', '=', 'S0108')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-        $dalamProsesPast = Accident::where('selra_flag', '=', 'S0107')
-                        ->whereraw("date(accident_date) between '$checkBulanPast' and '$checkBulanPast30'")
-                        ->count();
-
-
-        $polresName = ' ';
-        $poldaName = ' ';
-
-
-        return response()->json([
-            'countdata' => $countdata,
-            'md' => $md,
-            'lb'=> $lb,
-            'lr'=> $lr,
-            'mdPast' => $mdPast,
-            'lbPast'=> $lbPast,
-            'lrPast' => $lrPast,
-            'textMonth' => $textMonth,
-            'textMonthPast' => $textMonthPast,
-            'checkBulanPast' => $checkBulanPast,
-            'checkBulanPast30' => $checkBulanPast30,
-            'checkBulan'=> $checkBulan,
-            'p21' => $p21,
-            'sp3' => $sp3,
-            'diversi' => $diversi,
-            'tni' => $tni,
-            'adat_rj' => $adat_rj,
-            'sp2led' => $sp2led,
-            'dalamProses' => $dalamProses,
-            'p21Past' => $p21Past,
-            'sp3Past' => $sp3Past,
-            'diversiPast' => $diversiPast,
-            'tniPast' => $tniPast,
-            'adat_rjPast' => $adat_rjPast,
-            'sp2ledPast' => $sp2ledPast,
-            'dalamProsesPast' => $dalamProsesPast,
-            'polresName' => $polresName ,
-            'poldaName' => 'Semua Polda'
-        ]);
-    }
     }
 
 
@@ -573,616 +210,82 @@ class statistikaController extends Controller
     }
 
     public function chartcalculationWeek(Request $request){
-        $date=Carbon::parse($request->input('week'))->format('Y-m-d');
-        $polda  = $request->input('polda_id');
-        $polres = $request->input('polres_id');
-        if($polres == null){
-            $polres = '-';
-        }else{
-            $polres = $polres;
-        }
-        // $status = $request->input('selra_id');
+        $date = Carbon::parse($request->input('week'))->format('Y-m-d');
+        $dateEnd = Carbon::parse($date)->addDays(6)->format('Y-m-d');
+        $prevStart = Carbon::parse($date)->subDays(7)->format('Y-m-d');
+        $prevEnd = Carbon::parse($date)->subDays(1)->format('Y-m-d');
 
+        $polda  = $request->input('polda_id') ?: '-';
+        $polres = $request->input('polres_id') ?: '-';
 
-        $expression = DB::raw("select(SELECT row_to_json(t)
-        	FROM(
-        	SELECT
-        	'$date'||' - '||date'$date' + INTERVAL '6 days' AS range_date,
-        	(SELECT CASE WHEN '$polda' <> '-' THEN name ELSE 'All Polda' END FROM polda WHERE id = '$polda') AS polda,
-        	(SELECT CASE WHEN '$polres' <> '-' THEN name ELSE 'All Polres' END FROM polres WHERE id = '$polres') AS polres,
-        	now() AS tanggal_dan_jam_pencarian,
-			(
-				SELECT array_to_json(array_agg(row_to_json(w)))
-				FROM(
-					SELECT
-					(
-						SELECT count(accidents.id)
-						FROM polda
-						JOIN polres ON polda.id = polres.polda_id
-						JOIN accidents ON accidents.polres_id = polres.id
-						WHERE
-						CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-						AND
-						CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-						AND
-						accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-						AND polda.state <> 0
-						AND polres.state <> 0
-					)AS total_laka,
-                    (
-                        SELECT sum(md) AS total
-                        FROM
-                        polda
-                        JOIN polres ON polda.id = polres.polda_id
-                        JOIN accidents ON accidents.polres_id = polres.id
-                        WHERE
-                        CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                        AND
-                        CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                        AND
-                        accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                        AND polda.state <> 0
-                        AND polres.state <> 0
-                    )AS total_md,
-                    (
-                        SELECT sum(lb) AS total
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON accidents.polres_id = polres.id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                    )AS total_lb,
-                    (
-                        SELECT sum(lr) AS total
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON accidents.polres_id = polres.id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                    )AS total_lr
+        $week1 = $this->queryPeriodStats($date, $dateEnd, (string) $polda, (string) $polres, false);
+        $week2 = $this->queryPeriodStats($prevStart, $prevEnd, (string) $polda, (string) $polres, false);
 
-				    )w
-			    )AS summary,
-                (
-                    SELECT array_to_json(array_agg(row_to_json(w)))
-                    FROM(
-                        SELECT
-                        (
-                            SELECT count(accidents.id)
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND accidents.selra_flag = 'S0101'
-                            AND accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        )AS p21,
-                        (
-                            SELECT count(accidents.id)
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND accidents.selra_flag = 'S0102'
-                            AND accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        )AS sp3,
-                        (
-                            SELECT count(accidents.id)
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND accidents.selra_flag = 'S0103'
-                            AND accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        )AS diversi,
-                        (
-                            SELECT count(accidents.id)
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND accidents.selra_flag = 'S0104'
-                            AND accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        )AS pom_tni,
-                        (
-                            SELECT count(accidents.id)
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND accidents.selra_flag = 'S0106'
-                            AND accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        )AS adat_rj,
-                        (
-                            SELECT count(accidents.id)
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND accidents.selra_flag = 'S0108'
-                            AND accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        )AS sp2lid,
-                        (
-                            SELECT count(accidents.id)
-                            FROM
-                            polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND accidents.selra_flag = 'S0107'
-                            AND accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        )AS dalam_proses
-                    )w
-                )AS summary_selra,
-                (
-                    SELECT array_to_json(array_agg(row_to_json(w)))
-                    FROM(
-                        SELECT
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND accidents.selra_flag = 'S0101'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_p21_week_1,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND accidents.selra_flag = 'S0102'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_sp3_week_1,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND accidents.selra_flag = 'S0103'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_diversi_week_1,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND accidents.selra_flag = 'S0104'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_pom_tni_week_1,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND accidents.selra_flag = 'S0106'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_adat_rj_week_1,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND accidents.selra_flag = 'S0108'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_sp2lid_week_1,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN '$date' AND date '$date' + INTERVAL '6 days'
-                            AND accidents.selra_flag = 'S0107'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_dalam_proses_week_1,
-                        -------------------------------
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN date '$date' - INTERVAL '1 weeks' AND date '$date' - INTERVAL '1 days'
-                            AND accidents.selra_flag = 'S0101'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_p21_week_2,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN date '$date' - INTERVAL '1 weeks' AND date '$date' - INTERVAL '1 days'
-                            AND accidents.selra_flag = 'S0102'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_sp3_week_2,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN date '$date' - INTERVAL '1 weeks' AND date '$date' - INTERVAL '1 days'
-                            AND accidents.selra_flag = 'S0103'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_diversi_week_2,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN date '$date' - INTERVAL '1 weeks' AND date '$date' - INTERVAL '1 days'
-                            AND accidents.selra_flag = 'S0104'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_pom_tni_week_2,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN date '$date' - INTERVAL '1 weeks' AND date '$date' - INTERVAL '1 days'
-                            AND accidents.selra_flag = 'S0106'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_adat_rj_week_2,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN date '$date' - INTERVAL '1 weeks' AND date '$date' - INTERVAL '1 days'
-                            AND accidents.selra_flag = 'S0108'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_sp2lid_week_2,
-                        (
-                            SELECT coalesce(count(accidents.id),0) AS total
-                            FROM polda
-                            JOIN polres ON polda.id = polres.polda_id
-                            JOIN accidents ON polres.id = accidents.polres_id
-                            WHERE
-                            CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                            AND
-                            CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                            AND
-                            accidents.accident_date BETWEEN date '$date' - INTERVAL '1 weeks' AND date '$date' - INTERVAL '1 days'
-                            AND accidents.selra_flag = 'S0107'
-                            AND polda.state <> 0
-                            AND polres.state <> 0
-                        ) AS total_dalam_proses_week_2
-                    )w
-                )AS fatalitas_selra
-            )t
-        )as data");
-        $query = DB::select($expression->getValue(DB::connection()->getQueryGrammar()));
-        $data = json_decode($query[0]->data);
+        $poldaName = $polda !== '-' ? Polda::where('id', $polda)->value('name') : null;
+        $polresName = $polres !== '-' ? Polres::where('id', $polres)->value('name') : null;
 
         $summary = [
-            'total_laka'      => 0,
-            'md'              => 0,
-            'lb'              => 0,
-            'lr'              => 0,
+            'total_laka' => (int) $week1->countdata,
+            'md'         => (int) $week1->md,
+            'lb'         => (int) $week1->lb,
+            'lr'         => (int) $week1->lr,
         ];
-        if(!empty($data->summary)) {
-            foreach ($data->summary as $dt) {
-
-                $summary['total_laka']   = $summary['total_laka'] + $dt->total_laka;
-                $summary['md']   = $summary['md'] + $dt->total_md;
-                $summary['lb']   = $summary['lb'] + $dt->total_lb;
-                $summary['lr']   = $summary['lr'] + $dt->total_lr;
-                // $md = $dt->total_md;
-                // $lb = $dt->total_lb;
-                // $lr = $dt->total_lr;
-            }
-        }
 
         $summary_selra = [
-            'p21'               => 0,
-            'sp3'               => 0,
-            'diversi'           => 0,
-            'pom_tni'           => 0,
-            'adat_rj'           => 0,
-            'sp2lid'            => 0,
-            'dalam_proses'      => 0,
+            'p21'          => (int) $week1->p21,
+            'sp3'          => (int) $week1->sp3,
+            'diversi'      => (int) $week1->diversi,
+            'pom_tni'      => (int) $week1->tni,
+            'adat_rj'      => (int) $week1->adat_rj,
+            'sp2lid'       => (int) $week1->sp2led,
+            'dalam_proses' => (int) $week1->dalam_proses,
         ];
-        if(!empty($data->summary_selra)) {
-            foreach ($data->summary_selra as $dt) {
 
-                $summary_selra['p21']   = $summary_selra['p21'] + $dt->p21;
-                $summary_selra['sp3']   = $summary_selra['sp3'] + $dt->sp3;
-                $summary_selra['diversi']   = $summary_selra['diversi'] + $dt->diversi;
-                $summary_selra['pom_tni']   = $summary_selra['pom_tni'] + $dt->pom_tni;
-                $summary_selra['adat_rj']   = $summary_selra['adat_rj'] + $dt->adat_rj;
-                $summary_selra['sp2lid']   = $summary_selra['sp2lid'] + $dt->sp2lid;
-                $summary_selra['dalam_proses']   = $summary_selra['dalam_proses'] + $dt->dalam_proses;
-            }
-        }
+        $facilityselra = [
+            'labels'             => [],
+            'value_p21'          => [(int) $week2->p21, (int) $week1->p21],
+            'value_sp3'          => [(int) $week2->sp3, (int) $week1->sp3],
+            'value_diversi'      => [(int) $week2->diversi, (int) $week1->diversi],
+            'value_pom_tni'      => [(int) $week2->tni, (int) $week1->tni],
+            'value_adat_rj'      => [(int) $week2->adat_rj, (int) $week1->adat_rj],
+            'value_sp2lid'       => [(int) $week2->sp2led, (int) $week1->sp2led],
+            'value_dalam_proses' => [(int) $week2->dalam_proses, (int) $week1->dalam_proses],
+        ];
 
-        $facilityselra = [];
-        $facilityselra['labels']=[];
-        $facilityselra['value_p21']    = [];
-        $facilityselra['value_sp3'] =  [];
-        $facilityselra['value_diversi'] =  [];
-        $facilityselra['value_pom_tni'] =  [];
-        $facilityselra['value_adat_rj'] =  [];
-        $facilityselra['value_sp2lid'] =  [];
-        $facilityselra['value_dalam_proses'] =  [];
         $dateFrom = Carbon::parse($date)->subDays(7);
-
-        for ($i=0; $i < 2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $dates = $dateFrom->format('d/m');
             $newDate = $dateFrom->addDays(6);
             $newDates = $newDate->format('d/m');
-            $facilityselra['labels'][] = $dates.'-'.$newDates;
+            $facilityselra['labels'][] = $dates . '-' . $newDates;
             $dateFrom = $newDate->addDays(1);
-        }
-
-
-        if(!empty($data->fatalitas_selra)) {
-            $facility = $data->fatalitas_selra[0];
-
-            $facilityselra['value_p21'] = [
-                $facility->total_p21_week_2,
-                $facility->total_p21_week_1,
-            ];
-
-            $facilityselra['value_sp3'] = [
-                $facility->total_sp3_week_2,
-                $facility->total_sp3_week_1,
-            ];
-
-            $facilityselra['value_diversi'] = [
-                $facility->total_diversi_week_2,
-                $facility->total_diversi_week_1,
-            ];
-
-            $facilityselra['value_pom_tni'] = [
-                $facility->total_pom_tni_week_2,
-                $facility->total_pom_tni_week_1,
-            ];
-
-            $facilityselra['value_adat_rj'] = [
-                $facility->total_adat_rj_week_2,
-                $facility->total_adat_rj_week_1,
-            ];
-
-            $facilityselra['value_sp2lid'] = [
-                $facility->total_sp2lid_week_2,
-                $facility->total_sp2lid_week_1,
-            ];
-
-            $facilityselra['value_dalam_proses'] = [
-                $facility->total_dalam_proses_week_2,
-                $facility->total_dalam_proses_week_1,
-            ];
         }
 
         $chartSelra = [
             'labels' => $facilityselra['labels'],
             'datasets' => [
-                [
-                    'label' => 'P21',
-                    'data'  => $facilityselra['value_p21']
-                ],
-                [
-                    'label' => 'SP3',
-                    'data'  => $facilityselra['value_sp3']
-                ],
-                [
-                    'label' => 'DIVERSI',
-                    'data'  => $facilityselra['value_diversi']
-                ],
-                [
-                    'label' => 'POM/TNI',
-                    'data'  => $facilityselra['value_pom_tni']
-                ],
-                [
-                    'label' => 'ADAT/RJ',
-                    'data'  => $facilityselra['value_adat_rj']
-                ],
-                [
-                    'label' => 'SP2LID',
-                    'data'  => $facilityselra['value_sp2lid']
-                ],
-                [
-                    'label' => 'DALAM PROSES',
-                    'data'  => $facilityselra['value_dalam_proses']
-                ],
+                ['label' => 'P21', 'data' => $facilityselra['value_p21']],
+                ['label' => 'SP3', 'data' => $facilityselra['value_sp3']],
+                ['label' => 'DIVERSI', 'data' => $facilityselra['value_diversi']],
+                ['label' => 'POM/TNI', 'data' => $facilityselra['value_pom_tni']],
+                ['label' => 'ADAT/RJ', 'data' => $facilityselra['value_adat_rj']],
+                ['label' => 'SP2LID', 'data' => $facilityselra['value_sp2lid']],
+                ['label' => 'DALAM PROSES', 'data' => $facilityselra['value_dalam_proses']],
             ]
         ];
 
         $data = [
-            'poldaName'  => $data->polda?: 'Semua Polda',
-            'polresName' => $data->polres,
-            'datetitle'   => date('d F Y', strtotime(substr($data->range_date, 0, 10))).' - '.date('d F Y', strtotime(substr($data->range_date, 13, 23))),
-            // 'subtitle'   => date('d F Y', strtotime(substr($data->range_date, 0, 10))),
-            // 'subtitle2'   => $data->range_date,
-            'summary'         => $summary,
-            'summary_selra'   => $summary_selra,
-            'date'            => Carbon::parse($request->input('hari'))->format('d-m-Y'),
-            'cart' => [
+            'poldaName'     => $poldaName ?: 'Semua Polda',
+            'polresName'    => $polresName,
+            'datetitle'     => date('d F Y', strtotime($date)) . ' - ' . date('d F Y', strtotime($dateEnd)),
+            'summary'       => $summary,
+            'summary_selra' => $summary_selra,
+            'date'          => Carbon::parse($request->input('hari'))->format('d-m-Y'),
+            'cart'          => [
                 'chartSelra' => $chartSelra,
             ]
         ];
-        // dd($data);
-        return response()->json(['data'=> $data]);
-
-
-        // $week=Carbon::parse($request->input('week'))->format('Y-m-d');
-        // $weekPast=Carbon::parse($request->input('week'))->addDays(-7)->format('Y-m-d');
-        // $checkWeek = Carbon::parse($request->input('week'))->addDays(7)->format('Y-m-d');//it's for check between date what you input or check 7 days from feature in date in form
-        // $polres = $request->input('polres_id');
-        // $status = $request->input('selra_id');
-        // $countdata = DB::table('accidents')
-        //                 ->where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->whereBetween('created_at', [$week, $checkWeek])
-        //                 ->count();
-        // $md = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->whereBetween('created_at', [$week, $checkWeek])
-        //                 ->sum('md');
-
-        // $lb = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->whereBetween('created_at', [$week, $checkWeek])
-        //                 ->sum('lb');
-
-        // $lr = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->whereBetween('created_at', [$week, $checkWeek])
-        //                 ->sum('lr');
-
-        // $mdPast = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->whereBetween('created_at', [$weekPast, $week])
-        //                 ->sum('md');
-
-        // $lbPast = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->whereBetween('created_at', [$weekPast, $week])
-        //                 ->sum('lb');
-
-        // $lrPast = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->whereBetween('created_at', [$weekPast, $week])
-        //                 ->sum('lr');
-
-
-        // return response()->json([$countdata, $md, $lb, $lr, $mdPast, $lbPast, $lrPast, $week, $checkWeek, $weekPast]);
+        return response()->json(['data' => $data]);
     }
 
 
@@ -1227,593 +330,116 @@ class statistikaController extends Controller
     }
 
     public function chartcalculationDays(Request $request){
-        $hari=Carbon::parse($request->input('hari'))->format('Y-m-d');
-        $polda  = $request->input('polda_id');
-        $polres = $request->input('polres_id');
-        if($polres == null){
-            $polres = '-';
-        }else{
-            $polres = $polres;
-        }
-        // $status = $request->input('selra_id');
+        $hari = Carbon::parse($request->input('hari'))->format('Y-m-d');
+        $hariPrev = Carbon::parse($hari)->subDays(1)->format('Y-m-d');
+        $polda  = $request->input('polda_id') ?: '-';
+        $polres = $request->input('polres_id') ?: '-';
 
-        $expression = DB::raw("select(SELECT row_to_json(t)
-        FROM(
-            SELECT
-                (SELECT CASE WHEN '$polda'<> '-' THEN name ELSE 'All Polda' END FROM polda WHERE id = '$polda') AS polda,
-                (SELECT CASE WHEN '$polres' <> '-' THEN name ELSE 'All Polres' END FROM polres WHERE id = '$polres') AS polres,
-                now() AS tanggal_dan_jam_pencarian,
-                (
-                    SELECT array_to_json(array_agg(row_to_json(w)))
-                        FROM(
-                            SELECT
-                            (
-                                SELECT count(accidents.id)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
+        $day1 = DB::table('accidents')
+            ->join('polres', 'polres.id', '=', 'accidents.polres_id')
+            ->join('polda', 'polda.id', '=', 'polres.polda_id')
+            ->selectRaw("
+                COUNT(accidents.id) AS countdata,
+                COALESCE(SUM(accidents.md), 0) AS md,
+                COALESCE(SUM(accidents.lb), 0) AS lb,
+                COALESCE(SUM(accidents.lr), 0) AS lr,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0101') AS p21,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0102') AS sp3,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0103') AS diversi,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0104') AS tni,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0106') AS adat_rj,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0108') AS sp2led,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0107') AS dalam_proses
+            ")
+            ->when($polda !== '-', fn ($q) => $q->where('polda.id', $polda))
+            ->when($polres !== '-', fn ($q) => $q->where('polres.id', $polres))
+            ->where(DB::raw('DATE(accidents.accident_date)'), $hari)
+            ->where('polda.state', '<>', 0)
+            ->where('polres.state', '<>', 0)
+            ->first();
 
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS count_data,
-                            (
-                                SELECT sum(accidents.md)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
+        $day2 = DB::table('accidents')
+            ->join('polres', 'polres.id', '=', 'accidents.polres_id')
+            ->join('polda', 'polda.id', '=', 'polres.polda_id')
+            ->selectRaw("
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0101') AS p21,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0102') AS sp3,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0103') AS diversi,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0104') AS tni,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0106') AS adat_rj,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0108') AS sp2led,
+                COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0107') AS dalam_proses
+            ")
+            ->when($polda !== '-', fn ($q) => $q->where('polda.id', $polda))
+            ->when($polres !== '-', fn ($q) => $q->where('polres.id', $polres))
+            ->where(DB::raw('DATE(accidents.accident_date)'), $hariPrev)
+            ->where('polda.state', '<>', 0)
+            ->where('polres.state', '<>', 0)
+            ->first();
 
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS md,
-                            (
-                                SELECT sum(accidents.lb)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
+        $poldaName = $polda !== '-' ? Polda::where('id', $polda)->value('name') : null;
+        $polresName = $polres !== '-' ? Polres::where('id', $polres)->value('name') : null;
 
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS lb,
-                            (
-                                SELECT sum(accidents.lr)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS lr
-                        )w
-                    )AS summary,
-                    (
-                        SELECT array_to_json(array_agg(row_to_json(w)))
-                        FROM(
-                            SELECT
-                            (
-                                SELECT count(accidents.id)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND accidents.selra_flag = 'S0101'
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS p21,
-                            (
-                                SELECT count(accidents.id)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND accidents.selra_flag = 'S0102'
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS sp3,
-                            (
-                                SELECT count(accidents.id)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND accidents.selra_flag = 'S0103'
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS diversi,
-                            (
-                                SELECT count(accidents.id)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND accidents.selra_flag = 'S0104'
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS pom_tni,
-                            (
-                                SELECT count(accidents.id)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND accidents.selra_flag = 'S0106'
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS adat_rj,
-                            (
-                                SELECT count(accidents.id)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND accidents.selra_flag = 'S0108'
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS sp2lid,
-                            (
-                                SELECT count(accidents.id)
-                                FROM
-                                polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda'<> '-' THEN polda.id = '$polda'ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND accidents.selra_flag = 'S0107'
-                                AND date(accidents.accident_date) = '$hari'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            )AS dalam_proses
-                        )w
-                    )AS summary_selra,
-                    (
-                        SELECT array_to_json(array_agg(row_to_json(w)))
-                        FROM(
-                            SELECT
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) = '$hari'
-                                AND accidents.selra_flag = 'S0101'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_p21_hari_1,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'
-                                AND accidents.selra_flag = 'S0102'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_sp3_hari_1,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'
-                                AND accidents.selra_flag = 'S0103'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_diversi_hari_1,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'
-                                AND accidents.selra_flag = 'S0104'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_pom_tni_hari_1,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'
-                                AND accidents.selra_flag = 'S0106'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_adat_rj_hari_1,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'
-                                AND accidents.selra_flag = 'S0108'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_sp2lid_hari_1,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'
-                                AND accidents.selra_flag = 'S0107'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_dalam_proses_hari_1,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'::timestamp - INTERVAL '1 day'
-                                AND accidents.selra_flag = 'S0101'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_p21_hari_2,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'::timestamp - INTERVAL '1 day'
-                                AND accidents.selra_flag = 'S0102'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_sp3_hari_2,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'::timestamp - INTERVAL '1 day'
-                                AND accidents.selra_flag = 'S0103'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_diversi_hari_2,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'::timestamp - INTERVAL '1 day'
-                                AND accidents.selra_flag = 'S0104'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_pom_tni_hari_2,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'::timestamp - INTERVAL '1 day'
-                                AND accidents.selra_flag = 'S0106'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_adat_rj_hari_2,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'::timestamp - INTERVAL '1 day'
-                                AND accidents.selra_flag = 'S0108'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_sp2lid_hari_2,
-                            (
-                                SELECT coalesce(count(accidents.id),0) AS total
-                                FROM polda
-                                JOIN polres ON polda.id = polres.polda_id
-                                JOIN accidents ON polres.id = accidents.polres_id
-                                WHERE
-                                CASE WHEN '$polda' <> '-' THEN polda.id = '$polda' ELSE TRUE END
-                                AND
-                                CASE WHEN '$polres' <> '-' THEN polres.id = '$polres' ELSE TRUE END
-                                AND
-                                date(accidents.accident_date) =  '$hari'::timestamp - INTERVAL '1 day'
-                                AND accidents.selra_flag = 'S0107'
-                                AND polda.state <> 0
-                                AND polres.state <> 0
-                            ) AS total_dalam_proses_hari_2
-                        )w
-                    )AS fatalitas_selra
-                )t) as data");
-
-        $query = DB::select($expression->getValue(DB::connection()->getQueryGrammar()));
-
-        $data = json_decode($query[0]->data);
         $summary = [
-            'count_data'      => 0,
-            'md'              => 0,
-            'lb'              => 0,
-            'lr'              => 0,
+            'count_data' => (int) $day1->countdata,
+            'md'         => (int) $day1->md,
+            'lb'         => (int) $day1->lb,
+            'lr'         => (int) $day1->lr,
         ];
-        if(!empty($data->summary)) {
-            foreach ($data->summary as $dt) {
-
-                $summary['count_data']   = $summary['count_data'] + $dt->count_data;
-                $summary['md']   = $summary['md'] + $dt->md;
-                $summary['lb']   = $summary['lb'] + $dt->lb;
-                $summary['lr']   = $summary['lr'] + $dt->lr;
-                // $md = $dt->total_md;
-                // $lb = $dt->total_lb;
-                // $lr = $dt->total_lr;
-            }
-        }
 
         $summary_selra = [
-            'p21'               => 0,
-            'sp3'               => 0,
-            'diversi'           => 0,
-            'pom_tni'           => 0,
-            'adat_rj'           => 0,
-            'sp2lid'            => 0,
-            'dalam_proses'      => 0,
+            'p21'          => (int) $day1->p21,
+            'sp3'          => (int) $day1->sp3,
+            'diversi'      => (int) $day1->diversi,
+            'pom_tni'      => (int) $day1->tni,
+            'adat_rj'      => (int) $day1->adat_rj,
+            'sp2lid'       => (int) $day1->sp2led,
+            'dalam_proses' => (int) $day1->dalam_proses,
         ];
-        if(!empty($data->summary_selra)) {
-            foreach ($data->summary_selra as $dt) {
 
-                $summary_selra['p21']   = $summary_selra['p21'] + $dt->p21;
-                $summary_selra['sp3']   = $summary_selra['sp3'] + $dt->sp3;
-                $summary_selra['diversi']   = $summary_selra['diversi'] + $dt->diversi;
-                $summary_selra['pom_tni']   = $summary_selra['pom_tni'] + $dt->pom_tni;
-                $summary_selra['adat_rj']   = $summary_selra['adat_rj'] + $dt->adat_rj;
-                $summary_selra['sp2lid']   = $summary_selra['sp2lid'] + $dt->sp2lid;
-                $summary_selra['dalam_proses']   = $summary_selra['dalam_proses'] + $dt->dalam_proses;
-            }
-        }
+        $facilityselra = [
+            'labels'             => [],
+            'value_p21'          => [(int) $day2->p21, (int) $day1->p21],
+            'value_sp3'          => [(int) $day2->sp3, (int) $day1->sp3],
+            'value_diversi'      => [(int) $day2->diversi, (int) $day1->diversi],
+            'value_pom_tni'      => [(int) $day2->tni, (int) $day1->tni],
+            'value_adat_rj'      => [(int) $day2->adat_rj, (int) $day1->adat_rj],
+            'value_sp2lid'       => [(int) $day2->sp2led, (int) $day1->sp2led],
+            'value_dalam_proses' => [(int) $day2->dalam_proses, (int) $day1->dalam_proses],
+        ];
 
-
-        $facilityselra = [];
-        $facilityselra['labels']      = [];
-        $facilityselra['value_p21']    = [];
-        $facilityselra['value_sp3'] =  [];
-        $facilityselra['value_diversi'] =  [];
-        $facilityselra['value_pom_tni'] =  [];
-        $facilityselra['value_adat_rj'] =  [];
-        $facilityselra['value_sp2lid'] =  [];
-        $facilityselra['value_dalam_proses'] =  [];
         $dateFrom = Carbon::parse($hari)->subDays(1);
-
-        for ($i=0; $i < 2; $i++) {
+        for ($i = 0; $i < 2; $i++) {
             $dates = $dateFrom->format('d/m/y');
             $newDate = $dateFrom->addDays(1);
             $facilityselra['labels'][] = $dates;
             $dateFrom = $newDate;
         }
 
-
-        if(!empty($data->fatalitas_selra)) {
-            $facility = $data->fatalitas_selra[0];
-
-            $facilityselra['value_p21'] = [
-                $facility->total_p21_hari_2,
-                $facility->total_p21_hari_1,
-            ];
-
-            $facilityselra['value_sp3'] = [
-                $facility->total_sp3_hari_2,
-                $facility->total_sp3_hari_1,
-            ];
-
-            $facilityselra['value_diversi'] = [
-                $facility->total_diversi_hari_2,
-                $facility->total_diversi_hari_1,
-            ];
-
-            $facilityselra['value_pom_tni'] = [
-                $facility->total_pom_tni_hari_2,
-                $facility->total_pom_tni_hari_1,
-            ];
-
-            $facilityselra['value_adat_rj'] = [
-                $facility->total_adat_rj_hari_2,
-                $facility->total_adat_rj_hari_1,
-            ];
-
-            $facilityselra['value_sp2lid'] = [
-                $facility->total_sp2lid_hari_2,
-                $facility->total_sp2lid_hari_1,
-            ];
-
-            $facilityselra['value_dalam_proses'] = [
-                $facility->total_dalam_proses_hari_2,
-                $facility->total_dalam_proses_hari_1,
-            ];
-        }
-
         $chartSelra = [
             'labels' => $facilityselra['labels'],
             'datasets' => [
-                [
-                    'label' => 'P21',
-                    'data'  => $facilityselra['value_p21']
-                ],
-                [
-                    'label' => 'SP3',
-                    'data'  => $facilityselra['value_sp3']
-                ],
-                [
-                    'label' => 'DIVERSI',
-                    'data'  => $facilityselra['value_diversi']
-                ],
-                [
-                    'label' => 'POM/TNI',
-                    'data'  => $facilityselra['value_pom_tni']
-                ],
-                [
-                    'label' => 'ADAT/RJ',
-                    'data'  => $facilityselra['value_adat_rj']
-                ],
-                [
-                    'label' => 'SP2LID',
-                    'data'  => $facilityselra['value_sp2lid']
-                ],
-                [
-                    'label' => 'DALAM PROSES',
-                    'data'  => $facilityselra['value_dalam_proses']
-                ],
+                ['label' => 'P21', 'data' => $facilityselra['value_p21']],
+                ['label' => 'SP3', 'data' => $facilityselra['value_sp3']],
+                ['label' => 'DIVERSI', 'data' => $facilityselra['value_diversi']],
+                ['label' => 'POM/TNI', 'data' => $facilityselra['value_pom_tni']],
+                ['label' => 'ADAT/RJ', 'data' => $facilityselra['value_adat_rj']],
+                ['label' => 'SP2LID', 'data' => $facilityselra['value_sp2lid']],
+                ['label' => 'DALAM PROSES', 'data' => $facilityselra['value_dalam_proses']],
             ]
         ];
 
-
-
         $data = [
-            'poldaName'  => $data->polda?: 'Semua Polda',
-            'polresName' => $data->polres,
-            'datetitle'  => Carbon::parse($request->input('hari'))->format('d-m-Y'),
-            'summary'         => $summary,
-            'summary_selra'   => $summary_selra,
-            'cart' => [
+            'poldaName'     => $poldaName ?: 'Semua Polda',
+            'polresName'    => $polresName,
+            'datetitle'     => Carbon::parse($request->input('hari'))->format('d-m-Y'),
+            'summary'       => $summary,
+            'summary_selra' => $summary_selra,
+            'cart'          => [
                 'chartSelra' => $chartSelra,
             ]
         ];
-        // $data['md']=$md;
-        // $data['lb']=$lb;
-        // $data['lr']=$lr;
-        // $countdata = DB::table('accidents')
-        //                 ->where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->where('created_at', '=', $hari)
-        //                 ->count();
-        // $md = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->where('created_at', '=', $hari)
-        //                 ->sum('md');
-
-        // $lb = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->where('created_at', '=', $hari)
-        //                 ->sum('lb');
-
-        // $lr = Accident::where('selra_flag', '=', $status)
-        //                 ->where('polres_id','=', $polres)
-        //                 ->where('created_at', '=', $hari)
-        //                 ->sum('lr');
-
-
-
-        // return response()->json([$countdata, $md, $lb, $lr, $hari]);
-        return response()->json(['data'=>$data]);
+        return response()->json(['data' => $data]);
     }
 
     public function get_days()

@@ -65,7 +65,7 @@ class SuratPenunjukanPenasihatHukumDocumentController extends Controller
         // 3. Petugas & Penandatangan
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -74,7 +74,7 @@ class SuratPenunjukanPenasihatHukumDocumentController extends Controller
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -336,7 +336,7 @@ class SuratPenunjukanPenasihatHukumDocumentController extends Controller
 
         $suspects = Suspect::where('accident_id', $accidentId)->get();
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -345,7 +345,7 @@ class SuratPenunjukanPenasihatHukumDocumentController extends Controller
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()

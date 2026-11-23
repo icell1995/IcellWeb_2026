@@ -304,14 +304,17 @@ class SuratKetetapanPenghentianPenyidikanDocumentController extends Controller
             'suratKetetapanTentangPenetapanTersangkaDocument',
             'suratPerintahPenghentianPenyidikanDocument',
             'laporanHasilGelarPerkaraDocument',
+            'prosecutor',
             'court',
-            'suratKetetapanPenghentianPenyidikanDocumentOfficers',
+            'suspects',
+            'suratKetetapanPenghentianPenyidikanDocumentOfficers.rank',
+            'suratKetetapanPenghentianPenyidikanDocumentOfficers.position',
             'suratKetetapanPenghentianPenyidikanDocumentAttachment',
             'documentClassification',
             'status',
         ])->where('id', $id)->firstOrFail();
 
-        $accident = Accident::with(['polres', 'polres.polda'])->where('id', $sketHenti->accident_id)->first();
+        $accident = $sketHenti->accident;
         $masterAlasan = self::$masterAlasan;
 
         $kodeAlasan = is_array($sketHenti->kode_alasan) ? $sketHenti->kode_alasan : (json_decode($sketHenti->kode_alasan, true) ?? []);
@@ -334,12 +337,14 @@ class SuratKetetapanPenghentianPenyidikanDocumentController extends Controller
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $sketHenti  = SuratKetetapanPenghentianPenyidikanDocument::with([
+            'accident.polres.polda',
+            'status',
             'suspects',
             'suratKetetapanPenghentianPenyidikanDocumentOfficers',
             'suratKetetapanPenghentianPenyidikanDocumentAttachment',
         ])->where('id', $id)->firstOrFail();
 
-        $accident = Accident::with(['polres', 'polres.polda'])->where('id', $sketHenti->accident_id)->firstOrFail();
+        $accident = $sketHenti->accident ?? Accident::with(['polres', 'polres.polda'])->where('id', $sketHenti->accident_id)->firstOrFail();
 
         $sprindikDocuments = SuratPerintahPenyidikanDocument::where('accident_id', $sketHenti->accident_id)
             ->whereIn('status_id', $this->docService->requiredDocumentStatusIds)
@@ -557,7 +562,9 @@ class SuratKetetapanPenghentianPenyidikanDocumentController extends Controller
             'suspects.job',
             'suspects.religion',
             'suspects.country',
-            'suratKetetapanPenghentianPenyidikanDocumentOfficers',
+            'suratKetetapanPenghentianPenyidikanDocumentOfficers.rank',
+            'suratKetetapanPenghentianPenyidikanDocumentOfficers.position.positionCluster',
+            'status',
         ])->where('id', $id)->firstOrFail();
 
         $accident = $sketHenti->accident;

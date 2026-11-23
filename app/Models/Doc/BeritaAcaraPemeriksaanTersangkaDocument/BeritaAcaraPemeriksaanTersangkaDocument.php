@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Accident;
-use Uuid;
+use Illuminate\Support\Str;
 
 class BeritaAcaraPemeriksaanTersangkaDocument extends Model
 {
@@ -20,17 +20,19 @@ class BeritaAcaraPemeriksaanTersangkaDocument extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'data' => 'array',
-        'document_date' => 'date',
-    ];
-
-    public static function boot()
+    protected function casts(): array
     {
-        parent::boot();
+        return [
+            'data' => 'array',
+            'document_date' => 'date',
+        ];
+    }
+
+    protected static function booted(): void
+    {
         self::creating(function ($model) {
             if (empty($model->id)) {
-                $model->id = (string) Uuid::generate();
+                $model->id = (string) Str::uuid();
             }
         });
     }

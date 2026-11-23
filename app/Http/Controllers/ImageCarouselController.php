@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\ImageCarousel;;
+use App\Models\ImageCarousel;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use DB;
 
 
@@ -20,26 +21,25 @@ class ImageCarouselController extends Controller
     }
 
     public function save_image(Request $request){
-       
+        $request->validate([
+            'name_image' => 'required|file|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
         $title = $request->title;
         $description = $request->description;
         $url = $request->url;
-        $check = $request->validate([
-            'name_image' => 'required',
-            'name_image.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
-        $fileName = time(). '.' .$request->file('name_image')->getClientOriginalName();
-        $path = $request->file('name_image')->move(public_path('caraousel'), $fileName);
-        $check = ImageCarousel::create(['title'=>$title, 'name_image'=>$fileName, 'description'=>$description, 'url'=>$url]);
-        // dd($check);
+        $file = $request->file('name_image');
+        $fileName = time() . '_' . Str::uuid()->toString() . '.' . $file->extension();
+        $file->move(public_path('caraousel'), $fileName);
+        ImageCarousel::create(['title'=>$title, 'name_image'=>$fileName, 'description'=>$description, 'url'=>$url]);
         return redirect('caraousel/caraousel')->with('success', 'data sudah masuk dalam database');
     }
 
     public function deleteImage(Request $request){
-        $name = $request->name;
-        // $name = ImageCarousel::find($id);
-        $path = public_path(). '/caraousel/'. $name;
-        unlink($path);
+        $name = basename((string) $request->name);
+        $path = public_path('caraousel/' . $name);
+        if (is_file($path)) {
+            @unlink($path);
+        }
         ImageCarousel::where('name_image', '=', $name)->delete();
         
         return back();

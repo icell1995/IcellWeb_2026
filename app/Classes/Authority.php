@@ -173,9 +173,12 @@ class Authority {
 
     public function forgetCache()
     {
-        foreach ($this->_permissionModel->get() as $perm) {
-            foreach ($this->_roleModel->get() as $role) {
-                Cache::forget('authority.'.$perm->code.'.'.$role->id);
+        $permissionCodes = $this->_permissionModel->pluck('code');
+        $roleIds = $this->_roleModel->pluck('id');
+
+        foreach ($permissionCodes as $code) {
+            foreach ($roleIds as $roleId) {
+                Cache::forget('authority.' . $code . '.' . $roleId);
             }
         }
     }

@@ -14,8 +14,10 @@ use App\Models\Officer;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 use App\Traits\HomeQueryTraits;
 
@@ -108,54 +110,41 @@ class HomeController extends Controller
                     ->where('polres.state', '1')
                     ->get();
         }
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://irsms.korlantas.polri.go.id/irsmsapi/api/get_total_accident?user=" . $user->role_id . "&polda=" . $polda . "&polres=" . $polres,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_TIMEOUT => 30000,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                // Set Here Your Requesred Headers
-                'Content-Type: application/json',
-            ),
-        ));
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-        //  dd($response);
-        curl_close($curl);
+        if (\App\Helpers\AppModeHelper::isApiEnabled()) {
+            $cacheKeyTotal = "home_irsms_total_accident_{$user->role_id}_{$polda}_{$polres}";
+            $total_laka = Cache::remember($cacheKeyTotal, 300, function () use ($user, $polda, $polres, $get_accident) {
+                try {
+                    $response = Http::timeout(5)
+                        ->acceptJson()
+                        ->get(config('services.irsms.total_accident_url', 'https://irsms.korlantas.polri.go.id/irsmsapi/api/get_total_accident'), [
+                            'user' => $user->role_id,
+                            'polda' => $polda,
+                            'polres' => $polres,
+                        ]);
 
-        if ($err) {
-            //  echo "cURL Error #:" . $err;
-            $total_laka = 'Coba Refresh Kembali';
+                    if ($response->successful()) {
+                        $get_data = $response->object();
+                        return ($get_data && isset($get_data->result[0]->total))
+                            ? $get_data->result[0]->total
+                            : ($get_accident[0]->total_laka ?? '0');
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('IRSMS get_total_accident timeout/error: ' . $e->getMessage());
+                }
+
+                return 'Coba Refresh Kembali';
+            });
         } else {
-            //  print_r(json_decode($response));
-            //  dd(json_decode($response));
-            $get_data = json_decode($response);
-            $total_laka = ($get_data) ? $get_data->result[0]->total : 'Null';
-            //  $data = $response->json();
+            $total_laka = $get_accident[0]->total_laka ?? '0';
         }
 
         $accident = $get_accident[0]->total_laka;
+
+
         $dpo = $get_dpo[0]->total_dpo;
         $dpb = $get_dpb[0]->total_dpb;
 
-        // dd($dpo);
-
         $totalService = new IrsmsServices();
-
-        $beginDate = "2024-01-01";
-        $limitDate = "2024-09-30";
-
-        $caseResolutions = $this->caseResolutions($beginDate, $limitDate)
-            ->where('xpolices.is_active', true)
-            ->where('xpolices.class', 'RESOR')
-            ->orderBy('xpolices.id', 'asc')
-            ->get();
-
-        $caseCollections = $totalService->getDataWithDateRange($beginDate, $limitDate);
-        $caseResolutionCollections = collect($caseResolutions);
 
         // Rekapitulasi Selra 2024 ( Lomba )
 
@@ -175,7 +164,11 @@ class HomeController extends Controller
             ->orderBy('xpolices.id', 'asc')
             ->get();
 
-        $recapLombaCaseCollections = $totalService->getDataWithDateRange($recapLombaBeginDate, $recapLombaLimitDate);
+        $recapLombaCaseCollections = Cache::remember(
+            "irsms_date_range_{$recapLombaBeginDate}_{$recapLombaLimitDate}",
+            600,
+            fn() => $totalService->getDataWithDateRange($recapLombaBeginDate, $recapLombaLimitDate)
+        );
         $recapLombaCaseResolutionCollections = collect($recapLombaCaseResolutions);
 
         $recapLombaLeaderboardItems = $recapLombaCaseCollections->map(function ($item) use ($recapLombaCaseResolutionCollections) {
@@ -285,7 +278,11 @@ class HomeController extends Controller
             ->orderBy('xpolices.id')
             ->get();
 
-        $recapCaseCollections = $totalService->getDataWithDateRange($recapBeginDate, $recapLimitDate);
+        $recapCaseCollections = Cache::remember(
+            "irsms_date_range_{$recapBeginDate}_{$recapLimitDate}",
+            600,
+            fn() => $totalService->getDataWithDateRange($recapBeginDate, $recapLimitDate)
+        );
         $recapCaseResolutionCollections = collect($recapCaseResolutions);
 
         $recapLeaderboardItems = $recapCaseCollections->map(function ($item) use ($recapCaseResolutionCollections) {
@@ -507,7 +504,11 @@ class HomeController extends Controller
             ->orderBy('xpolices.id')
             ->get();
 
-        $recap2025CaseCollections = $totalService->getDataWithDateRange($recap2025BeginDate, $recap2025LimitDate);
+        $recap2025CaseCollections = Cache::remember(
+            "irsms_date_range_{$recap2025BeginDate}_{$recap2025LimitDate}",
+            600,
+            fn() => $totalService->getDataWithDateRange($recap2025BeginDate, $recap2025LimitDate)
+        );
         $recap2025CaseResolutionCollections = collect($recap2025CaseResolutions);
 
         $recap2025LeaderboardItems = $recap2025CaseCollections->map(function ($item) use ($recap2025CaseResolutionCollections) {
@@ -731,7 +732,11 @@ class HomeController extends Controller
             ->orderBy('xpolices.id')
             ->get();
 
-        $recap2026CaseCollections = $totalService->getDataWithDateRange($recap2026BeginDate, $recap2026LimitDate);
+        $recap2026CaseCollections = Cache::remember(
+            "irsms_date_range_{$recap2026BeginDate}_{$recap2026LimitDate}",
+            600,
+            fn() => $totalService->getDataWithDateRange($recap2026BeginDate, $recap2026LimitDate)
+        );
         $recap2026CaseResolutionCollections = collect($recap2026CaseResolutions);
 
         $recap2026LeaderboardItems = $recap2026CaseCollections->map(function ($item) use ($recap2026CaseResolutionCollections) {
@@ -936,6 +941,29 @@ class HomeController extends Controller
                 ];
             });
 
+        // $lampungLeaderboard = $recap2026LeaderboardItems['08'] ?? null;
+        // if ($lampungLeaderboard) {
+        //     Log::info('Dashboard 2026 - Leaderboard Polda Lampung (08):', [
+        //         'polda_name'     => $lampungLeaderboard['polda_name'] ?? 'Polda Lampung',
+        //         'accident_total' => $lampungLeaderboard['accident_total'] ?? 0,
+        //         'limpah_pom_tni' => $lampungLeaderboard['pom_tni_total'] ?? 0,
+        //         'total_selra'    => $lampungLeaderboard['total_total'] ?? 0,
+        //         'tunggakan'      => $lampungLeaderboard['on_progress_total'] ?? 0,
+        //     ]);
+        // }
+
+        $lampungLeaderboard = $recap2026LeaderboardItems['08'] ?? null;
+        if ($lampungLeaderboard) {
+            $murniApi = $lampungLeaderboard['accident_total'] + $lampungLeaderboard['pom_tni_total'];
+            // atau jika ambil dari kumpulan $recap2026CaseCollections:
+            // $murniApi = $recap2026CaseCollections->where('polda', '08')->sum('jumlah_laka');
+            Log::info('Perbandingan Data Polda Lampung:', [
+                'murni_api_irsms'        => $murniApi,
+                'pengurangan_pom_tni'    => $lampungLeaderboard['pom_tni_total'],
+                'tampil_di_dashboard'    => $lampungLeaderboard['accident_total'], // sudah dikurangi
+            ]);
+        }
+
         return view('home', compact(
             'user',
             'total_laka',
@@ -972,73 +1000,37 @@ class HomeController extends Controller
             'officers.id',
             'officers.rank_short_name',
             'polres.name as polres_name',
-            DB::raw('COALESCE(p21.jumlah_lidik, 0) AS total_p21'),
-            DB::raw('COALESCE(sp3.jumlah_lidik, 0) AS total_sp3'),
-            DB::raw('COALESCE(diversi.jumlah_lidik, 0) AS total_diversi'),
-            DB::raw('COALESCE(pom_tni.jumlah_lidik, 0) AS total_pom_tni'),
-            DB::raw('COALESCE(sp2lid.jumlah_lidik, 0) AS total_sp2lid')
+            DB::raw('COALESCE(lidik_stats.total_p21, 0) AS total_p21'),
+            DB::raw('COALESCE(lidik_stats.total_sp3, 0) AS total_sp3'),
+            DB::raw('COALESCE(lidik_stats.total_diversi, 0) AS total_diversi'),
+            DB::raw('COALESCE(lidik_stats.total_pom_tni, 0) AS total_pom_tni'),
+            DB::raw('COALESCE(lidik_stats.total_sp2lid, 0) AS total_sp2lid')
         )
             ->leftJoin('polda', 'polda.id', '=', 'officers.polda_id')
             ->leftJoin('polres', 'polres.id', '=', 'officers.polres_id')
             ->leftJoin(
-                DB::raw("(SELECT surat_perintah_penyelidikan_document_officers.register_number AS lidik_id, COUNT(accident_id) AS jumlah_lidik
-                      FROM doc.surat_perintah_penyelidikan_documents
-                      JOIN doc.surat_perintah_penyelidikan_document_officers ON doc.surat_perintah_penyelidikan_documents.id = doc.surat_perintah_penyelidikan_document_officers.surat_perintah_penyelidikan_document_id
-                      JOIN accidents ON accidents.id = surat_perintah_penyelidikan_documents.accident_id
-                      WHERE doc.surat_perintah_penyelidikan_documents.deleted_at IS NULL AND doc.surat_perintah_penyelidikan_documents.status_id = '86' AND accidents.selra_flag = 'S0101'
-                      AND date_part('year',accident_date) = $year
-                      GROUP BY surat_perintah_penyelidikan_document_officers.register_number) AS p21"),
+                DB::raw("(SELECT
+                        surat_perintah_penyelidikan_document_officers.register_number AS lidik_id,
+                        COUNT(CASE WHEN accidents.selra_flag = 'S0101' THEN accident_id END) AS total_p21,
+                        COUNT(CASE WHEN accidents.selra_flag = 'S0102' THEN accident_id END) AS total_sp3,
+                        COUNT(CASE WHEN accidents.selra_flag = 'S0103' THEN accident_id END) AS total_diversi,
+                        COUNT(CASE WHEN accidents.selra_flag = 'S0104' THEN accident_id END) AS total_pom_tni,
+                        COUNT(CASE WHEN accidents.selra_flag = 'S0108' THEN accident_id END) AS total_sp2lid
+                    FROM doc.surat_perintah_penyelidikan_documents
+                    JOIN doc.surat_perintah_penyelidikan_document_officers
+                        ON doc.surat_perintah_penyelidikan_documents.id = doc.surat_perintah_penyelidikan_document_officers.surat_perintah_penyelidikan_document_id
+                    JOIN accidents
+                        ON accidents.id = surat_perintah_penyelidikan_documents.accident_id
+                    WHERE doc.surat_perintah_penyelidikan_documents.deleted_at IS NULL
+                        AND doc.surat_perintah_penyelidikan_documents.status_id = '86'
+                        AND accidents.selra_flag IN ('S0101', 'S0102', 'S0103', 'S0104', 'S0108')
+                        AND date_part('year', accident_date) = ?
+                    GROUP BY surat_perintah_penyelidikan_document_officers.register_number) AS lidik_stats"),
                 'officers.register_number',
                 '=',
-                'p21.lidik_id'
-            )->leftJoin(
-                DB::raw("(SELECT surat_perintah_penyelidikan_document_officers.register_number AS lidik_id, COUNT(accident_id) AS jumlah_lidik
-                      FROM doc.surat_perintah_penyelidikan_documents
-                      JOIN doc.surat_perintah_penyelidikan_document_officers ON doc.surat_perintah_penyelidikan_documents.id = doc.surat_perintah_penyelidikan_document_officers.surat_perintah_penyelidikan_document_id
-                      JOIN accidents ON accidents.id = surat_perintah_penyelidikan_documents.accident_id
-                      WHERE doc.surat_perintah_penyelidikan_documents.deleted_at IS NULL AND doc.surat_perintah_penyelidikan_documents.status_id = '86' AND accidents.selra_flag = 'S0102'
-                      AND date_part('year',accident_date) = $year
-                      GROUP BY surat_perintah_penyelidikan_document_officers.register_number) AS sp3"),
-                'officers.register_number',
-                '=',
-                'sp3.lidik_id'
+                'lidik_stats.lidik_id'
             )
-            ->leftJoin(
-                DB::raw("(SELECT surat_perintah_penyelidikan_document_officers.register_number AS lidik_id, COUNT(accident_id) AS jumlah_lidik
-                      FROM doc.surat_perintah_penyelidikan_documents
-                      JOIN doc.surat_perintah_penyelidikan_document_officers ON doc.surat_perintah_penyelidikan_documents.id = doc.surat_perintah_penyelidikan_document_officers.surat_perintah_penyelidikan_document_id
-                      JOIN accidents ON accidents.id = surat_perintah_penyelidikan_documents.accident_id
-                      WHERE doc.surat_perintah_penyelidikan_documents.deleted_at IS NULL AND doc.surat_perintah_penyelidikan_documents.status_id = '86' AND accidents.selra_flag = 'S0103'
-                      AND date_part('year',accident_date) = $year
-                      GROUP BY surat_perintah_penyelidikan_document_officers.register_number) AS diversi"),
-                'officers.register_number',
-                '=',
-                'diversi.lidik_id'
-            )
-            ->leftJoin(
-                DB::raw("(SELECT surat_perintah_penyelidikan_document_officers.register_number AS lidik_id, COUNT(accident_id) AS jumlah_lidik
-                      FROM doc.surat_perintah_penyelidikan_documents
-                      JOIN doc.surat_perintah_penyelidikan_document_officers ON doc.surat_perintah_penyelidikan_documents.id = doc.surat_perintah_penyelidikan_document_officers.surat_perintah_penyelidikan_document_id
-                      JOIN accidents ON accidents.id = surat_perintah_penyelidikan_documents.accident_id
-                      WHERE doc.surat_perintah_penyelidikan_documents.deleted_at IS NULL AND doc.surat_perintah_penyelidikan_documents.status_id = '86' AND accidents.selra_flag = 'S0104'
-                      AND date_part('year',accident_date) = $year
-                      GROUP BY surat_perintah_penyelidikan_document_officers.register_number) AS pom_tni"),
-                'officers.register_number',
-                '=',
-                'pom_tni.lidik_id'
-            )
-            ->leftJoin(
-                DB::raw("(SELECT surat_perintah_penyelidikan_document_officers.register_number AS lidik_id, COUNT(accident_id) AS jumlah_lidik
-                      FROM doc.surat_perintah_penyelidikan_documents
-                      JOIN doc.surat_perintah_penyelidikan_document_officers ON doc.surat_perintah_penyelidikan_documents.id = doc.surat_perintah_penyelidikan_document_officers.surat_perintah_penyelidikan_document_id
-                      JOIN accidents ON accidents.id = surat_perintah_penyelidikan_documents.accident_id
-                      WHERE doc.surat_perintah_penyelidikan_documents.deleted_at IS NULL AND doc.surat_perintah_penyelidikan_documents.status_id = '86' AND accidents.selra_flag = 'S0108'
-                      AND date_part('year',accident_date) = $year
-                      GROUP BY surat_perintah_penyelidikan_document_officers.register_number) AS sp2lid"),
-                'officers.register_number',
-                '=',
-                'sp2lid.lidik_id'
-            )
+            ->addBinding($year, 'join')
             ->where('officers.user_id', $id)
             ->first();
 
@@ -1059,28 +1051,46 @@ class HomeController extends Controller
     public function post_reset_password(Request $request)
     {
         $request->validate([
-            'newPassword' => 'required|confirmed',
+            'current_password' => ['required', 'current_password'],
+            'newPassword' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        User::where('username', $request->username)->update(['password' => Hash::make($request->newPassword)]);
+        User::where('id', Auth::id())->update([
+            'password' => Hash::make($request->newPassword),
+        ]);
+
         return redirect('/login');
     }
 
     public function update_profile(Request $request)
     {
+        $request->validate([
+            'avatar' => 'required|file|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
         if ($request->hasFile('avatar')) {
             $avatar = $request->file('avatar');
-            $filename = time() . '.' . $avatar->getClientOriginalExtension();
-            Image::make($avatar)->resize(300, 300)->save(public_path('/image-profile/profile640/' . $filename));
+            $filename = Str::uuid()->toString() . '.' . $avatar->extension();
+            $targetDir = public_path('/image-profile/profile640');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0755, true);
+            }
+
+            try {
+                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                $image = $manager->read($avatar->getPathname());
+                $image->cover(300, 300);
+                $image->save($targetDir . '/' . $filename);
+            } catch (\Exception $e) {
+                return redirect()->route('profile')->withErrors(['avatar' => 'File gambar tidak valid.']);
+            }
 
             $user = Auth::user();
             $user->avatar = $filename;
             $user->save();
         }
 
-        // return view('profile', array('user' => Auth::user()) );
-
-        return redirect('profile')->with(array('user' => Auth::user()));
+        return redirect()->route('profile')->with(array('user' => Auth::user()));
     }
 
     // $this->validate($request , [
@@ -1096,86 +1106,65 @@ class HomeController extends Controller
         $poldaId = Auth::user()->polda_id;
         $role = Auth::user()->role_id;
 
-        // $laporan_belum_selesai = DB::table('accident')
-        // ->join('polres', 'accident.polres_id', 'polres.id')
-        // ->select('accident.report_id as report_id', 'accident.report_date as report_date', 'polres.name as polres_name')
-        // ->where('accident.state', '0')
-        // ->paginate(5)
-
         switch ($role) {
             case 2:
+                $countsByMonth = DB::table('accidents')
+                    ->join('polres', 'accidents.polres_id', 'polres.id')
+                    ->join('polda', 'polres.polda_id', 'polda.id')
+                    ->where('polda.id', '=', $poldaId)
+                    ->where('polres.state', '=', 1)
+                    ->where('polda.state', '=', 1)
+                    ->selectRaw('EXTRACT(MONTH FROM accidents.created_at)::int as month_num, COUNT(accidents.id) as total')
+                    ->groupByRaw('EXTRACT(MONTH FROM accidents.created_at)::int')
+                    ->pluck('total', 'month_num');
+
                 for ($x = 0; $x <= $range; $x++) {
                     $current_month = Carbon::now()->subMonth($range - $x);
                     $date = $current_month->month;
-                    $date_year = $current_month->year;
-
-                    // $counts = DB::table('accidents')->whereMonth('created_at', '=', $date)->get(['accidents.id'])->count();
-                    $counts = DB::table('accidents')
-                        ->join('polres', 'accidents.polres_id', 'polres.id')
-                        ->join('polda', 'polres.polda_id', 'polda.id')
-                        ->where('polda.id', '=', $poldaId)
-                        ->where('polres.state', '=', 1)
-                        ->where('polda.state', '=', 1)
-                        ->whereMonth('accidents.created_at', '=', $date)->get(['accidents.id'])->count();
-                    $count = intval($counts);
-                    // setlocale(LC_TIME, 'id');
-                    $date = $current_month->formatLocalized('%B') . " " . $current_month->year;
-                    $output = collect(['date' => $date, 'count' => $count]);
+                    $count = intval($countsByMonth[$date] ?? 0);
+                    $dateLabel = $current_month->translatedFormat('F') . " " . $current_month->year;
+                    $output = collect(['date' => $dateLabel, 'count' => $count]);
                     $outputs->push($output);
                 }
                 break;
             case 3:
+                $firstMonthStart = Carbon::now()->subMonth($range)->startOfMonth()->toDateTimeString();
+                $lastMonthEnd = Carbon::now()->endOfMonth()->toDateTimeString();
+
+                $countsByYm = DB::table('accidents')
+                    ->join('polres', 'accidents.polres_id', 'polres.id')
+                    ->where('polres.id', '=', $polresId)
+                    ->where('polres.state', '=', 1)
+                    ->whereBetween('accidents.created_at', [$firstMonthStart, $lastMonthEnd])
+                    ->selectRaw("TO_CHAR(accidents.created_at, 'YYYY-MM') as ym, COUNT(accidents.id) as total")
+                    ->groupByRaw("TO_CHAR(accidents.created_at, 'YYYY-MM')")
+                    ->pluck('total', 'ym');
+
                 for ($x = 0; $x <= $range; $x++) {
                     $current_month = Carbon::now()->subMonth($range - $x);
-                    $date = $current_month->month;
-
-                    // return($date);
-                    $date_year = $current_month->year;
-
-                    // $counts = DB::table('accidents')->whereMonth('created_at', '=', $date)->get(['accidents.id'])->count();
-                    $counts = DB::table('accidents')
-                        ->join('polres', 'accidents.polres_id', 'polres.id')
-                        ->where('polres.id', '=', $polresId)
-                        ->where('polres.state', '=', 1)
-                        ->whereMonth('accidents.created_at', '=', $date)
-                        ->whereYear('accidents.created_at', '=', $date_year)->get(['accidents.id'])->count();
-                    $count = intval($counts);
-                    // setlocale(LC_TIME, 'id');
-                    $date = $current_month->translatedFormat('F') . " " . $current_month->year;
-                    $output = collect(['date' => $date, 'count' => $count]);
+                    $ym = $current_month->format('Y-m');
+                    $count = intval($countsByYm[$ym] ?? 0);
+                    $dateLabel = $current_month->translatedFormat('F') . " " . $current_month->year;
+                    $output = collect(['date' => $dateLabel, 'count' => $count]);
                     $outputs->push($output);
-                    // return($outputs);
                 }
                 break;
             default:
-                // for ($x = 0; $x <= $range; $x++) {
-                //     $current_month = Carbon::now()->subMonth($range - $x);
-                //     $date = $current_month->month;
-                //     $date_year = $current_month->year;
+                $firstMonthStart = Carbon::now()->subMonth($range)->startOfMonth()->toDateString();
+                $lastMonthEnd = Carbon::now()->endOfMonth()->toDateString();
 
-                //     // $counts = DB::table('accidents')->whereMonth('created_at', '=', $date)->get(['accidents.id'])->count();
-                //     $counts = DB::table('accidents')
-                //         ->whereMonth('accidents.created_at', '=', $date)->get(['accidents.id'])->count();
-                //     // dd($counts);
-                //     $count = intval($counts);
-                //     // setlocale(LC_TIME, 'id');
-                //     // $date = $current_month->formatLocalized('%B') . " " . $current_month->year;
-                //     $date = $current_month->translatedFormat('F') . " " . $current_month->year;
-                //     $output = collect(['date' => $date, 'count' => $count]);
-                //     $outputs->push($output);
-                // }
+                $countsByYm = DB::table('accidents')
+                    ->whereBetween('accidents.created_at', [$firstMonthStart, $lastMonthEnd])
+                    ->selectRaw("TO_CHAR(accidents.created_at, 'YYYY-MM') as ym, COUNT(accidents.id) as total")
+                    ->groupByRaw("TO_CHAR(accidents.created_at, 'YYYY-MM')")
+                    ->pluck('total', 'ym');
 
                 for ($x = 0; $x <= $range; $x++) {
                     $current_month = Carbon::now()->subMonth($range - $x);
-                    $start_date = $current_month->startOfMonth()->toDateString();
-                    $end_date = $current_month->endOfMonth()->toDateString();
-
-                    $counts = DB::table('accidents')
-                        ->whereBetween('accidents.created_at', [$start_date, $end_date])->get(['accidents.id'])->count();
-                    // dd($counts);
-                    $count = intval($counts);
-                    $date = $current_month->translatedFormat('F Y');
-                    $output = collect(['date' => $date, 'count' => $count]);
+                    $ym = $current_month->format('Y-m');
+                    $count = intval($countsByYm[$ym] ?? 0);
+                    $dateLabel = $current_month->translatedFormat('F Y');
+                    $output = collect(['date' => $dateLabel, 'count' => $count]);
                     $outputs->push($output);
                 }
         }
@@ -1191,34 +1180,11 @@ class HomeController extends Controller
         $role = Auth::user()->role_id;
         $jumlah_laka = 0;
 
-
-        // for($x=0;$x<=$range;$x++){
-        //     $current_month = Carbon::now()->subMonth($range - $x);
-        //     $date = $current_month->month;
-        //     $date_year = $current_month->year;
-        //     $count = DB::table('accidents')->whereMonth('created_at', '=', $date)->get(['accidents.id'])->count();
-        //     $jumlah_laka+=$count;
-
-        // }
-
-        // for($x=0;$x<=$range;$x++){
-        //     $current_month = Carbon::now()->subMonth($range - $x);
-        //     $date = $current_month->month;
-        //     $date_year = $current_month->year;
-        //     $count = DB::table('accidents')->whereMonth('created_at', '=', $date)->get(['accidents.id'])->count();
-        //     $percentage = ($count / $jumlah_laka) * 100 ;
-        //     // setlocale(LC_TIME, 'id');
-        //     $date = $current_month->formatLocalized('%B') . " " . $current_month->year;
-        //     $output = collect(['date' => $date, 'percentage' => $percentage, 'jumlah_laka'=>$jumlah_laka]);
-        //     $outputs->push($output);
-        // }
-
-
         switch ($role) {
             case 2:
                 $current_month = Carbon::now()->subMonth(0);
                 $current_year = Carbon::now()->subYear();
-                $month = $current_month->formatLocalized('%B');
+                $month = $current_month->translatedFormat('F');
                 $date_month = $month;
                 $date_year = $current_month->year;
                 $jumlah_laka = DB::table('accidents')
@@ -1229,14 +1195,13 @@ class HomeController extends Controller
                     ->where('polda.state', '=', 1)
                     ->whereNotIn('accidents.selra_flag', ['S0107'])
                     ->whereYear('accidents.created_at', '=', $date_year)
-                    ->get(['accidents.id'])
                     ->count();
 
                 $selra_id = DB::table('ref')
                     ->where('ref.grp_id', '=', 'S01')->orderBy('sort')->get();
 
                 $jumlah_selra = DB::select(
-                    '
+                    "
                         select
                             ref.name,
                             coalesce(accident.jumlah_selra,0) as percentage
@@ -1252,75 +1217,27 @@ class HomeController extends Controller
                                 left join polda on polres.polda_id = polda.id
                                 left join ref on accidents.selra_flag = ref.id
                                 where
-                                polda.id = \'' . $poldaId . '\'
+                                polda.id = ?
                                 and polres.state = 1
                                 and polda.state = 1
-                                and date_part(\'year\',  accidents.created_at) = \'' . $date_year . '\'
-                                and ref.grp_id = \'S01\'
+                                and date_part('year', accidents.created_at) = ?
+                                and ref.grp_id = 'S01'
                                 group by REF.ID,ref.name,ref.sort
                                 order by ref.sort
-                            ) AS ACCIDENT ON  REF.ID = ACCIDENT.ID
+                            ) AS ACCIDENT ON REF.ID = ACCIDENT.ID
                             where
-                            ref.grp_id = \'S01\'
-                            and ref.id NOT IN (\'S0107\', \'S0106\')
-                        '
+                            ref.grp_id = 'S01'
+                            and ref.id NOT IN ('S0107', 'S0106')
+                        ",
+                    [$poldaId, $date_year]
                 );
                 $output = collect(['date_month' => $date_month, 'date_year' => $date_year, 'jumlah_laka' => $jumlah_laka, 'jumlah_selra' => $jumlah_selra]);
                 $outputs->push($output);
-                //  for($x=0;$x<=$range;$x++){
-                //     $current_month = Carbon::now()->subMonth($range - $x);
-                //     $date = $current_month->month;
-                //     $date_year = $current_month->year;
-                //     $count = DB::table('accidents')
-                //             ->join('polres', 'accidents.polres_id', 'polres.id')
-                //             ->join('polda', 'polres.polda_id', 'polda.id')
-                //             ->where('polda.id','=',$poldaId)
-                //             ->where('polres.state','=',1)
-                //             ->where('polda.state','=',1)
-                //             ->whereMonth('accidents.created_at', '=', $date)->get(['accidents.id'])->count();
-                //     $percentage = ($count / $jumlah_laka) * 100 ;
-                //     // setlocale(LC_TIME, 'id');
-                //     $date = $current_month->formatLocalized('%B') . " " . $current_month->year;
-                //     $output = collect(['date' => $date, 'percentage' => $percentage, 'jumlah_laka'=>$jumlah_laka]);
-                //     $outputs->push($output);
-                //  }
-                // for($x=0;$x<=$range;$x++){
-                //     $current_month = Carbon::now()->subMonth($range - $x);
-                //     $date = $current_month->month;
-                //     $date_year = $current_month->year;
-                //     $count = DB::table('accidents')
-                //             ->join('polres', 'accidents.polres_id', 'polres.id')
-                //             ->join('polda', 'polres.polda_id', 'polda.id')
-                //             ->where('polda.id','=',$poldaId)
-                //             ->where('polres.state','=',1)
-                //             ->where('polda.state','=',1)
-                //             ->whereMonth('accidents.created_at', '=', $date)->get(['accidents.id'])->count();
-                //     $jumlah_laka+=$count;
-
-                // }
-
-                // for($x=0;$x<=$range;$x++){
-                //     $current_month = Carbon::now()->subMonth($range - $x);
-                //     $date = $current_month->month;
-                //     $date_year = $current_month->year;
-                //     $count = DB::table('accidents')
-                //             ->join('polres', 'accidents.polres_id', 'polres.id')
-                //             ->join('polda', 'polres.polda_id', 'polda.id')
-                //             ->where('polda.id','=',$poldaId)
-                //             ->where('polres.state','=',1)
-                //             ->where('polda.state','=',1)
-                //             ->whereMonth('accidents.created_at', '=', $date)->get(['accidents.id'])->count();
-                //     $percentage = ($count / $jumlah_laka) * 100 ;
-                //     // setlocale(LC_TIME, 'id');
-                //     $date = $current_month->formatLocalized('%B') . " " . $current_month->year;
-                //     $output = collect(['date' => $date, 'percentage' => $percentage, 'jumlah_laka'=>$jumlah_laka]);
-                //     $outputs->push($output);
-                // }
                 break;
             case 3:
                 $current_month = Carbon::now()->subMonth(0);
                 $current_year = Carbon::now()->subYear();
-                $month = $current_month->formatLocalized('%B');
+                $month = $current_month->translatedFormat('F');
                 $date_month = $month;
                 $date_year = $current_month->year;
                 $jumlah_laka = DB::table('accidents')
@@ -1331,14 +1248,13 @@ class HomeController extends Controller
                     ->where('polda.state', '=', 1)
                     ->whereNotIn('accidents.selra_flag', ['S0107'])
                     ->whereYear('accidents.created_at', '=', $date_year)
-                    ->get(['accidents.id'])
                     ->count();
 
                 $selra_id = DB::table('ref')
                     ->where('ref.grp_id', '=', 'S01')->orderBy('sort')->get();
 
                 $jumlah_selra = DB::select(
-                    '
+                    "
                     select
                         ref.name,
                         coalesce(accident.jumlah_selra,0) as percentage
@@ -1354,54 +1270,27 @@ class HomeController extends Controller
                             left join polda on polres.polda_id = polda.id
                             left join ref on accidents.selra_flag = ref.id
                             where
-                            polres.id = \'' . $polresId . '\'
+                            polres.id = ?
                             and polres.state = 1
                             and polda.state = 1
-                            and date_part(\'year\',  accidents.created_at) = \'' . $date_year . '\'
-                            and ref.grp_id = \'S01\'
+                            and date_part('year', accidents.created_at) = ?
+                            and ref.grp_id = 'S01'
                             group by REF.ID,ref.name,ref.sort
                             order by ref.sort
-                        ) AS ACCIDENT ON  REF.ID = ACCIDENT.ID
+                        ) AS ACCIDENT ON REF.ID = ACCIDENT.ID
                         where
-                        ref.grp_id = \'S01\'
-                        and ref.id NOT IN (\'S0107\', \'S0106\')
-                    '
+                        ref.grp_id = 'S01'
+                        and ref.id NOT IN ('S0107', 'S0106')
+                    ",
+                    [$polresId, $date_year]
                 );
                 $output = collect(['date_month' => $date_month, 'date_year' => $date_year, 'jumlah_laka' => $jumlah_laka, 'jumlah_selra' => $jumlah_selra]);
                 $outputs->push($output);
-                // for($x=0;$x<=$range;$x++){
-                //     $current_month = Carbon::now()->subMonth($range - $x);
-                //     $date = $current_month->month;
-                //     $date_year = $current_month->year;
-                //     $count = DB::table('accidents')
-                //             ->join('polres', 'accidents.polres_id', 'polres.id')
-                //             ->where('polres.id','=',$polresId)
-                //             ->where('polres.state','=',1)
-                //             ->whereMonth('accidents.created_at', '=', $date)->get(['accidents.id'])->count();
-                //     $jumlah_laka+=$count;
-
-                // }
-
-                // for($x=0;$x<=$range;$x++){
-                //     $current_month = Carbon::now()->subMonth($range - $x);
-                //     $date = $current_month->month;
-                //     $date_year = $current_month->year;
-                //     $count = DB::table('accidents')
-                //             ->join('polres', 'accidents.polres_id', 'polres.id')
-                //             ->where('polres.id','=',$polresId)
-                //             ->where('polres.state','=',1)
-                //             ->whereMonth('accidents.created_at', '=', $date)->get(['accidents.id'])->count();
-                //     $percentage = ($count / $jumlah_laka) * 100 ;
-                //     // setlocale(LC_TIME, 'id');
-                //     $date = $current_month->formatLocalized('%B') . " " . $current_month->year;
-                //     $output = collect(['date' => $date, 'percentage' => $percentage, 'jumlah_laka'=>$jumlah_laka]);
-                //     $outputs->push($output);
-                // }
                 break;
             default:
                 $current_month = Carbon::now()->subMonth(0);
                 $current_year = Carbon::now()->subYear();
-                $month = $current_month->formatLocalized('%B');
+                $month = $current_month->translatedFormat('F');
                 $date_month = $month;
                 $date_year = $current_month->year;
                 $jumlah_laka = DB::table('accidents')
@@ -1411,14 +1300,13 @@ class HomeController extends Controller
                     ->where('polda.state', '=', 1)
                     ->whereNotIn('accidents.selra_flag', ['S0107'])
                     ->whereYear('accidents.created_at', '=', $date_year)
-                    ->get(['accidents.id'])
                     ->count();
 
                 $selra_id = DB::table('ref')
                     ->where('ref.grp_id', '=', 'S01')->orderBy('sort')->get();
 
                 $jumlah_selra = DB::select(
-                    '
+                    "
                     select
                         ref.name,
                         coalesce(accident.jumlah_selra,0) as percentage
@@ -1436,38 +1324,19 @@ class HomeController extends Controller
                             where
                             polres.state = 1
                             and polda.state = 1
-                            and date_part(\'year\',  accidents.created_at) = \'' . $date_year . '\'
-                            and ref.grp_id = \'S01\'
+                            and date_part('year', accidents.created_at) = ?
+                            and ref.grp_id = 'S01'
                             group by REF.ID,ref.name,ref.sort
                             order by ref.sort
-                        ) AS ACCIDENT ON  REF.ID = ACCIDENT.ID
+                        ) AS ACCIDENT ON REF.ID = ACCIDENT.ID
                         where
-                        ref.grp_id = \'S01\'
-                        and ref.id NOT IN (\'S0107\', \'S0106\')
-                    '
+                        ref.grp_id = 'S01'
+                        and ref.id NOT IN ('S0107', 'S0106')
+                    ",
+                    [$date_year]
                 );
                 $output = collect(['date_month' => $date_month, 'date_year' => $date_year, 'jumlah_laka' => $jumlah_laka, 'jumlah_selra' => $jumlah_selra]);
                 $outputs->push($output);
-                // for($x=0;$x<=$range;$x++){
-                //     $current_month = Carbon::now()->subMonth($range - $x);
-                //     $date = $current_month->month;
-                //     $date_year = $current_month->year;
-                //     $count = DB::table('accidents')->whereMonth('created_at', '=', $date)->get(['accidents.id'])->count();
-                //     $jumlah_laka+=$count;
-
-                // }
-
-                // for($x=0;$x<=$range;$x++){
-                //     $current_month = Carbon::now()->subMonth($range - $x);
-                //     $date = $current_month->month;
-                //     $date_year = $current_month->year;
-                //     $count = DB::table('accidents')->whereMonth('created_at', '=', $date)->get(['accidents.id'])->count();
-                //     $percentage = ($count / $jumlah_laka) * 100 ;
-                //     // setlocale(LC_TIME, 'id');
-                //     $date = $current_month->formatLocalized('%B') . " " . $current_month->year;
-                //     $output = collect(['date' => $date, 'percentage' => $percentage, 'jumlah_laka'=>$jumlah_laka]);
-                //     $outputs->push($output);
-                // }
                 break;
         }
         return response()->json($outputs);

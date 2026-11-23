@@ -72,11 +72,10 @@ class KDokumenController extends Controller
         $user = Auth::user();
         $grp=$this->grp($request->route()->uri);
         $data['reference']=Ref::where([["grp_id",$grp['id']]])->orderBy('sort', 'asc')->paginate(10);
+        $data['categories']=Ref::where('id', 'LIKE', '%D%')->where('id', 'not LIKE', '%010%')->orderBy('sort', 'asc')->get();
         $data['name']=$grp['name'];
         $data['group']=$grp['grp_name'];
-        $data['user']=Auth::user();
-        // dd($data['user']);
-        // dd($data);
+        $data['user']=$user;
         return view($grp['index'], $data);
     }
 

@@ -97,15 +97,17 @@ class DaftarTersangkaController extends Controller
     {
          $accident = $request->accident_id;
             if ($request->ajax()) {
-            $get_data = DB::select('select
-                                    id as id,
-                                    identity_number as identity_number,
-                                    name as name,
-                                    birth_place as birth_place,
-                                    to_char(birth_date, \'DD-MM-YYYY\') as birth_date,
-                                    (select identity_types.name from identity_types where identity_types.id=suspects.identity_type) as identity_type
+            $get_data = DB::select("select
+                                    suspects.id as id,
+                                    suspects.identity_number as identity_number,
+                                    suspects.name as name,
+                                    suspects.birth_place as birth_place,
+                                    to_char(suspects.birth_date, 'DD-MM-YYYY') as birth_date,
+                                    identity_types.name as identity_type
                                     from suspects
-                                    where accident_id = \''.$accident.'\' order by suspects.created_at');
+                                    left join identity_types on identity_types.id = suspects.identity_type
+                                    where suspects.accident_id = ?
+                                    order by suspects.created_at", [(string) $accident]);
             $data['tersangka']=$get_data;
             // $data = DaftarSaksi::where('accident_id',''.$accident.'')->get();
             return Datatables::of($data['tersangka'])

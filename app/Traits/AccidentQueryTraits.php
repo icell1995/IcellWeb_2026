@@ -52,7 +52,7 @@ trait AccidentQueryTraits
             left join polda on polda.id = polres.polda_id
             left join ref on a.selra_flag = ref.id
             order by a.accident_date desc
-            limit 200000
+            limit 10000
             "
         );
     }
@@ -232,34 +232,43 @@ trait AccidentQueryTraits
         return DB::query()->fromSub($unionGet, 'x');
     }
 
-    protected function filterSearchAccident($polda, $polres, $checkTanggal, $checkstatus, $tanggal, $no_lp, $level)
+    protected function filterSearchAccident($polda, $polres, $checkTanggal, $checkstatus, $tanggal, $no_lp, $level): array
     {
         $filters = [];
+        $bindings = [];
 
         if ($polda !== '-' && !empty($polda)) {
-            $filters[] = "polda.id = '$polda'";
+            $filters[] = 'polda.id = ?';
+            $bindings[] = $polda;
         }
         if ($polres !== '-' && !empty($polres)) {
-            $filters[] = "polres.id = '$polres'";
+            $filters[] = 'polres.id = ?';
+            $bindings[] = $polres;
         }
         if ($checkstatus !== '-' && !empty($checkstatus)) {
-            $filters[] = "acc.selra_flag = '$checkstatus'";
+            $filters[] = 'acc.selra_flag = ?';
+            $bindings[] = $checkstatus;
         }
-        if ($checkTanggal !== '-' && !empty($checkTanggal)) {
-            $filters[] = "acc.accident_date = '$tanggal'";
+        if ($checkTanggal !== '-' && !empty($checkTanggal) && !empty($tanggal)) {
+            $filters[] = 'acc.accident_date = ?';
+            $bindings[] = $tanggal;
         }
         if ($no_lp !== '-' && !empty($no_lp)) {
-            $filters[] = "acc.no_lp ILIKE '%$no_lp%'";
+            $filters[] = 'acc.no_lp ILIKE ?';
+            $bindings[] = '%' . $no_lp . '%';
         }
-        if ($level === 1) {
-            $filters[] = "acc.md >= 1";
-        } else if ($level === 2) {
-            $filters[] = "acc.lb >=1 AND acc.md = 0";
-        } else if ($level === 3) {
-            $filters[] = "acc.lr >=1 AND acc.lb = 0 AND acc.md = 0";
+        if ((string) $level === '1') {
+            $filters[] = 'acc.md >= 1';
+        } elseif ((string) $level === '2') {
+            $filters[] = 'acc.lb >= 1 AND acc.md = 0';
+        } elseif ((string) $level === '3') {
+            $filters[] = 'acc.lr >= 1 AND acc.lb = 0 AND acc.md = 0';
         }
 
-        return $filters ? implode(' AND ', $filters) : 'TRUE';
+        return [
+            $filters ? implode(' AND ', $filters) : 'TRUE',
+            $bindings,
+        ];
     }
 
     protected function getStatusAcc($polresId, $officerId)
@@ -364,9 +373,7 @@ trait AccidentQueryTraits
 
     protected function searchGetAccident($officerId, $polda, $polres, $checkTanggal, $checkstatus, $tanggal, $no_lp, $level)
     {
-        // $user = Auth::user();
-        // $officerId = $user->register_number;
-        $filtered = $this->filterSearchAccident($polda, $polres, $checkTanggal, $checkstatus, $tanggal, $no_lp, $level);
+        [$filtered, $filterBindings] = $this->filterSearchAccident($polda, $polres, $checkTanggal, $checkstatus, $tanggal, $no_lp, $level);
 
         $query =
             "
@@ -463,12 +470,10 @@ trait AccidentQueryTraits
             ORDER BY acc.created_at DESC
             ";
 
-        // dd($query);
-
-        return DB::select($query, [
+        return DB::select($query, array_merge([
             $officerId, $officerId, $officerId,
-            $officerId, $officerId, $officerId
-        ]);
+            $officerId, $officerId, $officerId,
+        ], $filterBindings));
     }
 
     protected function getEffectivePolresId($userPolresId)

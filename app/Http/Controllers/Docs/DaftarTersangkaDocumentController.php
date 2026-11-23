@@ -47,7 +47,7 @@ class DaftarTersangkaDocumentController extends Controller
         $policeId = $accident->polres_id;
         $getOldNewPolresIds = $this->getOldNewPolresIds($policeId);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -59,7 +59,7 @@ class DaftarTersangkaDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -73,7 +73,7 @@ class DaftarTersangkaDocumentController extends Controller
                 ->get();
         }
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->orderBy('first_name', 'asc')
@@ -229,7 +229,7 @@ class DaftarTersangkaDocumentController extends Controller
                 'nrp_penandatangan' => preg_replace('/[^0-9]/', '', (string)$request->nrp_penandatangan) ?: $request->nrp_penandatangan,
                 'jabatan_penandatangan' => $request->jabatan_penandatangan ?: 'Penyidik / Penyidik Pembantu',
 
-                'created_by_user_id' => Auth::id() ?: 1,
+                'created_by_user_id' => Auth::id(),
                 'ip_addresses' => ['created_ip' => $request->ip()],
                 'timestamps' => ['created_at' => Carbon::now()->toIso8601String()],
             ]);
@@ -262,7 +262,7 @@ class DaftarTersangkaDocumentController extends Controller
         $policeId = $accident->polres_id;
         $getOldNewPolresIds = $this->getOldNewPolresIds($policeId);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -274,7 +274,7 @@ class DaftarTersangkaDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -288,7 +288,7 @@ class DaftarTersangkaDocumentController extends Controller
                 ->get();
         }
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->orderBy('first_name', 'asc')
@@ -426,7 +426,7 @@ class DaftarTersangkaDocumentController extends Controller
                 'nrp_penandatangan' => preg_replace('/[^0-9]/', '', (string)$request->nrp_penandatangan) ?: $request->nrp_penandatangan,
                 'jabatan_penandatangan' => $request->jabatan_penandatangan ?: $document->jabatan_penandatangan,
 
-                'updated_by_user_id' => Auth::id() ?: 1,
+                'updated_by_user_id' => Auth::id(),
             ]);
 
             DB::commit();
@@ -449,7 +449,7 @@ class DaftarTersangkaDocumentController extends Controller
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
      */
-    public function download($id, Request $request = null)
+    public function download($id, ?Request $request = null)
     {
         try {
             $document = DaftarTersangkaDocument::findOrFail($id);
@@ -556,7 +556,7 @@ class DaftarTersangkaDocumentController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function delete($id, Request $request = null)
+    public function delete($id, ?Request $request = null)
     {
         try {
             $document = DaftarTersangkaDocument::findOrFail($id);

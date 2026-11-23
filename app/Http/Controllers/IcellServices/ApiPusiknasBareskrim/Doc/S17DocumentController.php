@@ -75,11 +75,11 @@ class S17DocumentController extends Controller
                 'status',
                 'attachment'
             ])
-            ->whereHas('accident', function ($q) {
-                $q->whereNotNull('id');
-            })
-            ->orderBy('tanggal', 'ASC')
-            ->orderBy('created_at', 'ASC');
+                ->whereHas('accident', function ($q) {
+                    $q->whereNotNull('id');
+                })
+                ->orderBy('tanggal', 'ASC')
+                ->orderBy('created_at', 'ASC');
 
             if ($id) {
                 $query->where('id', $id);
@@ -148,7 +148,6 @@ class S17DocumentController extends Controller
                 ],
                 "data"       => $responseData,
             ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -195,7 +194,6 @@ class S17DocumentController extends Controller
                 "message" => "Success",
                 "data"    => $payload,
             ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
         } catch (\Exception $e) {
             return response()->json([
                 "code"    => "404",

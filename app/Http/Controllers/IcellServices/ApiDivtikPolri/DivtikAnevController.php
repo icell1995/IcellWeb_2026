@@ -50,80 +50,15 @@ class DivtikAnevController extends Controller
                 ], 422);
             }
 
-            // 3) Kondisi tanggal (PostgreSQL)
-            $conds = [];
-            if (!empty($year)) $conds[] = "EXTRACT(YEAR FROM accidents.accident_date) = '{$year}'";
-            if (!empty($date)) $conds[] = "DATE(accidents.accident_date) = '{$date}'";
-            $dateCondition = implode(' AND ', $conds);
-
-            // 4) MODE: hanya POLRES bila poldaId ada (meski polresId kosong)
+            // 3) Kondisi tanggal & 4) MODE (Parameterized & Consolidated)
             $groupMode = !empty($poldaId) ? 'polres' : 'polda';
-
-            // 5) Filter polda/polres (dukung id atau satker_code)
-            $fPolda  = '';
-            if (!empty($poldaId)) {
-                $v = addslashes($poldaId);
-                $fPolda = "AND (polda.id = '{$v}' OR polda.satker_code = '{$v}')";
-            }
-            $fPolres = '';
-            if (!empty($polresId)) {
-                $v = addslashes($polresId);
-                $fPolres = "AND (polres.id = '{$v}' OR polres.satker_code = '{$v}')";
-            }
-
-            // 6) Flags
-            $flags = [
-                'p21'     => 'S0101',
-                'sp3'     => 'S0102',
-                'diversi' => 'S0103',
-                'sp2lid'  => 'S0108',
-            ];
-
-            // 7) JOIN builder per-flag
-            $joinFor = function (string $alias, string $flag) use ($dateCondition, $groupMode, $fPolda, $fPolres) {
-                if ($groupMode === 'polres') {
-                    return "
-                        LEFT JOIN (
-                            SELECT polres.id AS polres_id, COUNT(accidents.id) AS total
-                            FROM polda
-                            JOIN polres    ON polres.polda_id    = polda.id
-                            JOIN accidents ON accidents.polres_id = polres.id
-                            WHERE accidents.selra_flag = '$flag'
-                              AND {$dateCondition}
-                              {$fPolda}
-                              {$fPolres}
-                              AND polda.state     <> 0
-                              AND polres.state    <> 0
-                              AND accidents.state <> 0
-                            GROUP BY polres.id
-                        ) $alias ON $alias.polres_id = polres.id
-                    ";
-                }
-                // mode polda
-                return "
-                    LEFT JOIN (
-                        SELECT polda.id AS polda_id, COUNT(accidents.id) AS total
-                        FROM polda
-                        JOIN polres    ON polres.polda_id    = polda.id
-                        JOIN accidents ON accidents.polres_id = polres.id
-                        WHERE accidents.selra_flag = '$flag'
-                          AND {$dateCondition}
-                          AND polda.state     <> 0
-                          AND polres.state    <> 0
-                          AND accidents.state <> 0
-                        GROUP BY polda.id
-                    ) $alias ON $alias.polda_id = polda.id
-                ";
-            };
-
-            $joins = '';
-            foreach ($flags as $alias => $code) {
-                $joins .= $joinFor("total_$alias", $code);
-            }
+            $yearParam = !empty($year) ? (int) $year : null;
+            $dateParam = !empty($date) ? (string) $date : null;
+            $poldaParam = !empty($poldaId) ? (string) $poldaId : null;
+            $polresParam = !empty($polresId) ? (string) $polresId : null;
 
             // 8) SQL & response sesuai mode
             if ($groupMode === 'polres') {
-                // JOIN lib.polices (yang aktif) untuk ambil satker_code Polda & Polres
                 $sql = "
                     SELECT
                         lp_polda.satker_code  AS polda_satker_code,
@@ -134,10 +69,10 @@ class DivtikAnevController extends Controller
                         polres.id             AS polres_id,
                         polres.name           AS polres,
 
-                        COALESCE(total_p21.total, 0)     AS p21,
-                        COALESCE(total_sp3.total, 0)     AS sp3,
-                        COALESCE(total_diversi.total, 0) AS diversi,
-                        COALESCE(total_sp2lid.total, 0)  AS sp2lid
+                        COALESCE(agg.p21, 0)     AS p21,
+                        COALESCE(agg.sp3, 0)     AS sp3,
+                        COALESCE(agg.diversi, 0) AS diversi,
+                        COALESCE(agg.sp2lid, 0)  AS sp2lid
                     FROM polda
                     JOIN polres ON polres.polda_id = polda.id
 
@@ -148,15 +83,40 @@ class DivtikAnevController extends Controller
                            ON lp_polres.id = polres.id
                           AND lp_polres.is_active = TRUE
 
-                    $joins
+                    LEFT JOIN (
+                        SELECT
+                            polres.id AS polres_id,
+                            COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0101') AS p21,
+                            COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0102') AS sp3,
+                            COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0103') AS diversi,
+                            COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0108') AS sp2lid
+                        FROM polda
+                        JOIN polres    ON polres.polda_id    = polda.id
+                        JOIN accidents ON accidents.polres_id = polres.id
+                        WHERE (?::int IS NULL OR EXTRACT(YEAR FROM accidents.accident_date) = ?::int)
+                          AND (?::date IS NULL OR DATE(accidents.accident_date) = ?::date)
+                          AND (?::text IS NULL OR polda.id = ? OR polda.satker_code = ?)
+                          AND (?::text IS NULL OR polres.id = ? OR polres.satker_code = ?)
+                          AND polda.state     <> 0
+                          AND polres.state    <> 0
+                          AND accidents.state <> 0
+                        GROUP BY polres.id
+                    ) agg ON agg.polres_id = polres.id
                     WHERE polda.state <> 0
                       AND polres.state <> 0
                       AND polda.id NOT IN ('90','99','80')
-                      {$fPolda}
-                      {$fPolres}
+                      AND (?::text IS NULL OR polda.id = ? OR polda.satker_code = ?)
+                      AND (?::text IS NULL OR polres.id = ? OR polres.satker_code = ?)
                     ORDER BY lp_polres.satker_code ASC NULLS LAST, polres.name ASC
                 ";
-                $rows = DB::select($sql);
+                $rows = DB::select($sql, [
+                    $yearParam, $yearParam,
+                    $dateParam, $dateParam,
+                    $poldaParam, $poldaParam, $poldaParam,
+                    $polresParam, $polresParam, $polresParam,
+                    $poldaParam, $poldaParam, $poldaParam,
+                    $polresParam, $polresParam, $polresParam,
+                ]);
 
                 // Response (SatkerCode = satker Polda, sesuai formatmu)
                 $result = array_map(function ($r) {
@@ -194,22 +154,41 @@ class DivtikAnevController extends Controller
                     lp_polda.satker_code AS polda_satker_code,
                     polda.id             AS polda_id,
                     polda.name           AS polda,
-                    COALESCE(total_p21.total, 0)     AS p21,
-                    COALESCE(total_sp3.total, 0)     AS sp3,
-                    COALESCE(total_diversi.total, 0) AS diversi,
-                    COALESCE(total_sp2lid.total, 0)  AS sp2lid
+                    COALESCE(agg.p21, 0)     AS p21,
+                    COALESCE(agg.sp3, 0)     AS sp3,
+                    COALESCE(agg.diversi, 0) AS diversi,
+                    COALESCE(agg.sp2lid, 0)  AS sp2lid
                 FROM polda
 
                 LEFT JOIN lib.polices lp_polda
                        ON lp_polda.id = polda.id
                       AND lp_polda.is_active = TRUE
 
-                $joins
+                LEFT JOIN (
+                    SELECT
+                        polda.id AS polda_id,
+                        COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0101') AS p21,
+                        COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0102') AS sp3,
+                        COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0103') AS diversi,
+                        COUNT(accidents.id) FILTER (WHERE accidents.selra_flag = 'S0108') AS sp2lid
+                    FROM polda
+                    JOIN polres    ON polres.polda_id    = polda.id
+                    JOIN accidents ON accidents.polres_id = polres.id
+                    WHERE (?::int IS NULL OR EXTRACT(YEAR FROM accidents.accident_date) = ?::int)
+                      AND (?::date IS NULL OR DATE(accidents.accident_date) = ?::date)
+                      AND polda.state     <> 0
+                      AND polres.state    <> 0
+                      AND accidents.state <> 0
+                    GROUP BY polda.id
+                ) agg ON agg.polda_id = polda.id
                 WHERE polda.state <> 0
                   AND polda.id NOT IN ('90','99','80')
                 ORDER BY lp_polda.satker_code ASC NULLS LAST, polda.name ASC
             ";
-            $rows = DB::select($sql);
+            $rows = DB::select($sql, [
+                $yearParam, $yearParam,
+                $dateParam, $dateParam,
+            ]);
 
             // Samakan bentuk dengan mode POLRES (PolresId/Name = null)
             $result = array_map(function ($r) {

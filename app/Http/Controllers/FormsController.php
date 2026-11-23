@@ -183,15 +183,6 @@ class FormsController extends Controller
       
         $polda = Polda::where('id', $user->polda_id)->first();
         $polres = Polres::where('id', $user->polres_id)->first();
-        
-        $getPolda = Polda::orderBy('name', 'ASC')->get();
-        $getPolres = Polres::orderBy('name', 'ASC')->get();
-
-        $getUpdatedPolres = Polres::join('polda', 'polda.id', '=', 'polres.polda_id')
-            ->select('polres.*', 'polda.name as polda_name')
-            ->where('polres.address', '!=', NULL)
-            ->orderBy('polres.name', 'ASC')
-            ->get();
 
         $poldaId = $user->polda_id;
         $polresId = $user->polres_id;
@@ -200,7 +191,7 @@ class FormsController extends Controller
             return view('icell_forms.form_failed');
         }
 
-        if($polres->address != NULL && $polres->kejaksaan_name != NULL && $mode != 'edit'){
+        if($polres && $polres->address != NULL && $polres->kejaksaan_name != NULL && $mode != 'edit'){
             $polresAddress = $polres->address;
             $polresProvince = $polres->polres_province;
             $polresRegency = $polres->polres_regency;
@@ -261,6 +252,15 @@ class FormsController extends Controller
                 'kejaksaan3Village' => $kejaksaan3Village,
             ]);
         }
+
+        $getPolda = Polda::orderBy('name', 'ASC')->get();
+        $getPolres = Polres::orderBy('name', 'ASC')->get();
+
+        $getUpdatedPolres = Polres::join('polda', 'polda.id', '=', 'polres.polda_id')
+            ->select('polres.*', 'polda.name as polda_name')
+            ->where('polres.address', '!=', NULL)
+            ->orderBy('polres.name', 'ASC')
+            ->get();
 
         $provinces = Province::orderBy('name', 'asc')->get();
         $kejaksaan = Kejaksaan::orderBy('id', 'asc')
@@ -362,40 +362,74 @@ class FormsController extends Controller
         $user = Auth::getUser();
         $polda = Polda::where('id', $request->poldaId)->first();
         $polres = Polres::where('id', $request->polresId)->first();
-        $polresAddress = htmlspecialchars($request->polresAddress);
-        $polresProvince = Province::where('id', $request->polresProvinceId)->first()->name;
-        $polresRegency = Regency::where('id', $request->polresRegencyId)->first()->name;
-        $polresDistrict = District::where('id', $request->polresDistrictId)->first()->name;
-        $polresVillage = Village::where('id', $request->polresVillageId)->first()->name;
-        $polresZipcode = htmlspecialchars($request->polresZipcode);
-        
-        $kejaksaan = Kejaksaan::where('id', $request->kejaksaan)->first()->name;
-        $kejaksaanAddress = htmlspecialchars($request->kejaksaanAddress);
-        $kejaksaanProvince = Province::where('id', $request->kejaksaanProvinceId)->first()->name;
-        $kejaksaanRegency = Regency::where('id', $request->kejaksaanRegencyId)->first()->name;
-        $kejaksaanDistrict = District::where('id', $request->kejaksaanDistrictId)->first()->name;
-        $kejaksaanVillage = Village::where('id', $request->kejaksaanVillageId)->first()->name;
-        
-        $kejaksaan2 = ($request->kejaksaan2) ? Kejaksaan::where('id', $request->kejaksaan2)->first()->name : "";
-        $kejaksaan2Address = htmlspecialchars($request->kejaksaan2Address);
-        $kejaksaan2Province = ($request->kejaksaan2ProvinceId) ? Province::where('id', $request->kejaksaan2ProvinceId)->first()->name : "";
-        $kejaksaan2Regency = ($request->kejaksaan2RegencyId) ? Regency::where('id', $request->kejaksaan2RegencyId)->first()->name : "";
-        $kejaksaan2District = ($request->kejaksaan2DistrictId) ? District::where('id', $request->kejaksaan2DistrictId)->first()->name : "";
-        $kejaksaan2Village = ($request->kejaksaan2VillageId) ? Village::where('id', $request->kejaksaan2VillageId)->first()->name : "";
-
-        $kejaksaan3 = ($request->kejaksaan3) ? Kejaksaan::where('id', $request->kejaksaan3)->first()->name : "";
-        $kejaksaan3Address = htmlspecialchars($request->kejaksaan3Address);
-        $kejaksaan3Province = ($request->kejaksaan3ProvinceId) ? Province::where('id', $request->kejaksaan3ProvinceId)->first()->name : "";
-        $kejaksaan3Regency = ($request->kejaksaan3RegencyId) ? Regency::where('id', $request->kejaksaan3RegencyId)->first()->name : "";
-        $kejaksaan3District = ($request->kejaksaan3DistrictId) ? District::where('id', $request->kejaksaan3DistrictId)->first()->name : "";
-        $kejaksaan3Village = ($request->kejaksaan3VillageId) ? Village::where('id', $request->kejaksaan3VillageId)->first()->name : "";
-
-        // Update to Polres table
-        $polres = Polres::where('id', $request->polresId)->first();
 
         if($polres == NULL && $user->role_id != 1){
             return view('icell_forms.form_failed');
         }
+
+        $provinceIds = array_filter([
+            $request->polresProvinceId,
+            $request->kejaksaanProvinceId,
+            $request->kejaksaan2ProvinceId,
+            $request->kejaksaan3ProvinceId,
+        ]);
+        $regencyIds = array_filter([
+            $request->polresRegencyId,
+            $request->kejaksaanRegencyId,
+            $request->kejaksaan2RegencyId,
+            $request->kejaksaan3RegencyId,
+        ]);
+        $districtIds = array_filter([
+            $request->polresDistrictId,
+            $request->kejaksaanDistrictId,
+            $request->kejaksaan2DistrictId,
+            $request->kejaksaan3DistrictId,
+        ]);
+        $villageIds = array_filter([
+            $request->polresVillageId,
+            $request->kejaksaanVillageId,
+            $request->kejaksaan2VillageId,
+            $request->kejaksaan3VillageId,
+        ]);
+        $kejaksaanIds = array_filter([
+            $request->kejaksaan,
+            $request->kejaksaan2,
+            $request->kejaksaan3,
+        ]);
+
+        $provinceMap = Province::whereIn('id', $provinceIds)->pluck('name', 'id');
+        $regencyMap = Regency::whereIn('id', $regencyIds)->pluck('name', 'id');
+        $districtMap = District::whereIn('id', $districtIds)->pluck('name', 'id');
+        $villageMap = Village::whereIn('id', $villageIds)->pluck('name', 'id');
+        $kejaksaanMap = Kejaksaan::whereIn('id', $kejaksaanIds)->pluck('name', 'id');
+
+        $polresAddress = htmlspecialchars($request->polresAddress);
+        $polresProvince = $provinceMap[$request->polresProvinceId] ?? '';
+        $polresRegency = $regencyMap[$request->polresRegencyId] ?? '';
+        $polresDistrict = $districtMap[$request->polresDistrictId] ?? '';
+        $polresVillage = $villageMap[$request->polresVillageId] ?? '';
+        $polresZipcode = htmlspecialchars($request->polresZipcode);
+        
+        $kejaksaan = $kejaksaanMap[$request->kejaksaan] ?? '';
+        $kejaksaanAddress = htmlspecialchars($request->kejaksaanAddress);
+        $kejaksaanProvince = $provinceMap[$request->kejaksaanProvinceId] ?? '';
+        $kejaksaanRegency = $regencyMap[$request->kejaksaanRegencyId] ?? '';
+        $kejaksaanDistrict = $districtMap[$request->kejaksaanDistrictId] ?? '';
+        $kejaksaanVillage = $villageMap[$request->kejaksaanVillageId] ?? '';
+        
+        $kejaksaan2 = ($request->kejaksaan2) ? ($kejaksaanMap[$request->kejaksaan2] ?? '') : '';
+        $kejaksaan2Address = htmlspecialchars($request->kejaksaan2Address);
+        $kejaksaan2Province = ($request->kejaksaan2ProvinceId) ? ($provinceMap[$request->kejaksaan2ProvinceId] ?? '') : '';
+        $kejaksaan2Regency = ($request->kejaksaan2RegencyId) ? ($regencyMap[$request->kejaksaan2RegencyId] ?? '') : '';
+        $kejaksaan2District = ($request->kejaksaan2DistrictId) ? ($districtMap[$request->kejaksaan2DistrictId] ?? '') : '';
+        $kejaksaan2Village = ($request->kejaksaan2VillageId) ? ($villageMap[$request->kejaksaan2VillageId] ?? '') : '';
+
+        $kejaksaan3 = ($request->kejaksaan3) ? ($kejaksaanMap[$request->kejaksaan3] ?? '') : '';
+        $kejaksaan3Address = htmlspecialchars($request->kejaksaan3Address);
+        $kejaksaan3Province = ($request->kejaksaan3ProvinceId) ? ($provinceMap[$request->kejaksaan3ProvinceId] ?? '') : '';
+        $kejaksaan3Regency = ($request->kejaksaan3RegencyId) ? ($regencyMap[$request->kejaksaan3RegencyId] ?? '') : '';
+        $kejaksaan3District = ($request->kejaksaan3DistrictId) ? ($districtMap[$request->kejaksaan3DistrictId] ?? '') : '';
+        $kejaksaan3Village = ($request->kejaksaan3VillageId) ? ($villageMap[$request->kejaksaan3VillageId] ?? '') : '';
     
         $polres->update([
             'address' => $polresAddress,
@@ -613,6 +647,7 @@ class FormsController extends Controller
             ]);
 
         $authorizedSignatories = $request->idAuthorizedSignatory;
+        $signatoryUpdates = [];
         foreach($authorizedSignatories as $key => $authorizedSignatory){
             $idAuthorizedSignatory = htmlspecialchars($request->idAuthorizedSignatory[$key]);
             $firstNameAuthorizedSignatory = htmlspecialchars($request->firstNameAuthorizedSignatory[$key]);
@@ -659,29 +694,31 @@ class FormsController extends Controller
                 return redirect()->back()->with('error', 'Jabatan Pejabat Tanda Tangan tidak valid, tidak ada dalam opsi');
             }
 
-            AuthorizedSignatory::where('id', $idAuthorizedSignatory)
-                ->update([
-                    'first_name' => strtoupper($firstNameAuthorizedSignatory),
-                    'last_name' => ($lastNameAuthorizedSignatory) ? strtoupper($lastNameAuthorizedSignatory) : '',
-                    'first_title' => $firstTitleAuthorizedSignatory,
-                    'last_title' => $lastTitleAuthorizedSignatory,
-                    'rank_id' => $rankId,
-                    'rank' => $rankName,
-                    'register_number' => $registerNumberAuthorizedSignatory,
-                    'position_id' => $positionId,
-                    'position' => $positionName,
-                    'identity_number' => $identityNumberAuthorizedSignatory,
-                    'email' => $emailAuthorizedSignatory,
-                    'phone' => $phoneAuthorizedSignatory,
-                ]);
-
-             
+            $signatoryUpdates[$idAuthorizedSignatory] = [
+                'first_name' => strtoupper($firstNameAuthorizedSignatory),
+                'last_name' => ($lastNameAuthorizedSignatory) ? strtoupper($lastNameAuthorizedSignatory) : '',
+                'first_title' => $firstTitleAuthorizedSignatory,
+                'last_title' => $lastTitleAuthorizedSignatory,
+                'rank_id' => $rankId,
+                'rank' => $rankName,
+                'register_number' => $registerNumberAuthorizedSignatory,
+                'position_id' => $positionId,
+                'position' => $positionName,
+                'identity_number' => $identityNumberAuthorizedSignatory,
+                'email' => $emailAuthorizedSignatory,
+                'phone' => $phoneAuthorizedSignatory,
+            ];
         }
-            
-            Polres::where('id', $polresId)
-            ->update([
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($signatoryUpdates, $polresId) {
+            foreach ($signatoryUpdates as $idAuthorizedSignatory => $attributes) {
+                AuthorizedSignatory::where('id', $idAuthorizedSignatory)->update($attributes);
+            }
+
+            Polres::where('id', $polresId)->update([
                 'is_complete' => true,
             ]);
+        });
 
         return redirect()->route('home');
     }

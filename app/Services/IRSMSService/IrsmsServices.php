@@ -13,10 +13,10 @@ class IrsmsServices
 
     public function __construct()
     {
-        $this->baseUrl = 'https://irsms.korlantas.polri.go.id/irsmsapi/api/getTotalLaka';
+        $this->baseUrl = (string) config('services.irsms.total_laka_url', 'https://irsms.korlantas.polri.go.id/irsmsapi/api/getTotalLaka');
         $this->headers =
             [
-                'Key' => 'Hy6d3K1d93LOHRfbeE0KKly1YK9t4YdGsbNDEvyxAYI=icell',
+                'Key' => (string) config('services.irsms.total_laka_key'),
                 'Content-Type' => 'application/json'
             ];
     }

@@ -6,6 +6,7 @@ use Doctrine\DBAL\Schema\Index;
 use Illuminate\Http\Request;
 use App\Models\StrukturOrganisasi;
 use Illuminate\Database\Console\DumpCommand;
+use Illuminate\Support\Str;
 
 class SturkturOrganisasiController extends Controller
 {
@@ -18,22 +19,23 @@ class SturkturOrganisasiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'filename' => 'required',
-            'filename.*'=> 'image|mimes:png,jpg,jpeg,svg'
+            'filename' => 'required|file|image|mimes:png,jpg,jpeg|max:2048',
         ]);
 
-        $file = $request->file('filename')->getClientOriginalName();
-        $request->file('filename')->move(public_path('struktur-organisasi'), $file);
-        $check = StrukturOrganisasi::create(['filename'=>$file]);
+        $uploadedFile = $request->file('filename');
+        $file = time() . '_' . Str::uuid()->toString() . '.' . $uploadedFile->extension();
+        $uploadedFile->move(public_path('struktur-organisasi'), $file);
+        StrukturOrganisasi::create(['filename'=>$file]);
 
         return redirect('organisasi/struktur-organisasi')->with('success', 'data sudah masuk dalam database');
     }
 
     public function delete_img(Request $request){
-        $name = $request->name;
-        // $name = ImageCarousel::find($id);
-        $path = public_path(). '/struktur-organisasi/'. $name;
-        unlink($path);
+        $name = basename((string) $request->name);
+        $path = public_path('struktur-organisasi/' . $name);
+        if (is_file($path)) {
+            @unlink($path);
+        }
         StrukturOrganisasi::where('filename', '=', $name)->delete();
 
         return back();

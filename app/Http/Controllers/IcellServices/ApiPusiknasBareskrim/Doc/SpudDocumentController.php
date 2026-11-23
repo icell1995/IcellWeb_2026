@@ -146,12 +146,7 @@ class SpudDocumentController extends Controller
                     } elseif (!empty($suspect->age) && is_numeric($suspect->age)) {
                         $age = intval($suspect->age);
                     } elseif ($birthDate) {
-                        try {
-                            $target = !empty($document->document_date) ? \Carbon\Carbon::parse($document->document_date) : \Carbon\Carbon::now();
-                            $age = \Carbon\Carbon::parse($birthDate)->diffInYears($target);
-                        } catch (\Exception $e) {
-                            $age = null;
-                        }
+                        $age = \App\Helpers\AgeHelper::calculateWholeYears($birthDate, $document->document_date ?? null);
                     }
 
                     $daftarAnak[] = [

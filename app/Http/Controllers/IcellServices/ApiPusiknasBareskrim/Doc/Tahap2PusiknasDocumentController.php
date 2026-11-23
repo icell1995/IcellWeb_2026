@@ -144,9 +144,9 @@ class Tahap2PusiknasDocumentController extends Controller
                         'umur_saat_tindak_pidana' => (function() use ($suspect, $doc) {
                             if ($suspect->birth_date) {
                                 $refDate = $doc->accident->accident_date ?? now()->toDateString();
-                                return \Carbon\Carbon::parse($suspect->birth_date)->diffInYears(\Carbon\Carbon::parse($refDate));
+                                return \App\Helpers\AgeHelper::calculateWholeYears($suspect->birth_date, $refDate);
                             }
-                            return $suspect->age ?? null;
+                            return isset($suspect->age) && is_numeric($suspect->age) ? (int) $suspect->age : null;
                         })(),
                         'daftar_uu_pasal' => ['Pasal 310 UU LLAJ']
                     ];

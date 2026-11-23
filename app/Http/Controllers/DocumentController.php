@@ -12,12 +12,29 @@ class DocumentController extends Controller
         $typeDocumentId = $request->typeDocument;
         $accidentId = $request->accidentId;
 
-        $typeDocument = DocumentCategory::where('id', $typeDocumentId)
-                            ->where('is_active', true)
-                            ->first();
+        if (!empty($classDocumentId)) {
+            $stage = DocumentCategory::where('id', $classDocumentId)->where('category', 'STAGE')->first();
+            if ($stage && !$stage->is_active) {
+                return redirect()->back()->with('error', 'Tahapan dokumen "' . $stage->name . '" saat ini sedang dinonaktifkan.');
+            }
+        }
 
-        if(empty($typeDocument) || $typeDocument->route == null){
-            return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia');
+        if (empty($typeDocumentId)) {
+            return redirect()->back()->with('error', 'Jenis dokumen harus dipilih.');
+        }
+
+        $typeDocument = DocumentCategory::where('id', $typeDocumentId)->first();
+
+        if (!$typeDocument) {
+            return redirect()->back()->with('error', 'Jenis dokumen tidak ditemukan.');
+        }
+
+        if (!$typeDocument->is_active) {
+            return redirect()->back()->with('error', 'Jenis dokumen "' . $typeDocument->name . '" saat ini sedang dinonaktifkan.');
+        }
+
+        if (empty($typeDocument->route)) {
+            return redirect()->back()->with('error', 'Form Berkas Tidak Tersedia.');
         }
 
         if ($typeDocumentId == '0405') {
@@ -51,7 +68,7 @@ class DocumentController extends Controller
                 return redirect()->back()->with('error', 'Dokumen Surat Ketetapan Penghentian Penyidikan belum dibuat, mohon untuk buat Surat Ketetapan Penghentian Penyidikan terlebih dahulu.');
             }
         }
-        
+
         if ($typeDocumentId == '0204') {
             return redirect()->route('doc.surat-pemberitahuan-dimulainya-penyidikan-pusiknas-document.create', ['accident_id' => $accidentId]);
         }
@@ -60,6 +77,11 @@ class DocumentController extends Controller
     }
 
     public function getTypeDocument($id){
+        $stage = DocumentCategory::where('id', $id)->where('category', 'STAGE')->first();
+        if ($stage && !$stage->is_active) {
+            return response()->json([]);
+        }
+
         $documentCategory = DocumentCategory::where('parent_id', $id)
                                 ->where('category', 'TYPE')
                                 ->where('route', '!=', NULL)
@@ -67,7 +89,7 @@ class DocumentController extends Controller
                                 ->orderBy('sort', 'asc')
                                 ->orderBy('id', 'asc')
                                 ->get();
-        
+
         // Filter SP2HP documents - only show for role_id 1
         if (auth()->check() && auth()->user()->role_id != 1) {
             $documentCategory = $documentCategory->filter(function($doc) {
@@ -75,7 +97,7 @@ class DocumentController extends Controller
                 return !in_array($doc->id, ['0709', '0710', '0711', '0712']);
             })->values();
         }
-            
+
         return response()->json($documentCategory);
     }
 }

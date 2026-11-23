@@ -89,7 +89,7 @@ class SuratPerintahPenggeledahanAngkutanDocumentController extends Controller
             }
         } catch (\Exception $e) {}
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -114,7 +114,7 @@ class SuratPerintahPenggeledahanAngkutanDocumentController extends Controller
             $suspects = \App\Models\Suspect::with(['job'])->where('accident_id', $accidentId)->orderBy('name')->get();
         } catch (\Exception $e) {}
 
-        $availableOfficers = Officer::withRelated()
+        $availableOfficers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->active()

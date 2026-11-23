@@ -183,9 +183,9 @@
                                     {{ $document->tanggal_akhir ? date('d-m-Y', strtotime($document->tanggal_akhir)) : ($document->end_date ? date('d-m-Y', strtotime($document->end_date)) : '-') }}
                                     @if($document->tanggal_mulai && $document->tanggal_akhir)
                                         @php
-                                            $tglM = \Carbon\Carbon::parse($document->tanggal_mulai);
-                                            $tglA = \Carbon\Carbon::parse($document->tanggal_akhir);
-                                            $durasi = $tglM->diffInDays($tglA) + 1;
+                                            $tglM = \Carbon\Carbon::parse($document->tanggal_mulai)->startOfDay();
+                                            $tglA = \Carbon\Carbon::parse($document->tanggal_akhir)->startOfDay();
+                                            $durasi = (int) abs($tglM->diffInDays($tglA)) + 1;
                                         @endphp
                                         <span class="badge bg-secondary ms-2">Durasi: {{ $durasi }} Hari</span>
                                     @endif
