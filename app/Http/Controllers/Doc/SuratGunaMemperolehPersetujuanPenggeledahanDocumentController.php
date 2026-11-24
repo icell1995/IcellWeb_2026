@@ -229,6 +229,8 @@ class SuratGunaMemperolehPersetujuanPenggeledahanDocumentController extends Cont
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document = SuratGunaMemperolehPersetujuanPenggeledahanDocument::with([
+            'accident.polres.polda',
+            'status',
             'authorizedSignatory' => function ($query) {
                 $query->with('rank', 'position', 'user');
             },
@@ -317,6 +319,9 @@ class SuratGunaMemperolehPersetujuanPenggeledahanDocumentController extends Cont
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document = SuratGunaMemperolehPersetujuanPenggeledahanDocument::with([
+            'accident.polres.polda',
+            'accident.police',
+            'status',
             'authorizedSignatory' => function ($query) {
                 $query->with('rank', 'position', 'user');
             },
@@ -331,7 +336,7 @@ class SuratGunaMemperolehPersetujuanPenggeledahanDocumentController extends Cont
             },
         ])->where('id', $id)->firstOrFail();
 
-        $accident = Accident::with(['polres', 'polres.polda', 'police'])->where('id', $accidentId ?? $document->accident_id)->first();
+        $accident = $document->accident ?? Accident::with(['polres', 'polres.polda', 'police'])->where('id', $accidentId ?? $document->accident_id)->first();
 
         $signatory = $document->authorizedSignatory;
         $investigator = $document->officers->where('class', 'MEMBER')->first() 
@@ -613,7 +618,7 @@ class SuratGunaMemperolehPersetujuanPenggeledahanDocumentController extends Cont
 
     public function edit($id){
         $accidentId = htmlspecialchars(request()->query('accident_id'));
-        $accident   = Accident::where('id', $accidentId)->first();
+        $accident   = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         $suratPerintahPenyidikanDocuments = SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws.crimeConstitution', 'suratPerintahPenyidikanDocumentLaws.crimeType')
             ->where('accident_id', $accidentId)

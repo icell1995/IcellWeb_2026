@@ -41,6 +41,10 @@ class AuthServiceProvider extends ServiceProvider
             return false;
         });
 
+        Gate::define('viewLogViewer', function (?User $user) {
+            return $user !== null && (int) $user->role_id === 1;
+        });
+
         //
           /* define a admin user role */
         // Gate::define('manage-users', function($user) {

@@ -16,7 +16,7 @@ class EmpApiAuth
      */
     public function handle(Request $request, Closure $next)
     {
-        $token = env('EMP_API_TOKEN', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiSUNFTEwtRU1QIiwicHJvdmlkZXIiOiJJQ0VMTC1BUEkifQ.EhjiING3v9rX54P3afd29H4TRzV0LlI9t3AHyjiWGKg');
+        $token = config('services.emp.api_token');
 
         if ($request->header('AUTHORIZATION') !== $token) {
             return response()->json([

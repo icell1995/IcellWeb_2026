@@ -314,3 +314,15 @@ Route::prefix('/sp2lid-md')->name('cms.sp2lid-md.')->group(function () {
     Route::get('/', [Sp2lidMdController::class, 'index'])->name('index');
     Route::get('/{id}/preview', [Sp2lidMdController::class, 'previewPdf'])->name('preview');
 });
+
+// Document / Letter Feature Toggle Management
+Route::prefix('/document-management')
+    ->name('cms.document-management.')
+    ->group(function () {
+        Route::get('/', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'index'])->name('index');
+        Route::post('/sync', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'sync'])->name('sync');
+        Route::post('/batch-toggle', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'batchToggle'])->name('batch-toggle');
+        Route::post('/stage/{id}/toggle', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'toggleStage'])->name('stage.toggle');
+        Route::post('/{id}/toggle', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'toggle'])->name('toggle');
+        Route::get('/{id}/history', [\App\Http\Controllers\CMS\DocumentFeatureToggleController::class, 'history'])->name('history');
+    });

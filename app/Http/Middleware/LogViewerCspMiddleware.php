@@ -17,7 +17,7 @@ class LogViewerCspMiddleware
 
         $response->headers->set(
             'Content-Security-Policy',
-            "default-src 'self' http: https: ws: wss: data: blob: 'unsafe-inline' 'unsafe-eval';"
+            "default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; connect-src 'self' http: https: ws: wss:;"
         );
 
         return $response;

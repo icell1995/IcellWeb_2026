@@ -43,7 +43,7 @@ class SuratDaftarPencarianOrangDocumentController extends Controller
         $policeId = $accident->polres_id;
         $getOldNewPolresIds = $this->getOldNewPolresIds($policeId);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -55,7 +55,7 @@ class SuratDaftarPencarianOrangDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -70,7 +70,7 @@ class SuratDaftarPencarianOrangDocumentController extends Controller
         }
 
         // Petugas Polres untuk dropdown
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->orderBy('first_name', 'asc')
@@ -328,7 +328,7 @@ class SuratDaftarPencarianOrangDocumentController extends Controller
         $policeId = $accident->polres_id;
         $getOldNewPolresIds = $this->getOldNewPolresIds($policeId);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -340,7 +340,7 @@ class SuratDaftarPencarianOrangDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -354,7 +354,7 @@ class SuratDaftarPencarianOrangDocumentController extends Controller
                 ->get();
         }
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->orderBy('first_name', 'asc')

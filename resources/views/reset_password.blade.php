@@ -23,6 +23,17 @@
                         </div>
                         <div class="col-lg-8 col-md-8 col-sm-12 col-12 mb-3">
                             <div class="input-group row mb-3 ms-0">
+                                <label class="fw-bold text-blue-dark col-sm-3" for="current_password">Kata Sandi (Lama)</label>
+                                <div class="col-lg-7 col-md-7 col-sm-8 col-8">
+                                    <input class="form-control col-lg-5 col-md-5 col-sm-12 col-12 @error('current_password') is-invalid @enderror" type="password" id="current_password" name="current_password" title="Current Password">
+                                </div>
+                                @error('current_password')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+                            <div class="input-group row mb-3 ms-0">
                                 <label class="fw-bold text-blue-dark col-sm-3" for="newPassword">Kata Sandi (Baru)</label>
                                 <div class="col-lg-7 col-md-7 col-sm-8 col-8">
                                     <input class="form-control col-lg-5 col-md-5 col-sm-12 col-12 @error('newPassword') is-invalid @enderror" type="password" id="newPassword" name="newPassword" title="New Password" value="{{ $newPassword ?? old('newPassword') }}" >

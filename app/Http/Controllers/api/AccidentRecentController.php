@@ -64,82 +64,81 @@ class AccidentRecentController extends BaseController
     }
 
     public function index_recent()
-
     {
         $user = Auth::user();
-        $a = ' ';
-        switch($user->role_id){
+        switch ($user->role_id) {
             case 2:
-                $polda = $user->polda_id;
-                $polres = '-';
-                $accident = DB::select('select 
-                                        accident_recent.id as id
-                                        , title
-                                        , concat_ws(\''.$a.'\', officer.first_name,officer.last_name) as name 
-                                        , to_char(accident_recent.created_at, \'DD-MM-YYYY\') as created_at
-                                        , to_char(accident_date, \'DD-MM-YYYY\') as accident_date
-                                        , description
-                                        , road_name
-					, latitude
-					, longtitude
-                                        , polres.name as polres
-                                        , photo
-                                        , avatar
-                                        from accident_recent
-                                        left join polres on accident_recent.polres_id = polres.id
-                                        left join polda on polres.polda_id = polda.id
-                                        left join officer on accident_recent.user_id = officer.id
-                                        left join users on accident_recent.user_id =  users.officer_id
-                                        where polda.id = \''.$polda.'\' ');
-            break;
-        
-            case 3:
-                $polda = $user->polda_id;
-                $polres = $user->polres_id;
-                $accident = DB::select('select 
-                                            accident_recent.id as id
-                                            , title
-                                            , concat_ws(\''.$a.'\', officer.first_name,officer.last_name) as name 
-                                            , to_char(accident_recent.created_at, \'DD-MM-YYYY\') as created_at
-                                            , to_char(accident_date, \'DD-MM-YYYY\') as accident_date
-                                            , description
-                                            , road_name
-					    , latitude
-					    , longtitude
-                                            , polres.name as polres
-                                            , photo
-                                            , avatar
-                                            from accident_recent
-                                            left join polres on accident_recent.polres_id = polres.id
-                                            left join officer on accident_recent.user_id = officer.id
-                                            left join users on accident_recent.user_id = users.officer_id
-                                            where polres.id = \''.$polres.'\' ');
-            break;
-            default:
-                $accident = DB::select('select 
-                accident_recent.id as id
-                , title
-                , concat_ws(\''.$a.'\', officer.first_name,officer.last_name) as name 
-                , to_char(accident_recent.created_at, \'DD-MM-YYYY\') as created_at
-                , to_char(accident_date, \'DD-MM-YYYY\') as accident_date
-                , description
-                , road_name
-		, latitude
-		, longtitude
-                , polres.name as polres
-                , photo
-                , avatar
-                from accident_recent
-                left join polres on accident_recent.polres_id = polres.id
-                left join officer on accident_recent.user_id = officer.id
-                left join users on accident_recent.user_id = users.officer_id');
-        }
-       
-        // $accident = DB::select('select * from accidents');
-        // dd($accident);
-        // return $this->sendResponse(AccidentResource::collection($accident), 'Products retrieved successfully.');
-        return $this->sendResponse($accident, 'Products retrieved successfully.');
+                $polda = (string) $user->polda_id;
+                $accident = DB::select("
+                    select
+                        accident_recent.id as id,
+                        title,
+                        concat_ws(' ', officer.first_name, officer.last_name) as name,
+                        to_char(accident_recent.created_at, 'DD-MM-YYYY') as created_at,
+                        to_char(accident_date, 'DD-MM-YYYY') as accident_date,
+                        description,
+                        road_name,
+                        latitude,
+                        longtitude,
+                        polres.name as polres,
+                        photo,
+                        avatar
+                    from accident_recent
+                    left join polres on accident_recent.polres_id = polres.id
+                    left join polda on polres.polda_id = polda.id
+                    left join officer on accident_recent.user_id = officer.id
+                    left join users on accident_recent.user_id = users.officer_id
+                    where polda.id = ?
+                ", [$polda]);
+                break;
 
+            case 3:
+                $polres = (string) $user->polres_id;
+                $accident = DB::select("
+                    select
+                        accident_recent.id as id,
+                        title,
+                        concat_ws(' ', officer.first_name, officer.last_name) as name,
+                        to_char(accident_recent.created_at, 'DD-MM-YYYY') as created_at,
+                        to_char(accident_date, 'DD-MM-YYYY') as accident_date,
+                        description,
+                        road_name,
+                        latitude,
+                        longtitude,
+                        polres.name as polres,
+                        photo,
+                        avatar
+                    from accident_recent
+                    left join polres on accident_recent.polres_id = polres.id
+                    left join officer on accident_recent.user_id = officer.id
+                    left join users on accident_recent.user_id = users.officer_id
+                    where polres.id = ?
+                ", [$polres]);
+                break;
+
+            default:
+                $accident = DB::select("
+                    select
+                        accident_recent.id as id,
+                        title,
+                        concat_ws(' ', officer.first_name, officer.last_name) as name,
+                        to_char(accident_recent.created_at, 'DD-MM-YYYY') as created_at,
+                        to_char(accident_date, 'DD-MM-YYYY') as accident_date,
+                        description,
+                        road_name,
+                        latitude,
+                        longtitude,
+                        polres.name as polres,
+                        photo,
+                        avatar
+                    from accident_recent
+                    left join polres on accident_recent.polres_id = polres.id
+                    left join officer on accident_recent.user_id = officer.id
+                    left join users on accident_recent.user_id = users.officer_id
+                ");
+        }
+
+        return $this->sendResponse($accident, 'Products retrieved successfully.');
     }
 
 }

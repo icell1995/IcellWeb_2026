@@ -76,10 +76,11 @@ trait DocumentCategoryTraits
             $baseCategoryId = $cat['category_id'];
             $baseName = $cat['name'];
 
-            $query = $model::where('accident_id', $accidentId)
-                ->whereNull('deleted_at');
+            $rawDocs = ($baseCategoryId === '0204')
+                ? $spdpCollection
+                : $model::where('accident_id', $accidentId)->whereNull('deleted_at')->get();
 
-            $docs = $query->get()->map(function ($doc) use ($baseCategoryId, $baseName, $model, $canReturnAny, $spdpSyncedMessage) {
+            $docs = $rawDocs->map(function ($doc) use ($baseCategoryId, $baseName, $model, $canReturnAny, $spdpSyncedMessage) {
                 $categoryCode = $baseCategoryId;
                 $categoryName = $baseName;
 
@@ -167,7 +168,6 @@ trait DocumentCategoryTraits
             case 'springas_sidik':
                 $documents = $documents->merge($this->getSpringasSidik($accidentId));
                 $documents = $documents->merge($this->getSprindik($accidentId));
-                $documents = $documents->merge($this->getSpringasSidik($accidentId));
                 $documents = $documents->merge($this->getLHGP($accidentId));
                 $documents = $documents->merge($this->getTapTersangka($accidentId));
                 $documents = $documents->merge($this->getSPDP($accidentId));
@@ -326,9 +326,9 @@ trait DocumentCategoryTraits
         // Ambil semua dokumen yang akan dikembalikan (utama + cascading)
         $documentsToCheck = $this->getCascadeDocument($type, $accidentId, $document->id);
 
-        // Cek SPDP di accident
-        $spdpCollection = $this->getSPDP($accidentId);
-        $spdp = $spdpCollection->first();
+        // Cek SPDP di accident (gunakan yang sudah ada di $documentsToCheck jika tersedia)
+        $spdp = $documentsToCheck->first(fn ($doc) => $doc instanceof SuratPemberitahuanDimulainyaPenyidikanDocument)
+            ?? $this->getSPDP($accidentId)->first();
 
         if ($spdp) {
             if ($spdp->last_synced_at !== null) {

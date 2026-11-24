@@ -10,9 +10,22 @@
     <div class="box">
         <div class="box-body">
             @php 
-                $case = $case['result'][0];
+                $currentCase = $case['result'][0] ?? null;
             @endphp
 
+            @if (!$currentCase)
+                <div class="alert alert-warning m-4 text-center">
+                    <i class="bi bi-exclamation-triangle-fill fs-2 d-block mb-2 text-warning"></i>
+                    <h5 class="fw-bold">Data Perkara Tidak Ditemukan</h5>
+                    <p class="mb-3 text-muted">Data perkara tidak ditemukan atau gagal dimuat dari server IRSMS Korlantas.</p>
+                    <a href="{{ route('case.index') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Register Perkara Jatanlin
+                    </a>
+                </div>
+            @else
+                @php 
+                    $case = $currentCase;
+                @endphp
 
             <form method="POST" action="{{ route('case.save', ['id' => $case['id']]) }}" enctype="multipart/form-data">
                 @csrf
@@ -266,6 +279,7 @@
                     </div>
                 {{-- @endif --}}
             </form>
+            @endif
         </div>
     </div>
 

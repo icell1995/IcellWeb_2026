@@ -96,7 +96,7 @@ class BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController extends Co
         // 5. Petugas Internal
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -105,7 +105,7 @@ class BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController extends Co
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -494,7 +494,7 @@ class BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController extends Co
 
         $suspects = Suspect::where('accident_id', $accidentId)->get();
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -503,7 +503,7 @@ class BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController extends Co
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -1114,12 +1114,13 @@ class BeritaAcaraSerahTerimaTersangkaDanBarangBuktiDocumentController extends Co
             }
         }
 
-        if (!file_exists(public_path('generate'))) {
-            mkdir(public_path('generate'), 0777, true);
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
         }
 
         $cleanNomor = preg_replace('/[^A-Za-z0-9_\-]/', '_', $document->nomor ?: ($document->document_number ?: 'DRAFT'));
-        $filename = public_path('generate/' . $document->id . ' - Berita Acara Serah Terima Tersangka - ' . ($accident->polres->full_name ?? ($accident->polres->name ?? 'Polres')) . '.docx');
+        $filename = $tempDir . '/' . $document->id . ' - Berita Acara Serah Terima Tersangka - ' . ($accident->polres->full_name ?? ($accident->polres->name ?? 'Polres')) . '.docx';
         $templateProcessor->saveAs($filename);
 
         if (file_exists($tempTemplate)) {

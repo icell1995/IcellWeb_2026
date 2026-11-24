@@ -52,6 +52,24 @@ class SuratTugasController extends Controller
         return response()->json($villages);
     }
 
+    public function getRegenciesByProvince($provinceId)
+    {
+        $regencies = Regency::where('province_id', (string) $provinceId)->orderBy('name', 'asc')->get(['id', 'name', 'province_id']);
+        return response()->json($regencies);
+    }
+
+    public function getDistrictsByRegency($regencyId)
+    {
+        $districts = District::where('regency_id', (string) $regencyId)->orderBy('name', 'asc')->get(['id', 'name', 'regency_id']);
+        return response()->json($districts);
+    }
+
+    public function getVillagesByDistrict($districtId)
+    {
+        $villages = Village::where('district_id', (string) $districtId)->orderBy('name', 'asc')->get(['id', 'name', 'district_id']);
+        return response()->json($villages);
+    }
+
     public function lhgp_index()
     {
         // Get URL Parameter
@@ -85,9 +103,9 @@ class SuratTugasController extends Controller
         $religion =DB::table('religions')->select('id', 'name')->get();
         $country = Country::orderBy('name', 'asc')->get();
         $provinces = Province::orderBy('name', 'asc')->get();
-        $regency = Regency::orderBy('name', 'asc')->get();
-        $district = District::orderBy('name', 'asc')->get();
-        $village = Village::orderBy('name', 'asc')->get();
+        $regency = collect();
+        $district = collect();
+        $village = collect();
 
         $viewData = [
             'no_lp' => $no_lp,
@@ -183,9 +201,9 @@ class SuratTugasController extends Controller
         $religion =DB::table('religions')->select('id', 'name')->get();
         $country = Country::orderBy('name', 'asc')->get();
         $provinces = Province::orderBy('name', 'asc')->get();
-        $regency = Regency::orderBy('name', 'asc')->get();
-        $district = District::orderBy('name', 'asc')->get();
-        $village = Village::orderBy('name', 'asc')->get();
+        $regency = collect();
+        $district = collect();
+        $village = collect();
 
         $viewData = [
             'penandatangan_surat' => $penandatangan_surat,
@@ -262,8 +280,8 @@ class SuratTugasController extends Controller
     public function lhgp_view(Request $request){
         $accident_id=$request->input('accident_id');
 
-        $accident =DB::select('select * from accidents where id= \''.$accident_id.'\' ');
-        $lhgp =DB::select('select * from lhgp where accident_id= \''.$accident_id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [(string) $accident_id]);
+        $lhgp = DB::select('select * from lhgp where accident_id = ?', [(string) $accident_id]);
         setlocale(LC_TIME, 'id_ID.utf8');
         $tanggal_pelaksanaan = Carbon::parse($lhgp[0]->tanggal_pelaksanaan)->isoFormat('dddd, D MMMM YYYY');;
         $waktu_pelaksanaan = Carbon::parse($lhgp[0]->waktu_pelaksanaan)->format('H:i');
@@ -331,12 +349,12 @@ class SuratTugasController extends Controller
         $religion =DB::table('religions')->select('id', 'name')->get();
         $country = Country::orderBy('name', 'asc')->get();
         $provinces = Province::orderBy('name', 'asc')->get();
-        $regency = Regency::orderBy('name', 'asc')->get();
-        $district = District::orderBy('name', 'asc')->get();
-        $village = Village::orderBy('name', 'asc')->get();
         $suku = DB::table('suku')->select('id','name')->get();
         $suspects = DB::table('suspects')->where('accident_id', $accidentId)->first();
         $lhgp = DB::table('lhgp')->where('accident_id', $accidentId)->first();
+        $regency = !empty($suspects?->province) ? Regency::where('province_id', $suspects->province)->orderBy('name', 'asc')->get() : collect();
+        $district = !empty($suspects?->city) ? District::where('regency_id', $suspects->city)->orderBy('name', 'asc')->get() : collect();
+        $village = !empty($suspects?->district) ? Village::where('district_id', $suspects->district)->orderBy('name', 'asc')->get() : collect();
 
         $polresjaksa = Polres::where('id',$accident->polres_id)->first();
         $jaksa = Prosecutor::where('polda_id', $polresjaksa->polda_id)->get();
@@ -440,12 +458,12 @@ class SuratTugasController extends Controller
         $religion =DB::table('religions')->select('id', 'name')->get();
         $country = Country::orderBy('name', 'asc')->get();
         $provinces = Province::orderBy('name', 'asc')->get();
-        $regency = Regency::orderBy('name', 'asc')->get();
-        $district = District::orderBy('name', 'asc')->get();
-        $village = Village::orderBy('name', 'asc')->get();
         $suku = DB::table('suku')->select('id','name')->get();
         $suspects = DB::table('suspects')->where('accident_id', $accidentId)->first();
         $lhgp = DB::table('lhgp')->where('accident_id', $accidentId)->first();
+        $regency = !empty($suspects?->province) ? Regency::where('province_id', $suspects->province)->orderBy('name', 'asc')->get() : collect();
+        $district = !empty($suspects?->city) ? District::where('regency_id', $suspects->city)->orderBy('name', 'asc')->get() : collect();
+        $village = !empty($suspects?->district) ? Village::where('district_id', $suspects->district)->orderBy('name', 'asc')->get() : collect();
 
         $polresjaksa = Polres::where('id',$accident->polres_id)->first();
         $jaksa = Prosecutor::where('polda_id', $polresjaksa->polda_id)->get();
@@ -546,9 +564,9 @@ class SuratTugasController extends Controller
     public function sddl_view(Request $request){
         $accident_id=$request->input('accident_id');
 
-        $accident =DB::select('select * from accidents where id= \''.$accident_id.'\' ');
-        $sddl =DB::select('select * from suspect_determination_decision_letters where accident_id= \''.$accident_id.'\' ');
-        $spdik =DB::select('select * from legacy.investigation_order_letters where accident_id= \''.$accident_id.'\' ');
+        $accident = DB::select('select * from accidents where id = ?', [(string) $accident_id]);
+        $sddl = DB::select('select * from suspect_determination_decision_letters where accident_id = ?', [(string) $accident_id]);
+        $spdik = DB::select('select * from legacy.investigation_order_letters where accident_id = ?', [(string) $accident_id]);
         $prosecutor = Prosecutor::where('id', $sddl[0]->prosecutor_office_id)->first();
         $kejaksaan = $prosecutor->name;
         $tanggal_pelaksanaan = Carbon::parse($sddl[0]->tgl_gelar)->format('d F Y');
@@ -566,7 +584,7 @@ class SuratTugasController extends Controller
             left join jobs on suspects.occupation = jobs.id
             left join religions on suspects.religion = religions.id
             left join country on suspects.country = country.id
-        where accidents.id = \''.$accident_id.'\' ');
+        where accidents.id = ?', [(string) $accident_id]);
 
         $data['accident']=$accident[0];
         $data['polres_name']=$suspects[0]->polres_name;

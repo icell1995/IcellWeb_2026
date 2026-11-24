@@ -19,14 +19,28 @@ class CommanderWishController extends Controller
 
         $performances = [];
         if(!empty($startAccidentDate) && !empty($endAccidentDate)){
-           
+            $selraTotalsSub = DB::table('polres')
+                ->join('accidents', 'polres.id', '=', 'accidents.polres_id')
+                ->selectRaw("
+                    polres.id AS id,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0101') AS total_p21,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0102') AS total_sp3,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0103') AS total_diversi,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0104') AS total_pom_tni,
+                    COUNT(accidents.id) FILTER (WHERE selra_flag = 'S0108') AS total_sp2lid
+                ")
+                ->whereBetween('accident_date', [$startAccidentDate, $endAccidentDate])
+                ->where('polres.state', '<>', 0)
+                ->where('accidents.state', '<>', 0)
+                ->groupBy('polres.id');
+
             $performances = DB::table('polda')
                 ->selectRaw('polda.name AS nama_polda')
-                ->selectRaw('MAX(COALESCE(total_p21.total, 0)) AS p21')
-                ->selectRaw('MAX(COALESCE(total_sp3.total, 0)) AS sp3')
-                ->selectRaw('MAX(COALESCE(total_diversi.total, 0)) AS diversi')
-                ->selectRaw('MAX(COALESCE(total_pom_tni.total, 0)) AS pom_tni')
-                ->selectRaw('MAX(COALESCE(total_sp2lid.total, 0)) AS sp2lid')
+                ->selectRaw('MAX(COALESCE(selra_totals.total_p21, 0)) AS p21')
+                ->selectRaw('MAX(COALESCE(selra_totals.total_sp3, 0)) AS sp3')
+                ->selectRaw('MAX(COALESCE(selra_totals.total_diversi, 0)) AS diversi')
+                ->selectRaw('MAX(COALESCE(selra_totals.total_pom_tni, 0)) AS pom_tni')
+                ->selectRaw('MAX(COALESCE(selra_totals.total_sp2lid, 0)) AS sp2lid')
                 ->selectRaw("ROUND((
                     CASE WHEN MAX(splidik.document_number) IS NOT NULL AND MAX(splidik.rejected_at) IS NULL AND MAX(splidik.status_id) = '86' THEN 1 ELSE 0 END +
                     CASE WHEN MAX(spsidik.document_number) IS NOT NULL AND MAX(spsidik.rejected_at) IS NULL AND MAX(spsidik.status_id) = '86' THEN 1 ELSE 0 END +
@@ -43,49 +57,7 @@ class CommanderWishController extends Controller
                 ->leftJoin('doc.laporan_hasil_gelar_perkara_documents as lhgp', 'accidents.id', '=', 'lhgp.accident_id')
                 ->leftJoin('doc.surat_ketetapan_tentang_penetapan_tersangka_documents as staptsk', 'accidents.id', '=', 'staptsk.accident_id')
                 ->leftJoin('doc.surat_pemberitahuan_dimulainya_penyidikan_documents as spdp', 'accidents.id', '=', 'spdp.accident_id')
-                // Tambahkan LEFT JOIN dan subquery untuk menghitung total_p21, total_sp3, dst.
-                // Sesuaikan subquery dengan selera_flag yang sesuai
-                ->leftJoin(DB::raw("(SELECT polres.id AS id, COUNT(accidents.id) AS total
-                    FROM polres
-                    JOIN accidents ON polres.id = accidents.polres_id
-                    WHERE accident_date BETWEEN '" . $startAccidentDate . "' AND '" . $endAccidentDate . "'
-                    AND selra_flag = 'S0101'
-                    AND polres.state <> 0
-                    AND accidents.state <> 0
-                    GROUP BY 1) AS total_p21"), 'polres.id', '=', 'total_p21.id')
-                ->leftJoin(DB::raw("(SELECT polres.id AS id, COUNT(accidents.id) AS total
-                    FROM polres
-                    JOIN accidents ON polres.id = accidents.polres_id
-                    WHERE accident_date BETWEEN '" . $startAccidentDate . "' AND '" . $endAccidentDate . "'
-                    AND selra_flag = 'S0102'
-                    AND polres.state <> 0
-                    AND accidents.state <> 0
-                    GROUP BY 1) AS total_sp3"), 'polres.id', '=', 'total_sp3.id')
-                // Lanjutkan dengan LEFT JOIN dan subquery untuk total_diversi, total_pom_tni, total_sp2lid
-                ->leftJoin(DB::raw("(SELECT polres.id AS id, COUNT(accidents.id) AS total
-                    FROM polres
-                    JOIN accidents ON polres.id = accidents.polres_id
-                    WHERE accident_date BETWEEN '" . $startAccidentDate . "' AND '" . $endAccidentDate . "'
-                    AND selra_flag = 'S0103'
-                    AND polres.state <> 0
-                    AND accidents.state <> 0
-                    GROUP BY 1) AS total_diversi"), 'polres.id', '=', 'total_diversi.id')
-                ->leftJoin(DB::raw("(SELECT polres.id AS id, COUNT(accidents.id) AS total
-                    FROM polres
-                    JOIN accidents ON polres.id = accidents.polres_id
-                    WHERE accident_date BETWEEN '" . $startAccidentDate . "' AND '" . $endAccidentDate . "'
-                    AND selra_flag = 'S0104'
-                    AND polres.state <> 0
-                    AND accidents.state <> 0
-                    GROUP BY 1) AS total_pom_tni"), 'polres.id', '=', 'total_pom_tni.id')
-                ->leftJoin(DB::raw("(SELECT polres.id AS id, COUNT(accidents.id) AS total
-                    FROM polres
-                    JOIN accidents ON polres.id = accidents.polres_id
-                    WHERE accident_date BETWEEN '" . $startAccidentDate . "' AND '" . $endAccidentDate . "'
-                    AND selra_flag = 'S0108'
-                    AND polres.state <> 0
-                    AND accidents.state <> 0
-                    GROUP BY 1) AS total_sp2lid"), 'polres.id', '=', 'total_sp2lid.id')
+                ->leftJoinSub($selraTotalsSub, 'selra_totals', 'polres.id', '=', 'selra_totals.id')
                 ->where('polda.state', '<>', 0)
                 ->where('polres.state', '<>', 0)
                 ->whereNotIn('polda.id', ['90', '99'])

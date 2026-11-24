@@ -62,6 +62,14 @@
             </a>
         </li>
 
+        <li class="nav-item mb-2">
+            <a href="{{ route('cms.document-management.index') }}"
+                class="nav-link parents-menu d-flex align-items-center {{ request()->routeIs('cms.document-management.*') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-check text-white fs-4"></i>
+                <span class="ms-3 text-white fw-semibold">Manajemen Surat (Feature Flag)</span>
+            </a>
+        </li>
+
 
         {{-- <li class="nav-item mb-2">
             <a href="{{ route('cms.case-resolution-validation-report.index') }}"

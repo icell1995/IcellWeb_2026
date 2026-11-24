@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Http\Middleware\AuthorityLevel;
+use Illuminate\Database\Eloquent\Builder;
 
 class User extends Authenticatable
 {
@@ -22,7 +23,33 @@ class User extends Authenticatable
     protected $table = "public.users";
     protected $primaryKey = "id";
 
-    protected $guarded = [];
+    protected $fillable = [
+        'id',
+        'username',
+        'first_name',
+        'last_name',
+        'first_title',
+        'last_title',
+        'email',
+        'phone',
+        'password',
+        'avatar',
+        'rank_id',
+        'position_id',
+        'register_number',
+        'police_id',
+        'polda_id',
+        'polres_id',
+        'pangkat',
+        'officer_id',
+        'role_id',
+        'state',
+        'is_active',
+        'is_password_changed',
+        'properties',
+        'timestamps',
+        'ip_addresses',
+    ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -32,6 +59,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'otp_code',
+        'otp_expires_at',
     ];
 
     /**
@@ -55,44 +84,48 @@ class User extends Authenticatable
         self::observe(UserActionObserver::class);
     }
 
-    public function scopeWithRelated($query) {
+    public function scopeWithRelated(Builder $query): Builder {
         return $query->with([
             'officer',
+            'officer.rank',
+            'officer.position',
+            'police',
             'createdByUser',
             'updatedByUser',
+            'role',
         ]);
     }
 
-    public function scopeActive($query) {
+    public function scopeActive(Builder $query): Builder {
         return $query->where('is_active', true);
     }
 
-    public function scopeSelectFullNameExpression($query) {
+    public function scopeSelectFullNameExpression(Builder $query): Builder {
         return $query->select('*', PeopleNameHelper::getFullNameQueryExpression());
     }
 
-    public function scopeIsAdminHeadquarter($query) {
+    public function scopeIsAdminHeadquarter(Builder $query): Builder {
         return $query->where('role_id', '1');
     }
 
-    public function scopeIsAdminPolda($query) {
+    public function scopeIsAdminPolda(Builder $query): Builder {
         return $query->where('role_id', '2');
     }
 
-    public function scopeIsAdminPolice($query) {
+    public function scopeIsAdminPolice(Builder $query): Builder {
         return $query->where('role_id', '3');
     }
 
-    public function scopeIsSignatoryPolice($query) {
+    public function scopeIsSignatoryPolice(Builder $query): Builder {
         return $query->where('role_id', '5');
     }
 
-    public function scopeIsOfficerPolice($query) {
+    public function scopeIsOfficerPolice(Builder $query): Builder {
         return $query->where('role_id', '4');
     }
 
-    public function scopeWhereHasOfficerActive($query) {
-        return $query->whereHas('officer', function($query2){
+    public function scopeWhereHasOfficerActive(Builder $query): Builder {
+        return $query->whereHas('officer', function(Builder $query2){
             $query2->active();
         });
     }
@@ -127,7 +160,7 @@ class User extends Authenticatable
         return $this->belongsTo('App\Models\Lib\Police', 'police_id', 'id');
     }
 
-    public function hasPermission($permission) {
+    public function hasPermission(string $permission) {
         return $this->role->permissions()->where('name', $permission)->first() ?: false;
     }
 

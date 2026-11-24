@@ -50,7 +50,7 @@
                         </div>
                         @endif
 
-                        <form method="POST" action="{{ route('forget-password') }}">
+                        <form method="POST" action="{{ route('forget-password.post') }}">
                             @csrf
 
                             <div class="mb-3">
@@ -92,7 +92,7 @@
                         </div>
                         @endif
 
-                        <form method="POST" action="{{ route('forget-password') }}">
+                        <form method="POST" action="{{ route('forget-password.post') }}">
                             @csrf
 
                             <div class="form-group row">

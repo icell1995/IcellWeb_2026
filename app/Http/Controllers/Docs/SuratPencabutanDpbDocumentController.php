@@ -47,7 +47,7 @@ class SuratPencabutanDpbDocumentController extends Controller
         // Ambil data pejabat penandatangan aktif
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -59,7 +59,7 @@ class SuratPencabutanDpbDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -74,7 +74,7 @@ class SuratPencabutanDpbDocumentController extends Controller
         }
 
         // Ambil daftar petugas penyidik polres
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->orderBy('first_name', 'asc')
@@ -221,7 +221,7 @@ class SuratPencabutanDpbDocumentController extends Controller
                 'jabatan_penandatangan' => $request->jabatan_penandatangan,
 
                 // Audit
-                'created_by_user_id' => Auth::id() ?: 1,
+                'created_by_user_id' => Auth::id(),
                 'ip_addresses' => ['created_ip' => $request->ip()],
                 'timestamps' => ['created_at' => Carbon::now()->toIso8601String()],
             ]);
@@ -252,7 +252,7 @@ class SuratPencabutanDpbDocumentController extends Controller
         // Ambil data pejabat penandatangan aktif
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereHasUserActive()
             ->hasDataComplete()
@@ -264,7 +264,7 @@ class SuratPencabutanDpbDocumentController extends Controller
             ->get();
 
         if ($authorizedSignatories->isEmpty()) {
-            $authorizedSignatories = Officer::withRelated()
+            $authorizedSignatories = Officer::withDocumentRelations()
                 ->selectFullName()
                 ->whereIn('police_id', $getOldNewPolresIds)
                 ->signatory()
@@ -279,7 +279,7 @@ class SuratPencabutanDpbDocumentController extends Controller
         }
 
         // Ambil daftar petugas penyidik polres
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->orderBy('first_name', 'asc')
@@ -408,7 +408,7 @@ class SuratPencabutanDpbDocumentController extends Controller
                 'nrp_penandatangan' => $request->nrp_penandatangan,
                 'jabatan_penandatangan' => $request->jabatan_penandatangan ?: $document->jabatan_penandatangan,
 
-                'updated_by_user_id' => Auth::id() ?: 1,
+                'updated_by_user_id' => Auth::id(),
             ]);
 
             DB::commit();

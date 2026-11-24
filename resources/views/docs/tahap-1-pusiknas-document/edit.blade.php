@@ -1037,12 +1037,13 @@
         // ==========================================
         @php
             $witnesses = \App\Models\Witness::where('accident_id', $document->accident_id)->where('group', 'TAHAP_I')->get();
+            $genderPusiknasMap = \App\Models\Lib\Gender::whereIn('id', $witnesses->pluck('gender_id')->filter())->pluck('pusiknas_id', 'id');
             $daftarSaksi = [];
             foreach ($witnesses as $w) {
                 $daftarSaksi[] = [
                     'nama' => $w->name,
                     'tempat_lahir' => $w->birth_place,
-                    'kode_jenis_kelamin' => (string)optional(\App\Models\Lib\Gender::find($w->gender_id))->pusiknas_id,
+                    'kode_jenis_kelamin' => (string) ($genderPusiknasMap[$w->gender_id] ?? ''),
                     'alamat' => $w->address,
                     'kode_wilayah' => null,
                     'kode_pendidikan' => null,

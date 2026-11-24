@@ -1,14 +1,57 @@
 @php
-    $_title = 'Ubah Personel';
+$_title = 'Ubah Personel';
 @endphp
 
 @extends('layouts.app')
 
 @push('style')
-    <link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
-    <link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
-    <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
-    <link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+<link href="https://adminlte.io/themes/v3/plugins/select2/css/select2.min.css" rel="stylesheet">
+<link href="https://adminlte.io/themes/v3/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet">
+<link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+<link href="https://adminlte.io/themes/v3/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet">
+<style>
+    /* Pastikan kolom input membungkus error ke bawah (tidak ke samping) tanpa mengubah lebar kolom */
+    #officerForm .col-lg-10.d-flex,
+    #officerForm .col-md-10.d-flex,
+    #officerForm .col-sm-12.d-flex,
+    #officerForm .col-12.d-flex {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: center !important;
+    }
+
+    #officerForm .form-control,
+    #officerForm .select2-container {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Pesan Error: tepat di bawah input, jarak proporsional, tanpa margin bawah tambahan */
+    #officerForm .frontend-error,
+    #officerForm .invalid-feedback {
+        display: block !important;
+        width: 100% !important;
+        margin-top: 4px !important;
+        margin-bottom: 0 !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        color: #dc3545 !important;
+        line-height: 1.3 !important;
+        clear: both !important;
+    }
+
+    /* Select2 Border Error */
+    #officerForm .select2-container .select2-selection.border-danger {
+        border-color: #dc3545 !important;
+    }
+
+    /* Radio & Checkbox Error Wrapper */
+    #officerForm .radio-group-error {
+        border: 1px solid #dc3545 !important;
+        border-radius: 4px;
+        padding: 2px 6px;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -20,30 +63,30 @@
 
         <!-- error alert -->
         @if ($errors->any())
-            <div class="card-body">
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
+        </div>
         @endif
 
         @if (session('error'))
-            <div class="card-body">
-                <div class="alert alert-danger">
-                    {{ session('error') }}
-                </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                {{ session('error') }}
             </div>
+        </div>
         @endif
     </div>
 
     <div class="boxy-body">
         <form
             action="{{ route('personnel.update', ['policeId' => $policeId, 'officerId' => $officer->id, 'id' => $user->id]) }}"
-            method="POST" enctype="multipart/form-data" id="officerForm">
+            method="POST" enctype="multipart/form-data" id="officerForm" novalidate>
             @csrf
 
             <input type="hidden" name="oldUserId" value="{{ $user->id }}">
@@ -56,9 +99,9 @@
                         value="{{ $currentOfficer->full_name }}" required
                         placeholder="Masukkan Nama Lengkap Dan Gelar Pendidikan" @if(Auth::user()->role_id != 1) readonly @endif>
                     @error('name')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -70,7 +113,7 @@
                         <div class="form-check mx-1">
                             <input class="form-check-input" type="radio" id="typePoliceEmployment" name="employmentType"
                                 value="1"
-                               @if ($currentOfficer->employment_type_id == 1 || empty($currentOfficer->employment_type_id)) checked @endif>
+                                @if ($currentOfficer->employment_type_id == 1 || empty($currentOfficer->employment_type_id)) checked @endif>
                             <label for="typePoliceEmployment">
                                 Anggota Polri
                             </label>
@@ -80,7 +123,7 @@
                             <input class="form-check-input" type="radio" id="typeCivilEmployment" name="employmentType"
                                 value="2"
                                 @if ($currentOfficer->employment_type_id == 2)
-                                        checked @endif>
+                            checked @endif>
                             <label for="typeCivilEmployment">
                                 PNS Polri
                             </label>
@@ -95,10 +138,10 @@
                     <select class="form-control select2" name="rank" id="rank">
                         <option value="">--Pilih Pangkat--</option>
                         @foreach ($ranks as $rank)
-                            <option value="{{ $rank->id }}"
-                                {{ ($currentOfficer->rank_id == $rank->id) ? 'selected' : '' }}>
-                                {{ $rank->full_name . ' (' . $rank->name . ')' }}
-                            </option>
+                        <option value="{{ $rank->id }}"
+                            {{ ($currentOfficer->rank_id == $rank->id) ? 'selected' : '' }}>
+                            {{ $rank->full_name . ' (' . $rank->name . ')' }}
+                        </option>
                         @endforeach
                     </select>
 
@@ -106,9 +149,9 @@
                         mendapat bantuan)</small>
 
                     @error('rank')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -120,9 +163,9 @@
                         value="{{ $currentOfficer->birth_date }}" data-provide="datepicker">
 
                     @error('birthDate')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -135,29 +178,29 @@
                         required placeholder="Masukkan NRP" @if(Auth::user()->role_id != 1) readonly @endif>
 
                     @error('registerNumber')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
 
-        <div class="input-group row mb-3 ms-0">
-            <label class="fw-bold col-sm-2 col-form-label" for="email">Email</label>
-            <div class="col-lg-10 col-md-10 col-sm-12 col-12 align-self-center">
-                <div class="input-group">
-                    <input id="email" type="text" class="form-control @error('email') is-invalid @enderror"
-                        name="email" value="{{ str_replace('@polri.go.id', '', $currentOfficer->email) }}" required
-                        placeholder="Email akan dibuat otomatis" readonly>
-                </div>
-                @error('email')
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="email">Email</label>
+                <div class="col-lg-10 col-md-10 col-sm-12 col-12 align-self-center">
+                    <div class="input-group">
+                        <input id="email" type="text" class="form-control @error('email') is-invalid @enderror"
+                            name="email" value="{{ str_replace('@polri.go.id', '', $currentOfficer->email) }}" required
+                            placeholder="Email akan dibuat otomatis" readonly>
+                    </div>
+                    @error('email')
                     <span class="invalid-feedback" role="alert">
                         <strong>{{ $message }}</strong>
                     </span>
-                @enderror
-                <small class="text-muted d-block mt-1">(*Email akan dibuat otomatis berdasarkan NRP)</small>
+                    @enderror
+                    <small class="text-muted d-block mt-1">(*Email akan dibuat otomatis berdasarkan NRP)</small>
+                </div>
             </div>
-        </div>
 
             <div class="input-group row mb-3 ms-0">
                 <label class="fw-bold col-sm-2 col-form-label" for="phoneNumber">Nomor Telepon</label>
@@ -166,9 +209,9 @@
                         name="phoneNumber" value="{{ $currentOfficer->phone_number }}" required
                         placeholder="Masukkan Nomor Telepon">
                     @error('phoneNumber')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -180,17 +223,18 @@
                         <option value="">--Pilih Jenis Kelamin--</option>
 
                         @foreach ($genders as $gender)
-                            <option value="{{ $gender->id }}"
-                                {{ ($currentOfficer->gender_id == $gender->id) ? 'selected' : '' }}>
-                                {{ $gender->name }}</option>
+                        <option value="{{ $gender->id }}"
+                            {{ ($currentOfficer->gender_id == $gender->id) ? 'selected' : '' }}>
+                            {{ $gender->name }}
+                        </option>
                         @endforeach
 
                     </select>
 
                     @error('gender')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -202,16 +246,17 @@
                         <option value="">--Pilih Agama--</option>
 
                         @foreach ($religions as $religion)
-                            <option value="{{ $religion->id }}"
-                                {{ ($currentOfficer->religion_id == $religion->id) ? 'selected' : '' }}>
-                                {{ $religion->name }}</option>
+                        <option value="{{ $religion->id }}"
+                            {{ ($currentOfficer->religion_id == $religion->id) ? 'selected' : '' }}>
+                            {{ $religion->name }}
+                        </option>
                         @endforeach
                     </select>
 
                     @error('religion')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -223,14 +268,14 @@
                         <option value="">--Pilih Jabatan--</option>
                         <option value="">--Tidak Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
                         @foreach ($positions as $position)
-                            @php
-                                $isCanSignatory = $position->positionCLuster ? ($position->positionCluster->is_can_signatory == true ? 'true' : 'false') : 'false';
-                            @endphp
+                        @php
+                        $isCanSignatory = $position->positionCluster ? ($position->positionCluster->is_can_signatory == true ? 'true' : 'false') : 'false';
+                        @endphp
 
-                            <option value="{{ $position->id }}" data-is-can-signatory="{{ $isCanSignatory }}"
-                                {{ ($currentOfficer->position_id == $position->id) ? 'selected' : '' }}>
-                                {{ $position->name }}
-                            </option>
+                        <option value="{{ $position->id }}" data-is-can-signatory="{{ $isCanSignatory }}"
+                            {{ ($currentOfficer->position_id == $position->id) ? 'selected' : '' }}>
+                            {{ $position->name }}
+                        </option>
                         @endforeach
                     </select>
 
@@ -238,22 +283,22 @@
                         mendapat bantuan)</small>
 
                     @error('position')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
 
                     @if (isset($currentOfficer->class))
-                        @if ($currentOfficer->class == 'SIGNATORY')
-                            @php $isRegisterSignatorySection = 'checked'; @endphp
-                        @endif
+                    @if ($currentOfficer->class == 'SIGNATORY')
+                    @php $isRegisterSignatorySection = 'checked'; @endphp
                     @endif
-                    <div class="mt-4" @if (isset($isRegisterSignatorySection) == false) style="display: none;" @endif
+                    @endif
+                    <div class="mt-4" @if (isset($isRegisterSignatorySection)==false) style="display: none;" @endif
                         id="isRegisterSignatorySection">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="isRegisterSignatory"
                                 name="isRegisterSignatory" value="true" aria-label="..."
-                                @if (isset($isRegisterSignatorySection) == true) checked @endif>
+                                @if (isset($isRegisterSignatorySection)==true) checked @endif>
                             <label for="isRegisterSignatory">
                                 Daftarkan Personnel Ini Sebagai Pejabat Penandatangan Tanda Tangan Elektronik
                             </label>
@@ -266,7 +311,7 @@
             </div>
 
             <div id="registerSignatorySection" class="mb-4"
-                @if (isset($isRegisterSignatorySection) == false) style="display: none;" @endif>
+                @if (isset($isRegisterSignatorySection)==false) style="display: none;" @endif>
                 <div class="card">
                     <div class="card-body">
                         <div class="input-group row mb-3 ms-0">
@@ -275,15 +320,16 @@
                                 <select class="form-control select2" name="registerSignatoryIdentityType"
                                     id="registerSignatoryIdentityType">
                                     @foreach ($registerSignatoryIdentityTypes as $registerSignatoryIdentityType)
-                                        <option value="{{ $registerSignatoryIdentityType->id }}" selected>
-                                            {{ $registerSignatoryIdentityType->name }}</option>
+                                    <option value="{{ $registerSignatoryIdentityType->id }}" selected>
+                                        {{ $registerSignatoryIdentityType->name }}
+                                    </option>
                                     @endforeach
                                 </select>
 
                                 @error('registerSignatoryIdentityType')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
                                 @enderror
                             </div>
                         </div>
@@ -299,9 +345,9 @@
                                     required placeholder="Masukkan nomor induk kependudukan">
 
                                 @error('registerSignatoryIdentityNumber')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
                                 @enderror
                             </div>
                         </div>
@@ -316,10 +362,10 @@
                         <option value="">--Pilih Pendidikan--</option>
 
                         @foreach ($educations as $education)
-                            <option value="{{ $education->id }}"
-                                {{ $currentOfficer->education_id == $education->id ? 'selected' : '' }}>
-                                {{ $education->name }}
-                            </option>
+                        <option value="{{ $education->id }}"
+                            {{ $currentOfficer->education_id == $education->id ? 'selected' : '' }}>
+                            {{ $education->name }}
+                        </option>
                         @endforeach
                     </select>
 
@@ -327,9 +373,9 @@
                         mendapat bantuan)</small>
 
                     @error('education')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -345,9 +391,9 @@
                         placeholder="Nama Universitas / Perguruan Tinggi / Sekolah (Opsional)">
 
                     @error('educationInstitutionName')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -360,10 +406,10 @@
                         <option value="">--Tidak Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
 
                         @foreach ($policeDiktukEducations as $policeDiktukEducation)
-                            <option value="{{ $policeDiktukEducation->id }}"
-                                {{ $currentOfficer->police_diktuk_education_id == $policeDiktukEducation->id ? 'selected' : '' }}>
-                                {{ $policeDiktukEducation->name }}
-                            </option>
+                        <option value="{{ $policeDiktukEducation->id }}"
+                            {{ $currentOfficer->police_diktuk_education_id == $policeDiktukEducation->id ? 'selected' : '' }}>
+                            {{ $policeDiktukEducation->name }}
+                        </option>
                         @endforeach
                     </select>
 
@@ -371,9 +417,9 @@
                         mendapat bantuan)</small>
 
                     @error('policeDiktukEducation')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
@@ -389,81 +435,81 @@
                         required placeholder="Tahun Lulus">
 
                     @error('policeDiktukEducationGraduateYear')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
                     @enderror
                 </div>
             </div>
 
             @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 5)
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="isRegisterAdmin">Flag</label>
-                    <div class="col-lg-10 col-md-10 col-sm-10">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="isRegisterAdmin"
-                                name="isRegisterAdmin" value="true" aria-label="..."
-                                @if ($currentOfficer->flag == 'ADMIN') checked @endif>
-                            <label for="isRegisterAdmin">
-                                Daftarkan Personnel Ini Sebagai Admin Satker
-                            </label>
-                        </div>
-
-                        @error('isRegisterAdmin')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
-
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="isRegisterAdminCanEntryDocument"
-                                name="isRegisterAdminCanEntryDocument" value="true" aria-label="..."
-                                @php
-                                    $isCanEntryDocument = $user->properties['is_can_entry_document'] ?? false;
-                                @endphp
-                                @if ($isCanEntryDocument == true) checked @endif>
-                            <label for="isRegisterAdminCanEntryDocument">
-                                Jadikan Personnel Ini Dapat Entry Dokumen
-                            </label>
-                        </div>
-
-                        @error('isRegisterAdminCanEntryDocument')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="isRegisterAdmin">Flag</label>
+                <div class="col-lg-10 col-md-10 col-sm-10">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isRegisterAdmin"
+                            name="isRegisterAdmin" value="true" aria-label="..."
+                            @if ($currentOfficer->flag == 'ADMIN') checked @endif>
+                        <label for="isRegisterAdmin">
+                            Daftarkan Personnel Ini Sebagai Admin Satker
+                        </label>
                     </div>
+
+                    @error('isRegisterAdmin')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isRegisterAdminCanEntryDocument"
+                            name="isRegisterAdminCanEntryDocument" value="true" aria-label="..."
+                            @php
+                            $isCanEntryDocument=$user->properties['is_can_entry_document'] ?? false;
+                        @endphp
+                        @if ($isCanEntryDocument == true) checked @endif>
+                        <label for="isRegisterAdminCanEntryDocument">
+                            Jadikan Personnel Ini Dapat Entry Dokumen
+                        </label>
+                    </div>
+
+                    @error('isRegisterAdminCanEntryDocument')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
                 </div>
+            </div>
             @elseif(Auth::user()->role_id == 3 && Auth::user()->police_id != $policeId)
-                <div class="input-group row mb-3 ms-0">
-                    <label class="fw-bold col-sm-2 col-form-label" for="isRegisterAdmin">Flag</label>
-                    <div class="col-lg-10 col-md-10 col-sm-10">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="isRegisterAdmin"
-                                name="isRegisterAdmin" value="true" aria-label="..."
-                                @if ($currentOfficer->flag == 'ADMIN') checked @endif>
-                            <label for="isRegisterAdmin">
-                                Daftarkan Personnel Ini Sebagai Admin Satker
-                            </label>
-                        </div>
-
-                        @error('isRegisterAdmin')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
+            <div class="input-group row mb-3 ms-0">
+                <label class="fw-bold col-sm-2 col-form-label" for="isRegisterAdmin">Flag</label>
+                <div class="col-lg-10 col-md-10 col-sm-10">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="isRegisterAdmin"
+                            name="isRegisterAdmin" value="true" aria-label="..."
+                            @if ($currentOfficer->flag == 'ADMIN') checked @endif>
+                        <label for="isRegisterAdmin">
+                            Daftarkan Personnel Ini Sebagai Admin Satker
+                        </label>
                     </div>
+
+                    @error('isRegisterAdmin')
+                    <span class="invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
                 </div>
-                
-                <input type="hidden" name="oldIsRegisterAdminCanEntryDocument" value="{{ $currentOfficer->flag == 'ADMIN' ? 'true' : 'false' }}">
-                <input type="hidden" name="isRegisterAdminCanEntryDocument" value="{{ $user->properties['is_can_entry_document'] ?? 'false' }}">
+            </div>
+
+            <input type="hidden" name="oldIsRegisterAdminCanEntryDocument" value="{{ $currentOfficer->flag == 'ADMIN' ? 'true' : 'false' }}">
+            <input type="hidden" name="isRegisterAdminCanEntryDocument" value="{{ $user->properties['is_can_entry_document'] ?? 'false' }}">
             @else
-                <input type="hidden" name="isRegisterAdmin" value="{{ $currentOfficer->flag == 'ADMIN' ? 'true' : 'false' }}">
-                <input type="hidden" name="isRegisterAdminCanEntryDocument" value="{{ $user->properties['is_can_entry_document'] ?? 'false' }}">
+            <input type="hidden" name="isRegisterAdmin" value="{{ $currentOfficer->flag == 'ADMIN' ? 'true' : 'false' }}">
+            <input type="hidden" name="isRegisterAdminCanEntryDocument" value="{{ $user->properties['is_can_entry_document'] ?? 'false' }}">
             @endif
 
-            <br/>
-            <hr/>
+            <br />
+            <hr />
 
             <div class="box-header">
                 <h5 class="fw-bold text-blue-dark">RIWAYAT JABATAN</h5>
@@ -476,7 +522,7 @@
                         <div id="careerHistory">
                             <div class="row">
                                 <div class="col-md-12">
-                                        <button class="btn btn-primary" id="addCareerHistoryButton" type="button"
+                                    <button class="btn btn-primary" id="addCareerHistoryButton" type="button"
                                         data-bs-toggle="modal" data-bs-target="#addCareerHistoryModal"><i
                                             class="bi bi-plus-circle"></i> Tambah</button>
                                 </div>
@@ -502,8 +548,8 @@
                 </div>
             </div>
 
-            <br/>
-            <hr/>
+            <br />
+            <hr />
 
             <div class="box-header">
                 <h5 class="fw-bold">PENDIDIKAN LANTAS / DIKJUR</h5>
@@ -516,7 +562,7 @@
                         <div id="policeDikjurEducation">
                             <div class="row">
                                 <div class="col-md-12">
-                                        <button class="btn btn-primary" id="addPoliceDikjurEducationButton" type="button"
+                                    <button class="btn btn-primary" id="addPoliceDikjurEducationButton" type="button"
                                         data-bs-toggle="modal" data-bs-target="#addPoliceDikjurEducationModal"><i
                                             class="bi bi-plus-circle"></i> Tambah</button>
                                 </div>
@@ -590,8 +636,8 @@
                 </div>
             </div>
 
-            <br/>
-            <hr/>
+            <br />
+            <hr />
 
             <div class="box-header">
                 <h5 class="fw-bold">RIWAYAT SERTIFIKASI</h5>
@@ -607,7 +653,7 @@
                             <div class="mb-3">
                                 <div class="icheck-primary">
                                     <input type="radio" id="existsOfficerCertificate" name="isExistsOfficerCertificate"
-                                        value="true" @if (empty(old('isExistsOfficerCertificate')) || old('isExistsOfficerCertificate') == true) checked @endif>
+                                        value="true" @if (empty(old('isExistsOfficerCertificate')) || old('isExistsOfficerCertificate')==true) checked @endif>
                                     <label for="existsOfficerCertificate">
                                         Sudah Memiliki Sertifikasi
                                     </label>
@@ -616,7 +662,7 @@
                                 <div class="icheck-primary">
                                     <input type="radio" id="notExistsOfficerCertificate"
                                         name="isExistsOfficerCertificate" value="false"
-                                        @if (!empty(old('isExistsOfficerCertificate')) && old('isExistsOfficerCertificate') == false) checked @endif>
+                                        @if (!empty(old('isExistsOfficerCertificate')) && old('isExistsOfficerCertificate')==false) checked @endif>
                                     <label for="notExistsOfficerCertificate">
                                         Belum Memiliki Sertifikasi
                                     </label>
@@ -630,8 +676,8 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <button class="btn btn-primary" id="addCertificateButton" type="button"
-                                    data-bs-toggle="modal" data-bs-target="#addCertificateModal"><i
-                                        class="bi bi-plus-circle"></i> Tambah</button>
+                                        data-bs-toggle="modal" data-bs-target="#addCertificateModal"><i
+                                            class="bi bi-plus-circle"></i> Tambah</button>
                                 </div>
                             </div>
 
@@ -656,8 +702,8 @@
                 </div>
             </div>
 
-            <br/>
-            <hr/>
+            <br />
+            <hr />
 
             <div class="card">
                 <div class="card-body">
@@ -722,8 +768,8 @@
                                                 value="">
                                         </div>
                                     </div>
-                                    
-                                    <hr/>
+
+                                    <hr />
                                     <div id="officerOperationControlAssistancePoliceSection" class="mt-4">
                                         <h6 class="fw-bold">WILAYAH HUKUM (SATKER ASAL)</h6>
                                         <div class="input-group row mb-3 ms-0">
@@ -744,7 +790,7 @@
                                                                 Polda
                                                             </label>
                                                         </div>
-                                                    
+
                                                         <div class="icheck-primary d-inline mx-1">
                                                             <input type="radio" id="officerOperationControlAssistancePoliceResorClass" name="officerOperationControlAssistancePoliceClass" value="RESOR" checked>
                                                             <label for="officerOperationControlAssistancePoliceResorClass">
@@ -754,8 +800,8 @@
                                                     </div>
                                                 </div>
 
-                                                <br/>
-                                                 <div class="row mt-1">
+                                                <br />
+                                                <div class="row mt-1">
                                                     <div class="col-md-6">
                                                         <div class="input-group mb-3">
                                                             <input type="text" class="form-control" id="officerOperationControlAssistancePoliceSearchField"
@@ -787,7 +833,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="text-center mt-4">
                 <button type="submit" class="btn btn-primary" id="officerFormSubmit">
                     <i class="bi bi-save"></i> {{ __('Simpan') }}
@@ -804,49 +850,49 @@
 <div class="modal fade" id="addCareerHistoryModal" tabindex="-1" role="dialog" aria-labelledby="addCareerHistoryModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content" id="modalContent">
-        <!-- Header Modal -->
-        <div class="modal-header">
-            <h5 class="modal-title" id="addCareerHistoryModalLabel">RIWAYAT JABATAN</h5>
-            </button>
-        </div>
-
-        <!-- Body Modal -->
-        <div class="modal-body">
-            <div class="alert alert-primary mt-1 mb-3" role="alert">
-                Jika tidak terdapat opsi yang sesuai, silahkan menghubungi Helpdesk ICELL untuk koordinasi.
+            <!-- Header Modal -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCareerHistoryModalLabel">RIWAYAT JABATAN</h5>
+                </button>
             </div>
-            <form id="careerHistoryForm">
-                <div class="form-group mb-4">
-                    <label for="careerHistoryPoliceDivision">Fungsi</label>
-                    <select class="form-control" id="careerHistoryPoliceDivision">
-                        <option value="">--Pilihan Fungsi--</option>
-                        <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
 
-                        @foreach ($policeDivisions as $policeDivision)
+            <!-- Body Modal -->
+            <div class="modal-body">
+                <div class="alert alert-primary mt-1 mb-3" role="alert">
+                    Jika tidak terdapat opsi yang sesuai, silahkan menghubungi Helpdesk ICELL untuk koordinasi.
+                </div>
+                <form id="careerHistoryForm">
+                    <div class="form-group mb-4">
+                        <label for="careerHistoryPoliceDivision">Fungsi</label>
+                        <select class="form-control" id="careerHistoryPoliceDivision">
+                            <option value="">--Pilihan Fungsi--</option>
+                            <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+
+                            @foreach ($policeDivisions as $policeDivision)
                             <option value="{{ $policeDivision->id }}">
                                 {{ $policeDivision->name }}
                             </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group mb-4">
-                    <label for="careerHistoryPositionName">Jabatan</label>
-                    <input type="text" class="form-control" id="careerHistoryPositionName" placeholder="" value="">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="careerHistoryYear">Tahun</label>
-                    <input type="text" class="form-control" id="careerHistoryYear" placeholder="YYYY" value="">
-                </div>
-            </form>
-        </div>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="careerHistoryPositionName">Jabatan</label>
+                        <input type="text" class="form-control" id="careerHistoryPositionName" placeholder="" value="">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="careerHistoryYear">Tahun</label>
+                        <input type="text" class="form-control" id="careerHistoryYear" placeholder="YYYY" value="">
+                    </div>
+                </form>
+            </div>
 
-        <!-- Footer Modal -->
-        <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
-                    class="bi bi-x-circle"></i> Batal</button>
-            <button type="button" class="btn btn-dark-blue" id="saveAddCareerHistoryButton"><i
-                    class="bi bi-save"></i> Simpan</button>
-        </div>
+            <!-- Footer Modal -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
+                        class="bi bi-x-circle"></i> Batal</button>
+                <button type="button" class="btn btn-dark-blue" id="saveAddCareerHistoryButton"><i
+                        class="bi bi-save"></i> Simpan</button>
+            </div>
         </div>
     </div>
 </div>
@@ -855,58 +901,58 @@
 <div class="modal fade" id="addPoliceDikjurEducationModal" tabindex="-1" role="dialog" aria-labelledby="addPoliceDikjurEducationModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content" id="modalContent">
-        <!-- Header Modal -->
-        <div class="modal-header">
-            <h5 class="modal-title" id="addPoliceDikjurEducationModalLabel">PENDIDIKAN LANTAS/DIKJUR</h5>
-            </button>
-        </div>
-
-        <!-- Body Modal -->
-        <div class="modal-body">
-            <div class="alert alert-primary mt-1 mb-3" role="alert">
-                Jika tidak terdapat opsi yang sesuai, silahkan menghubungi Helpdesk ICELL untuk koordinasi.
+            <!-- Header Modal -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPoliceDikjurEducationModalLabel">PENDIDIKAN LANTAS/DIKJUR</h5>
+                </button>
             </div>
-            <form id="oliceSpecialEducationForm">
-                <div class="form-group mb-4">
-                    <label for="policeDikjurEducationPlace">Tempat Pendidikan Lantas</label>
-                    <select class="form-control" id="policeDikjurEducationPlace">
-                        <option value="">--Pilihan Tempat Pendidikan Lantas--</option>
-                        <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
 
-                        @foreach ($policeDikjurEducationPlaces as $policeDikjurEducationPlace)
+            <!-- Body Modal -->
+            <div class="modal-body">
+                <div class="alert alert-primary mt-1 mb-3" role="alert">
+                    Jika tidak terdapat opsi yang sesuai, silahkan menghubungi Helpdesk ICELL untuk koordinasi.
+                </div>
+                <form id="oliceSpecialEducationForm">
+                    <div class="form-group mb-4">
+                        <label for="policeDikjurEducationPlace">Tempat Pendidikan Lantas</label>
+                        <select class="form-control" id="policeDikjurEducationPlace">
+                            <option value="">--Pilihan Tempat Pendidikan Lantas--</option>
+                            <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+
+                            @foreach ($policeDikjurEducationPlaces as $policeDikjurEducationPlace)
                             <option value="{{ $policeDikjurEducationPlace->id }}">
                                 {{ $policeDikjurEducationPlace->name }}
                             </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group mb-4">
-                    <label for="policeDikjurEducationGraduateYear">Tahun Lulus Pendidikan Lantas</label>
-                    <input type="text" class="form-control" id="policeDikjurEducationGraduateYear" placeholder="YYYY" value="">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="policeDikjurEducationMaterial">Materi Pendidikan Lantas</label>
-                    <select class="form-control" id="policeDikjurEducationMaterial">
-                        <option value="">--Pilih Materi Pendidikan Lantas--</option>
-                        <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="policeDikjurEducationGraduateYear">Tahun Lulus Pendidikan Lantas</label>
+                        <input type="text" class="form-control" id="policeDikjurEducationGraduateYear" placeholder="YYYY" value="">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="policeDikjurEducationMaterial">Materi Pendidikan Lantas</label>
+                        <select class="form-control" id="policeDikjurEducationMaterial">
+                            <option value="">--Pilih Materi Pendidikan Lantas--</option>
+                            <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
 
-                        @foreach ($policeDikjurEducationMaterials as $policeDikjurEducationMaterial)
+                            @foreach ($policeDikjurEducationMaterials as $policeDikjurEducationMaterial)
                             <option value="{{ $policeDikjurEducationMaterial->id }}">
                                 {{ $policeDikjurEducationMaterial->name }}
                             </option>
-                        @endforeach
-                    </select>
-                </div>
-            </form>
-        </div>
+                            @endforeach
+                        </select>
+                    </div>
+                </form>
+            </div>
 
-        <!-- Footer Modal -->
-        <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
-                    class="bi bi-x-circle"></i> Batal</button>
-            <button type="button" class="btn btn-dark-blue" id="saveAddPoliceDikjurEducationButton"><i
-                    class="bi bi-save"></i> Simpan</button>
-        </div>
+            <!-- Footer Modal -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
+                        class="bi bi-x-circle"></i> Batal</button>
+                <button type="button" class="btn btn-dark-blue" id="saveAddPoliceDikjurEducationButton"><i
+                        class="bi bi-save"></i> Simpan</button>
+            </div>
         </div>
     </div>
 </div>
@@ -915,52 +961,52 @@
 <div class="modal fade" id="addCertificateModal" tabindex="-1" role="dialog" aria-labelledby="addCertificateModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content" id="modalContent">
-        <!-- Header Modal -->
-        <div class="modal-header">
-            <h5 class="modal-title" id="addCertificateModalLabel">Tambah Riwayat Sertifikasi Personnel</h5>
-            </button>
-        </div>
+            <!-- Header Modal -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCertificateModalLabel">Tambah Riwayat Sertifikasi Personnel</h5>
+                </button>
+            </div>
 
-        <!-- Body Modal -->
-        <div class="modal-body">
-            <form id="certificateForm">
-                <div class="form-group mb-4">
-                    <label for="certificateType">Jenis Sertifikat</label>
-                    <select class="form-control" id="certificateType" name="certificateType">
-                        <option value="">--Pilih Jenis Sertifikat--</option>
-                        <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
+            <!-- Body Modal -->
+            <div class="modal-body">
+                <form id="certificateForm">
+                    <div class="form-group mb-4">
+                        <label for="certificateType">Jenis Sertifikat</label>
+                        <select class="form-control" id="certificateType" name="certificateType">
+                            <option value="">--Pilih Jenis Sertifikat--</option>
+                            <option value="">--Belum Ada Pilihan (Silahkan Hubungi Helpdesk)--</option>
 
-                        @foreach ($certificateTypes as $certificateType)
+                            @foreach ($certificateTypes as $certificateType)
                             <option value="{{ $certificateType->id }}">
                                 {{ $certificateType->name }}
                             </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="form-group mb-4">
-                    <label for="certificateNumber">Nomor Sertifikat</label>
-                    <input type="text" class="form-control mt-2" id="certificateNumber" placeholder="" value="">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="certificateStartDate">Tanggal Mulai Berlaku</label>
-                    <input class="form-control datepicker" id="certificateStartDate" name="certificateStartDate"
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="certificateNumber">Nomor Sertifikat</label>
+                        <input type="text" class="form-control mt-2" id="certificateNumber" placeholder="" value="">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="certificateStartDate">Tanggal Mulai Berlaku</label>
+                        <input class="form-control datepicker" id="certificateStartDate" name="certificateStartDate"
                             placeholder="YYYY-MM-DD" autocomplete="off" value="" data-provide="datepicker">
-                </div>
-                <div class="form-group mb-4">
-                    <label for="certificateEndDate">Tanggal Kadaluwarsa</label>
-                    <input class="form-control datepicker" id="certificateEndDate" name="certificateEndDate"
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="certificateEndDate">Tanggal Kadaluwarsa</label>
+                        <input class="form-control datepicker" id="certificateEndDate" name="certificateEndDate"
                             placeholder="YYYY-MM-DD" autocomplete="off" value="" data-provide="datepicker">
-                </div>
-            </form>
-        </div>
+                    </div>
+                </form>
+            </div>
 
-        <!-- Footer Modal -->
-        <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
-                    class="bi bi-x-circle"></i> Batal</button>
-            <button type="button" class="btn btn-dark-blue" id="saveAddCertificateButton"><i
-                    class="bi bi-save"></i> Simpan</button>
-        </div>
+            <!-- Footer Modal -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"><i
+                        class="bi bi-x-circle"></i> Batal</button>
+                <button type="button" class="btn btn-dark-blue" id="saveAddCertificateButton"><i
+                        class="bi bi-save"></i> Simpan</button>
+            </div>
         </div>
     </div>
 </div>
@@ -974,19 +1020,28 @@
 <script src="https://adminlte.io/themes/v3/plugins/select2/js/select2.full.min.js"></script>
 <script src="{{ asset('libs/sweetalert/sweetalert2.all.min.js') }}"></script>
 
+<script id="personnel-edit-data" type="application/json">{!! json_encode([
+    'officer' => $officer,
+    'careerHistories' => $officer->officerCareerHistories,
+    'policeDikjurEducations' => $officer->officerPoliceDikjurEducations,
+    'certificateHistories' => $officer->officerCertificateHistories,
+    'investigativeDetail' => $officer->officerInvestigativeDetail,
+    'operationControlAssistance' => $officer->officerOperationControlAssistance,
+], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
 <script type="text/javascript">
     $(document).ready(function() {
-        var officer = @json($officer);
-        var careerHistories = @json($officer->officerCareerHistories);
-        var policeDikjurEducations = @json($officer->officerPoliceDikjurEducations);
-        var certificateHistories = @json($officer->officerCertificateHistories);
-        var investigativeDetail = @json($officer->officerInvestigativeDetail);
-        var operationControlAssistance = @json($officer->officerOperationControlAssistance);
-        
+        var personnelData = JSON.parse(document.getElementById('personnel-edit-data').textContent);
+        var officer = personnelData.officer;
+        var careerHistories = personnelData.careerHistories;
+        var policeDikjurEducations = personnelData.policeDikjurEducations;
+        var certificateHistories = personnelData.certificateHistories;
+        var investigativeDetail = personnelData.investigativeDetail;
+        var operationControlAssistance = personnelData.operationControlAssistance;
+
         //careerHistory
-        $(function(){
-            for (var key in careerHistories){
-                if(careerHistories.hasOwnProperty(key)){
+        $(function() {
+            for (var key in careerHistories) {
+                if (careerHistories.hasOwnProperty(key)) {
                     var careerHistory = careerHistories[key];
                     var careerHistoryPoliceDivisionId = careerHistory.police_division.id ?? '';
                     var careerHistoryPoliceDivisionName = careerHistory.police_division.name ?? '';
@@ -1020,9 +1075,9 @@
         });
 
         //policeDikjurEducations
-        $(function(){
-            for (var key in policeDikjurEducations){
-                if(policeDikjurEducations.hasOwnProperty(key)){
+        $(function() {
+            for (var key in policeDikjurEducations) {
+                if (policeDikjurEducations.hasOwnProperty(key)) {
                     var policeDikjurEducation = policeDikjurEducations[key];
                     var policeDikjurEducationPlaceId = policeDikjurEducation.police_dikjur_education_place.id ?? '';
                     var policeDikjurEducationPlaceName = policeDikjurEducation.police_dikjur_education_place.name ?? '';
@@ -1057,10 +1112,10 @@
         });
 
         //certificateHistories
-        $(function(){
+        $(function() {
             if (officer != null) {
                 var isOfficerCertificateExists = officer.is_certificate_exists;
-                if(isOfficerCertificateExists == true || isOfficerCertificateExists == 'true'){
+                if (isOfficerCertificateExists == true || isOfficerCertificateExists == 'true') {
                     $('input[name="isExistsOfficerCertificate"][value="true"]').prop('checked', true).trigger('change');
                     $('#officerCertificateSection').show();
                 } else {
@@ -1069,8 +1124,8 @@
                 }
             }
 
-            for (var key in certificateHistories){
-                if(certificateHistories.hasOwnProperty(key)){
+            for (var key in certificateHistories) {
+                if (certificateHistories.hasOwnProperty(key)) {
                     var certificateHistory = certificateHistories[key];
                     var certificateHistoryTypeId = certificateHistory.certificate_type.id ?? '';
                     var certificateHistoryTypeName = certificateHistory.certificate_type.name ?? '';
@@ -1107,10 +1162,10 @@
         });
 
         //operationControlAssistance
-        $(function(){
+        $(function() {
             if (operationControlAssistance != null) {
                 var isOfficerOperationControlAssistance = operationControlAssistance.is_operation_control_assistance;
-                if(isOfficerOperationControlAssistance == true || isOfficerOperationControlAssistance == 'true'){
+                if (isOfficerOperationControlAssistance == true || isOfficerOperationControlAssistance == 'true') {
                     $('input[name="isOfficerOperationControlAssistance"][value="true"]').prop('checked', true).trigger('change');
                     $('#officerOperationControlAssistanceSection').show();
 
@@ -1131,10 +1186,10 @@
         });
 
         //investigativeDetail
-        $(function(){
+        $(function() {
             if (investigativeDetail != null) {
                 var isOfficerSkepPenyidikExists = investigativeDetail.is_skep_penyidik_exists;
-                if(isOfficerSkepPenyidikExists == true || isOfficerSkepPenyidikExists == 'true'){
+                if (isOfficerSkepPenyidikExists == true || isOfficerSkepPenyidikExists == 'true') {
                     $('input[name="isExistsOfficerSkepPenyidik"][value="true"]').prop('checked', true).trigger('change');
                     $('#officerSkepPenyidikSection').show();
 
@@ -1165,7 +1220,7 @@
             $(this).val(input);
         });
 
-        $(function(){
+        $(function() {
             var positionIsCanSignatory = $('#position').find(':selected').data('is-can-signatory');
 
             if (positionIsCanSignatory == true || positionIsCanSignatory == 'true') {
@@ -1242,7 +1297,7 @@
             theme: 'bootstrap4',
             width: '100%'
         });
-        
+
         $('#careerHistoryForm #careerHistoryPoliceDivision').select2({
             dropdownParent: $('#careerHistoryPoliceDivision').parent(),
             theme: 'bootstrap4',
@@ -1300,7 +1355,7 @@
                     '<small class="text-danger">Inputan ini wajib diisi</small>');
 
                 return false;
-            } 
+            }
 
             // Append data ke table
             $('#policeDikjurEducationTable tbody').append(
@@ -1344,7 +1399,7 @@
 
     //certificate history
     $(document).ready(function() {
-         $('input[name="isExistsOfficerCertificate"]').on('change', function() {
+        $('input[name="isExistsOfficerCertificate"]').on('change', function() {
             if ($(this).val() == 'true') {
                 $('#officerCertificateSection').show();
             } else {
@@ -1376,7 +1431,7 @@
                     '<small class="text-danger">Inputan ini wajib diisi</small>');
 
                 return false;
-            } 
+            }
 
             // Append data ke table
             $('#certificateTable tbody').append(
@@ -1452,7 +1507,7 @@
                     '<small class="text-danger">Inputan ini wajib diisi</small>');
 
                 return false;
-            } 
+            }
 
             // Append data ke table
             $('#careerHistoryTable tbody').append(
@@ -1498,8 +1553,8 @@
                 $('#officerSkepPenyidikSection').hide();
             }
         });
-        
-        $('input[name="isOfficerOperationControlAssistance"]' ).on('change', function() {
+
+        $('input[name="isOfficerOperationControlAssistance"]').on('change', function() {
             if ($(this).val() == 'true') {
                 $('#officerOperationControlAssistanceSection').show();
             } else {
@@ -1607,7 +1662,7 @@
                     title: 'Oops...',
                     text: 'Silahkan isi kolom pencarian terlebih dahulu!'
                 });
-            } 
+            }
 
             //call ajax to get ranks
             $.ajax({
@@ -1633,7 +1688,7 @@
 
                     $.each(response.data, function(key, value) {
                         var parent = (value.parent != null) ? value.parent.full_name : '';
-                        var text =  (parent != '') ? value.full_name + ' - ' + parent : value.full_name;
+                        var text = (parent != '') ? value.full_name + ' - ' + parent : value.full_name;
 
                         $('#officerOperationControlAssistancePoliceSearchOption').append(
                             '<option value="' + value.id + '" data-police-name="' + text + '">' + text + '</option>');
@@ -1661,7 +1716,7 @@
                     title: 'Oops...',
                     text: 'Silahkan pilih opsi pencarian terlebih dahulu!'
                 });
-            } 
+            }
 
             $('#officerOperationControlAssistanceOriginPoliceName').val(policeName);
             $('#officerOperationControlAssistanceOriginPoliceId').val(policeId);
@@ -1669,91 +1724,340 @@
     });
 
     // Auto-generate email from NRP
-        $(document).ready(function() {
-            // Function to generate email from NRP
-            function generateEmailFromNRP(nrp) {
-                // Hapus spasi dan karakter khusus
-                let cleanNRP = nrp.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-                
-                // Jika NRP kosong, return string kosong
-                if (cleanNRP === '') return '';
-                
-                // Concat dengan domain untuk email lengkap
-                return cleanNRP + '@polri.go.id';
-            }
-            
-            // Event when NRP input changes
-            $('#registerNumber').on('input', function() {
-                let nrp = $(this).val();
-                let generatedEmail = generateEmailFromNRP(nrp);
-                $('#email').val(generatedEmail);
-            });
-            
-            // Mengisi email otomatis saat halaman dimuat jika NRP sudah terisi
-            if ($('#registerNumber').val()) {
-                let nrp = $('#registerNumber').val();
-                let generatedEmail = generateEmailFromNRP(nrp);
-                $('#email').val(generatedEmail);
-            }
-            
-            // Jika form disubmit, pastikan email sudah dalam format yang benar
-            $('#officerForm').on('submit', function() {
-                let emailValue = $('#email').val();
-                let nrp = $('#registerNumber').val();
-                
-                // Jika email kosong tapi NRP ada, generate email
-                if ((!emailValue || emailValue === '') && nrp) {
-                    $('#email').val(generateEmailFromNRP(nrp));
-                }
-                
-                // Jika email ada tapi tidak mengandung @polri.go.id, tambahkan
-                if (emailValue && !emailValue.includes('@polri.go.id')) {
-                    $('#email').val(emailValue + '@polri.go.id');
-                }
-            });
+    $(document).ready(function() {
+        // Function to generate email from NRP
+        function generateEmailFromNRP(nrp) {
+            // Hapus spasi dan karakter khusus
+            let cleanNRP = nrp.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+            // Jika NRP kosong, return string kosong
+            if (cleanNRP === '') return '';
+
+            // Concat dengan domain untuk email lengkap
+            return cleanNRP + '@polri.go.id';
+        }
+
+        // Event when NRP input changes
+        $('#registerNumber').on('input', function() {
+            let nrp = $(this).val();
+            let generatedEmail = generateEmailFromNRP(nrp);
+            $('#email').val(generatedEmail);
         });
-    
+
+        // Mengisi email otomatis saat halaman dimuat jika NRP sudah terisi
+        if ($('#registerNumber').val()) {
+            let nrp = $('#registerNumber').val();
+            let generatedEmail = generateEmailFromNRP(nrp);
+            $('#email').val(generatedEmail);
+        }
+
+        // Jika form disubmit, pastikan email sudah dalam format yang benar
+        $('#officerForm').on('submit', function() {
+            let emailValue = $('#email').val();
+            let nrp = $('#registerNumber').val();
+
+            // Jika email kosong tapi NRP ada, generate email
+            if ((!emailValue || emailValue === '') && nrp) {
+                $('#email').val(generateEmailFromNRP(nrp));
+            }
+
+            // Jika email ada tapi tidak mengandung @polri.go.id, tambahkan
+            if (emailValue && !emailValue.includes('@polri.go.id')) {
+                $('#email').val(emailValue + '@polri.go.id');
+            }
+        });
+    });
+
+    // Helper: Scroll ke field error pertama (identik dengan modul dokumen)
+    function scrollToFirstError() {
+        setTimeout(function() {
+            var $firstError = $('.is-invalid:visible, .border-danger:visible, .frontend-error:visible').first();
+            if (!$firstError.length) {
+                $firstError = $('.is-invalid, .border-danger').first();
+            }
+
+            if ($firstError && $firstError.length) {
+                var $target = $firstError;
+                if ($firstError.next('.select2-container').is(':visible')) {
+                    $target = $firstError.next('.select2-container');
+                } else if ($firstError.siblings('.select2-container').is(':visible')) {
+                    $target = $firstError.siblings('.select2-container');
+                } else if ($firstError.closest('.input-group').length && $firstError.closest('.input-group').is(':visible')) {
+                    $target = $firstError.closest('.input-group');
+                } else if ($firstError.closest('.form-check, .d-flex, .icheck-primary').length && $firstError.closest('.form-check, .d-flex, .icheck-primary').is(':visible')) {
+                    $target = $firstError.closest('.form-check, .d-flex, .icheck-primary');
+                }
+
+                if ($target[0] && typeof $target[0].scrollIntoView === 'function') {
+                    $target[0].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+                if ($target.offset()) {
+                    $('html, body, .content-wrapper, .wrapper, main').stop().animate({
+                        scrollTop: Math.max(0, $target.offset().top - 140)
+                    }, 400);
+                }
+            } else {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
+    }
+
+    // Realtime Error Cleanup saat input diisi/diubah
+    $(document).on('input change', 'input, select, textarea', function() {
+        var $el = $(this);
+        $el.removeClass('is-invalid');
+        if ($el.next('.select2-container').length) {
+            $el.next('.select2-container').find('.select2-selection').removeClass('border border-danger is-invalid');
+        }
+        var $col = $el.closest('.col-lg-10, .col-md-10, .col-sm-12, .col-12');
+        if ($col.length) {
+            $col.find('.frontend-error, .invalid-feedback').remove();
+            $col.find('.radio-group-error').removeClass('radio-group-error is-invalid');
+        }
+        $el.siblings('.frontend-error, .invalid-feedback').remove();
+        $el.next('.frontend-error, .invalid-feedback').remove();
+        $el.closest('.border-danger').removeClass('border border-danger is-invalid');
+        $el.closest('.radio-group-error').removeClass('radio-group-error is-invalid');
+    });
+
     // Validasi Submit Form
     $(document).ready(function() {
         $('#officerFormSubmit').on('click', function(e) {
             e.preventDefault();
 
-            // Lakukan validasi di sisi server menggunakan Ajax
+            // Format email terlebih dahulu jika belum sesuai
+            var emailVal = $('#email').val();
+            var nrpVal = $('#registerNumber').val();
+            if ((!emailVal || emailVal === '') && nrpVal) {
+                $('#email').val(generateEmailFromNRP(nrpVal));
+            } else if (emailVal && !emailVal.includes('@polri.go.id')) {
+                $('#email').val(emailVal + '@polri.go.id');
+            }
+
+            // Bersihkan penanda error sebelumnya
+            $('.is-invalid').removeClass('is-invalid');
+            $('.border.border-danger').removeClass('border border-danger');
+            $('.select2-selection').removeClass('border border-danger is-invalid');
+            $('.radio-group-error').removeClass('radio-group-error is-invalid');
+            $('.frontend-error').remove();
+            $('.invalid-feedback').remove();
+
+            var errors = [];
+
+            function markError(fieldSelector, message) {
+                var $field = typeof fieldSelector === 'string' ? $(fieldSelector) : fieldSelector;
+                if (!$field || !$field.length) return;
+
+                $field.addClass('is-invalid');
+
+                if ($field.next('.select2-container').length) {
+                    $field.next('.select2-container').find('.select2-selection').addClass('border border-danger is-invalid');
+                }
+
+                if ($field.attr('type') === 'radio' || $field.attr('type') === 'checkbox') {
+                    var $parentGroup = $field.closest('.d-flex, .icheck-primary, .form-check');
+                    if ($parentGroup.length) {
+                        $parentGroup.addClass('radio-group-error is-invalid');
+                    }
+                }
+
+                if ($field.is('table') || $field.attr('id') === 'certificateTable') {
+                    var $tableWrapper = $field.closest('.input-group, #certificate');
+                    $tableWrapper.siblings('.frontend-error, .invalid-feedback').remove();
+                    $tableWrapper.next('.frontend-error, .invalid-feedback').remove();
+                    $tableWrapper.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                } else {
+                    var $col = $field.closest('.col-lg-10, .col-md-10, .col-sm-12, .col-12');
+                    if ($col.length) {
+                        $col.find('.frontend-error, .invalid-feedback').remove();
+                        $col.append('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    } else {
+                        var $target = $field;
+                        if ($field.next('.select2-container').length) {
+                            $target = $field.next('.select2-container');
+                        } else if ($field.closest('.input-group').length) {
+                            $target = $field.closest('.input-group');
+                        }
+                        $target.siblings('.frontend-error, .invalid-feedback').remove();
+                        $target.next('.frontend-error, .invalid-feedback').remove();
+                        $target.after('<div class="invalid-feedback d-block frontend-error">' + message + '</div>');
+                    }
+                }
+
+                errors.push(message);
+            }
+
+            function checkInput(fieldSelector, label) {
+                var $field = $(fieldSelector);
+                if ($field.is(':disabled') || !$field.is(':visible')) return;
+                var raw = $field.val();
+                var val = (raw !== null && raw !== undefined) ? String(raw).trim() : '';
+                if (!val || val === '') {
+                    markError(fieldSelector, label + ' harus diisi');
+                }
+            }
+
+            function checkSelect(fieldSelector, label) {
+                var $field = $(fieldSelector);
+                if ($field.is(':disabled') || (!$field.is(':visible') && !$field.next('.select2-container:visible').length)) return;
+                var raw = $field.val();
+                var hasVal = Array.isArray(raw) ? raw.length > 0 : (raw && String(raw).trim() !== '' && String(raw).trim() !== '0');
+                if (!hasVal) {
+                    markError(fieldSelector, label + ' harus dipilih');
+                }
+            }
+
+            // 1. Validasi Frontend Field Wajib
+            checkInput('#name', 'Nama Lengkap');
+
+            if ($('input[name="employmentType"]:checked').length === 0) {
+                markError('input[name="employmentType"]', 'Status Kepegawaian harus dipilih');
+            }
+
+            checkSelect('#rank', 'Pangkat/Golongan');
+            checkInput('#birthDate', 'Tanggal Lahir');
+
+            var nrp = ($('#registerNumber').val() || '').trim();
+            if (!nrp) {
+                markError('#registerNumber', 'NRP harus diisi');
+            } else if (!/^\d+$/.test(nrp)) {
+                markError('#registerNumber', 'NRP harus berupa angka');
+            } else if (!/^\d{8}$|^\d{16}$/.test(nrp)) {
+                markError('#registerNumber', 'NRP harus lengkap (8 digit untuk NRP atau 16 digit untuk NIP)');
+            }
+
+            var email = ($('#email').val() || '').trim();
+            if (!email) {
+                markError('#email', 'Email harus diisi');
+            } else if (!email.includes('@')) {
+                markError('#email', 'Format Email tidak valid');
+            }
+
+            checkInput('#phoneNumber', 'Nomor Telepon');
+            checkSelect('#gender', 'Jenis Kelamin');
+            checkSelect('#religion', 'Agama');
+            checkSelect('#position', 'Jabatan Struktural');
+
+            if ($('#isRegisterSignatory').is(':checked')) {
+                checkSelect('#registerSignatoryIdentityType', 'Jenis Identitas Penandatangan');
+                checkInput('#registerSignatoryIdentityNumber', 'Nomor NIK Penandatangan');
+            }
+
+            checkSelect('#education', 'Jenjang Pendidikan Terakhir');
+            checkSelect('#policeDiktukEducation', 'Diktuk Polri');
+            checkInput('#policeDiktukEducationGraduateYear', 'Tahun Lulus Diktuk');
+
+            var skepPenyidikChecked = $('input[name="isExistsOfficerSkepPenyidik"]:checked').val();
+            if (!skepPenyidikChecked) {
+                markError('input[name="isExistsOfficerSkepPenyidik"]', 'Status Kepenyidikan harus dipilih');
+            } else if (skepPenyidikChecked === 'true') {
+                checkInput('#officerSkepPenyidikNumber', 'Nomor Skep Penyidik');
+            }
+
+            var certChecked = $('input[name="isExistsOfficerCertificate"]:checked').val();
+            if (!certChecked) {
+                markError('input[name="isExistsOfficerCertificate"]', 'Status Sertifikasi harus dipilih');
+            } else if (certChecked === 'true') {
+                if ($('#certificateTable tbody tr').length === 0 || $('#certificateTable input[name="certificateNumbers[]"]').length === 0) {
+                    markError('#certificateTable', 'Sertifikat harus ditambahkan minimal 1 jika memilih sudah memiliki sertifikasi');
+                }
+            }
+
+            var bkoChecked = $('input[name="isOfficerOperationControlAssistance"]:checked').val();
+            if (!bkoChecked) {
+                markError('input[name="isOfficerOperationControlAssistance"]', 'Status BKO harus dipilih');
+            } else if (bkoChecked === 'true') {
+                checkInput('#officerOperationControlAssistanceNumber', 'Nomor Surat BKO');
+                checkInput('#officerOperationControlAssistanceDate', 'Tanggal Penugasan BKO');
+                var bkoOriginPolice = ($('#officerOperationControlAssistanceOriginPoliceId').val() || '').trim();
+                if (!bkoOriginPolice) {
+                    markError('#officerOperationControlAssistanceOriginPoliceName', 'Satker Asal BKO harus dipilih');
+                }
+            }
+
+            // Jika terdapat error pada frontend, langsung scroll ke field pertama
+            if (errors.length > 0) {
+                scrollToFirstError();
+                return false;
+            }
+
+            // 2. Lakukan validasi di sisi server menggunakan Ajax
             $.ajax({
                 url: "{{ route('personnel.api.validate-request-form', ['policeId' => $policeId]) }}",
                 type: 'POST',
                 dataType: 'json',
                 data: $('#officerForm').serialize(),
                 success: function(response) {
-                    // Cek jika validasi berhasil di sisi server
                     if (response.success) {
-                        // sweetalert2 berhasil sebelum submit form
                         Swal.fire({
                             title: 'Berhasil',
                             text: response.message,
                             icon: 'success',
                             confirmButtonText: 'Ok'
                         }).then((result) => {
-                            // Submit form
-                            $('#officerForm').submit();
+                            $('#officerForm')[0].submit();
                         });
                     }
                 },
                 error: function(xhr) {
-                    // Tangani error jika terjadi kesalahan saat melakukan validasi
-                    response = JSON.parse(xhr.responseText);
+                    try {
+                        var response = JSON.parse(xhr.responseText);
 
-                    if (response.code == '422') {
-                        var errorMessages = '';
+                        if (response.code == '422' && response.errors) {
+                            var errorMessages = '';
 
-                        $.each(response.errors, function(key, value) {
-                            errorMessages += '- ' + value + '<br>';
-                        });
+                            $('.is-invalid').removeClass('is-invalid');
+                            $('.border.border-danger').removeClass('border border-danger');
+                            $('.select2-selection').removeClass('border border-danger is-invalid');
+                            $('.frontend-error').remove();
+                            $('.invalid-feedback').remove();
+                            errors = [];
 
-                        return Swal.fire({
+                            $.each(response.errors, function(key, messages) {
+                                var msg = Array.isArray(messages) ? messages[0] : messages;
+                                errorMessages += '- ' + msg + '<br>';
+
+                                var $target = $('#' + key + ', [name="' + key + '"], [name="' + key + '[]"]');
+                                if (!$target.length) {
+                                    if (key === 'employmentType') {
+                                        $target = $('input[name="employmentType"]');
+                                    } else if (key === 'isExistsOfficerSkepPenyidik') {
+                                        $target = $('input[name="isExistsOfficerSkepPenyidik"]');
+                                    } else if (key === 'isExistsOfficerCertificate' || key.indexOf('certificate') !== -1) {
+                                        $target = $('#certificateTable');
+                                    } else if (key === 'isOfficerOperationControlAssistance') {
+                                        $target = $('input[name="isOfficerOperationControlAssistance"]');
+                                    } else if (key === 'officerOperationControlAssistanceOriginPoliceId') {
+                                        $target = $('#officerOperationControlAssistanceOriginPoliceName');
+                                    }
+                                }
+
+                                if ($target && $target.length) {
+                                    markError($target, msg);
+                                }
+                            });
+
+                            scrollToFirstError();
+                        } else {
+                            var message = (response && (response.message || response.errors)) ? (response.message || response.errors) : 'Terjadi kesalahan saat memproses data.';
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Perhatian',
+                                text: typeof message === 'string' ? message : JSON.stringify(message)
+                            });
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        Swal.fire({
                             icon: 'error',
-                            title: 'Mohon Periksa Kembali Isian Anda',
-                            html: errorMessages,
+                            title: 'Error',
+                            text: 'Terjadi kesalahan pada server saat validasi.'
                         });
                     }
                 }

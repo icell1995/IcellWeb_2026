@@ -84,8 +84,7 @@ class Sp2hpDocumentController extends Controller
             $accidentId = $request->accident_id;
             
             $data = SuratPemberitahuanPerkembanganHasilPenyidikanDocument::where('accident_id', $accidentId)
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->orderBy('created_at', 'desc');
 
             return DataTables::of($data)
                 ->addIndexColumn()
@@ -117,7 +116,7 @@ class Sp2hpDocumentController extends Controller
                         $badgeClass = 'badge-info';
                     }
                     
-                    return '<span class="badge ' . $badgeClass . '">' . ucfirst($row->status) . '</span>';
+                    return '<span class="badge ' . $badgeClass . '">' . e(ucfirst((string) $row->status)) . '</span>';
                 })
                 ->rawColumns(['action', 'status_badge'])
                 ->make(true);

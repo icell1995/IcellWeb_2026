@@ -284,9 +284,10 @@ class SuratPerintahPenghentianPenyidikanDocumentController extends Controller
 
             // Simpan Petugas yang diperintahkan (MEMBERS)
             if (!empty($officerIds)) {
+                $officersById = Officer::whereIn('id', $officerIds)->get()->keyBy('id');
                 $sort = 1;
                 foreach ($officerIds as $offId) {
-                    $officer = Officer::find($offId);
+                    $officer = $officersById->get($offId);
                     if ($officer) {
                         $sprintHenti->suratPerintahPenghentianPenyidikanDocumentOfficers()->create([
                             'surat_perintah_penghentian_penyidikan_document_id' => $sprintHenti->id,
@@ -333,13 +334,14 @@ class SuratPerintahPenghentianPenyidikanDocumentController extends Controller
             'accident.suspects',
             'suratPerintahPenyidikanDocument',
             'laporanHasilGelarPerkaraDocument',
-            'suratPerintahPenghentianPenyidikanDocumentOfficers',
+            'suratPerintahPenghentianPenyidikanDocumentOfficers.rank',
+            'suratPerintahPenghentianPenyidikanDocumentOfficers.position',
             'suratPerintahPenghentianPenyidikanDocumentAttachment',
             'documentClassification',
             'status',
         ])->where('id', $id)->firstOrFail();
 
-        $accident = Accident::with(['polres', 'polres.polda'])->where('id', $sprintHenti->accident_id)->first();
+        $accident = $sprintHenti->accident;
         $masterAlasan = self::$masterAlasan;
 
         $kodeAlasan = is_array($sprintHenti->kode_alasan) ? $sprintHenti->kode_alasan : (json_decode($sprintHenti->kode_alasan, true) ?? []);
@@ -364,12 +366,15 @@ class SuratPerintahPenghentianPenyidikanDocumentController extends Controller
     {
         $accidentId   = htmlspecialchars(request()->query('accident_id'));
         $sprintHenti  = SuratPerintahPenghentianPenyidikanDocument::with([
+            'accident.polres.polda',
+            'status',
             'suspects',
-            'suratPerintahPenghentianPenyidikanDocumentOfficers',
+            'suratPerintahPenghentianPenyidikanDocumentOfficers.rank',
+            'suratPerintahPenghentianPenyidikanDocumentOfficers.position',
             'suratPerintahPenghentianPenyidikanDocumentAttachment',
         ])->where('id', $id)->firstOrFail();
 
-        $accident = Accident::with(['polres', 'polres.polda'])->where('id', $sprintHenti->accident_id)->firstOrFail();
+        $accident = $sprintHenti->accident ?? Accident::with(['polres', 'polres.polda'])->where('id', $sprintHenti->accident_id)->firstOrFail();
 
         $sprindikDocuments = SuratPerintahPenyidikanDocument::with([
             'suratPerintahPenyidikanDocumentLaws.crimeConstitution',
@@ -570,9 +575,10 @@ class SuratPerintahPenghentianPenyidikanDocumentController extends Controller
             }
 
             if (!empty($officerIds)) {
+                $officersById = Officer::whereIn('id', $officerIds)->get()->keyBy('id');
                 $sort = 1;
                 foreach ($officerIds as $offId) {
-                    $officer = Officer::find($offId);
+                    $officer = $officersById->get($offId);
                     if ($officer) {
                         $sprintHenti->suratPerintahPenghentianPenyidikanDocumentOfficers()->create([
                             'surat_perintah_penghentian_penyidikan_document_id' => $sprintHenti->id,
@@ -659,7 +665,9 @@ class SuratPerintahPenghentianPenyidikanDocumentController extends Controller
             'suspects.gender',
             'suspects.job',
             'suspects.country',
-            'suratPerintahPenghentianPenyidikanDocumentOfficers',
+            'suratPerintahPenghentianPenyidikanDocumentOfficers.rank',
+            'suratPerintahPenghentianPenyidikanDocumentOfficers.position.positionCluster',
+            'status',
         ])->where('id', $id)->firstOrFail();
 
         $accident = $sprintHenti->accident;

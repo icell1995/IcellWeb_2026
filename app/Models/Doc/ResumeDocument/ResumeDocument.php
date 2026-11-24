@@ -24,31 +24,34 @@ class ResumeDocument extends Model
 
     protected $guarded = [];
 
-    protected $casts = [
-        'id' => 'string',
-        'ip_addresses' => 'json',
-        'timestamps' => 'json',
-        'messages' => 'json',
-        'dasar' => 'json',
-        'perkara' => 'json',
-        'fakta_tkp' => 'json',
-        'fakta_korban' => 'json',
-        'fakta_pemanggilan' => 'json',
-        'fakta_perintah_membawa' => 'json',
-        'fakta_penangkapan' => 'json',
-        'fakta_penahanan' => 'json',
-        'fakta_penggeledahan' => 'json',
-        'fakta_penyitaan' => 'json',
-        'keterangan_saksi' => 'json',
-        'keterangan_ahli' => 'json',
-        'keterangan_tersangka' => 'json',
-        'barang_bukti' => 'json',
-        'fakta_penghentian_penyidikan' => 'json',
-        'fakta_penyidikan_lanjutan' => 'json',
-        'analisa_kasus' => 'json',
-        'analisa_yuridis' => 'json',
-        'kesimpulan' => 'json',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'id' => 'string',
+            'ip_addresses' => 'json',
+            'timestamps' => 'json',
+            'messages' => 'json',
+            'dasar' => 'json',
+            'perkara' => 'json',
+            'fakta_tkp' => 'json',
+            'fakta_korban' => 'json',
+            'fakta_pemanggilan' => 'json',
+            'fakta_perintah_membawa' => 'json',
+            'fakta_penangkapan' => 'json',
+            'fakta_penahanan' => 'json',
+            'fakta_penggeledahan' => 'json',
+            'fakta_penyitaan' => 'json',
+            'keterangan_saksi' => 'json',
+            'keterangan_ahli' => 'json',
+            'keterangan_tersangka' => 'json',
+            'barang_bukti' => 'json',
+            'fakta_penghentian_penyidikan' => 'json',
+            'fakta_penyidikan_lanjutan' => 'json',
+            'analisa_kasus' => 'json',
+            'analisa_yuridis' => 'json',
+            'kesimpulan' => 'json',
+        ];
+    }
 
     public static function boot()
     {

@@ -189,6 +189,8 @@ class SuratPermintaanPenggeledahanDocumentController extends Controller
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document = SuratPermintaanPenggeledahanDocument::with([
+            'accident.polres.polda',
+            'status',
             'authorizedSignatory' => function ($query) {
                 $query->with('rank', 'position', 'user');
             },
@@ -277,6 +279,9 @@ class SuratPermintaanPenggeledahanDocumentController extends Controller
     {
         $accidentId = htmlspecialchars(request()->query('accident_id'));
         $document = SuratPermintaanPenggeledahanDocument::with([
+            'accident.polres.polda',
+            'accident.police',
+            'status',
             'authorizedSignatory' => function ($query) {
                 $query->with('rank', 'position', 'user');
             },
@@ -291,7 +296,7 @@ class SuratPermintaanPenggeledahanDocumentController extends Controller
             },
         ])->where('id', $id)->firstOrFail();
 
-        $accident = Accident::with(['polres', 'polres.polda', 'police'])->where('id', $accidentId ?? $document->accident_id)->first();
+        $accident = $document->accident ?? Accident::with(['polres', 'polres.polda', 'police'])->where('id', $accidentId ?? $document->accident_id)->first();
 
         $signatory = $document->authorizedSignatory;
         $investigator = $document->officers->where('class', 'MEMBER')->first() 
@@ -572,7 +577,7 @@ class SuratPermintaanPenggeledahanDocumentController extends Controller
 
     public function edit($id){
         $accidentId = htmlspecialchars(request()->query('accident_id'));
-        $accident   = Accident::where('id', $accidentId)->first();
+        $accident   = Accident::with(['polres', 'polres.polda'])->where('id', $accidentId)->first();
 
         $suratPerintahPenyidikanDocuments = SuratPerintahPenyidikanDocument::with('suratPerintahPenyidikanDocumentLaws.crimeConstitution', 'suratPerintahPenyidikanDocumentLaws.crimeType')
             ->where('accident_id', $accidentId)

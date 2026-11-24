@@ -90,7 +90,7 @@ class PositionController extends Controller
                 'success' => false,
                 'message' => 'Database error occurred',
                 'error_code' => 'DATABASE_ERROR',
-                'details' => env('APP_DEBUG') ? $e->getMessage() : null
+                'details' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         } catch (\Exception $e) {
             // Handle all other exceptions
@@ -98,7 +98,7 @@ class PositionController extends Controller
                 'success' => false,
                 'message' => 'Server error occurred',
                 'error_code' => 'INTERNAL_SERVER_ERROR',
-                'details' => env('APP_DEBUG') ? $e->getMessage() : null
+                'details' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }

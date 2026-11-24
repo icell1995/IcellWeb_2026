@@ -64,7 +64,7 @@ class SuratPermintaanBukaBlokirRekeningBankDocumentController extends Controller
         // 3. Petugas Internal & Penandatangan
         $getOldNewPolresIds = $this->getOldNewPolresIds($accident->polres_id);
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -73,7 +73,7 @@ class SuratPermintaanBukaBlokirRekeningBankDocumentController extends Controller
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -331,7 +331,7 @@ class SuratPermintaanBukaBlokirRekeningBankDocumentController extends Controller
 
         $suspects = Suspect::where('accident_id', $accidentId)->get();
 
-        $officers = Officer::withRelated()
+        $officers = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()
@@ -340,7 +340,7 @@ class SuratPermintaanBukaBlokirRekeningBankDocumentController extends Controller
             ->valid()
             ->get();
 
-        $authorizedSignatories = Officer::withRelated()
+        $authorizedSignatories = Officer::withDocumentRelations()
             ->selectFullName()
             ->whereIn('police_id', $getOldNewPolresIds)
             ->whereHasUserActive()

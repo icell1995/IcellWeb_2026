@@ -44,36 +44,35 @@ class SSOHelper
      */
     public static function validateToken($token)
     {
-        $record = DB::table('sso_tokens')->where('token', $token)->first();
+        return DB::transaction(function () use ($token) {
+            $record = DB::table('sso_tokens')->where('token', $token)->lockForUpdate()->first();
 
-        if (!$record) {
-            return [
-                'status'  => 'not_found',
-                'message' => 'Token tidak ditemukan',
-                'user'    => null,
-            ];
-        }
+            if (!$record) {
+                return [
+                    'status'  => 'not_found',
+                    'message' => 'Token tidak ditemukan',
+                    'user'    => null,
+                ];
+            }
 
-        if (now()->greaterThan($record->expires_at)) {
             DB::table('sso_tokens')->where('token', $token)->delete();
 
+            if (now()->greaterThan($record->expires_at)) {
+                return [
+                    'status'  => 'expired',
+                    'message' => 'Token sudah kadaluarsa',
+                    'user'    => null,
+                ];
+            }
+
+            $user = User::find($record->user_id);
+
             return [
-                'status'  => 'expired',
-                'message' => 'Token sudah kadaluarsa',
-                'user'    => null,
+                'status'  => 'success',
+                'message' => 'Token valid',
+                'user'    => $user,
             ];
-        }
-
-        // Ganti Sentinel dengan model User
-        $user = User::find($record->user_id);
-
-        DB::table('sso_tokens')->where('token', $token)->delete();
-
-        return [
-            'status'  => 'success',
-            'message' => 'Token valid',
-            'user'    => $user,
-        ];
+        });
     }
 
 }

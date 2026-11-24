@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Cms;
+namespace App\Http\Controllers\CMS;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -220,36 +220,36 @@ class DashboardValidatorController extends Controller
     }
 
     // Method untuk mendapatkan data trend sesuai range filter
-    private function getValidationTrendData($range, $startDate, $endDate)
+    private function getValidationTrendData(string $range, $startDate, $endDate)
     {
         // Format sesuai dengan range yang dipilih
         if ($range === 'today') {
-            // Untuk hari ini, tampilkan data per jam
+            // Untuk hari ini, tampilkan data per jam dengan 1 grouped query per tabel
             $hours = [];
             $validatedCounts = [];
             $pendingCounts = [];
 
-            // Generate 24 jam
+            $dayStart = Carbon::today()->startOfDay();
+            $dayEnd = Carbon::today()->endOfDay();
+
+            $validatedByHour = DB::table('log_case_document_validations')
+                ->selectRaw('EXTRACT(HOUR FROM approved_at)::int as hour_num, COUNT(*) as total')
+                ->whereNotNull('approved_at')
+                ->whereBetween('approved_at', [$dayStart, $dayEnd])
+                ->groupByRaw('EXTRACT(HOUR FROM approved_at)::int')
+                ->pluck('total', 'hour_num');
+
+            $pendingByHour = DB::table('doc.surat_pemberitahuan_dimulainya_penyidikan_documents')
+                ->selectRaw('EXTRACT(HOUR FROM created_at)::int as hour_num, COUNT(*) as total')
+                ->where('status_id', '12')
+                ->whereBetween('created_at', [$dayStart, $dayEnd])
+                ->groupByRaw('EXTRACT(HOUR FROM created_at)::int')
+                ->pluck('total', 'hour_num');
+
             for ($hour = 0; $hour < 24; $hour++) {
-                $hourStart = Carbon::today()->addHours($hour);
-                $hourEnd = Carbon::today()->addHours($hour + 1)->subSecond(1);
-
                 $hours[] = sprintf('%02d:00', $hour);
-
-                // Hitung validasi per jam
-                $validatedCount = DB::table('log_case_document_validations')
-                    ->whereNotNull('approved_at')
-                    ->whereBetween('approved_at', [$hourStart, $hourEnd])
-                    ->count();
-
-                // Hitung pending per jam
-                $pendingCount = DB::table('doc.surat_pemberitahuan_dimulainya_penyidikan_documents')
-                    ->where('status_id', '12')
-                    ->whereBetween('created_at', [$hourStart, $hourEnd])
-                    ->count();
-
-                $validatedCounts[] = $validatedCount;
-                $pendingCounts[] = $pendingCount;
+                $validatedCounts[] = (int) ($validatedByHour[$hour] ?? 0);
+                $pendingCounts[] = (int) ($pendingByHour[$hour] ?? 0);
             }
 
             return [
@@ -258,34 +258,35 @@ class DashboardValidatorController extends Controller
                 'pending' => $pendingCounts
             ];
         } else {
-            // Untuk minggu ini, tampilkan data per hari
+            // Untuk minggu ini, tampilkan data per hari dengan 1 grouped query per tabel
             $days = [];
             $validatedCounts = [];
             $pendingCounts = [];
 
-            // Generate 7 hari
+            $weekStart = Carbon::now()->startOfWeek()->startOfDay();
+            $weekEnd = Carbon::now()->startOfWeek()->addDays(6)->endOfDay();
+
+            $validatedByDate = DB::table('log_case_document_validations')
+                ->selectRaw('DATE(approved_at) as date_key, COUNT(*) as total')
+                ->whereNotNull('approved_at')
+                ->whereBetween('approved_at', [$weekStart, $weekEnd])
+                ->groupByRaw('DATE(approved_at)')
+                ->pluck('total', 'date_key');
+
+            $pendingByDate = DB::table('doc.surat_pemberitahuan_dimulainya_penyidikan_documents')
+                ->selectRaw('DATE(created_at) as date_key, COUNT(*) as total')
+                ->where('status_id', '12')
+                ->whereBetween('created_at', [$weekStart, $weekEnd])
+                ->groupByRaw('DATE(created_at)')
+                ->pluck('total', 'date_key');
+
             for ($day = 0; $day < 7; $day++) {
                 $currentDate = Carbon::now()->startOfWeek()->addDays($day);
-                $dayStart = $currentDate->copy()->startOfDay();
-                $dayEnd = $currentDate->copy()->endOfDay();
+                $dateKey = $currentDate->toDateString();
 
-                $dayName = $currentDate->locale('id')->isoFormat('ddd'); // Format hari dalam bahasa Indonesia
-                $days[] = $dayName;
-
-                // Hitung validasi per hari
-                $validatedCount = DB::table('log_case_document_validations')
-                    ->whereNotNull('approved_at')
-                    ->whereBetween('approved_at', [$dayStart, $dayEnd])
-                    ->count();
-
-                // Hitung pending per hari
-                $pendingCount = DB::table('doc.surat_pemberitahuan_dimulainya_penyidikan_documents')
-                    ->where('status_id', '12')
-                    ->whereBetween('created_at', [$dayStart, $dayEnd])
-                    ->count();
-
-                $validatedCounts[] = $validatedCount;
-                $pendingCounts[] = $pendingCount;
+                $days[] = $currentDate->locale('id')->isoFormat('ddd');
+                $validatedCounts[] = (int) ($validatedByDate[$dateKey] ?? 0);
+                $pendingCounts[] = (int) ($pendingByDate[$dateKey] ?? 0);
             }
 
             return [

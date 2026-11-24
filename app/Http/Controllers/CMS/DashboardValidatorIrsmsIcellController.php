@@ -180,7 +180,7 @@ class DashboardValidatorIrsmsIcellController extends Controller
         }
 
         try {
-            $baseUrl = 'https://irsms.korlantas.polri.go.id/irsmsapi/api/icell/dashboard';
+            $baseUrl = config('services.irsms.dashboard_url');
 
             $queryParams = [];
             if ($dateFilter === 'today') {
@@ -196,7 +196,7 @@ class DashboardValidatorIrsmsIcellController extends Controller
 
             $response = Http::timeout(10)->withHeaders([
                 'Accept' => 'application/json',
-                'Key' => '9xEVPyQE26KTpo5h6DxwW34m2TkUGnqD243b1i4BNs3C7yg3dL4Ynql3ehRsfZbsQubzRR51BTudsPeMFRtkLBGiennZ0TojmmK9=icell-dashboard',
+                'Key' => config('services.irsms.dashboard_key'),
                 'Content-Type' => 'application/json'
             ])->get($baseUrl, $queryParams);
 

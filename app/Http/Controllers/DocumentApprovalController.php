@@ -297,7 +297,7 @@ class DocumentApprovalController extends Controller
         $documentsCollection = Collection::make();
 
         foreach ($documentTypes as $documentType) {
-            $documents = $documentType::with(['accident', 'documentCategory'])
+            $documents = $documentType::with(['accident', 'documentCategory', 'status'])
                 ->whereHas('accident', function ($query) use ($user) {
                     // $query->where('polres_id', $user->polres_id);
                     $query->whereIn('polres_id', $this->getOldNewPolresIds($user->polres_id));
@@ -356,7 +356,7 @@ class DocumentApprovalController extends Controller
             $models = (array) $documentModels[$documentCategoryId];
             
             foreach ($models as $modelClass) {
-                $document = $modelClass::with(['accident', 'documentCategory', 'attachment'])
+                $document = $modelClass::with(['accident', 'documentCategory', 'attachment', 'status'])
                     ->where('id', $documentId)
                     ->first();
                 

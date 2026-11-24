@@ -3,252 +3,73 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ExportRekap;
-use Carbon\Carbon;
-use Auth;
-use DB;
 
 class ExportRekapController extends Controller
 {
-    public function ExportRekap(Request $request){
-        $user=Auth::getUser();
-        $checkuser=$user->role_id;
+    public function ExportRekap(Request $request)
+    {
+        $user = Auth::user();
+        $checkuser = $user->role_id ?? 0;
         $no_lp = $request->input('no_lp');
         $polres = $request->input('polres');
         $polda = $request->input('polda');
-        $checkTanggal = $request->input('date_from');//for check date if user click the form
-        $date_from=Carbon::parse($request->date_from)->format('Y-m-d');
-        $date_to=Carbon::parse($request->date_to)->format('Y-m-d');
+        $date_from = $request->input('date_from');
+        $date_to = $request->input('date_to');
         $checkstatus = $request->input('status');
 
-        if($checkTanggal == null){
-            $checkTanggal = '-';
+        // Batasi scope berdasarkan role pengguna
+        if ($checkuser == 2) {
+            $polda = $user->polda_id;
+        } elseif (in_array($checkuser, [3, 4])) {
+            $polda = $user->polda_id;
+            $polres = $user->polres_id;
         }
 
-        if($no_lp == null){
-            $no_lp = '-';
+        $query = DB::table('accidents')
+            ->leftJoin('ref', 'ref.id', '=', 'accidents.selra_flag')
+            ->leftJoin('polres', 'polres.id', '=', 'accidents.polres_id')
+            ->leftJoin('polda', 'polda.id', '=', 'polres.polda_id')
+            ->where('ref.grp_id', '=', 'S01')
+            ->select([
+                'accidents.no_lp as no_lp',
+                DB::raw("to_char(accidents.accident_date, 'DD-MM-YYYY') as accident_date"),
+                DB::raw("to_char(accidents.created_at, 'DD-MM-YYYY') as accident_tindak_lanjut"),
+                DB::raw("CASE WHEN accidents.selra_flag <> 'S0107' THEN AGE(accidents.updated_at, accidents.created_at) ELSE AGE(NOW(), accidents.created_at) END AS accident_proses"),
+                DB::raw("to_char(accidents.last_update, 'DD-MM-YYYY HH24:MI:SS') as accident_last_update"),
+                DB::raw("concat(accidents.tipe_update, ' ', (select r2.name from ref r2 where r2.id = accidents.category)) AS tipe_berkas"),
+                'ref.name as selra_flag'
+            ]);
+
+        if (!empty($no_lp) && $no_lp !== '-') {
+            $query->where('accidents.no_lp', 'ILIKE', '%' . $no_lp . '%');
         }
 
-        if($checkstatus == null){
-            $checkstatus = '-';
+        if (!empty($date_from) && !empty($date_to) && $date_from !== '-' && $date_to !== '-') {
+            $query->whereBetween('accidents.accident_date', [
+                Carbon::parse($date_from)->format('Y-m-d'),
+                Carbon::parse($date_to)->format('Y-m-d')
+            ]);
         }
-        if($polres == null){
-            $polres = '-';
+
+        if (!empty($checkstatus) && $checkstatus !== '-') {
+            $query->where('accidents.selra_flag', '=', $checkstatus);
         }
 
-        $date_now = Carbon::now();
-
-        switch ($checkuser) {
-            case 2:
-                $rekap = DB::select('
-                    select
-                    accidents.no_lp as no_lp,
-                    to_char(accidents.accident_date, \'DD-MM-YYYY\') as accident_date,
-                    to_char(accidents.created_at, \'DD-MM-YYYY\') as accident_tindak_lanjut,
-                    CASE
-                        WHEN selra_flag <> \'S0107\' THEN AGE(accidents.updated_at,accidents.created_at) ELSE AGE(\''.$date_now.'\',accidents.created_at)
-                    END AS accident_proses,
-                    to_char(accidents.last_update, \'DD-MM-YYYY HH24:ii:ss\') as accident_last_update,
-                    concat(tipe_update, \' \',(select ref.name from ref where id = accidents.category) )AS tipe_berkas,
-                    ref.name as selra_flag
-                    from accidents
-                    left join ref on ref.id=accidents.selra_flag
-                    left join polres on polres.id = accidents.polres_id
-                    left join polda on polda.id = polres.polda_id
-                    where ref.grp_id = \'S01\'
-                    AND
-                    CASE
-                        WHEN \''.$no_lp.'\' <> \'-\' THEN no_lp ilIke \'%'.$no_lp.'%\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$checkTanggal.'\' <> \'-\' THEN accidents.accident_date BETWEEN \''.$date_from.'\' AND \''.$date_to.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$checkstatus.'\' <> \'-\' THEN accidents.selra_flag = \''.$checkstatus.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$polda.'\' <> \'-\' THEN polda.id = \''.$polda.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$polres.'\' <> \'-\' THEN polres.id = \''.$polres.'\' ELSE true
-                    END
-                        order by accident_tindak_lanjut desc
-                ');
-                break;
-            case 3:
-                $rekap = DB::select('
-                    select
-                    accidents.no_lp as no_lp,
-                    to_char(accidents.accident_date, \'DD-MM-YYYY\') as accident_date,
-                    to_char(accidents.created_at, \'DD-MM-YYYY\') as accident_tindak_lanjut,
-                    CASE
-                        WHEN selra_flag <> \'S0107\' THEN AGE(accidents.updated_at,accidents.created_at) ELSE AGE(\''.$date_now.'\',accidents.created_at)
-                    END AS accident_proses,
-                    to_char(accidents.last_update, \'DD-MM-YYYY HH24:ii:ss\') as accident_last_update,
-                    concat(tipe_update, \' \',(select ref.name from ref where id = accidents.category)) AS tipe_berkas,
-                    ref.name as selra_flag
-                    from accidents
-                    left join ref on ref.id=accidents.selra_flag
-                    left join polres on polres.id = accidents.polres_id
-                    left join polda on polda.id = polres.polda_id
-                    where ref.grp_id = \'S01\'
-                    AND
-                    CASE
-                        WHEN \''.$no_lp.'\' <> \'-\' THEN no_lp ilIke \'%'.$no_lp.'%\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$checkTanggal.'\' <> \'-\' THEN accidents.accident_date BETWEEN \''.$date_from.'\' AND \''.$date_to.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$checkstatus.'\' <> \'-\' THEN accidents.selra_flag = \''.$checkstatus.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$polda.'\' <> \'-\' THEN polda.id = \''.$polda.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$polres.'\' <> \'-\' THEN polres.id = \''.$polres.'\' ELSE true
-                    END
-                        order by accident_tindak_lanjut desc
-                    ');
-                break;
-                case 4:
-                    $rekap = DB::select('
-                        select
-                        accidents.no_lp as no_lp,
-                        to_char(accidents.accident_date, \'DD-MM-YYYY\') as accident_date,
-                        to_char(accidents.created_at, \'DD-MM-YYYY\') as accident_tindak_lanjut,
-                        CASE
-                            WHEN selra_flag <> \'S0107\' THEN AGE(accidents.updated_at,accidents.created_at) ELSE AGE(\''.$date_now.'\',accidents.created_at)
-                        END AS accident_proses,
-                        to_char(accidents.last_update, \'DD-MM-YYYY HH24:ii:ss\') as accident_last_update,
-                        tipe_update,
-                        (select ref.name from ref where id = accidents.category) AS tipe_berkas,
-                        ref.name as selra_flag,
-                        accidents.selra_flag as selra
-                        from accidents
-                        left join ref on ref.id=accidents.selra_flag
-                        left join polres on polres.id = accidents.polres_id
-                        where ref.grp_id = \'S01\'
-                        AND
-                        CASE
-                            WHEN \''.$no_lp.'\' <> \'-\' THEN no_lp ilIke \'%'.$no_lp.'%\' ELSE true
-                        END
-                        AND
-                        CASE
-                            WHEN \''.$checkTanggal.'\' <> \'-\' THEN accidents.accident_date BETWEEN \''.$date_from.'\' AND \''.$date_to.'\' ELSE true
-                        END
-                        AND
-                        CASE
-                            WHEN \''.$checkstatus.'\' <> \'-\' THEN accidents.selra_flag = \''.$checkstatus.'\' ELSE true
-                        END
-                        AND
-                        CASE
-                            WHEN \''.$polda.'\' <> \'-\' THEN polda.id = \''.$polda.'\' ELSE true
-                        END
-                        AND
-                        CASE
-                            WHEN \''.$polres.'\' <> \'-\' THEN polres.id = \''.$polres.'\' ELSE true
-                        END
-                            order by accident_tindak_lanjut desc
-                        ');
-                    $poldas=Polda::where('id','=',$user->polda_id)->get();
-                    $polress=Polres::where('id','=',$user->polres_id)->get();
-
-                    break;
-                case 5:
-                    $rekap = DB::select('
-                        select
-                        accidents.no_lp as no_lp,
-                        to_char(accidents.accident_date, \'DD-MM-YYYY\') as accident_date,
-                        to_char(accidents.created_at, \'DD-MM-YYYY\') as accident_tindak_lanjut,
-                        CASE
-                            WHEN selra_flag <> \'S0107\' THEN AGE(accidents.updated_at,accidents.created_at) ELSE AGE(\''.$date_now.'\',accidents.created_at)
-                        END AS accident_proses,
-                        to_char(accidents.last_update, \'DD-MM-YYYY HH24:ii:ss\') as accident_last_update,
-                        tipe_update,
-                        (select ref.name from ref where id = accidents.category) AS tipe_berkas,
-                        ref.name as selra_flag,
-                        accidents.selra_flag as selra
-                        from accidents
-                        left join ref on ref.id=accidents.selra_flag
-                        left join polres on polres.id = accidents.polres_id
-                        where ref.grp_id = \'S01\'
-                        AND
-                        CASE
-                            WHEN \''.$no_lp.'\' <> \'-\' THEN no_lp ilIke \'%'.$no_lp.'%\' ELSE true
-                        END
-                        AND
-                        CASE
-                            WHEN \''.$checkTanggal.'\' <> \'-\' THEN accidents.accident_date BETWEEN \''.$date_from.'\' AND \''.$date_to.'\' ELSE true
-                        END
-                        AND
-                        CASE
-                            WHEN \''.$checkstatus.'\' <> \'-\' THEN accidents.selra_flag = \''.$checkstatus.'\' ELSE true
-                        END
-                        AND
-                        CASE
-                            WHEN \''.$polda.'\' <> \'-\' THEN polda.id = \''.$polda.'\' ELSE true
-                        END
-                        AND
-                        CASE
-                            WHEN \''.$polres.'\' <> \'-\' THEN polres.id = \''.$polres.'\' ELSE true
-                        END
-                            order by accident_tindak_lanjut desc
-                        ');
-                    $poldas=Polda::where('id','=',$user->polda_id)->get();
-                    $polress=Polres::where('id','=',$user->polres_id)->get();
-
-            default:
-                $rekap = DB::select('
-                    select
-                    accidents.no_lp as no_lp,
-                    to_char(accidents.accident_date, \'DD-MM-YYYY\') as accident_date,
-                    to_char(accidents.created_at, \'DD-MM-YYYY\') as accident_tindak_lanjut,
-                    CASE
-                        WHEN selra_flag <> \'S0107\' THEN AGE(accidents.updated_at,accidents.created_at) ELSE AGE(\''.$date_now.'\',accidents.created_at)
-                    END AS accident_proses,
-                    to_char(accidents.last_update, \'DD-MM-YYYY HH24:ii:ss\') as accident_last_update,
-                    concat(tipe_update, \' \',(select ref.name from ref where id = accidents.category) )AS tipe_berkas,
-                    ref.name as selra_flag
-                    from accidents
-                    left join ref on ref.id=accidents.selra_flag
-                    left join polres on polres.id = accidents.polres_id
-                    left join polda on polda.id = polres.polda_id
-                    where ref.grp_id = \'S01\'
-                    AND
-                    CASE
-                        WHEN \''.$no_lp.'\' <> \'-\' THEN no_lp ilIke \'%'.$no_lp.'%\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$checkstatus.'\' <> \'-\' THEN accidents.selra_flag = \''.$checkstatus.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$polda.'\' <> \'-\' THEN polda.id = \''.$polda.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$polres.'\' <> \'-\' THEN polres.id = \''.$polres.'\' ELSE true
-                    END
-                    AND
-                    CASE
-                        WHEN \''.$checkTanggal.'\' <> \'-\' THEN accidents.accident_date BETWEEN \''.$date_from.'\' AND \''.$date_to.'\' ELSE true
-                    END
-
-                        order by accident_tindak_lanjut desc
-                    ');
-                break;
+        if (!empty($polda) && $polda !== '-') {
+            $query->where('polda.id', '=', $polda);
         }
-        return Excel::download(new ExportRekap($rekap),"Rekap".date("Y-m-d H-i-s")." .xlsx");
+
+        if (!empty($polres) && $polres !== '-') {
+            $query->where('polres.id', '=', $polres);
+        }
+
+        $rekap = $query->orderBy('accidents.created_at', 'desc')->get();
+
+        return Excel::download(new ExportRekap($rekap), "Rekap_" . date("Y-m-d_H-i-s") . ".xlsx");
     }
 }
