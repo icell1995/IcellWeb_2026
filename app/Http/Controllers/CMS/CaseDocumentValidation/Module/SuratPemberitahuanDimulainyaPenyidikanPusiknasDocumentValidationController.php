@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\CMS\CaseDocumentValidation\Module;
 
+use App\Helpers\AppModeHelper;
 use App\Helpers\PeopleNameHelper;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
@@ -37,6 +39,9 @@ use App\Models\Doc\SuratKetetapanTentangPenetapanTersangkaDocument\SuratKetetapa
 
 class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController extends Controller
 {
+    // SaungWA is inactive. Keep the notification code for reference.
+    private const bool SAUNGWA_NOTIFICATIONS_ENABLED = false;
+
     private $timestampNow;
     private $userAuth;
 
@@ -203,7 +208,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
         $isApprovedBoolean = filter_var($isApproved, FILTER_VALIDATE_BOOLEAN);
         $isLegacyBoolean = filter_var($isLegacy, FILTER_VALIDATE_BOOLEAN);
 
-        $whatsappWebhookService = new WhatsappWebhookService();
+        $whatsappWebhookService = $this->saungWaNotificationService();
 
         DB::beginTransaction();
         try{
@@ -211,7 +216,6 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
                     'accident',
                     'documentCategory', 
                     'status',
-                    'officers',
                 ])
                 ->where('id', $id)
                 ->first();
@@ -219,18 +223,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
             $updatedStatusId = '86';
 
             if($isApprovedBoolean == true) {
-                $documentSignatory = $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument
-                    ->officers
-                    ->where('class', 'SIGNATORY')
-                    ->first();
-
-                $accidentPoliceId = $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument->accident->police_id;
                 $accidentId = $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument->accident_id;
-                $policeAdmins = Officer::with(['police'])
-                    ->where('police_id', $accidentPoliceId)
-                    ->where('is_active', true)
-                    ->where('flag', 'ADMIN')
-                    ->get();
 
                 if($suratPemberitahuanDimulainyaPenyidikanPusiknasDocument->status_id == '9'){
 
@@ -246,8 +239,12 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
                         $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument->status_id = '9';
                         $updatedStatusId = '9';
               
-                        // Send whatsapp message to signatory
-                        if(!empty($documentSignatory->position->name)){
+                        $documentSignatory = $whatsappWebhookService !== null
+                            ? $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument
+                                ->officers()->with('position')->where('class', 'SIGNATORY')->first()
+                            : null;
+
+                        if ($whatsappWebhookService !== null && ! empty($documentSignatory->position->name)) {
                             $officer = Officer::where('register_number', $documentSignatory->register_number)->first();
 
                             if(!empty($officer->phone_number)){
@@ -269,8 +266,11 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
                         }
                     }
 
-                    // Send whatsapp message to admin
-                    foreach($policeAdmins as $policeAdmin){
+                    $policeAdmins = $whatsappWebhookService !== null
+                        ? $this->saungWaPoliceAdmins($suratPemberitahuanDimulainyaPenyidikanPusiknasDocument)
+                        : [];
+
+                    foreach ($policeAdmins as $policeAdmin) {
                         if(!empty($policeAdmin->phone_number)){
                             try {
                                 $policeName = (isset($policeAdmin->police->full_name)) ? $policeAdmin->police->full_name : '';
@@ -448,7 +448,7 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
     public function rejectValidation(Request $request, $id)
     {
         $docValidationService = new DocValidationService();
-        $whatsappWebhookService = new WhatsappWebhookService();
+        $whatsappWebhookService = $this->saungWaNotificationService();
 
         $isRejected = $request->input('isRejected');
         $rejectStatusOption = $request->input('rejectStatusOption');
@@ -474,15 +474,11 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
                     ];
                 }
                 
-                $accidentPoliceId = $suratPemberitahuanDimulainyaPenyidikanPusiknasDocument->accident->police_id;
-                $policeAdmins = Officer::with(['police'])
-                    ->where('police_id', $accidentPoliceId)
-                    ->where('is_active', true)
-                    ->where('flag', 'ADMIN')
-                    ->get();
-                    
-                // Send whatsapp message to admin
-                foreach($policeAdmins as $policeAdmin){
+                $policeAdmins = $whatsappWebhookService !== null
+                    ? $this->saungWaPoliceAdmins($suratPemberitahuanDimulainyaPenyidikanPusiknasDocument)
+                    : [];
+
+                foreach ($policeAdmins as $policeAdmin) {
                     if(!empty($policeAdmin->phone_number)){
                         try {
                             $policeName = (isset($policeAdmin->police->full_name)) ? $policeAdmin->police->full_name : '';
@@ -569,5 +565,24 @@ class SuratPemberitahuanDimulainyaPenyidikanPusiknasDocumentValidationController
         }else{
             return redirect()->back()->with('error', 'Terjadi kesalahan. Surat Pemberitahuan Dimulainya Penyidikan gagal ditolak.');
         }
+    }
+
+    private function saungWaNotificationService(): ?WhatsappWebhookService
+    {
+        if (! self::SAUNGWA_NOTIFICATIONS_ENABLED || ! AppModeHelper::isApiEnabled()) {
+            return null;
+        }
+
+        return new WhatsappWebhookService;
+    }
+
+    /** @return Collection<int, Officer> */
+    private function saungWaPoliceAdmins(SuratPemberitahuanDimulainyaPenyidikanPusiknasDocument $document): Collection
+    {
+        return Officer::with('police')
+            ->where('police_id', $document->accident->police_id)
+            ->where('is_active', true)
+            ->where('flag', 'ADMIN')
+            ->get();
     }
 }
