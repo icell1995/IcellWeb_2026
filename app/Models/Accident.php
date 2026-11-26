@@ -31,6 +31,20 @@ class Accident extends Model
         return $this->hasOne('App\Models\AccidentResolution', 'accident_id', 'id');
     }
 
+    public function uploadSuratKetetapan()
+    {
+        return $this->hasOne(UploadSuratKetetapan::class, 'accident_id', 'id');
+    }
+
+    public function getCategoryLakaAttribute()
+    {
+        if (isset($this->attributes['category_laka'])) {
+            return $this->attributes['category_laka'];
+        }
+        $prefix = substr($this->accident_type_id ?? '', 0, 4);
+        return in_array($prefix, ['A072', 'A073']) ? 'Tunggal' : 'Kontra';
+    }
+
     public function police()
     {
         return $this->belongsTo('App\Models\Lib\Police', 'police_id', 'id');
