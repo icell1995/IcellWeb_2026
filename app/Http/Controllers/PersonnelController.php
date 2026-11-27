@@ -127,23 +127,17 @@ class PersonnelController extends Controller
             ->where('is_active', true)
             ->orderBy('id', 'ASC');
     
-        if(($userAuth->role_id == 3 && !empty($policeId)) || $userAuth->role_id == 3) {
+        if (in_array((int) $userAuth->role_id, [3, 5], true)) {
             $policesQuery->where('id', $userAuth->police_id);
             $usersQuery->where('police_id', $policeId);
         }
-        
-        if($userAuth->role_id == 1 && !empty($policeId)){
+
+        if ($userAuth->role_id == 1 && ! empty($policeId)) {
             $usersQuery->where('police_id', $policeId);
         }
 
-        if($userAuth->role_id == 1 && empty($policeId)){
+        if ($userAuth->role_id == 1 && empty($policeId)) {
             $policesQuery->where('class', 'DAERAH');
-        }
-
-        if($userAuth->role_id == 5){
-            $usersQuery->whereHas('officer', function ($query) {
-                $query->where('flag', 'ADMIN');
-            })->where('police_id', $userAuth->police_id);
         }
 
         $users = $usersQuery->get();
@@ -181,23 +175,17 @@ class PersonnelController extends Controller
             ->where('is_active', true)
             ->orderBy('id', 'ASC');
     
-        if(($userAuth->role_id == 3 && !empty($policeId)) || $userAuth->role_id == 3) {
+        if (in_array((int) $userAuth->role_id, [3, 5], true)) {
             $policesQuery->where('id', $userAuth->police_id);
             $usersQuery->where('police_id', $policeId);
         }
-        
-        if($userAuth->role_id == 1 && !empty($policeId)){
+
+        if ($userAuth->role_id == 1 && ! empty($policeId)) {
             $usersQuery->where('police_id', $policeId);
         }
 
-        if($userAuth->role_id == 1 && empty($policeId)){
+        if ($userAuth->role_id == 1 && empty($policeId)) {
             $policesQuery->where('class', 'DAERAH');
-        }
-
-        if($userAuth->role_id == 5){
-            $usersQuery->whereHas('officer', function ($query) {
-                $query->where('flag', 'ADMIN');
-            })->where('police_id', $userAuth->police_id);
         }
 
         $users = $usersQuery->get();
@@ -426,11 +414,11 @@ class PersonnelController extends Controller
             ->groupBy('users.police_id')
             ->orderBy('users.police_id');
         
-        if($userAuth->role_id == 3 && !empty($policeId)){
+        if (in_array((int) $userAuth->role_id, [3, 5], true) && ! empty($policeId)) {
             $polices = Police::where('parent_id', $policeId)->orWhere('id', $policeId)->pluck('id');
 
             $usersQuery->whereIn('police_id', $polices);
-        }elseif(empty($policeId) && $userAuth->role_id != 1){
+        } elseif (empty($policeId) && $userAuth->role_id != 1) {
             return redirect()->route('home');
         }
         
@@ -463,9 +451,11 @@ class PersonnelController extends Controller
             ->groupBy('users.police_id')
             ->orderBy('users.police_id');
         
-        if($userAuth->role_id == 3 && !empty($policeId)){
-            $usersQuery->where('police_id', $policeId);
-        }elseif(empty($policeId) && $userAuth->role_id != 1){
+        if (in_array((int) $userAuth->role_id, [3, 5], true) && ! empty($policeId)) {
+            $polices = Police::where('parent_id', $policeId)->orWhere('id', $policeId)->pluck('id');
+
+            $usersQuery->whereIn('police_id', $polices);
+        } elseif (empty($policeId) && $userAuth->role_id != 1) {
             return redirect()->route('home');
         }
         
