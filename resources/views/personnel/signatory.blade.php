@@ -19,8 +19,10 @@
 
     <div class="box">
         <div class="box-header">
+            <!-- <h3 class="fw-bold text-blue-dark"> Daftar Pejabat TTE Sudah Aktivasi Dan Tanda Tangan
+                {{ $userRoleId == 3 ? $currentPolice->full_name : '' }}</h3> -->
             <h3 class="fw-bold text-blue-dark"> Daftar Pejabat TTE Sudah Aktivasi Dan Tanda Tangan
-                {{ $userRoleId == 3 ? $currentPolice->full_name : '' }}</h3>
+                {{ in_array((int) $userRoleId, [3, 5], true) ? ($currentPolice->full_name ?? '') : '' }}</h3>
         </div>
         <div class="boxy-body mt-4">
             <div class="alert alert-danger" id="attentionBox">
